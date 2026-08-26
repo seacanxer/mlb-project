@@ -70,7 +70,13 @@ export default function AnalysisDataPage() {
     setError('');
     try {
       const response = await fetch(`/api/analysis-data?date=${encodeURIComponent(date)}`, { cache: 'no-store' });
-      const payload = await response.json();
+      const text = await response.text();
+      let payload: any;
+      try {
+        payload = JSON.parse(text);
+      } catch {
+        throw new Error(`Server error (${response.status})`);
+      }
       if (!response.ok) throw new Error(payload.error ?? `Failed to load analysis data (${response.status})`);
       setData(payload);
     } catch (reason) {

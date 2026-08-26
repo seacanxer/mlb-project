@@ -42,7 +42,18 @@ export default function DailySlate() {
     setError('');
     try {
       const res = await fetch(`/api/slates/${d}`);
-      const data = await res.json();
+      const text = await res.text();
+      let data: any;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        setError(`Server error (${res.status})`);
+        return;
+      }
+      if (!res.ok) {
+        setError(data.error || 'Failed to load slate.');
+        return;
+      }
       setGames(data.games ?? []);
     } catch {
       setError('Failed to load slate.');
@@ -57,7 +68,13 @@ export default function DailySlate() {
     setRefreshStatus('');
     try {
       const res = await fetch(`/api/slates/${date}/refresh`, { method: 'POST' });
-      const data = await res.json();
+      const text = await res.text();
+      let data: any;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error(`Server error (${res.status})`);
+      }
       if (!res.ok) {
         throw new Error(data.error ?? data.errors?.[0]?.message ?? `Refresh failed (${res.status})`);
       }

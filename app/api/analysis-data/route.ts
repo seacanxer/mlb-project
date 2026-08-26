@@ -53,25 +53,26 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid date. Expected YYYY-MM-DD.' }, { status: 400 });
   }
 
-  const games = await prisma.game.findMany({
-    where: { date: requestedDate },
-    orderBy: { startTimeUtc: 'asc' },
-    include: {
-      homeTeam: true,
-      awayTeam: true,
-      venue: true,
-      marketSnapshots: { orderBy: { retrievedAt: 'desc' }, take: 1 },
-      probableStarterObservations: {
-        orderBy: { retrievedAt: 'desc' },
-        include: { person: true },
+  try {
+    const games = await prisma.game.findMany({
+      where: { date: requestedDate },
+      orderBy: { startTimeUtc: 'asc' },
+      include: {
+        homeTeam: true,
+        awayTeam: true,
+        venue: true,
+        marketSnapshots: { orderBy: { retrievedAt: 'desc' }, take: 1 },
+        probableStarterObservations: {
+          orderBy: { retrievedAt: 'desc' },
+          include: { person: true },
+        },
+        gameResult: true,
       },
-      gameResult: true,
-    },
-  });
+    });
 
-  const rows = await Promise.all(games.map(async (game) => {
-    const homeStarter = game.probableStarterObservations.find((item) => item.side === 'home') ?? null;
-    const awayStarter = game.probableStarterObservations.find((item) => item.side === 'away') ?? null;
+    const rows = await Promise.all(games.map(async (game) => {
+      const homeStarter = game.probableStarterObservations.find((item) => item.side === 'home') ?? null;
+      const awayStarter = game.probableStarterObservations.find((item) => item.side === 'away') ?? null;
 
     const [
       homePitcher,
@@ -326,19 +327,26 @@ export async function GET(req: NextRequest) {
     };
   });
 
-  return NextResponse.json({
-    date: requestedDate,
-    generatedAt: new Date().toISOString(),
-    summary: {
-      totalGames: rows.length,
-      readyForAnalysis: rows.filter((row) => row.readyForAnalysis).length,
-      blockedMatches: rows.filter((row) => !row.readyForAnalysis).length,
-      requiredMissingFields: rows.reduce((sum, row) => sum + row.missingRequired.length, 0),
-      fallbackFields: rows.reduce((sum, row) => sum + row.qualityIssues.length, 0),
-      qualityFields: rows.reduce((sum, row) => sum + row.qualityIssues.length, 0),
-      optionalMissingFields: rows.reduce((sum, row) => sum + row.optionalMissing.length, 0),
-    },
-    fieldCoverage,
-    games: rows,
-  });
+    return NextResponse.json({
+      date: requestedDate,
+      generatedAt: new Date().toISOString(),
+      summary: {
+        totalGames: rows.length,
+        readyForAnalysis: rows.filter((row) => row.readyForAnalysis).length,
+        blockedMatches: rows.filter((row) => !row.readyForAnalysis).length,
+        requiredMissingFields: rows.reduce((sum, row) => sum + row.missingRequired.length, 0),
+        fallbackFields: rows.reduce((sum, row) => sum + row.qualityIssues.length, 0),
+        qualityFields: rows.reduce((sum, row) => sum + row.qualityIssues.length, 0),
+        optionalMissingFields: rows.reduce((sum, row) => sum + row.optionalMissing.length, 0),
+      },
+      fieldCoverage,
+      games: rows,
+    });
+  } catch (error: any) {
+    console.error('[API /api/analysis-data error]:', error);
+    return NextResponse.json(
+      { error: error?.message || 'Database query error', date: requestedDate, games: [] },
+      { status: 500 }
+    );
+  }
 }
