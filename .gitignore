@@ -9,3 +9,8 @@ coverage/
 playwright-report/
 test-results/
 *.tsbuildinfo
+# Server-specific (not in repo)
+start_web.sh
+start_worker.sh
+build.sh
+db_check.ts
