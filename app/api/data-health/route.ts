@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { ageHours } from '@/lib/utils/timezone';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   const staleThresholdHours = 24;
   const cutoff = new Date(Date.now() - staleThresholdHours * 3600_000);
