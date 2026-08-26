@@ -1,0 +1,63 @@
+{
+  "name": "mlb-analytics",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:integration": "vitest run --project integration",
+    "test:e2e": "playwright test",
+    "worker": "tsx --env-file=.env.local scripts/worker.ts",
+    "worker:once": "tsx --env-file=.env.local scripts/worker.ts --once",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "date-fns": "^3.6.0",
+    "date-fns-tz": "^3.2.0",
+    "next": "^14.2.29",
+    "node-cron": "^4.6.0",
+    "papaparse": "^5.4.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zod": "^3.23.8"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.46.1",
+    "@types/node": "^20.14.15",
+    "@types/node-cron": "^3.0.11",
+    "@types/papaparse": "^5.3.14",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitest/coverage-v8": "^2.0.5",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^14.2.29",
+    "postcss": "^8.4.41",
+    "prisma": "^5.22.0",
+    "tailwindcss": "^3.4.10",
+    "tsx": "^4.17.0",
+    "typescript": "^5.5.4",
+    "vite-tsconfig-paths": "^5.0.1",
+    "vitest": "^2.0.5"
+  },
+  "allowScripts": {
+    "@prisma/client@5.22.0": true,
+    "@prisma/engines@5.22.0": true,
+    "esbuild@0.28.2": true,
+    "esbuild@0.21.5": true,
+    "prisma@5.22.0": true,
+    "unrs-resolver@1.12.2": true
+  }
+}
