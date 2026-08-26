@@ -2,7 +2,7 @@
 
 A **standalone, deterministic** MLB analytics website. No AI, no Hermes, no LLMs. All decisions come from versioned formulas and explicit rules.
 
-> **Disclaimer**: T1/T2 are score tiers, not win probabilities or profit guarantees. O/U v2.3 is experimental — gap labels describe formula output, not calibrated confidence. A `SKIP`, `NO BET`, or `NEEDS DATA` result is a valid output.
+> **Disclaimer**: T1/T2 are score tiers, not win probabilities or profit guarantees. Unified MLB Totals v4.0 is experimental — gap labels describe formula output, not calibrated confidence. A `SKIP`, `NO BET`, or `NEEDS DATA` result is a valid output.
 
 ---
 
@@ -12,7 +12,7 @@ A **standalone, deterministic** MLB analytics website. No AI, no Hermes, no LLMs
 |---|---|
 | Framework | Next.js 14 (App Router) + TypeScript |
 | Styling | Tailwind CSS + custom CSS design system |
-| Database | SQLite (demo) / PostgreSQL (production) via Prisma |
+| Database | PostgreSQL via Prisma |
 | Validation | Zod on every external payload and import |
 | Unit tests | Vitest |
 | Browser tests | Playwright |
@@ -27,10 +27,9 @@ npm install
 
 # 2. Copy env file
 cp .env.example .env.local
-# Edit .env.local: set DATABASE_URL (default: file:./dev.db for SQLite demo)
+# Edit .env.local: set DATABASE_URL and DIRECT_URL for PostgreSQL
 
 # 3. Create database and run migrations
-$env:DATABASE_URL="file:./dev.db"    # PowerShell
 npx prisma migrate dev
 
 # 4. Seed demo fixtures (12 scenarios)
@@ -55,10 +54,10 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ### Locking a Forecast
 
-1. Open **Match Detail** for a game.
-2. Verify starters are confirmed and odds are fresh.
-3. Click **Lock Forecast** (only available before first pitch).
-4. Run `POST /api/results/refresh` after games finish to grade all pending forecasts.
+1. Verify starters are confirmed and odds are fresh.
+2. Use **Lock ML/O/U** beside one pick, or **Lock All Picks** for the slate. Results also has a bulk lock button.
+3. Locks are immutable and only allowed before first pitch; one authoritative lock is retained per game/model.
+4. Use **Fetch Final Scores** on Results after games finish. Official MLB scores auto-grade WIN/LOSS/PUSH.
 
 On an off-day, use **Find next MLB slate** to scan forward up to 30 days and load
 the first scheduled slate automatically.
@@ -84,23 +83,27 @@ SKIP: score < 55 or any hard gate
 - **Market Alignment** (max 10): Heuristic anchors vs candidate price
 - **Team Form** (max 10): Last-10 record and current streak
 
-### O/U Formula v2.3 — ⚗ Experimental
+### Unified MLB Totals v4.0 — ⚗ Experimental
 
 ```
-OffAdj  = ((AwayRPG - 4.1) + (HomeRPG - 4.1)) * 0.60
-PitchAdj = ((AwayL5ERA - AwaySeasonERA) + (HomeL5ERA - HomeSeasonERA)) * 0.50
-ParkAdj  = (HomeParkFactor - 1.0) * MarketLine * 2.5
-TotalAdj = clamp(OffAdj + PitchAdj + ParkAdj, -3.0, +3.0)
-Gap      = TotalAdj
+BlendedStarterERA = 70% season ERA + 30% aggregate last-five ERA
+StaffRuns = starter contribution + bullpen contribution + capped WHIP adjustment
+AwayRuns = 50% AwayRPG + 50% HomeStaffRunsAllowed
+HomeRuns = 50% HomeRPG + 50% AwayStaffRunsAllowed
+IndependentTotal = (AwayRuns + HomeRuns) * reliability-adjusted park factor
+ProjectedTotal = 50% CurrentMarketTotal + 50% IndependentTotal
+Gap = ProjectedTotal - CurrentMarketTotal
 ```
 
 | Gap | Signal |
 |---|---|
-| ≥ +0.75 | OVER — strong model gap |
-| +0.50 to +0.74 | OVER — RISKY |
-| −0.49 to +0.49 | NO BET |
-| −0.74 to −0.50 | UNDER — RISKY |
-| ≤ −0.75 | UNDER — strong model gap |
+| ≥ +0.80 | OVER — strong model gap |
+| +0.40 to +0.79 | OVER — RISKY |
+| +0.25 to +0.39 | OVER — LEAN (watchlist only) |
+| −0.24 to +0.24 | NO BET |
+| −0.39 to −0.25 | UNDER — LEAN (watchlist only) |
+| −0.79 to −0.40 | UNDER — RISKY |
+| ≤ −0.80 | UNDER — strong model gap |
 
 Minimum selected-side decimal odds: **1.85**.
 
@@ -250,7 +253,7 @@ npm run test:e2e
 
 ## Limitations
 
-- **O/U v2.3 is experimental.** No track record. Gap labels are not calibrated probabilities.
+- **Unified MLB Totals v4.0 is experimental.** No calibrated track record yet. Gap labels are not probabilities.
 - **Park factors** in demo fixtures are approximate. Provide a season-stamped authoritative dataset for production.
 - **Backtest ROI** is hidden until a flat-stake policy and full price history are configured.
 - The app does not place bets, manage funds, or integrate with any sportsbook.
@@ -275,7 +278,7 @@ lib/
   config/modelConfig.ts     ← Versioned thresholds (single source of truth)
   engine/
     moneyline.ts            ← Combo Score v2.0
-    overunder.ts            ← O/U v2.3 (experimental)
+    overunderUnified.ts     ← single active Unified MLB Totals v4.0 engine
     types.ts                ← FinalState, WarningCode, HardGateCode enums
     pipeline.ts             ← Ingest → snapshot → run → publish
     forecast.ts             ← Lock, grade, settle

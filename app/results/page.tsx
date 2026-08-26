@@ -8,8 +8,15 @@ const DEFAULT_DATE = mlbScheduleDate();
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
-function getLatestRun(runs: any[], modelId: string) {
-  return runs?.find((r: any) => r.modelId === modelId && !r.isInvalidated);
+function getResultRun(runs: any[], modelId: string) {
+  const matching = runs?.filter((r: any) => r.modelId === modelId && !r.isInvalidated) ?? [];
+  return matching.find((r: any) => r.forecasts?.length > 0) ?? matching[0];
+}
+
+function getOuResultRun(runs: any[]) {
+  return getResultRun(runs, 'OU_UNIFIED')
+    ?? getResultRun(runs, 'OU_V3')
+    ?? getResultRun(runs, 'OU_V2_3');
 }
 
 function getLockedForecast(run: any) {
@@ -140,6 +147,7 @@ export default function ResultsPage() {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(false);
   const [grading, setGrading] = useState(false);
+  const [locking, setLocking] = useState(false);
   const [liveLoading, setLiveLoading] = useState(false);
   const [status, setStatus] = useState('');
   const [error, setError] = useState('');
@@ -229,6 +237,23 @@ export default function ResultsPage() {
     }
   };
 
+  const lockSlatePicks = async () => {
+    setLocking(true);
+    setError('');
+    setStatus('');
+    try {
+      const res = await fetch(`/api/slates/${date}/lock`, { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? 'Lock failed');
+      setStatus(`🔒 ${data.locked} pick(s) locked; ${data.alreadyLocked} already locked.`);
+      await fetchResults(date);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Lock failed.');
+    } finally {
+      setLocking(false);
+    }
+  };
+
   useEffect(() => { fetchResults(date); fetchLiveScores(date); }, [date, fetchResults, fetchLiveScores]);
 
   // ── auto-poll live scores every 90 s when tab visible ──────────────────
@@ -244,8 +269,8 @@ export default function ResultsPage() {
   const pendingGames = totalGames - finalGames - liveGames;
 
   const allForecasts = games.flatMap(g => {
-    const ml = getLatestRun(g.modelRuns, 'ML_COMBO_V2');
-    const ou = getLatestRun(g.modelRuns, 'OU_V3') ?? getLatestRun(g.modelRuns, 'OU_V2_3');
+    const ml = getResultRun(g.modelRuns, 'ML_COMBO_V2');
+    const ou = getOuResultRun(g.modelRuns);
     return [getLockedForecast(ml), getLockedForecast(ou)].filter(Boolean);
   });
   const wins   = allForecasts.filter(f => f.settlement?.outcome === 'win').length;
@@ -289,6 +314,16 @@ export default function ResultsPage() {
             aria-busy={fetching}
           >
             {fetching ? '⏳ Fetching…' : '⚾ Fetch Final Scores'}
+          </button>
+          <button
+            id="btn-lock-picks"
+            className="btn btn-ghost"
+            onClick={lockSlatePicks}
+            disabled={locking || fetching || grading}
+            aria-busy={locking}
+            title="Lock every actionable ML and O/U pick before first pitch"
+          >
+            {locking ? '⏳ Locking…' : '🔒 Lock Picks'}
           </button>
           <button
             id="btn-refresh-live"
@@ -391,8 +426,8 @@ export default function ResultsPage() {
             <tbody>
               {games.map((game: any) => {
                 const live = liveMap[game.id];
-                const mlRun = getLatestRun(game.modelRuns, 'ML_COMBO_V2');
-                const ouRun = getLatestRun(game.modelRuns, 'OU_V3') ?? getLatestRun(game.modelRuns, 'OU_V2_3');
+                const mlRun = getResultRun(game.modelRuns, 'ML_COMBO_V2');
+                const ouRun = getOuResultRun(game.modelRuns);
                 const mlForecast = getLockedForecast(mlRun);
                 const ouForecast = getLockedForecast(ouRun);
                 const mlOut = mlRun ? JSON.parse(mlRun.outputJson) : null;
@@ -403,7 +438,7 @@ export default function ResultsPage() {
                 const mlPickOdds = mlOut?.candidateDecimalOdds
                   ?? (mlOut?.candidate === 'away' ? market?.moneylineAway : market?.moneylineHome);
                 const ouSide = ouOut?.selectedSide;
-                const ouLine = mlForecast?.marketLine ?? market?.totalLine;
+                const ouLine = ouForecast?.marketLine ?? market?.totalLine;
 
                 // effective status: prefer live poll over DB status
                 const effectiveStatus = live?.status ?? game.status;

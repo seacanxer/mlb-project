@@ -10,6 +10,17 @@ function getLatestRun(runs: any[], modelId: string) {
   return runs?.find((r: any) => r.modelId === modelId && !r.isInvalidated);
 }
 
+function isActionableRun(run: any) {
+  return ['T1', 'T2', 'OVER_RISKY', 'OVER_STRONG_GAP', 'UNDER_RISKY', 'UNDER_STRONG_GAP']
+    .includes(run?.finalState);
+}
+
+function lockSideForRun(run: any): string {
+  const output = JSON.parse(run.outputJson);
+  if (run.modelId.startsWith('OU_')) return output.selectedSide;
+  return output.candidate === 'away' ? 'away' : 'home';
+}
+
 function OddsAge({ retrievedAt }: { retrievedAt?: string }) {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
@@ -36,6 +47,7 @@ export default function DailySlate() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
   const [refreshStatus, setRefreshStatus] = useState('');
+  const [locking, setLocking] = useState('');
 
   const fetchSlate = useCallback(async (d: string) => {
     setLoading(true);
@@ -117,6 +129,45 @@ export default function DailySlate() {
     }
   };
 
+  const lockRun = async (run: any) => {
+    setLocking(run.id);
+    setError('');
+    try {
+      const res = await fetch(`/api/model-runs/${run.id}/lock`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ selectedSide: lockSideForRun(run) }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? 'Could not lock pick');
+      setRefreshStatus('Pick locked. It will be graded automatically when the official final score is fetched.');
+      await fetchSlate(date);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not lock pick');
+    } finally {
+      setLocking('');
+    }
+  };
+
+  const lockAllPicks = async () => {
+    setLocking('all');
+    setError('');
+    try {
+      const res = await fetch(`/api/slates/${date}/lock`, { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? 'Could not lock slate picks');
+      setRefreshStatus(
+        `Locked ${data.locked} pick(s); ${data.alreadyLocked} already locked. ` +
+        'Official final scores will auto-grade WIN/LOSS/PUSH.'
+      );
+      await fetchSlate(date);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not lock slate picks');
+    } finally {
+      setLocking('');
+    }
+  };
+
   useEffect(() => { fetchSlate(date); }, [date, fetchSlate]);
 
   const wibGameDates = [...new Set(
@@ -158,6 +209,14 @@ export default function DailySlate() {
             aria-busy={refreshing}
           >
             {refreshing ? '⏳ Refreshing…' : '↻ Refresh'}
+          </button>
+          <button
+            className="btn btn-ghost"
+            onClick={lockAllPicks}
+            disabled={!!locking || refreshing || games.length === 0}
+            aria-busy={locking === 'all'}
+          >
+            {locking === 'all' ? '⏳ Locking…' : '🔒 Lock All Picks'}
           </button>
         </div>
       </div>
@@ -207,6 +266,7 @@ export default function DailySlate() {
                 <th>O/U Line</th>
                 <th>O/U Gap</th>
                 <th>O/U Signal</th>
+                <th>Pick Lock</th>
                 <th>Score</th>
                 <th>⚠</th>
                 <th>Detail</th>
@@ -215,7 +275,9 @@ export default function DailySlate() {
             <tbody>
               {games.map((game: any) => {
                 const mlRun = getLatestRun(game.modelRuns, 'ML_COMBO_V2');
-                const ouRun = getLatestRun(game.modelRuns, 'OU_V3') ?? getLatestRun(game.modelRuns, 'OU_V2_3');
+                const ouRun = getLatestRun(game.modelRuns, 'OU_UNIFIED')
+                  ?? getLatestRun(game.modelRuns, 'OU_V3')
+                  ?? getLatestRun(game.modelRuns, 'OU_V2_3');
                 const market = game.marketSnapshots?.[0];
                 const mlOut = mlRun ? JSON.parse(mlRun.outputJson) : null;
                 const ouOut = ouRun ? JSON.parse(ouRun.outputJson) : null;
@@ -223,6 +285,12 @@ export default function DailySlate() {
                 const homeStarter = game.probableStarterObservations?.find((starter: any) => starter.side === 'home');
                 const awayStarter = game.probableStarterObservations?.find((starter: any) => starter.side === 'away');
                 const mlActionable = mlRun?.finalState === 'T1' || mlRun?.finalState === 'T2';
+                const mlLocked = game.modelRuns?.some((run: any) =>
+                  run.modelId === 'ML_COMBO_V2' && run.forecasts?.length > 0
+                );
+                const ouLocked = game.modelRuns?.some((run: any) =>
+                  run.modelId === ouRun?.modelId && run.forecasts?.length > 0
+                );
                 const mlPickTeam = mlOut?.candidateTeamName
                   ?? (mlOut?.candidate === 'away' ? game.awayTeam?.name : game.homeTeam?.name);
                 const mlPickOdds = mlOut?.candidateDecimalOdds
@@ -288,6 +356,25 @@ export default function DailySlate() {
                           <ExperimentalBadge />
                         </div>
                       ) : <span className="muted">—</span>}
+                    </td>
+                    <td>
+                      <div style={{ display: 'grid', gap: '0.3rem', minWidth: 92 }}>
+                        {isActionableRun(mlRun) && (
+                          mlLocked ? <span style={{ color: 'var(--green-lt)', fontSize: '0.72rem' }}>🔒 ML locked</span> : (
+                            <button className="btn btn-ghost btn-sm" disabled={!!locking} onClick={() => lockRun(mlRun)}>
+                              {locking === mlRun.id ? '…' : 'Lock ML'}
+                            </button>
+                          )
+                        )}
+                        {isActionableRun(ouRun) && (
+                          ouLocked ? <span style={{ color: 'var(--green-lt)', fontSize: '0.72rem' }}>🔒 O/U locked</span> : (
+                            <button className="btn btn-ghost btn-sm" disabled={!!locking} onClick={() => lockRun(ouRun)}>
+                              {locking === ouRun.id ? '…' : 'Lock O/U'}
+                            </button>
+                          )
+                        )}
+                        {!isActionableRun(mlRun) && !isActionableRun(ouRun) && <span className="muted">—</span>}
+                      </div>
                     </td>
                     <td>
                       {game.gameResult ? (

@@ -235,7 +235,7 @@ model ParkFactorSnapshot {
 // ---------------------------------------------------------------------------
 
 model ModelDefinition {
-  id          String   @id // e.g. "ML_COMBO_V2", "OU_V2_3"
+  id          String   @id // e.g. "ML_COMBO_V2", "OU_UNIFIED"
   name        String
   version     String
   description String

@@ -15,7 +15,7 @@ const FIELD_META = [
   { key: 'offense', label: 'AVG / OPS / RPG / Form', usedBy: 'ML + O/U', required: true },
   { key: 'moneyline', label: 'Moneyline Odds', usedBy: 'ML', required: true },
   { key: 'totals', label: 'Total Line + O/U Odds', usedBy: 'O/U', required: true },
-  { key: 'bullpen', label: 'Bullpen ERA / WHIP', usedBy: 'O/U v3', required: true },
+  { key: 'bullpen', label: 'Bullpen ERA / WHIP', usedBy: 'Unified O/U', required: true },
   { key: 'park', label: 'Park Factor', usedBy: 'O/U', required: true },
   { key: 'result', label: 'Final Score', usedBy: 'Settlement', required: false },
 ] as const;

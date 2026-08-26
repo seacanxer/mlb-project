@@ -41,6 +41,16 @@ export async function lockForecast(
     throw new ForecastError('Only actionable T1/T2 or O/U RISKY/STRONG signals can be locked');
   }
 
+  const existingGameModelForecast = await prisma.forecast.findFirst({
+    where: {
+      modelRun: { gameId: run.gameId, modelId: run.modelId },
+    },
+    orderBy: { lockedAt: 'asc' },
+  });
+  if (existingGameModelForecast) {
+    throw new ForecastError(`A ${run.modelId} pick is already locked for this game`);
+  }
+
   // Pre-first-pitch gate
   if (isGameStarted(run.game.startTimeUtc)) {
     throw new ForecastError('Cannot lock a forecast after first pitch');
@@ -51,6 +61,15 @@ export async function lockForecast(
     where: { gameId: run.gameId },
     orderBy: { retrievedAt: 'desc' },
   });
+
+  const output = JSON.parse(run.outputJson as string) as Record<string, unknown>;
+  const expectedSide = run.modelId.startsWith('OU_')
+    ? String(output.selectedSide ?? (run.finalState.startsWith('UNDER') ? 'under' : 'over'))
+    : String(output.candidate === 'away' ? 'away' : 'home');
+  if (opts.selectedSide && opts.selectedSide !== expectedSide) {
+    throw new ForecastError(`Selected side does not match the published pick (${expectedSide})`);
+  }
+  const selectedSide = expectedSide;
 
   // Mark run as locked
   await prisma.modelRun.update({
@@ -64,20 +83,87 @@ export async function lockForecast(
       modelRunId,
       lockedAt: new Date(),
       marketLine: market?.totalLine ?? null,
-      marketPrice: opts.selectedSide === 'over'
+      marketPrice: selectedSide === 'over'
         ? (market?.totalOverDecimal ?? null)
-        : opts.selectedSide === 'under'
+        : selectedSide === 'under'
         ? (market?.totalUnderDecimal ?? null)
-        : opts.selectedSide === 'away'
+        : selectedSide === 'away'
         ? (market?.moneylineAway ?? null)
         : (market?.moneylineHome ?? null),
-      selectedSide: opts.selectedSide ?? null,
+      selectedSide,
       finalState: run.finalState,
       notes: opts.notes ?? null,
     },
   });
 
   return forecast.id;
+}
+
+export interface AutoLockSummary {
+  date: string;
+  eligible: number;
+  locked: number;
+  alreadyLocked: number;
+  errors: Array<{ runId: string; message: string }>;
+}
+
+/** Lock the latest published ML and unified O/U actionable pick per game. */
+export async function autoLockActionableForecasts(date: string): Promise<AutoLockSummary> {
+  const summary: AutoLockSummary = {
+    date,
+    eligible: 0,
+    locked: 0,
+    alreadyLocked: 0,
+    errors: [],
+  };
+  const games = await prisma.game.findMany({
+    where: { date },
+    include: {
+      modelRuns: {
+        where: {
+          isInvalidated: false,
+          modelId: { in: ['ML_COMBO_V2', 'OU_UNIFIED'] },
+        },
+        orderBy: { runAt: 'desc' },
+        include: { forecasts: true },
+      },
+    },
+  });
+
+  const actionable = new Set([
+    'T1', 'T2',
+    'OVER_RISKY', 'OVER_STRONG_GAP',
+    'UNDER_RISKY', 'UNDER_STRONG_GAP',
+  ]);
+
+  for (const game of games) {
+    for (const modelId of ['ML_COMBO_V2', 'OU_UNIFIED']) {
+      const run = game.modelRuns.find((candidate) => candidate.modelId === modelId);
+      if (!run || !actionable.has(run.finalState)) continue;
+      summary.eligible += 1;
+
+      const existing = await prisma.forecast.findFirst({
+        where: { modelRun: { gameId: game.id, modelId } },
+        select: { id: true },
+      });
+      if (existing) {
+        summary.alreadyLocked += 1;
+        continue;
+      }
+
+      try {
+        await lockForecast(run.id, { notes: 'Locked from slate action' });
+        summary.locked += 1;
+      } catch (error) {
+        summary.errors.push({
+          runId: run.id,
+          message: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+  }
+
+  return summary;
 }
 
 /**

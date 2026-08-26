@@ -6,19 +6,16 @@
  */
 
 import { prisma } from '@/lib/db';
-import { DEFAULT_CONFIG, DEFAULT_OU_V3_CONFIG, type AppModelConfig, type OUConfig, type OUV3Config } from '@/lib/config/modelConfig';
+import { DEFAULT_CONFIG, DEFAULT_OU_TOTALS_CONFIG, type AppModelConfig, type OUTotalsConfig } from '@/lib/config/modelConfig';
 import { runMoneylineEngine, selectMoneylineCandidate } from '@/lib/engine/moneyline';
-import { runOUEngine } from '@/lib/engine/overunder';
-import { runOUV3Engine, type OUV3Inputs } from '@/lib/engine/overunderV3';
+import { runOUTotalsEngine, type OUTotalsInputs, type OUGameLogEntry } from '@/lib/engine/overunderUnified';
 import { ageHours, isGameStarted } from '@/lib/utils/timezone';
 import type { MoneylineInputs, GameLogEntry } from '@/lib/engine/moneyline';
-import type { OUInputs, OUGameLogEntry } from '@/lib/engine/overunder';
 
 export interface PipelineResult {
   gameId: string;
   mlRunId: string | null;
   ouRunId: string | null;
-  ouV3RunId: string | null;
   error?: string;
 }
 
@@ -26,9 +23,9 @@ export interface PipelineResult {
  * Analyze one game: build input snapshot, run both engines, persist ModelRuns.
  */
 export async function analyzeGame(gameId: string): Promise<PipelineResult> {
-  const [mlConfig, ouV3ConfigRecord] = await Promise.all([
+  const [mlConfig, ouConfigRecord] = await Promise.all([
     ensureMoneylineModelConfig(),
-    ensureOUV3ModelConfig(),
+    ensureOUTotalsModelConfig(),
   ]);
 
   // --- Load game ---
@@ -36,19 +33,13 @@ export async function analyzeGame(gameId: string): Promise<PipelineResult> {
     where: { id: gameId },
     include: { homeTeam: true, awayTeam: true, venue: true },
   });
-  if (!game) return { gameId, mlRunId: null, ouRunId: null, ouV3RunId: null, error: 'Game not found' };
+  if (!game) return { gameId, mlRunId: null, ouRunId: null, error: 'Game not found' };
 
-  // --- Load active model config versions ---
-  const ouConfig = await prisma.modelConfigVersion.findFirst({
-    where: { modelId: 'OU_V2_3', isActive: true },
-    orderBy: { createdAt: 'desc' },
-  });
-  if (!mlConfig || !ouConfig || !ouV3ConfigRecord) {
-    return { gameId, mlRunId: null, ouRunId: null, ouV3RunId: null, error: 'No active model config found' };
+  if (!mlConfig || !ouConfigRecord) {
+    return { gameId, mlRunId: null, ouRunId: null, error: 'No active model config found' };
   }
   const config = parseAppConfig(mlConfig.configJson);
-  const ouV2Config = parseOUV2Config(ouConfig.configJson);
-  const ouV3Config = parseOUV3Config(ouV3ConfigRecord.configJson);
+  const ouConfig = parseOUTotalsConfig(ouConfigRecord.configJson);
 
   // --- Load latest snapshots ---
   const homeSnap = await prisma.pitcherSnapshot.findFirst({
@@ -119,7 +110,7 @@ export async function analyzeGame(gameId: string): Promise<PipelineResult> {
 
   // --- Freshness checks ---
   const oddsStale = !market || ageHours(market.retrievedAt) > config.moneyline.oddsStaleHours;
-  const ouV3OddsStale = !market || ageHours(market.retrievedAt) > ouV3Config.oddsStaleHours;
+  const ouOddsStale = !market || ageHours(market.retrievedAt) > ouConfig.oddsStaleHours;
   const homeTeamStale = !homeTeamSnap || ageHours(homeTeamSnap.retrievedAt) > config.moneyline.teamStatsStaleHours;
   const awayTeamStale = !awayTeamSnap || ageHours(awayTeamSnap.retrievedAt) > config.moneyline.teamStatsStaleHours;
   const gameStarted = isGameStarted(game.startTimeUtc);
@@ -209,35 +200,7 @@ export async function analyzeGame(gameId: string): Promise<PipelineResult> {
     outsRecorded: l.outsRecorded,
   }));
 
-  const ouInputs: OUInputs = {
-    marketLine: market?.totalLine ?? null,
-    selectedSideDecimal: market?.totalOverDecimal ?? null,
-    selectedSide: 'over',
-    overDecimal: market?.totalOverDecimal ?? null,
-    underDecimal: market?.totalUnderDecimal ?? null,
-    awayRpg: awayTeamStale ? null : (awayTeamSnap?.runsPerGame ?? null),
-    homeRpg: homeTeamStale ? null : (homeTeamSnap?.runsPerGame ?? null),
-    awaySeasonEra: awaySnap?.era ?? null,
-    homeSeasonEra: homeSnap?.era ?? null,
-    awayLastFiveLogs: awayOULogs,
-    homeLastFiveLogs: homeOULogs,
-    awayStarterWhip: awaySnap?.whip ?? null,
-    homeStarterWhip: homeSnap?.whip ?? null,
-    homeParkFactor: parkFactor?.factor ?? null,
-    parkFactorIsFallback: Boolean(parkFactor?.isFallback || parkFactor?.source === 'historical-avg'),
-    awayStarterConfirmed: awayStarter?.confirmationStatus === 'confirmed',
-    homeStarterConfirmed: homeStarter?.confirmationStatus === 'confirmed',
-    oddsAreStale: oddsStale,
-    teamRpgAreStale: homeTeamStale || awayTeamStale,
-    pitcherDataMissing: !homeSnap || !awaySnap,
-    parkFactorMissing: !parkFactor,
-    parkFactorWrongSeason: parkFactor ? parkFactor.season !== game.season : false,
-    gameAlreadyStarted: gameStarted,
-  };
-
-  const ouResult = runOUEngine(ouInputs, ouV2Config);
-
-  const ouV3Inputs: OUV3Inputs = {
+  const ouInputs: OUTotalsInputs = {
     marketLine: market?.totalLine ?? null,
     openingTotalLine: openingMarket?.totalLine ?? null,
     overDecimal: market?.totalOverDecimal ?? null,
@@ -267,13 +230,13 @@ export async function analyzeGame(gameId: string): Promise<PipelineResult> {
     parkFactorIsFallback: Boolean(parkFactor?.isFallback || parkFactor?.source === 'historical-avg'),
     awayStarterConfirmed: awayStarter?.confirmationStatus === 'confirmed',
     homeStarterConfirmed: homeStarter?.confirmationStatus === 'confirmed',
-    oddsAreStale: ouV3OddsStale,
+    oddsAreStale: ouOddsStale,
     teamDataAreStale: homeTeamStale || awayTeamStale,
     bullpenDataAreStale: homeTeamStale || awayTeamStale,
     parkFactorWrongSeason: parkFactor ? parkFactor.season !== game.season : false,
     gameAlreadyStarted: gameStarted,
   };
-  const ouV3Result = runOUV3Engine(ouV3Inputs, ouV3Config);
+  const ouResult = runOUTotalsEngine(ouInputs, ouConfig);
 
   // --- Persist ML ModelRun ---
   const mlRun = await prisma.modelRun.create({
@@ -320,12 +283,12 @@ export async function analyzeGame(gameId: string): Promise<PipelineResult> {
     });
   }
 
-  // --- Persist O/U ModelRun ---
+  // --- Persist the single authoritative O/U ModelRun ---
   const ouRun = await prisma.modelRun.create({
     data: {
       gameId,
-      modelId: 'OU_V2_3',
-      configVersionId: ouConfig.id,
+      modelId: 'OU_UNIFIED',
+      configVersionId: ouConfigRecord.id,
       inputSnapshotId: inputSnapshot.id,
       finalState: ouResult.finalState,
       rawGap: ouResult.gap ?? undefined,
@@ -344,30 +307,7 @@ export async function analyzeGame(gameId: string): Promise<PipelineResult> {
     });
   }
 
-  // --- Persist O/U v3 experimental ModelRun in parallel with v2.3 ---
-  const ouV3Run = await prisma.modelRun.create({
-    data: {
-      gameId,
-      modelId: 'OU_V3',
-      configVersionId: ouV3ConfigRecord.id,
-      inputSnapshotId: inputSnapshot.id,
-      finalState: ouV3Result.finalState,
-      rawGap: ouV3Result.gap ?? undefined,
-      outputJson: JSON.stringify(ouV3Result),
-    },
-  });
-  for (const w of ouV3Result.warnings) {
-    await prisma.modelWarning.create({
-      data: { modelRunId: ouV3Run.id, code: w, severity: 'warning', message: w },
-    });
-  }
-  for (const g of ouV3Result.hardGates) {
-    await prisma.modelWarning.create({
-      data: { modelRunId: ouV3Run.id, code: g, severity: 'warning', message: `Hard gate: ${g}` },
-    });
-  }
-
-  return { gameId, mlRunId: mlRun.id, ouRunId: ouRun.id, ouV3RunId: ouV3Run.id };
+  return { gameId, mlRunId: mlRun.id, ouRunId: ouRun.id };
 }
 
 // ---------------------------------------------------------------------------
@@ -448,28 +388,53 @@ async function getRecentGameLogIds(personId: string, season: number): Promise<st
   return logs.map((l) => l.id);
 }
 
-async function ensureOUV3ModelConfig() {
+let ouTotalsConfigPromise: ReturnType<typeof ensureOUTotalsModelConfigOnce> | null = null;
+
+function ensureOUTotalsModelConfig() {
+  if (!ouTotalsConfigPromise) {
+    ouTotalsConfigPromise = ensureOUTotalsModelConfigOnce().catch((error) => {
+      ouTotalsConfigPromise = null;
+      throw error;
+    });
+  }
+  return ouTotalsConfigPromise;
+}
+
+async function ensureOUTotalsModelConfigOnce() {
   await prisma.modelDefinition.upsert({
-    where: { id: 'OU_V3' },
+    where: { id: 'OU_UNIFIED' },
     create: {
-      id: 'OU_V3',
-      name: 'Over/Under Staff Run Model',
-      version: '3.1',
-      description: 'Experimental market-anchored starter, bullpen, offense, and park total model. Not calibrated.',
+      id: 'OU_UNIFIED',
+      name: 'Unified MLB Totals',
+      version: '4.0',
+      description: 'Single market-anchored offense and pitching totals model. Experimental and not calibrated.',
       isActive: true,
     },
-    update: { version: '3.1' },
+    update: { version: '4.0', isActive: true },
+  });
+  await prisma.modelDefinition.updateMany({
+    where: { id: { in: ['OU_V2_3', 'OU_V3'] } },
+    data: { isActive: false },
+  });
+  await prisma.modelConfigVersion.updateMany({
+    where: { modelId: { in: ['OU_V2_3', 'OU_V3'] }, isActive: true },
+    data: { isActive: false },
   });
   const existing = await prisma.modelConfigVersion.findFirst({
-    where: { modelId: 'OU_V3', semver: DEFAULT_OU_V3_CONFIG.version },
+    where: { modelId: 'OU_UNIFIED', semver: DEFAULT_OU_TOTALS_CONFIG.version },
     orderBy: { createdAt: 'desc' },
   });
-  if (existing) return existing;
+  if (existing) {
+    if (!existing.isActive) {
+      return prisma.modelConfigVersion.update({ where: { id: existing.id }, data: { isActive: true } });
+    }
+    return existing;
+  }
   return prisma.modelConfigVersion.create({
     data: {
-      modelId: 'OU_V3',
-      semver: DEFAULT_OU_V3_CONFIG.version,
-      configJson: JSON.stringify(DEFAULT_OU_V3_CONFIG),
+      modelId: 'OU_UNIFIED',
+      semver: DEFAULT_OU_TOTALS_CONFIG.version,
+      configJson: JSON.stringify(DEFAULT_OU_TOTALS_CONFIG),
       isActive: true,
       createdBy: 'pipeline-bootstrap',
     },
@@ -490,19 +455,11 @@ function parseAppConfig(configJson: string): AppModelConfig {
   }
 }
 
-function parseOUV2Config(configJson: string): OUConfig {
+function parseOUTotalsConfig(configJson: string): OUTotalsConfig {
   try {
-    return { ...DEFAULT_CONFIG.ou, ...(JSON.parse(configJson) as Partial<OUConfig>) };
+    return { ...DEFAULT_OU_TOTALS_CONFIG, ...(JSON.parse(configJson) as Partial<OUTotalsConfig>) };
   } catch {
-    return DEFAULT_CONFIG.ou;
-  }
-}
-
-function parseOUV3Config(configJson: string): OUV3Config {
-  try {
-    return { ...DEFAULT_OU_V3_CONFIG, ...(JSON.parse(configJson) as Partial<OUV3Config>) };
-  } catch {
-    return DEFAULT_OU_V3_CONFIG;
+    return DEFAULT_OU_TOTALS_CONFIG;
   }
 }
 

@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { DEFAULT_CONFIG } from '@/lib/config/modelConfig';
+import { DEFAULT_CONFIG, DEFAULT_OU_TOTALS_CONFIG } from '@/lib/config/modelConfig';
 
 export default function Settings() {
   const [configs, setConfigs] = useState<any[]>([]);
@@ -111,17 +111,24 @@ export default function Settings() {
         </div>
       </Section>
 
-      <Section title="O/U v2.3 Parameters">
+      <Section title="Unified MLB Totals v4.0 Parameters">
+        <div className="card-sm" style={{ marginBottom: '0.75rem' }}>
+          <p className="muted" style={{ fontSize: '0.8rem' }}>
+            One active totals formula: 50% team scoring + 50% opposing pitching staff, park-adjusted, then blended 50/50 with the current market total.
+          </p>
+        </div>
         <div className="grid-2">
           {[
-            { label: 'Offense Baseline RPG', value: cfg.ou.offenseBaseline },
-            { label: 'Offense Weight', value: cfg.ou.offenseWeight },
-            { label: 'Pitching Weight', value: cfg.ou.pitchingWeight },
-            { label: 'Park Weight', value: cfg.ou.parkWeight },
-            { label: 'Clamp Range', value: `±${cfg.ou.clampMax}` },
-            { label: 'Strong Gap Min', value: `±${cfg.ou.strongGapMin}` },
-            { label: 'Risky Gap Min', value: `±${cfg.ou.riskyGapMin}` },
-            { label: 'Min Selected Price', value: cfg.ou.minSelectedPrice },
+            { label: 'Offense Projection Weight', value: DEFAULT_OU_TOTALS_CONFIG.offenseProjectionWeight },
+            { label: 'Pitching Projection Weight', value: 1 - DEFAULT_OU_TOTALS_CONFIG.offenseProjectionWeight },
+            { label: 'Market Prior Weight', value: DEFAULT_OU_TOTALS_CONFIG.marketPriorWeight },
+            { label: 'Season / Recent Starter ERA', value: `${DEFAULT_OU_TOTALS_CONFIG.starterSeasonWeight} / ${DEFAULT_OU_TOTALS_CONFIG.starterRecentWeight}` },
+            { label: 'Lean Gap', value: `±${DEFAULT_OU_TOTALS_CONFIG.leanGapMin}` },
+            { label: 'Risky Gap', value: `±${DEFAULT_OU_TOTALS_CONFIG.riskyGapMin}` },
+            { label: 'Strong Gap', value: `±${DEFAULT_OU_TOTALS_CONFIG.strongGapMin}` },
+            { label: 'Min Selected Price', value: DEFAULT_OU_TOTALS_CONFIG.minSelectedPrice },
+            { label: 'Minimum / Warning IP', value: `${DEFAULT_OU_TOTALS_CONFIG.minSeasonIp} / ${DEFAULT_OU_TOTALS_CONFIG.warnSeasonIp}` },
+            { label: 'Odds Freshness', value: `${DEFAULT_OU_TOTALS_CONFIG.oddsStaleHours}h` },
           ].map((item) => (
             <div key={item.label} className="card-sm flex-between">
               <span style={{ fontSize: '0.85rem', color: '#e2e8f0' }}>{item.label}</span>
@@ -183,7 +190,7 @@ export default function Settings() {
           </div>
           <div className="flex-between">
             <span className="muted">Database</span>
-            <span className="mono-val">SQLite (demo) — set DATABASE_URL for PostgreSQL</span>
+            <span className="mono-val">PostgreSQL (DATABASE_URL)</span>
           </div>
         </div>
       </Section>

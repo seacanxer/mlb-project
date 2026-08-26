@@ -1,4 +1,7 @@
-# MLB Totals O/U v3.1 — Experimental Framework
+# Archived: MLB Totals O/U v3.1
+
+This model is retained only as historical documentation. The pipeline no longer
+publishes it. See `ou-unified-v4-framework.md` for the single active formula.
 
 Status: experimental, not calibrated, not approved for automatic staking.
 

@@ -7,7 +7,6 @@ const NAV_LINKS = [
   { href: '/results',           label: 'Results' },
   { href: '/analysis-data',     label: 'Analysis Data' },
   { href: '/data-health',       label: 'Data Health' },
-  { href: '/forecast-history',  label: 'Forecast History' },
   { href: '/backtest',          label: 'Backtest' },
   { href: '/settings',          label: 'Settings' },
 ];

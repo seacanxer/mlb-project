@@ -101,6 +101,38 @@ export interface OUV3Config {
   modelMarketOutlierMax: number;
 }
 
+/**
+ * The single active totals model. Older OU_V2_3 and OU_V3 records remain in
+ * the database as immutable history, but the pipeline no longer publishes
+ * parallel totals formulas.
+ */
+export interface OUTotalsConfig {
+  version: '4.0.0';
+  starterSeasonWeight: number;
+  starterRecentWeight: number;
+  offenseProjectionWeight: number;
+  marketPriorWeight: number;
+  whipBaseline: number;
+  whipRunsWeight: number;
+  maxWhipRunAdjustment: number;
+  authoritativeParkReliability: number;
+  fallbackParkReliability: number;
+  minStarterIpPerGame: number;
+  maxStarterIpPerGame: number;
+  minSeasonIp: number;
+  warnSeasonIp: number;
+  minSelectedPrice: number;
+  oddsStaleHours: number;
+  leanGapMin: number;
+  riskyGapMin: number;
+  strongGapMin: number;
+  minRiskyDataQuality: number;
+  minStrongDataQuality: number;
+  lineMoveWarn: number;
+  lineMoveHard: number;
+  modelMarketOutlierMax: number;
+}
+
 export interface AppModelConfig {
   version: string;
   createdAt: string;
@@ -191,6 +223,37 @@ export const DEFAULT_OU_V3_CONFIG: OUV3Config = {
   lineMoveWarn: 0.50,
   lineMoveHard: 1.00,
   modelMarketOutlierMax: 2.00,
+};
+
+export const DEFAULT_OU_TOTALS_CONFIG: OUTotalsConfig = {
+  version: '4.0.0',
+  starterSeasonWeight: 0.70,
+  starterRecentWeight: 0.30,
+  // The independent projection gives equal voice to actual team scoring and
+  // opponent pitching. This removes the old structural low-total bias caused
+  // by multiplying a pitching-only estimate by a heavily shrunk offense ratio.
+  offenseProjectionWeight: 0.50,
+  // The market remains a strong prior, but no longer dominates the estimate.
+  marketPriorWeight: 0.50,
+  whipBaseline: 1.30,
+  whipRunsWeight: 0.75,
+  maxWhipRunAdjustment: 0.25,
+  authoritativeParkReliability: 0.75,
+  fallbackParkReliability: 0.35,
+  minStarterIpPerGame: 4.5,
+  maxStarterIpPerGame: 6.5,
+  minSeasonIp: 30,
+  warnSeasonIp: 60,
+  minSelectedPrice: 1.85,
+  oddsStaleHours: 1,
+  leanGapMin: 0.25,
+  riskyGapMin: 0.40,
+  strongGapMin: 0.80,
+  minRiskyDataQuality: 70,
+  minStrongDataQuality: 85,
+  lineMoveWarn: 0.50,
+  lineMoveHard: 1.00,
+  modelMarketOutlierMax: 2.50,
 };
 
 // ---------------------------------------------------------------------------

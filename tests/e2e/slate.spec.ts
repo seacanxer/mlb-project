@@ -27,8 +27,8 @@ test.describe('Daily Slate', () => {
   test('nav links are present', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('link', { name: 'Daily Slate' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Results' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Data Health' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Forecast History' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Backtest' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Settings' })).toBeVisible();
   });
@@ -54,8 +54,8 @@ test.describe('Settings', () => {
 
   test('shows O/U parameters', async ({ page }) => {
     await page.goto('/settings');
-    await expect(page.getByText('O/U v2.3')).toBeVisible();
-    await expect(page.getByText('±3')).toBeVisible();
+    await expect(page.getByText('Unified MLB Totals v4.0 Parameters')).toBeVisible();
+    await expect(page.getByText('0.5', { exact: true }).first()).toBeVisible();
   });
 });
 
@@ -69,9 +69,9 @@ test.describe('Backtest', () => {
   });
 });
 
-test.describe('Forecast History', () => {
-  test('loads forecast history page', async ({ page }) => {
+test.describe('Forecast History redirect', () => {
+  test('redirects legacy history route to Results', async ({ page }) => {
     await page.goto('/forecast-history');
-    await expect(page.getByRole('heading', { name: 'Forecast History' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Results' })).toBeVisible();
   });
 });

@@ -17,7 +17,10 @@ export async function GET(
         venue: true,
         modelRuns: {
           orderBy: { runAt: 'desc' },
-          include: { warnings: true },
+          include: {
+            warnings: true,
+            forecasts: { include: { settlement: true } },
+          },
         },
         marketSnapshots: { orderBy: { retrievedAt: 'desc' }, take: 1 },
         probableStarterObservations: {

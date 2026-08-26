@@ -43,6 +43,6 @@ export async function GET() {
     summary: Object.values(byVersion),
     totalSettlements: settlements.length,
     note: 'ROI hidden until price and declared stake policy are configured.',
-    experimentalWarning: 'O/U v2.3 is experimental. Gap labels are not calibrated probabilities.',
+    experimentalWarning: 'Unified MLB Totals v4.0 is experimental. Gap labels are not calibrated probabilities.',
   });
 }

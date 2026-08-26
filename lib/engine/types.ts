@@ -53,6 +53,7 @@ export type WarningCode =
   | 'OU_CONFIDENCE_CAPPED'
   | 'OU_PRICE_BELOW_ACTIONABLE'
   | 'OU_PITCHER_LEVEL_FALLBACK'
+  | 'OU_WHIP_PARTIAL'
   | 'ODDS_PROVIDER_NOT_CONFIGURED'
   | 'ODDS_MISSING';           // No odds data at all (provider not configured)
 

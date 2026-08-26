@@ -2,14 +2,14 @@
  * prisma/seed.ts
  *
  * Seeds the database with:
- * - Model definitions (ML_COMBO_V2, OU_V2_3, OU_V3)
+ * - Model definitions (ML_COMBO_V2, OU_UNIFIED)
  * - Default config version
  * - Demo teams, venues, persons
  * - 12 demo fixture games, snapshots, and park factors
  */
 
 import { PrismaClient } from '@prisma/client';
-import { DEFAULT_CONFIG, DEFAULT_OU_V3_CONFIG } from '../lib/config/modelConfig';
+import { DEFAULT_CONFIG, DEFAULT_OU_TOTALS_CONFIG } from '../lib/config/modelConfig';
 import { DEMO_FIXTURES } from '../lib/fixtures/demoFixtures';
 import { computeEra } from '../lib/utils/innings';
 import crypto from 'crypto';
@@ -32,14 +32,13 @@ async function main() {
     update: { version: '2.1', description: 'Moneyline Combo Score v2.1 — deterministic scoring with explicit confidence caps.' },
   });
   await prisma.modelDefinition.upsert({
-    where: { id: 'OU_V3' },
-    create: { id: 'OU_V3', name: 'Over/Under Staff Run Model', version: '3.1', description: 'Experimental market-anchored starter, bullpen, offense, and park total model. Not calibrated.', isActive: true },
-    update: { version: '3.1' },
+    where: { id: 'OU_UNIFIED' },
+    create: { id: 'OU_UNIFIED', name: 'Unified MLB Totals', version: '4.0', description: 'Single market-anchored offense and pitching totals model. Experimental and not calibrated.', isActive: true },
+    update: { version: '4.0', isActive: true },
   });
-  await prisma.modelDefinition.upsert({
-    where: { id: 'OU_V2_3' },
-    create: { id: 'OU_V2_3', name: 'Over/Under Formula', version: '2.3', description: 'O/U v2.3 — experimental totals adjustment formula. Not a calibrated probability.', isActive: true },
-    update: {},
+  await prisma.modelDefinition.updateMany({
+    where: { id: { in: ['OU_V2_3', 'OU_V3'] } },
+    data: { isActive: false },
   });
 
   // ---------------------------------------------------------------------------
@@ -64,30 +63,15 @@ async function main() {
     configVersionId = existingConfig.id;
   }
 
-  // Also create O/U config version if needed
   const existingOuConfig = await prisma.modelConfigVersion.findFirst({
-    where: { modelId: 'OU_V2_3', semver: '2.3.0' },
+    where: { modelId: 'OU_UNIFIED', semver: DEFAULT_OU_TOTALS_CONFIG.version },
   });
   if (!existingOuConfig) {
     await prisma.modelConfigVersion.create({
       data: {
-        modelId: 'OU_V2_3',
-        semver: '2.3.0',
-        configJson: JSON.stringify(DEFAULT_CONFIG.ou),
-        isActive: true,
-        createdBy: 'seed',
-      },
-    });
-  }
-  const existingOuV3Config = await prisma.modelConfigVersion.findFirst({
-    where: { modelId: 'OU_V3', semver: DEFAULT_OU_V3_CONFIG.version },
-  });
-  if (!existingOuV3Config) {
-    await prisma.modelConfigVersion.create({
-      data: {
-        modelId: 'OU_V3',
-        semver: DEFAULT_OU_V3_CONFIG.version,
-        configJson: JSON.stringify(DEFAULT_OU_V3_CONFIG),
+        modelId: 'OU_UNIFIED',
+        semver: DEFAULT_OU_TOTALS_CONFIG.version,
+        configJson: JSON.stringify(DEFAULT_OU_TOTALS_CONFIG),
         isActive: true,
         createdBy: 'seed',
       },

@@ -306,7 +306,7 @@ export default function AnalysisDataPage() {
                               `A: ERA ${n(d.bullpen.away?.era)} · WHIP ${n(d.bullpen.away?.whip)}`,
                               `H: ERA ${n(d.bullpen.home?.era)} · WHIP ${n(d.bullpen.home?.whip)}`,
                               `${d.bullpen.away?.relievers ?? '—'} / ${d.bullpen.home?.relievers ?? '—'} relievers (A/H)`,
-                              'Required by O/U v3 staff-run model',
+                              'Required by Unified MLB Totals model',
                             ]} />
                           </td>
                           <td>

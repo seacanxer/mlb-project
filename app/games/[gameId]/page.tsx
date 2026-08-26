@@ -35,7 +35,7 @@ function OUAdjCard({ label, value, detail }: { label: string; value: number | nu
 }
 
 function lockSideForRun(run: any): string {
-  if (run.modelId === 'OU_V2_3' || run.modelId === 'OU_V3') {
+  if (run.modelId.startsWith('OU_')) {
     try {
       return JSON.parse(run.outputJson)?.selectedSide
         ?? (run.finalState?.startsWith('UNDER') ? 'under' : 'over');
@@ -91,9 +91,10 @@ export default function MatchDetail() {
   if (!game || game.error) return <div className="muted" style={{ padding: '3rem', textAlign: 'center' }} role="alert">Game not found.</div>;
 
   const mlRun = game.modelRuns?.find((r: any) => r.modelId === 'ML_COMBO_V2' && !r.isInvalidated);
-  const ouV3Run = game.modelRuns?.find((r: any) => r.modelId === 'OU_V3' && !r.isInvalidated);
-  const ouV2Run = game.modelRuns?.find((r: any) => r.modelId === 'OU_V2_3' && !r.isInvalidated);
-  const ouRun = ouV3Run ?? ouV2Run;
+  const ouRun = game.modelRuns?.find((r: any) => r.modelId === 'OU_UNIFIED' && !r.isInvalidated)
+    ?? game.modelRuns?.find((r: any) => r.modelId === 'OU_V3' && !r.isInvalidated)
+    ?? game.modelRuns?.find((r: any) => r.modelId === 'OU_V2_3' && !r.isInvalidated);
+  const usesStaffProjection = ouRun?.modelId !== 'OU_V2_3';
   const market = game.marketSnapshots?.[0];
   const mlOut = mlRun ? JSON.parse(mlRun.outputJson) : null;
   const ouOut = ouRun ? JSON.parse(ouRun.outputJson) : null;
@@ -210,7 +211,11 @@ export default function MatchDetail() {
         <section aria-labelledby="ou-heading" style={{ marginTop: '2rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
             <h2 id="ou-heading" style={{ fontSize: '1rem', fontWeight: 700, color: '#f1f5f9' }}>
-              Over/Under — {ouRun.modelId === 'OU_V3' ? `Staff Run Model v${ouOut.modelVersion ?? '3.1.0'}` : 'Legacy Formula v2.3'}
+              Over/Under — {ouRun.modelId === 'OU_UNIFIED'
+                ? `Unified MLB Totals v${ouOut.modelVersion ?? '4.0.0'}`
+                : ouRun.modelId === 'OU_V3'
+                ? `Archived Staff Run Model v${ouOut.modelVersion ?? '3.1.0'}`
+                : 'Archived Formula v2.3'}
             </h2>
             <ExperimentalBadge />
           </div>
@@ -222,7 +227,7 @@ export default function MatchDetail() {
               </div>
             </div>
             <div>
-              <div className="muted" style={{ fontSize: '0.75rem' }}>{ouRun.modelId === 'OU_V3' ? 'Projected Total' : 'Adjusted Total'}</div>
+              <div className="muted" style={{ fontSize: '0.75rem' }}>{usesStaffProjection ? 'Projected Total' : 'Adjusted Total'}</div>
               <div className="mono-val" style={{ fontSize: '1.2rem', fontWeight: 600 }}>
                 {(ouOut.projectedTotal ?? ouOut.adjustedTotal)?.toFixed(2) ?? '—'}
               </div>
@@ -244,9 +249,9 @@ export default function MatchDetail() {
             {ouOut.capReached && <span className="warning-pill">⚠ CAP REACHED ±3.0</span>}
             <FinalStateChip state={ouRun.finalState} />
           </div>
-          {ouRun.modelId === 'OU_V3' ? (
+          {usesStaffProjection ? (
             <div className="grid-3" style={{ marginBottom: '1.5rem' }}>
-              <OUAdjCard label="Independent Total" value={ouOut.independentModelTotal} detail="Starter + bullpen run allowance × opponent offense × park" />
+              <OUAdjCard label="Independent Total" value={ouOut.independentModelTotal} detail="50% team RPG + 50% opposing staff allowance, then park adjustment" />
               <OUAdjCard label="Effective Park Factor" value={ouOut.effectiveParkFactor} detail={`Raw ${ouOut.rawParkFactor?.toFixed(3) ?? '—'}; fallback sources are attenuated`} />
               <OUAdjCard label="Line Movement" value={ouOut.lineMovement} detail={`Opening ${ouOut.openingTotalLine ?? '—'} → current ${ouOut.marketLine ?? '—'}`} />
             </div>
@@ -267,7 +272,7 @@ export default function MatchDetail() {
               <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Home L5 ERA</span>
               <span className="mono-val">{ouOut.homeLastFiveEra?.toFixed(2) ?? '—'}</span>
             </div>
-            {ouRun.modelId === 'OU_V3' && <>
+            {usesStaffProjection && <>
               <div className="divider" style={{ margin: '0.5rem 0' }} />
               <div className="flex-between">
                 <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Away starter / staff runs</span>
@@ -279,20 +284,18 @@ export default function MatchDetail() {
                 <span className="mono-val">{ouOut.homeBlendedStarterEra?.toFixed(2) ?? '—'} / {ouOut.homeStaffRunsAllowed?.toFixed(2) ?? '—'}</span>
               </div>
               <div className="divider" style={{ margin: '0.5rem 0' }} />
+              {ouOut.awayExpectedRuns != null && <>
+                <div className="flex-between">
+                  <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Projected team runs (away / home)</span>
+                  <span className="mono-val">{ouOut.awayExpectedRuns.toFixed(2)} / {ouOut.homeExpectedRuns?.toFixed(2) ?? '—'}</span>
+                </div>
+                <div className="divider" style={{ margin: '0.5rem 0' }} />
+              </>}
               <div className="muted" style={{ fontSize: '0.75rem' }}>
                 Not calibrated: no win probability or EV is published. Missing context: {ouOut.missingContexts?.join(', ') ?? '—'}.
               </div>
             </>}
           </div>
-          {ouV3Run && ouV2Run && (
-            <div className="card-sm" style={{ marginTop: '0.75rem' }}>
-              <div className="muted" style={{ fontSize: '0.75rem' }}>Legacy comparator (not the active display signal)</div>
-              <div className="flex-between" style={{ marginTop: '0.35rem' }}>
-                <span>OU_V2_3</span>
-                <span className="mono-val">{ouV2Run.finalState} · gap {ouV2Run.rawGap?.toFixed(2) ?? '—'}</span>
-              </div>
-            </div>
-          )}
         </section>
       )}
 
@@ -322,7 +325,7 @@ export default function MatchDetail() {
           Model &amp; Source Lineage
         </h2>
         <div className="card-sm">
-          {[mlRun, ouV3Run, ouV2Run].filter(Boolean).map((run: any) => (
+          {[mlRun, ouRun].filter(Boolean).map((run: any) => (
             <div key={run.id} style={{ marginBottom: '0.75rem' }}>
               <div className="flex-between">
                 <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#e2e8f0' }}>{run.modelId}</span>
