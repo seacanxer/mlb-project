@@ -278,6 +278,47 @@ export default function ResultsPage() {
   const pushes = allForecasts.filter(f => f.settlement?.outcome === 'push').length;
   const pending = allForecasts.filter(f => !f.settlement).length;
 
+  // ── settlement record: units (ROI) + streak ─────────────────────────────
+  // Units counted from ML pick decimal odds (reliable in ML outputJson).
+  const mlOddsFromRun = (run: any): number | null => {
+    if (!run?.outputJson) return null;
+    try {
+      const m = Number(JSON.parse(run.outputJson)?.candidateDecimalOdds);
+      return isFinite(m) && m > 1 ? m : null;
+    } catch { return null; }
+  };
+
+  let netUnits = 0, unitsCounted = 0;
+  for (const g of games) {
+    const run = getResultRun(g.modelRuns, 'ML_COMBO_V2');
+    const fc = getLockedForecast(run);
+    if (!fc?.settlement) continue;
+    if (fc.settlement.outcome === 'push' || fc.settlement.outcome === 'void') continue;
+    const odds = mlOddsFromRun(run);
+    if (odds === null) continue;
+    unitsCounted++;
+    netUnits += fc.settlement.outcome === 'win' ? odds - 1 : -1;
+  }
+  const settledCount = wins + losses + pushes;
+  const winRate = wins + losses > 0 ? wins / (wins + losses) : null;
+  const roiLabel = unitsCounted > 0 ? `${netUnits >= 0 ? '+' : ''}${netUnits.toFixed(2)}u` : '—';
+
+  // current streak over settled picks (in game order)
+  const orderedSettled = games.flatMap(g => {
+    const ml = getResultRun(g.modelRuns, 'ML_COMBO_V2');
+    const ou = getOuResultRun(g.modelRuns);
+    return [getLockedForecast(ml), getLockedForecast(ou)].filter((f: any) => f?.settlement);
+  });
+  let streak = 0, streakType: 'win' | 'loss' | null = null;
+  for (let i = orderedSettled.length - 1; i >= 0; i--) {
+    const o = orderedSettled[i].settlement.outcome;
+    if (o !== 'win' && o !== 'loss') continue;
+    if (streakType === null) streakType = o;
+    if (o === streakType) streak++;
+    else break;
+  }
+  const streakLabel = streakType && streak > 0 ? `${streak} ${streakType === 'win' ? 'W' : 'L'}` : '—';
+
   const wibDateLabel = games.length > 0 && games[0].startTimeUtc
     ? formatWIB(games[0].startTimeUtc, 'dd/MM/yyyy')
     : '—';
@@ -382,6 +423,56 @@ export default function ResultsPage() {
               <div className="muted" style={{ fontSize: '0.7rem', marginTop: '0.2rem' }}>{card.label}</div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* ── Settlement record strip: win rate, net units/ROI, streak ─────── */}
+      {!loading && games.length > 0 && (
+        <div
+          className="card"
+          style={{
+            marginBottom: '1.5rem',
+            padding: '0.85rem 1.25rem',
+            display: 'flex',
+            gap: '2rem',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            background: 'linear-gradient(90deg, rgba(10,14,24,0.7), rgba(20,28,44,0.55))',
+            border: '1px solid rgba(148,163,184,0.12)',
+            borderRadius: 10,
+          }}
+        >
+          <div>
+            <div className="muted" style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Record</div>
+            <div style={{ fontSize: '1.15rem', fontWeight: 800 }}>
+              <span style={{ color: 'var(--green-lt)' }}>{wins}W</span>
+              <span style={{ color: 'var(--muted)' }}>–</span>
+              <span style={{ color: 'var(--red-lt)' }}>{losses}L</span>
+              {pushes > 0 && <span style={{ color: 'var(--amber-lt)' }}>{pushes}P</span>}
+            </div>
+          </div>
+          <div>
+            <div className="muted" style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Win Rate</div>
+            <div style={{ fontSize: '1.15rem', fontWeight: 800, color: winRate == null ? 'var(--muted)' : winRate >= 0.5 ? 'var(--green-lt)' : 'var(--red-lt)' }}>
+              {winRate == null ? '—' : `${(winRate * 100).toFixed(0)}%`}
+            </div>
+          </div>
+          <div>
+            <div className="muted" style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Net Units (ROI)</div>
+            <div style={{ fontSize: '1.15rem', fontWeight: 800, color: netUnits >= 0 ? 'var(--green-lt)' : 'var(--red-lt)' }}>
+              {roiLabel}
+            </div>
+          </div>
+          <div>
+            <div className="muted" style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Streak</div>
+            <div style={{ fontSize: '1.15rem', fontWeight: 800, color: streakType === 'win' ? 'var(--green-lt)' : 'var(--red-lt)' }}>
+              {streakLabel}
+            </div>
+          </div>
+          <div>
+            <div className="muted" style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Settled</div>
+            <div style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--muted)' }}>{settledCount}</div>
+          </div>
         </div>
       )}
 

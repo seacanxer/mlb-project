@@ -1,6 +1,6 @@
 // app/api/results/refresh/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { ingestResultAndGrade } from '@/lib/engine/forecast';
+import { ingestResultAndGrade, gradeForecast } from '@/lib/engine/forecast';
 import { prisma } from '@/lib/db';
 import { MlbResultsProvider } from '@/lib/providers/mlbStatsApi';
 
@@ -34,6 +34,43 @@ export async function POST(req: NextRequest) {
         forecastsGraded += graded.settledCount;
         settled.push({ gameId: game.id, ...graded });
       }
+    }
+
+    // ── catch-up: grade pending forecasts for games already marked final ──
+    const finalGames = await prisma.game.findMany({
+      where: { date, status: 'final' },
+      select: { id: true },
+    });
+    const finalIds = finalGames.map(g => g.id);
+    // ensure every final game has a GameResult (ingest missing scores from provider)
+    for (const gid of finalIds) {
+      const existing = await prisma.gameResult.findUnique({ where: { gameId: gid } });
+      if (existing) continue;
+      const provResult = await provider.getResult(gid);
+      const r = provResult?.data;
+      if (r && r.finalStatus === 'final') {
+        const graded = await ingestResultAndGrade(gid, r.homeScore, r.awayScore);
+        forecastsGraded += graded.settledCount;
+        settled.push({ gameId: gid, ...graded });
+      }
+    }
+    // grade any remaining pending forecasts for final games
+    const pendingForecasts = await prisma.forecast.findMany({
+      where: {
+        modelRun: { gameId: { in: finalIds } },
+        settlement: null,
+        lockedAt: { gte: new Date(0) },
+      },
+      include: { modelRun: { include: { game: true } } },
+    });
+    for (const fc of pendingForecasts) {
+      const gameResult = await prisma.gameResult.findUnique({
+        where: { gameId: fc.modelRun.gameId },
+      });
+      if (!gameResult) continue;
+      await gradeForecast(fc.id, gameResult.id);
+      forecastsGraded++;
+      settled.push({ gameId: fc.modelRun.gameId, gameResultId: gameResult.id, settledCount: 1 });
     }
 
     return NextResponse.json({
