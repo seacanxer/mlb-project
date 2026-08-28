@@ -32,12 +32,15 @@ export async function GET(
       orderBy: { startTimeUtc: 'asc' },
     });
 
-    return NextResponse.json({ date, games });
+    return NextResponse.json(
+      { date, games },
+      { headers: { 'Access-Control-Allow-Origin': '*' } }
+    );
   } catch (error: any) {
     console.error('[API /api/slates/[date] error]:', error);
     return NextResponse.json(
       { error: error?.message || 'Database query error', date, games: [] },
-      { status: 500 }
+      { status: 500, headers: { 'Access-Control-Allow-Origin': '*' } }
     );
   }
 }

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MLB Betting Dashboard — AI Picker</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: #0b0e14; color: #e8edf5; padding: 24px; min-height: 100vh; }
+    .container { max-width: 1400px; margin: 0 auto; }
+    h1 { font-size: 2rem; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+    h1 small { font-size: 0.9rem; font-weight: 400; color: #8b93a0; }
+    .subtitle { color: #8b93a0; margin-bottom: 28px; border-left: 3px solid #3b82f6; padding-left: 16px; }
+    .loading { display: flex; align-items: center; gap: 12px; color: #8b93a0; padding: 32px; justify-content: center; }
+    .spinner { width: 24px; height: 24px; border: 3px solid #1e293b; border-top-color: #3b82f6; border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    table { width: 100%; border-collapse: collapse; background: #151e2a; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+    th { background: #1e293b; text-align: left; padding: 14px 16px; font-weight: 500; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: #94a3b8; border-bottom: 1px solid #2d3a4f; }
+    td { padding: 12px 16px; border-bottom: 1px solid #1e293b; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #1a2533; }
+    .matchup { font-weight: 500; }
+    .matchup .away { color: #facc15; }
+    .matchup .at { color: #64748b; font-weight: 300; margin: 0 6px; }
+    .matchup .home { color: #60a5fa; }
+    .sp { color: #8b93a0; font-size: 0.8rem; margin-top: 2px; }
+    .pick { font-weight: 600; padding: 4px 12px; border-radius: 20px; display: inline-block; font-size: 0.9rem; }
+    .pick-away { background: #facc1522; color: #facc15; border: 1px solid #facc1544; }
+    .pick-home { background: #60a5fa22; color: #60a5fa; border: 1px solid #60a5fa44; }
+    .pick-over { background: #f472b622; color: #f472b6; border: 1px solid #f472b644; }
+    .pick-under { background: #34d39922; color: #34d399; border: 1px solid #34d39944; }
+    .conf { font-size: 0.8rem; color: #8b93a0; margin-left: 8px; }
+    .conf strong { color: #e8edf5; }
+    .reason { font-size: 0.8rem; color: #94a3b8; max-width: 320px; line-height: 1.4; }
+    .odds { font-size: 0.85rem; color: #cbd5e1; }
+    .odds .ml { color: #facc15; }
+    .odds .tot { color: #60a5fa; }
+    .model-badge { font-size: 0.65rem; background: #1e293b; padding: 2px 10px; border-radius: 12px; color: #94a3b8; display: inline-block; }
+    .error-row td { color: #f87171; }
+    .error-row .reason { color: #f87171; }
+    @media (max-width: 768px) {
+      table, thead, tbody, th, td, tr { display: block; }
+      thead { display: none; }
+      tr { margin-bottom: 16px; background: #151e2a; border-radius: 10px; padding: 12px; }
+      td { border-bottom: 1px solid #1e293b; padding: 8px 4px; display: flex; justify-content: space-between; align-items: center; }
+      td:last-child { border-bottom: none; }
+      td::before { content: attr(data-label); font-size: 0.7rem; text-transform: uppercase; color: #64748b; font-weight: 500; }
+      .reason { max-width: 100%; }
+    }
+    .refresh-btn { background: #1e293b; border: 1px solid #2d3a4f; color: #e8edf5; padding: 8px 20px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; margin-left: 16px; }
+    .refresh-btn:hover { background: #2d3a4f; border-color: #3b82f6; }
+    .header-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header-row">
+    <h1>⚾ MLB Betting Dashboard <small>AI Picker</small></h1>
+    <button class="refresh-btn" onclick="fetchSlate()">⟳ Refresh</button>
+  </div>
+  <div class="subtitle">
+    Today's games — picks generated via 9router AI models (gpt-sol / claude-fable / deepseek flash pro v4)
+  </div>
+  <div id="app">
+    <div class="loading"><div class="spinner"></div> Loading today's slate...</div>
+  </div>
+</div>
+
+<script>
+const PICKER_URL = '/api/pick';
+const MLB_API = '/api/slates/' + new Date().toISOString().slice(0,10);
+
+// Models to cycle through for diversity
+const MODELS = [
+  'xkiro/openai/gpt-5.6-sol',
+  'xkiro/anthropic/claude-fable-5',
+  'xkiro/deepseek/deepseek-v4-flash-0731',
+  'tb/deepseek-v4-pro',
+  'zai/openai/gpt-5.6-sol',
+  'zai/anthropic/claude-fable-5'
+];
+
+async function fetchSlate() {
+  const app = document.getElementById('app');
+  app.innerHTML = '<div class="loading"><div class="spinner"></div> Loading slate...</div>';
+
+  try {
+    const resp = await fetch(MLB_API);
+    if (!resp.ok) throw new Error('Failed to fetch slate: ' + resp.status);
+    const data = await resp.json();
+    const games = data.games || [];
+
+    if (!games.length) {
+      app.innerHTML = `<div class="loading" style="color:#f87171;">No games scheduled for today.</div>`;
+      return;
+    }
+
+    app.innerHTML = '<table><thead><tr><th>Matchup</th><th>Odds</th><th>AI Pick</th><th>Confidence</th><th>Reason</th><th>Model</th></tr></thead><tbody></tbody></table>';
+
+    const tbody = app.querySelector('tbody');
+
+    // Process games in parallel with model rotation
+    const pickPromises = games.map(async (game, idx) => {
+      const model = MODELS[idx % MODELS.length];
+      const payload = {
+        away: game.awayTeam?.name || 'Unknown',
+        away_sp: game.probableStarterObservations?.[0]?.person?.name || 'TBD',
+        home: game.homeTeam?.name || 'Unknown',
+        home_sp: game.probableStarterObservations?.[1]?.person?.name || 'TBD',
+        moneyline: game.marketSnapshots?.[0]?.moneyline || 'N/A',
+        total: game.marketSnapshots?.[0]?.total || 'N/A',
+        model: model
+      };
+
+      try {
+        const pickResp = await fetch(PICKER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const result = await pickResp.json();
+        let parsed = null;
+        if (result.result) {
+          try {
+            // Try to parse JSON from the response
+            const jsonMatch = result.result.match(/\{[\s\S]*\}/);
+            if (jsonMatch) parsed = JSON.parse(jsonMatch[0]);
+          } catch (_) { /* fallback */ }
+        }
+        return { game, payload, result, parsed, model, error: null };
+      } catch (err) {
+        return { game, payload, result: null, parsed: null, model, error: err.message };
+      }
+    });
+
+    const results = await Promise.all(pickPromises);
+
+    for (const r of results) {
+      const tr = document.createElement('tr');
+      const g = r.game;
+      const home = g.homeTeam?.name || '?';
+      const away = g.awayTeam?.name || '?';
+      const homeSP = g.probableStarterObservations?.[1]?.person?.name || 'TBD';
+      const awaySP = g.probableStarterObservations?.[0]?.person?.name || 'TBD';
+      const snap = g.marketSnapshots?.[0] || {};
+      const ml = snap.moneyline || 'N/A';
+      const total = snap.total || 'N/A';
+
+      let pickDisplay = '—';
+      let confidence = '—';
+      let reason = '—';
+      let pickClass = '';
+      let modelName = r.model.split('/').slice(-1)[0] || r.model;
+
+      if (r.error) {
+        tr.className = 'error-row';
+        reason = 'Error: ' + r.error;
+      } else if (r.parsed) {
+        const p = r.parsed;
+        pickDisplay = p.pick || '—';
+        confidence = p.confidence || '—';
+        reason = p.reason || '—';
+        const pickLower = String(pickDisplay).toLowerCase();
+        if (pickLower.includes('away')) pickClass = 'pick-away';
+        else if (pickLower.includes('home')) pickClass = 'pick-home';
+        else if (pickLower.includes('over')) pickClass = 'pick-over';
+        else if (pickLower.includes('under')) pickClass = 'pick-under';
+      } else if (r.result && typeof r.result === 'string') {
+        // Fallback: show raw response
+        reason = r.result.slice(0, 120) + '…';
+      }
+
+      tr.innerHTML = `
+        <td data-label="Matchup">
+          <div class="matchup"><span class="away">${away}</span> <span class="at">@</span> <span class="home">${home}</span></div>
+          <div class="sp">${awaySP} vs ${homeSP}</div>
+        </td>
+        <td data-label="Odds" class="odds">
+          <div class="ml">ML: ${ml}</div>
+          <div class="tot">Total: ${total}</div>
+        </td>
+        <td data-label="Pick"><span class="pick ${pickClass}">${pickDisplay}</span></td>
+        <td data-label="Confidence" class="conf"><strong>${typeof confidence === 'number' ? confidence + '%' : confidence}</strong></td>
+        <td data-label="Reason" class="reason">${reason}</td>
+        <td data-label="Model"><span class="model-badge">${modelName}</span></td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+  } catch (err) {
+    app.innerHTML = `<div class="loading" style="color:#f87171;">Error: ${err.message}</div>`;
+  }
+}
+
+fetchSlate();
+</script>
+</body>
+</html>
