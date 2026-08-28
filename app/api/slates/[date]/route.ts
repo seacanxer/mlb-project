@@ -1,6 +1,7 @@
 // app/api/slates/[date]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { MlbScheduleProvider } from '@/lib/providers/mlbStatsApi';
 
 export async function GET(
   _req: NextRequest,
@@ -8,8 +9,9 @@ export async function GET(
 ) {
   const { date } = params;
 
+  // 1. Try fetching from Database first if available
   try {
-    const games = await prisma.game.findMany({
+    const dbGames = await prisma.game.findMany({
       where: { date },
       include: {
         homeTeam: true,
@@ -32,15 +34,115 @@ export async function GET(
       orderBy: { startTimeUtc: 'asc' },
     });
 
+    if (dbGames && dbGames.length > 0) {
+      return NextResponse.json(
+        { date, games: dbGames, source: 'database' },
+        {
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          },
+        }
+      );
+    }
+  } catch (dbError: any) {
+    console.warn('[API /api/slates/[date]] DB fetch failed, falling back to live MLB Stats API:', dbError?.message);
+  }
+
+  // 2. Fallback to Live MLB Stats API
+  try {
+    const scheduleProvider = new MlbScheduleProvider();
+    const liveResults = await scheduleProvider.getSchedule(date);
+
+    const formattedGames = liveResults.map((item) => {
+      const g = item.data;
+      return {
+        id: g.gameId,
+        date: g.date,
+        startTimeUtc: g.startTimeUtc,
+        status: g.status,
+        season: g.season,
+        homeTeamId: g.homeTeamId,
+        awayTeamId: g.awayTeamId,
+        venueId: g.venueId,
+        homeTeam: {
+          id: g.homeTeamId,
+          name: g.homeTeamName,
+          abbreviation: g.homeTeamAbbreviation || g.homeTeamName.slice(0, 3).toUpperCase(),
+          city: g.homeTeamCity || '',
+        },
+        awayTeam: {
+          id: g.awayTeamId,
+          name: g.awayTeamName,
+          abbreviation: g.awayTeamAbbreviation || g.awayTeamName.slice(0, 3).toUpperCase(),
+          city: g.awayTeamCity || '',
+        },
+        venue: {
+          id: g.venueId,
+          name: g.venueName,
+          city: g.homeTeamCity || '',
+        },
+        probableStarterObservations: [
+          {
+            side: 'away',
+            retrievedAt: new Date().toISOString(),
+            person: {
+              id: g.awayStarterPersonId || 'away-sp',
+              name: g.awayStarterName || 'TBD',
+              fullName: g.awayStarterName || 'TBD',
+            },
+          },
+          {
+            side: 'home',
+            retrievedAt: new Date().toISOString(),
+            person: {
+              id: g.homeStarterPersonId || 'home-sp',
+              name: g.homeStarterName || 'TBD',
+              fullName: g.homeStarterName || 'TBD',
+            },
+          },
+        ],
+        // MLB Stats API has no betting market. Do not manufacture odds when
+        // the database/odds provider is unavailable.
+        marketSnapshots: [],
+        modelRuns: [],
+      };
+    });
+
     return NextResponse.json(
-      { date, games },
-      { headers: { 'Access-Control-Allow-Origin': '*' } }
+      { date, games: formattedGames, source: 'live-mlb-api' },
+      {
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        },
+      }
     );
-  } catch (error: any) {
-    console.error('[API /api/slates/[date] error]:', error);
+  } catch (liveError: any) {
+    console.error('[API /api/slates/[date]] Live fetch error:', liveError);
     return NextResponse.json(
-      { error: error?.message || 'Database query error', date, games: [] },
-      { status: 500, headers: { 'Access-Control-Allow-Origin': '*' } }
+      { error: liveError?.message || 'Failed to retrieve slate games', date, games: [] },
+      {
+        status: 500,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        },
+      }
     );
   }
+}
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  });
 }

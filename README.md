@@ -1,6 +1,6 @@
 # MLB Analytics Website
 
-A **standalone, deterministic** MLB analytics website. No AI, no Hermes, no LLMs. All decisions come from versioned formulas and explicit rules.
+A **standalone, deterministic** MLB analytics website. All authoritative decisions come from versioned formulas and explicit rules. The optional AI Picker can review those calculations through a server-side 9Router-compatible endpoint, but it cannot silently replace hard gates or fabricate missing inputs.
 
 > **Disclaimer**: T1/T2 are score tiers, not win probabilities or profit guarantees. Unified MLB Totals v4.0 is experimental — gap labels describe formula output, not calibrated confidence. A `SKIP`, `NO BET`, or `NEEDS DATA` result is a valid output.
 
@@ -40,6 +40,19 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+### Optional AI Picker
+
+Configure either an existing picker service or an OpenAI-compatible 9Router endpoint in `.env.local`:
+
+```dotenv
+PICKER_SERVICE_URL=http://127.0.0.1:3001/pick
+# Or direct router access:
+NINEROUTER_API_BASE=http://127.0.0.1:20128/v1
+NINEROUTER_API_KEY=your-server-side-key
+```
+
+The browser sends the selected model ID and a compact summary of the deterministic ML/O/U runs to `/api/pick`. Credentials never reach browser code. If the external model is unavailable or returns invalid JSON, the endpoint displays the existing deterministic T1/T2 or O/U RISKY/STRONG decision; otherwise it returns an explicit `NO PICK` with the blocking reason. It never manufactures a replacement pick.
 
 ---
 

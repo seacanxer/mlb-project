@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 
 const NAV_LINKS = [
   { href: '/',                  label: 'Daily Slate' },
+  { href: '/ai-picker',         label: '🤖 AI Picker' },
   { href: '/results',           label: 'Results' },
   { href: '/analysis-data',     label: 'Analysis Data' },
   { href: '/data-health',       label: 'Data Health' },
