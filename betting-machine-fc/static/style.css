@@ -651,6 +651,15 @@ canvas {
   border-bottom: 1px solid var(--border-color);
 }
 
+.data-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.data-table th.sortable:hover {
+  color: var(--text-primary, #fff);
+}
+
 .data-table td {
   padding: 10px 12px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);

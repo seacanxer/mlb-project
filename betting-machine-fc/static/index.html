@@ -156,9 +156,39 @@
         <div class="kpi-card"><div class="kpi-label">Profit</div><div class="kpi-val" id="tracker-profit">0.00u</div></div>
         <div class="kpi-card"><div class="kpi-label">ROI</div><div class="kpi-val" id="tracker-roi">0.0%</div></div>
       </div>
+      <div class="filter-row">
+        <div class="filter-group">
+          <label for="tracker-filter-market">Market Category</label>
+          <select id="tracker-filter-market" class="form-select">
+            <option value="all">All Markets</option>
+            <option value="1x2">1X2</option>
+            <option value="ah">Asian Handicap</option>
+            <option value="ou">Over / Under</option>
+            <option value="btts">BTTS</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="tracker-filter-status">Status</label>
+          <select id="tracker-filter-status" class="form-select">
+            <option value="all">All</option>
+            <option value="locked">🔒 Locked</option>
+            <option value="settled">Settled</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="tracker-sort">Sort</label>
+          <select id="tracker-sort" class="form-select">
+            <option value="date_desc">Date (Newest)</option>
+            <option value="date_asc">Date (Oldest)</option>
+            <option value="market">Market A–Z</option>
+            <option value="odds_desc">Odds (High → Low)</option>
+            <option value="odds_asc">Odds (Low → High)</option>
+          </select>
+        </div>
+      </div>
       <div class="card table-responsive">
         <table class="data-table">
-          <thead><tr><th>Status</th><th>Date</th><th>Match</th><th>Market</th><th>Pick</th><th>Odds</th><th>Result</th></tr></thead>
+          <thead><tr><th>Status</th><th>Date</th><th>Match</th><th id="th-market" class="sortable" title="Click to sort by market">Market <span id="market-sort-indicator"></span></th><th>Pick</th><th>Odds</th><th>Result</th></tr></thead>
           <tbody id="tracker-table"><tr><td colspan="7" class="text-center text-muted">Loading tracker…</td></tr></tbody>
         </table>
       </div>
