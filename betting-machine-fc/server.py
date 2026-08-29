@@ -81,7 +81,15 @@ def load_config() -> Dict[str, Any]:
             pass
     return {
         "data_source": "1xbit",
-        "filters": {"min_odds": 1.66, "min_ev": 0.02, "max_ah_abs_line": 2.0},
+        "scan_match_limit": 500,
+        "filters": {
+            "min_odds": 1.66,
+            "min_ev": 0.0,
+            "max_ah_abs_line": 1.5,
+            "top_pick_limit": 40,
+            "top_picks_per_market": 12,
+            "top_picks_per_match": 2,
+        },
         "markets": ["1x2", "ah", "ou", "btts"],
         "output": "picks.json",
         "historical": {"league": "E0", "season": "2526"},
@@ -137,13 +145,14 @@ def execute_live_scan_sync():
             if len(raw_matches) == 0:
                 scan_state["progress"] = "FlashScore returned no matches, falling back to 1xbit..."
                 print("[LOG] FlashScore empty, falling back to 1xbit")
-                raw_matches = sc.list_matches()
+                raw_matches = sc.list_matches(count=int(cfg.get("scan_match_limit", 500)))
                 scan_state["progress"] = f"Processing {len(raw_matches)} matches from 1xbit (fallback)..."
             else:
                 scan_state["progress"] = f"Processing {len(raw_matches)} matches from FlashScore..."
                 print(f"[LOG] FlashScore found {len(raw_matches)} matches")
         else:
-            raw_matches = sc.list_matches()
+            scan_match_limit = int(cfg.get("scan_match_limit", 500))
+            raw_matches = sc.list_matches(count=scan_match_limit)
             scan_state["progress"] = f"Processing {len(raw_matches)} matches from 1xbit..."
             print(f"[LOG] 1xbit found {len(raw_matches)} matches")
         scan_state["progress"] = f"Processing markets for {len(raw_matches)} matches..."
@@ -209,7 +218,14 @@ def execute_live_scan_sync():
         from main import select_top_picks
         top_limit = int(cfg.get("filters", {}).get("top_pick_limit", 12))
         per_market = int(cfg.get("filters", {}).get("top_picks_per_market", 3))
-        picks = select_top_picks(picks, limit=top_limit, per_market=per_market)
+        per_match = int(cfg.get("filters", {}).get("top_picks_per_match", 2))
+        picks = select_top_picks(
+            picks,
+            limit=top_limit,
+            per_market=per_market,
+            per_match=per_match,
+            min_ev=min_ev,
+        )
 
         # Every published recommendation is immediately locked for ROI tracking.
         for pick in picks:
@@ -273,10 +289,16 @@ def get_picks(
         raw_picks,
         limit=int(cfg.get("filters", {}).get("top_pick_limit", 12)),
         per_market=int(cfg.get("filters", {}).get("top_picks_per_market", 3)),
+        per_match=int(cfg.get("filters", {}).get("top_picks_per_match", 2)),
+        min_ev=float(cfg.get("filters", {}).get("min_ev", 0.0)),
     )
 
     filtered = []
-    leagues_set = set()
+    leagues_set = {
+        match.get("info", {}).get("league")
+        for match in load_detailed_matches()
+        if match.get("info", {}).get("league")
+    }
     markets_set = set()
 
     for p in raw_picks:
@@ -341,6 +363,7 @@ def get_picks(
             "avg_odds": round(avg_odds, 3),
             "min_odds_floor": 1.66,
             "selection_limit": cfg.get("filters", {}).get("top_pick_limit", 12),
+            "max_picks_per_match": cfg.get("filters", {}).get("top_picks_per_match", 2),
             "leagues": sorted(list(leagues_set)),
             "markets": sorted(list(markets_set)),
             "last_scan_time": scan_state.get("last_scan_time"),
@@ -550,10 +573,20 @@ def get_config():
 
 @app.post("/api/config")
 def update_config(cfg: Dict[str, Any]):
+    # Merge partial UI updates so breadth and selection safety controls cannot
+    # silently disappear when an older browser form saves its visible fields.
+    saved = load_config()
+    merged = dict(saved)
+    merged.update({key: value for key, value in cfg.items() if key != "filters"})
+    merged_filters = dict(saved.get("filters", {}))
+    merged_filters.update(cfg.get("filters", {}))
+    merged["filters"] = merged_filters
+
     # Enforce minimum odds floor constraint of 1.66
-    if "filters" in cfg and "min_odds" in cfg["filters"]:
-        cfg["filters"]["min_odds"] = max(float(cfg["filters"]["min_odds"]), 1.66)
-    save_config(cfg)
+    merged["filters"]["min_odds"] = max(float(merged["filters"].get("min_odds", 1.66)), 1.66)
+    merged["filters"]["min_ev"] = max(float(merged["filters"].get("min_ev", 0.0)), 0.0)
+    merged["filters"]["top_picks_per_match"] = 2
+    save_config(merged)
     return {"status": "saved", "config": load_config()}
 
 

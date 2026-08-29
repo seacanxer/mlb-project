@@ -1,17 +1,15 @@
 {
   "data_source": "1xbit",
-  "flashscore_leagues": [
-    {
-      "name": "Finland Veikkausliiga",
-      "tournament_id": 76
-    }
-  ],
+  "flashscore_leagues": [],
+  "scan_match_limit": 500,
   "filters": {
     "min_odds": 1.66,
-    "min_ev": 0.02,
+    "min_ev": 0.0,
     "min_probability": 0.0,
-    "top_pick_limit": 12,
-    "top_picks_per_market": 3
+    "max_ah_abs_line": 1.5,
+    "top_pick_limit": 40,
+    "top_picks_per_market": 12,
+    "top_picks_per_match": 2
   },
   "markets": [
     "1x2",

@@ -55,7 +55,7 @@
         <div class="kpi-card">
           <div class="kpi-label">Top Picks</div>
           <div class="kpi-val" id="kpi-qualified-picks">-</div>
-          <div class="kpi-sub">One best pick per match</div>
+          <div class="kpi-sub">Up to 2 safest markets per match</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">Locked</div>
@@ -98,6 +98,7 @@
           <div class="filter-group">
             <label for="filter-min-ev">Quality Gate</label>
             <select id="filter-min-ev" class="form-select">
+              <option value="0.00">All Positive EV (&ge; 0%)</option>
               <option value="0.02" selected>Top Picks (EV &ge; 2%)</option>
               <option value="0.05">+5% (Strong Edge)</option>
               <option value="0.10">+10% (High Value)</option>

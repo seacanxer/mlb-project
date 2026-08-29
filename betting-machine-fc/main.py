@@ -65,6 +65,8 @@ def run_pipeline(cfg=None):
             picks,
             limit=int(cfg.get("filters", {}).get("top_pick_limit", 12)),
             per_market=int(cfg.get("filters", {}).get("top_picks_per_market", 3)),
+            per_match=int(cfg.get("filters", {}).get("top_picks_per_match", 2)),
+            min_ev=float(min_ev),
         )
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(picks, f, ensure_ascii=False, indent=2)
@@ -112,7 +114,7 @@ def analyze_match(o, lh, la, min_odds=1.66, min_ev=0.0, max_ah_line=2.5):
         ("1x2", f"Away ({o['away']})", pa, o2),
     ]:
         e = ev(p, odds) if odds else -999
-        if e > min_ev and odds and odds >= min_odds:
+        if e >= min_ev and odds and odds >= min_odds:
             out.append(pick_entry(o, market, pick, p, odds, e))
     # O/U: evaluate every bookmaker line with the fitted goal distribution.
     # total_ev handles integer pushes and quarter-line half settlements correctly.
@@ -126,7 +128,7 @@ def analyze_match(o, lh, la, min_odds=1.66, min_ev=0.0, max_ah_line=2.5):
             ("under", f"Under {line_value:g}", under_prob(line_value, lh, la), prices.get(10)),
         ]:
             edge = total_ev(line_value, side, odds, lh, la) if odds else -999
-            if odds and edge > min_ev and odds >= min_odds:
+            if odds and edge >= min_ev and odds >= min_odds:
                 out.append(pick_entry(o, "ou", pick, probability, odds, edge))
     # BTTS
     btts_market = o.get("odds_btts") or {}
@@ -137,31 +139,32 @@ def analyze_match(o, lh, la, min_odds=1.66, min_ev=0.0, max_ah_line=2.5):
         ("BTTS No", 1.0 - pbt, btts_market.get("no")),
     ]:
         e = ev(p, odds) if odds else -999
-        if odds and e > min_ev and odds >= min_odds:
+        if odds and e >= min_ev and odds >= min_odds:
             out.append(pick_entry(o, "btts", pick, p, odds, e))
     # AH
     for line, c in o.get("odds_ah", {}).get("home", []) or []:
         if abs(line) > max_ah_line:
             continue
         e_ah = ah_ev(line, c, lh, la)
-        if c >= min_odds and e_ah > min_ev:
+        if c >= min_odds and e_ah >= min_ev:
             p_approx = (e_ah + 1.0) / c if c > 0 else 0
             out.append(pick_entry(o, "ah", f"Home {line:+.2f}", p_approx, c, e_ah))
     for line, c in o.get("odds_ah", {}).get("away", []) or []:
         if abs(line) > max_ah_line:
             continue
         e_ah = ah_ev_away(line, c, lh, la)
-        if c >= min_odds and e_ah > min_ev:
+        if c >= min_odds and e_ah >= min_ev:
             p_approx = (e_ah + 1.0) / c if c > 0 else 0
             out.append(pick_entry(o, "ah", f"Away {line:+.2f}", p_approx, c, e_ah))
     return out
 
 
-def select_top_picks(candidates, limit=12, per_market=3):
-    """Create a small, diversified parlay shortlist instead of returning every edge.
+def select_top_picks(candidates, limit=12, per_market=3, per_match=2, min_ev=0.0):
+    """Create a small, diversified shortlist instead of returning every edge.
 
     Gates reject low-confidence longshots and implausibly large model/market gaps.
-    Only one selection per fixture is retained, then market caps provide variety.
+    At most ``per_match`` different markets are retained for each fixture, then
+    market caps provide variety across the full slate.
     """
     probability_floor = {"1x2": 0.42, "ah": 0.50, "ou": 0.52, "btts": 0.52}
     eligible = []
@@ -174,7 +177,7 @@ def select_top_picks(candidates, limit=12, per_market=3):
             continue
         if probability < probability_floor[market] or not 1.66 <= odds <= 3.50:
             continue
-        if edge < 0.02 or edge > 0.35:
+        if edge < max(0.0, min_ev) or edge > 0.35:
             continue
         # Probability drives the rank; EV helps only within a capped sane range.
         score = probability * 70 + min(edge, 0.15) / 0.15 * 30
@@ -184,14 +187,19 @@ def select_top_picks(candidates, limit=12, per_market=3):
         eligible.append(item)
 
     eligible.sort(key=lambda p: (p["rank_score"], p["probability"]), reverse=True)
-    selected, seen_matches, market_counts = [], set(), {}
+    selected, match_counts, match_markets, market_counts = [], {}, {}, {}
     for pick in eligible:
         match_key = (pick.get("match"), pick.get("start_ts"))
         market = pick["market"]
-        if match_key in seen_matches or market_counts.get(market, 0) >= per_market:
+        if match_counts.get(match_key, 0) >= per_match:
+            continue
+        if market in match_markets.get(match_key, set()):
+            continue
+        if market_counts.get(market, 0) >= per_market:
             continue
         selected.append(pick)
-        seen_matches.add(match_key)
+        match_counts[match_key] = match_counts.get(match_key, 0) + 1
+        match_markets.setdefault(match_key, set()).add(market)
         market_counts[market] = market_counts.get(market, 0) + 1
         if len(selected) >= limit:
             break
@@ -249,7 +257,7 @@ def backtest_one(r, min_odds=1.66, min_ev=0.0):
         if odds is None:
             continue
         e = ev(p, odds)
-        if e > min_ev and odds >= min_odds:
+        if e >= min_ev and odds >= min_odds:
             res["picks"].append({"market": market, "pick": pick, "odds": round(odds, 3), "ev": round(e, 4), "won": won})
     res["n_picks"] = len(res["picks"])
     res["hit_rate"] = round(sum(1 for p in res["picks"] if p["won"]) / res["n_picks"], 3) if res["n_picks"] else None

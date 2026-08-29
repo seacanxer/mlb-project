@@ -60,9 +60,9 @@ async function loadConfig() {
 
     // Populate settings form
     document.getElementById('cfg-data-source').value = currentConfig.data_source || '1xbit';
-    document.getElementById('cfg-min-odds').value = currentConfig.filters?.min_odds || 1.66;
-    document.getElementById('cfg-min-ev').value = currentConfig.filters?.min_ev || 0.02;
-    document.getElementById('cfg-max-ah').value = currentConfig.filters?.max_ah_abs_line || 2.0;
+    document.getElementById('cfg-min-odds').value = currentConfig.filters?.min_odds ?? 1.66;
+    document.getElementById('cfg-min-ev').value = currentConfig.filters?.min_ev ?? 0.0;
+    document.getElementById('cfg-max-ah').value = currentConfig.filters?.max_ah_abs_line ?? 1.5;
   } catch (err) {
     console.error('Error loading config:', err);
   }
@@ -638,7 +638,7 @@ function initSettingsForm() {
       data_source: document.getElementById('cfg-data-source').value,
       filters: {
         min_odds: Math.max(parseFloat(document.getElementById('cfg-min-odds').value) || 1.66, 1.66),
-        min_ev: parseFloat(document.getElementById('cfg-min-ev').value) || 0.02,
+        min_ev: parseFloat(document.getElementById('cfg-min-ev').value) || 0.0,
         max_ah_abs_line: parseFloat(document.getElementById('cfg-max-ah').value) || 2.0,
       },
       markets: ['1x2', 'ah', 'ou', 'btts'],

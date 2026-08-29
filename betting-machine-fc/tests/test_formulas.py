@@ -126,7 +126,7 @@ def test_implied():
     assert approx(ev(0.5, 2.1), 0.05)
 
 
-def test_top_picks_are_capped_diversified_and_one_per_match():
+def test_top_picks_are_capped_diversified_and_two_markets_per_match():
     candidates = []
     markets = ["1x2", "ah", "ou", "btts"]
     for i in range(20):
@@ -139,11 +139,26 @@ def test_top_picks_are_capped_diversified_and_one_per_match():
             "odds": 1.9,
             "ev": 0.10,
         })
-    picks = select_top_picks(candidates, limit=8, per_market=2)
+    picks = select_top_picks(candidates, limit=8, per_market=2, per_match=2)
     assert len(picks) <= 8
-    assert len({(p["match"], p["start_ts"]) for p in picks}) == len(picks)
+    match_keys = {(p["match"], p["start_ts"]) for p in picks}
+    assert all(sum(1 for p in picks if (p["match"], p["start_ts"]) == key) <= 2 for key in match_keys)
+    assert all(
+        len({p["market"] for p in picks if (p["match"], p["start_ts"]) == key})
+        == sum(1 for p in picks if (p["match"], p["start_ts"]) == key)
+        for key in match_keys
+    )
     assert all(sum(1 for p in picks if p["market"] == market) <= 2 for market in markets)
     assert all(p["locked"] for p in picks)
+
+
+def test_top_picks_can_include_zero_ev_without_admitting_longshots():
+    candidates = [
+        {"match": "A vs B", "start_ts": 1, "market": "ou", "pick": "Over 2.5", "probability": 0.55, "odds": 1.82, "ev": 0.001},
+        {"match": "C vs D", "start_ts": 2, "market": "1x2", "pick": "Away", "probability": 0.20, "odds": 5.2, "ev": 0.04},
+    ]
+    picks = select_top_picks(candidates, min_ev=0.0)
+    assert [p["pick"] for p in picks] == ["Over 2.5"]
 
 
 def test_btts_yes_and_no_are_evaluated_when_prices_exist():
