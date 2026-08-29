@@ -183,40 +183,40 @@ async function loadTracker() {
     document.getElementById('tracker-profit').textContent = `${(s.profit_units || 0).toFixed(2)}u`;
     document.getElementById('tracker-roi').textContent = `${roi >= 0 ? '+' : ''}${roi.toFixed(1)}%`;
 
-    renderTracker(data);
+    trackerData = data;
+    renderTracker();
   } catch (err) {
     showBanner(err.message, true);
   }
 }
 
-let trackerMarketFilter = 'all';
-let trackerStatusFilter = 'all';
-let trackerSort = 'date_desc';
 let marketSortDir = 'asc';
 let trackerData = { locked: [], settled: [] };
 
-function renderTracker(data) {
-  trackerData = data || trackerData;
-  const marketFilter = document.getElementById('tracker-filter-market')?.value || trackerMarketFilter;
-  trackerMarketFilter = marketFilter;
-  const statusFilter = document.getElementById('tracker-filter-status')?.value || trackerStatusFilter;
-  trackerStatusFilter = statusFilter;
-  const sortVal = document.getElementById('tracker-sort')?.value || trackerSort;
-  trackerSort = sortVal;
+function renderTracker() {
+  const marketFilter = document.getElementById('tracker-filter-market')?.value || 'all';
+  const statusFilter = document.getElementById('tracker-filter-status')?.value || 'all';
+  const sortVal = document.getElementById('tracker-sort')?.value || 'date_desc';
 
   let rows = [...(trackerData.locked || []), ...(trackerData.settled || [])];
 
   if (marketFilter !== 'all') {
     rows = rows.filter(b => (b.market || '').toLowerCase() === marketFilter.toLowerCase());
   }
-  if (statusFilter !== 'all') {
-    rows = rows.filter(b => statusFilter === 'settled' ? b.settled : !b.settled);
+  if (statusFilter === 'locked') {
+    rows = rows.filter(b => !b.settled);
+  } else if (statusFilter === 'settled') {
+    rows = rows.filter(b => b.settled);
   }
 
   const marketRank = { '1x2': 0, 'ah': 1, 'ou': 2, 'btts': 3, '': 9 };
+  const dir = marketSortDir === 'asc' ? 1 : -1;
   switch (sortVal) {
     case 'market':
-      rows.sort((a, b) => ((marketRank[(a.market || '').toLowerCase()] ?? 9) - (marketRank[(b.market || '').toLowerCase()] ?? 9)) || (a.match || '').localeCompare(b.match || ''));
+      rows.sort((a, b) => {
+        const d = (marketRank[(a.market || '').toLowerCase()] ?? 9) - (marketRank[(b.market || '').toLowerCase()] ?? 9);
+        return d !== 0 ? dir * d : dir * (a.match || '').localeCompare(b.match || '');
+      });
       break;
     case 'odds_desc':
       rows.sort((a, b) => (Number(b.odds || 0) - Number(a.odds || 0)));
@@ -232,7 +232,7 @@ function renderTracker(data) {
   }
 
   const tbody = document.getElementById('tracker-table');
-  tbody.innerHTML = rows.length ? rows.map((b, i) => {
+  tbody.innerHTML = rows.length ? rows.map((b) => {
     const dt = b.start_ts ? new Date(Number(b.start_ts) * 1000).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '-';
     const result = !b.settled ? 'Pending' : b.won === 1 ? 'Won' : b.won === 0 ? 'Lost' : 'Push';
     return `<tr><td>${b.settled ? 'Settled' : '🔒 Locked'}</td><td>${dt}</td><td>${b.match || '-'}</td><td>${(b.market || '').toUpperCase()}</td><td>${b.pick || '-'}</td><td>${Number(b.odds || 0).toFixed(2)}</td><td>${result}${b.settled ? ` (${Number(b.profit || 0).toFixed(2)}u)` : ''}</td></tr>`;
@@ -240,15 +240,19 @@ function renderTracker(data) {
 }
 
 function initTrackerFilters() {
-  document.getElementById('tracker-filter-market')?.addEventListener('change', () => { loadTracker(); });
-  document.getElementById('tracker-filter-status')?.addEventListener('change', () => { loadTracker(); });
-  document.getElementById('tracker-sort')?.addEventListener('change', () => { loadTracker(); });
+  document.getElementById('tracker-filter-market')?.addEventListener('change', renderTracker);
+  document.getElementById('tracker-filter-status')?.addEventListener('change', renderTracker);
+  document.getElementById('tracker-sort')?.addEventListener('change', () => {
+    const ind = document.getElementById('market-sort-indicator');
+    if (ind) ind.textContent = '';
+    renderTracker();
+  });
   document.getElementById('th-market')?.addEventListener('click', () => {
     marketSortDir = marketSortDir === 'asc' ? 'desc' : 'asc';
     document.getElementById('tracker-sort').value = 'market';
     const ind = document.getElementById('market-sort-indicator');
     if (ind) ind.textContent = marketSortDir === 'asc' ? '▲' : '▼';
-    loadTracker();
+    renderTracker();
   });
 }
 
