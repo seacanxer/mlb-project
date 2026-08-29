@@ -52,7 +52,7 @@ NINEROUTER_API_BASE=http://127.0.0.1:20128/v1
 NINEROUTER_API_KEY=your-server-side-key
 ```
 
-The browser sends the selected model ID and a compact summary of the deterministic ML/O/U runs to `/api/pick`. Credentials never reach browser code. If the external model is unavailable or returns invalid JSON, the endpoint displays the existing deterministic T1/T2 or O/U RISKY/STRONG decision; otherwise it returns an explicit `NO PICK` with the blocking reason. It never manufactures a replacement pick.
+The browser sends the selected model ID and a compact summary of the deterministic ML/O/U runs to `/api/pick`. Credentials never reach browser code. The framework decision and external AI review are always returned as separate fields. The AI may `AGREE`, `DISAGREE`, or `ABSTAIN`, but remains advisory and cannot bypass framework hard gates. If the selected model is unavailable or returns invalid JSON, the AI column explicitly shows `AI UNAVAILABLE`; the endpoint never copies a framework pick into the AI result or manufactures a replacement pick.
 
 ---
 

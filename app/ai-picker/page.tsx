@@ -243,15 +243,15 @@ export default function AiPickerPage() {
     return true;
   });
 
-  const totalPicks = Object.values(picks).filter((p) =>
-    p?.data?.actionable !== false && p?.data?.pick && p.data.pick !== 'NO PICK'
+  const aiPicks = Object.values(picks).filter((p) =>
+    p?.data?.source === 'llm' && p?.data?.actionable !== false && p?.data?.pick && p.data.pick !== 'NO PICK'
   ).length;
+  const frameworkPicks = Object.values(picks).filter((p) => p?.data?.framework?.actionable).length;
   const confValues = Object.values(picks)
     .filter((p) => p?.data?.confidenceType === 'ai-opinion')
     .map((p) => p?.data?.confidence)
     .filter((c): c is number => typeof c === 'number' && c > 0);
   const avgConf = confValues.length ? Math.round(confValues.reduce((a, b) => a + b, 0) / confValues.length) : 0;
-  const highConfCount = confValues.filter((c) => c >= 70).length;
 
   return (
     <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '1.5rem 0' }}>
@@ -402,16 +402,16 @@ export default function AiPickerPage() {
           <div style={{ fontSize: '1.5rem', fontWeight: 700, fontFamily: 'JetBrains Mono, monospace' }}>{games.length}</div>
         </div>
         <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '10px', padding: '1rem' }}>
-          <div style={{ fontSize: '0.75rem', color: 'var(--muted)', textTransform: 'uppercase', fontWeight: 600 }}>Picks Calculated</div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 700, fontFamily: 'JetBrains Mono, monospace', color: '#60a5fa' }}>{totalPicks} / {games.length}</div>
+          <div style={{ fontSize: '0.75rem', color: 'var(--muted)', textTransform: 'uppercase', fontWeight: 600 }}>Framework Picks</div>
+          <div style={{ fontSize: '1.5rem', fontWeight: 700, fontFamily: 'JetBrains Mono, monospace', color: '#60a5fa' }}>{frameworkPicks} / {games.length}</div>
         </div>
         <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '10px', padding: '1rem' }}>
           <div style={{ fontSize: '0.75rem', color: 'var(--muted)', textTransform: 'uppercase', fontWeight: 600 }}>Avg AI Rating</div>
           <div style={{ fontSize: '1.5rem', fontWeight: 700, fontFamily: 'JetBrains Mono, monospace', color: '#34d399' }}>{avgConf ? `${avgConf}/100` : '—'}</div>
         </div>
         <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '10px', padding: '1rem' }}>
-          <div style={{ fontSize: '0.75rem', color: 'var(--muted)', textTransform: 'uppercase', fontWeight: 600 }}>High AI-Rating Picks</div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 700, fontFamily: 'JetBrains Mono, monospace', color: '#fbbf24' }}>{highConfCount}</div>
+          <div style={{ fontSize: '0.75rem', color: 'var(--muted)', textTransform: 'uppercase', fontWeight: 600 }}>External AI Picks</div>
+          <div style={{ fontSize: '1.5rem', fontWeight: 700, fontFamily: 'JetBrains Mono, monospace', color: '#fbbf24' }}>{aiPicks} / {games.length}</div>
         </div>
       </div>
 
@@ -463,9 +463,10 @@ export default function AiPickerPage() {
               <tr style={{ background: '#0a1628', borderBottom: '1px solid var(--border)' }}>
                 <th style={{ padding: '0.85rem 1rem', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--muted)' }}>Matchup & Starters</th>
                 <th style={{ padding: '0.85rem 1rem', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--muted)' }}>Market Odds</th>
-                <th style={{ padding: '0.85rem 1rem', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--muted)' }}>AI Model Pick</th>
-                <th style={{ padding: '0.85rem 1rem', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--muted)' }}>Confidence & Edge</th>
-                <th style={{ padding: '0.85rem 1rem', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--muted)' }}>Sabermetric Analysis</th>
+                <th style={{ padding: '0.85rem 1rem', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--muted)' }}>Framework Pick</th>
+                <th style={{ padding: '0.85rem 1rem', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--muted)' }}>AI Review</th>
+                <th style={{ padding: '0.85rem 1rem', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--muted)' }}>AI Rating & Verdict</th>
+                <th style={{ padding: '0.85rem 1rem', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--muted)' }}>AI Rationale</th>
                 <th style={{ padding: '0.85rem 1rem', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--muted)' }}>Actions</th>
               </tr>
             </thead>
@@ -483,6 +484,7 @@ export default function AiPickerPage() {
                 const { moneyline: ml, total } = marketForGame(game);
 
                 const pickText = p?.pick || '—';
+                const framework = p?.framework;
                 const confidence = p?.confidence || 0;
                 const reason = p?.reason || (isLoading ? 'Analyzing pitching metrics & lineups...' : 'No pick available');
                 const modelUsed = p?.model || pickEntry?.model?.split('/').pop() || 'AI Model';
@@ -538,6 +540,21 @@ export default function AiPickerPage() {
 
                     {/* Pick */}
                     <td style={{ padding: '1rem' }}>
+                      <div style={{ fontWeight: 700, color: framework?.actionable ? '#60a5fa' : '#94a3b8', fontSize: '0.85rem' }}>
+                        {framework?.pick || (isLoading ? 'Calculating...' : '—')}
+                      </div>
+                      {framework && (
+                        <>
+                          <div style={{ color: '#94a3b8', fontSize: '0.72rem', marginTop: '3px' }}>
+                            {framework.state}{framework.score != null ? ` · ${framework.score} ${framework.scoreType === 'data-quality' ? 'quality' : 'score'}` : ''}
+                          </div>
+                          <div style={{ color: '#64748b', fontSize: '0.7rem', marginTop: '3px', maxWidth: '220px' }}>{framework.reason}</div>
+                        </>
+                      )}
+                    </td>
+
+                    {/* Independent AI review */}
+                    <td style={{ padding: '1rem' }}>
                       {isLoading ? (
                         <span style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>Calculating...</span>
                       ) : (
@@ -563,7 +580,7 @@ export default function AiPickerPage() {
                       )}
                     </td>
 
-                    {/* Confidence & Edge */}
+                    {/* AI rating & verdict */}
                     <td style={{ padding: '1rem', minWidth: '120px' }}>
                       {isLoading ? (
                         <span style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>—</span>
@@ -582,8 +599,18 @@ export default function AiPickerPage() {
                             }} />
                           </div>
                           <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '3px' }}>
-                            {modelUsed}{p?.source === 'deterministic-model' ? ' · fallback' : ''}
+                            {modelUsed} · {p?.source === 'llm' ? 'external AI' : 'unavailable'}
                           </div>
+                          {p?.verdict && (
+                            <div style={{
+                              display: 'inline-block', marginTop: '5px', padding: '2px 7px', borderRadius: '9999px',
+                              fontSize: '0.68rem', fontWeight: 800,
+                              color: p.verdict === 'AGREE' ? '#34d399' : p.verdict === 'DISAGREE' ? '#fbbf24' : p.verdict === 'UNAVAILABLE' ? '#f87171' : '#94a3b8',
+                              background: 'rgba(15, 23, 42, 0.8)', border: '1px solid var(--border)'
+                            }}>
+                              {p.verdict}
+                            </div>
+                          )}
                         </div>
                       )}
                     </td>

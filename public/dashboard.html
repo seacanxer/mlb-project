@@ -529,7 +529,7 @@
       <span class="stat-val" id="statGamesCount">—</span>
     </div>
     <div class="stat-card">
-      <span class="stat-label">Picks Generated</span>
+      <span class="stat-label">Framework Picks</span>
       <span class="stat-val" id="statPicksCount" style="color: #60a5fa;">—</span>
     </div>
     <div class="stat-card">
@@ -537,7 +537,7 @@
       <span class="stat-val" id="statAvgConf" style="color: #34d399;">—</span>
     </div>
     <div class="stat-card">
-      <span class="stat-label">High AI-Rating Picks</span>
+      <span class="stat-label">External AI Picks</span>
       <span class="stat-val" id="statHighConf" style="color: #fbbf24;">—</span>
     </div>
   </div>
@@ -815,7 +815,7 @@ async function fetchSlate() {
 function updateStats(results, filtered) {
   document.getElementById('statGamesCount').textContent = results.length;
   document.getElementById('statPicksCount').textContent = results.filter(r =>
-    !r.error && r.parsed?.actionable !== false && r.parsed?.pick && r.parsed.pick !== 'NO PICK'
+    !r.error && r.parsed?.framework?.actionable
   ).length;
 
   const validConfs = results
@@ -824,8 +824,10 @@ function updateStats(results, filtered) {
   const avg = validConfs.length ? Math.round(validConfs.reduce((a, b) => a + b, 0) / validConfs.length) : 0;
   document.getElementById('statAvgConf').textContent = avg ? `${avg}/100` : '—';
 
-  const highConf = validConfs.filter(c => c >= 70).length;
-  document.getElementById('statHighConf').textContent = highConf;
+  const aiPicks = results.filter(r =>
+    !r.error && r.parsed?.source === 'llm' && r.parsed?.actionable !== false && r.parsed?.pick && r.parsed.pick !== 'NO PICK'
+  ).length;
+  document.getElementById('statHighConf').textContent = aiPicks;
 }
 
 function renderResults() {
@@ -858,9 +860,10 @@ function renderResults() {
           <tr>
             <th>Matchup & Starters</th>
             <th>Market Odds</th>
-            <th>AI Model Pick</th>
-            <th>Confidence & Edge</th>
-            <th>Sabermetric Rationale</th>
+            <th>Framework Pick</th>
+            <th>AI Review</th>
+            <th>AI Rating & Verdict</th>
+            <th>AI Rationale</th>
             <th>AI Model</th>
           </tr>
         </thead>
@@ -886,6 +889,8 @@ function renderResults() {
     let valueEdge = '';
     let modelName = (r.model.split('/').pop() || r.model).replace('-flash-0731', '');
     let confidenceLabel = '—';
+    let framework = null;
+    let verdict = '';
 
     if (r.loading) {
       pickDisplay = 'Analyzing…';
@@ -901,6 +906,8 @@ function renderResults() {
       projectedScore = p.projectedScore || '';
       valueEdge = p.valueEdge || p.marketEdge || '';
       modelName = p.model || modelName;
+      framework = p.framework || null;
+      verdict = p.verdict || '';
       confidenceLabel = p.confidenceType === 'model-score'
         ? `${confidence} score`
         : p.confidenceType === 'data-quality'
@@ -937,6 +944,10 @@ function renderResults() {
           </div>
         </td>
         <td data-label="AI Pick">
+          <div style="font-weight:700;color:${framework?.actionable ? '#60a5fa' : '#94a3b8'}">${escapeHtml(framework?.pick || (r.loading ? 'Calculating…' : '—'))}</div>
+          ${framework ? `<div style="font-size:.72rem;color:#94a3b8;margin-top:3px">${escapeHtml(framework.state)}${framework.score != null ? ` · ${escapeHtml(framework.score)} ${framework.scoreType === 'data-quality' ? 'quality' : 'score'}` : ''}</div><div style="font-size:.7rem;color:#64748b;margin-top:3px">${escapeHtml(framework.reason)}</div>` : ''}
+        </td>
+        <td data-label="AI Review">
           <span class="pick-badge ${pickClass}">
             <span>🎯</span> ${escapeHtml(pickDisplay)}
           </span>
@@ -951,13 +962,14 @@ function renderResults() {
             <div class="conf-bar-bg">
               <div class="conf-bar-fill" style="width: ${confidence}%;"></div>
             </div>
+            ${verdict ? `<span class="model-tag" style="margin-top:6px;color:${verdict === 'AGREE' ? '#34d399' : verdict === 'DISAGREE' ? '#fbbf24' : verdict === 'UNAVAILABLE' ? '#f87171' : '#94a3b8'}">${escapeHtml(verdict)}</span>` : ''}
           </div>
         </td>
         <td data-label="Reason">
           <div class="reason-box">${escapeHtml(reason)}</div>
         </td>
         <td data-label="Model">
-          <span class="model-tag">${escapeHtml(modelName)}${r.parsed?.source === 'deterministic-model' ? ' · fallback' : ''}</span>
+          <span class="model-tag">${escapeHtml(modelName)} · ${r.parsed?.source === 'llm' ? 'external AI' : 'unavailable'}</span>
         </td>
       </tr>
     `;

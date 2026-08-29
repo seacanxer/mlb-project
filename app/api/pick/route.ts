@@ -1,6 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-type PickSource = 'llm' | 'deterministic-model';
+type PickSource = 'llm' | 'unavailable';
+
+interface FrameworkDecision {
+  pick: string;
+  state: string;
+  score: number | null;
+  scoreType: 'model-score' | 'data-quality' | 'none';
+  reason: string;
+  actionable: boolean;
+}
 
 interface EngineSummary {
   finalState?: string;
@@ -44,6 +53,8 @@ interface PickResponseData {
   requestedModel: string;
   source: PickSource;
   actionable: boolean;
+  verdict?: 'AGREE' | 'DISAGREE' | 'ABSTAIN' | 'UNAVAILABLE';
+  framework?: FrameworkDecision;
   warnings?: string[];
 }
 
@@ -124,6 +135,7 @@ function normalizeProviderResponse(payload: unknown, requestedModel: string): Pi
       requestedModel,
       source: 'llm',
       actionable: !noPick,
+      verdict: noPick ? 'ABSTAIN' : undefined,
       warnings: Array.isArray(item.warnings) ? item.warnings.map(String) : undefined,
     };
   }
@@ -195,9 +207,10 @@ async function callRouter(body: PickRequestBody, requestedModel: string): Promis
     'http://127.0.0.1:20128/v1';
   const apiKey = process.env.NINEROUTER_API_KEY || process.env.OPENAI_API_KEY || process.env.AI_API_KEY;
 
-  const prompt = `Review this MLB matchup using only the supplied market and deterministic-engine evidence.
+  const prompt = `Independently review this MLB matchup using only the supplied market and deterministic-engine evidence.
 Do not invent FIP, xFIP, wOBA, lineups, weather, injuries, bullpen availability, probabilities, or expected value.
 If the evidence is incomplete or the deterministic engine is blocked, return NO PICK.
+You may AGREE with the framework, DISAGREE and provide another available-market pick, or ABSTAIN. Your review is advisory and never replaces framework hard gates.
 
 Matchup: ${body.away || 'Unknown'} @ ${body.home || 'Unknown'}
 Starters: ${body.away_sp || 'TBD'} vs ${body.home_sp || 'TBD'}
@@ -213,6 +226,7 @@ Return one JSON object only:
   "projectedScore": "optional; omit unless supported by supplied evidence",
   "valueEdge": "optional; omit unless computable from supplied evidence",
   "reason": "brief evidence-based explanation",
+  "verdict": "AGREE | DISAGREE | ABSTAIN",
   "warnings": []
 }
 Use confidence 0 for NO PICK. For a pick, use an integer from 55 to 90 as a qualitative evidence-strength rating, not as a calibrated win probability.`;
@@ -231,7 +245,7 @@ Use confidence 0 for NO PICK. For a pick, use an integer from 55 to 90 as a qual
           messages: [
             {
               role: 'system',
-              content: 'You are a conservative MLB betting-review model. The deterministic website calculation is authoritative. Return valid JSON and abstain when critical evidence is missing.',
+              content: 'You are a conservative independent MLB betting reviewer. The deterministic website remains authoritative, but you may explicitly agree, disagree, or abstain. Return valid JSON and never invent unavailable inputs.',
             },
             { role: 'user', content: prompt },
           ],
@@ -249,7 +263,7 @@ Use confidence 0 for NO PICK. For a pick, use an integer from 55 to 90 as a qual
   }
 }
 
-function deterministicFallback(body: PickRequestBody, requestedModel: string): PickResponseData {
+function frameworkDecision(body: PickRequestBody): FrameworkDecision {
   const ml = body.analysis?.moneyline;
   const totals = body.analysis?.totals;
   const mlState = ml?.finalState ?? '';
@@ -260,14 +274,11 @@ function deterministicFallback(body: PickRequestBody, requestedModel: string): P
     const score = clampConfidence(ml.rawScore);
     return {
       pick: `${side} ML (${ml.candidateTeamName})`,
-      confidence: score,
-      confidenceType: 'model-score',
-      reason: `External model did not return a valid pick. Deterministic ML_COMBO_V2 produced ${mlState} with score ${score}; this score is not a win probability.`,
-      model: 'ML_COMBO_V2',
-      requestedModel,
-      source: 'deterministic-model',
+      state: mlState,
+      score,
+      scoreType: 'model-score',
+      reason: `ML_COMBO_V2 produced ${mlState} with score ${score}; this score is not a win probability.`,
       actionable: true,
-      warnings: ['EXTERNAL_MODEL_UNAVAILABLE'],
     };
   }
 
@@ -276,29 +287,56 @@ function deterministicFallback(body: PickRequestBody, requestedModel: string): P
     const quality = clampConfidence(totals.dataQualityScore);
     return {
       pick: `${side} ${totals.marketLine}`,
-      confidence: quality,
-      confidenceType: 'data-quality',
-      reason: `External model did not return a valid pick. Unified O/U produced ${totalsState} with gap ${Number(totals.rawGap ?? 0).toFixed(2)} and data quality ${quality}; quality is not a win probability.`,
-      model: 'OU_UNIFIED',
-      requestedModel,
-      source: 'deterministic-model',
+      state: totalsState,
+      score: quality,
+      scoreType: 'data-quality',
+      reason: `OU_UNIFIED produced ${totalsState} with gap ${Number(totals.rawGap ?? 0).toFixed(2)} and data quality ${quality}; quality is not a win probability.`,
       actionable: true,
-      warnings: ['EXTERNAL_MODEL_UNAVAILABLE'],
     };
   }
 
   const gates = [...(ml?.hardGates ?? []), ...(totals?.hardGates ?? [])];
   return {
     pick: 'NO PICK',
+    state: mlState || totalsState || 'NO_ACTIONABLE_SIGNAL',
+    score: null,
+    scoreType: 'none',
+    reason: gates.length
+      ? `Framework blocked: ${Array.from(new Set(gates)).join(', ')}.`
+      : 'No actionable deterministic T1/T2 or O/U RISKY/STRONG signal is available.',
+    actionable: false,
+  };
+}
+
+function comparablePick(value: string): string {
+  const normalized = value.toLowerCase().replace(/\([^)]*\)/g, '').replace(/\s+/g, ' ').trim();
+  if (normalized.includes('away') && normalized.includes('ml')) return 'away-ml';
+  if (normalized.includes('home') && normalized.includes('ml')) return 'home-ml';
+  const total = normalized.match(/\b(over|under)\s+(\d+(?:\.\d+)?)/);
+  return total ? `${total[1]}-${total[2]}` : normalized;
+}
+
+function attachFrameworkReview(result: PickResponseData, framework: FrameworkDecision): PickResponseData {
+  const verdict = result.verdict === 'ABSTAIN' || result.pick === 'NO PICK'
+    ? 'ABSTAIN'
+    : comparablePick(result.pick) === comparablePick(framework.pick) && framework.actionable
+    ? 'AGREE'
+    : 'DISAGREE';
+  return { ...result, verdict, framework };
+}
+
+function aiUnavailable(requestedModel: string, framework: FrameworkDecision): PickResponseData {
+  return {
+    pick: 'AI UNAVAILABLE',
     confidence: 0,
     confidenceType: 'none',
-    reason: gates.length
-      ? `External model did not return a valid pick and the deterministic engines are blocked: ${Array.from(new Set(gates)).join(', ')}.`
-      : 'External model did not return a valid pick and no actionable deterministic T1/T2 or O/U RISKY/STRONG signal is available.',
-    model: 'deterministic-fallback',
+    reason: 'The selected external model did not return a valid response. Check the picker service, 9Router endpoint, model ID, and server-side credentials.',
+    model: requestedModel,
     requestedModel,
-    source: 'deterministic-model',
+    source: 'unavailable',
     actionable: false,
+    verdict: 'UNAVAILABLE',
+    framework,
     warnings: ['EXTERNAL_MODEL_UNAVAILABLE'],
   };
 }
@@ -307,10 +345,13 @@ export async function POST(req: NextRequest) {
   try {
     const body = (await req.json()) as PickRequestBody;
     const requestedModel = body.model || DEFAULT_MODEL;
+    const framework = frameworkDecision(body);
 
     const pickerResult = await callPickerService(body, requestedModel);
     const routerResult = pickerResult ?? await callRouter(body, requestedModel);
-    const pickData = routerResult ?? deterministicFallback(body, requestedModel);
+    const pickData = routerResult
+      ? attachFrameworkReview(routerResult, framework)
+      : aiUnavailable(requestedModel, framework);
 
     return NextResponse.json(
       { ok: true, result: JSON.stringify(pickData), ...pickData },
