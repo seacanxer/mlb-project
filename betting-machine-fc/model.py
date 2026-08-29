@@ -33,7 +33,9 @@ def score_matrix(lh, la, rho=RHO_DEFAULT, max_goals=MAX_GOALS):
             p = pois_pmf(x, lh) * pois_pmf(y, la) * dixon_coles_tau(x, y, lh, la, rho)
             m[(x, y)] = p
             tot += p
-    return m, tot
+    if tot <= 0:
+        raise ValueError("score matrix has zero probability mass")
+    return {score: probability / tot for score, probability in m.items()}, 1.0
 
 
 def match_probs(lh, la, rho=RHO_DEFAULT, max_goals=MAX_GOALS):
@@ -57,28 +59,21 @@ def over_prob(line, lh, la, max_goals=MAX_GOALS):
     """Strict probability the total exceeds the line (win side, no push).
     Integer lines exclude the push outcome from the win probability.
     """
-    lam = lh + la
-    pmf = _pmf_array(lam, max_goals)
-    k = int(math.floor(line))
-    return 1.0 - sum(pmf[: k + 1])
+    matrix, _ = score_matrix(lh, la, max_goals=max_goals)
+    return sum(p for (home, away), p in matrix.items() if home + away > line)
 
 
 def under_prob(line, lh, la, max_goals=MAX_GOALS):
     """Strict probability the total is below the line (win side, no push)."""
-    lam = lh + la
-    pmf = _pmf_array(lam, max_goals)
-    k = int(math.floor(line))
-    if abs(line - k) < 1e-9:
-        return sum(pmf[:k])
-    return sum(pmf[: k + 1])
+    matrix, _ = score_matrix(lh, la, max_goals=max_goals)
+    return sum(p for (home, away), p in matrix.items() if home + away < line)
 
 
 def total_ev(line, side, odds, lh, la, max_goals=MAX_GOALS):
     """Expected value of a total market bet, correctly handling integer
     pushes and quarter-line half-stakes.
     """
-    lam = lh + la
-    pmf = _pmf_array(lam, max_goals)
+    matrix, _ = score_matrix(lh, la, max_goals=max_goals)
     if abs(line % 0.5) < 1e-9:
         legs = [(line, 1.0)]
     else:
@@ -86,17 +81,17 @@ def total_ev(line, side, odds, lh, la, max_goals=MAX_GOALS):
     exp_ret = 0.0
     for leg, w in legs:
         if abs(leg % 1.0) < 1e-9:
-            i = int(leg)
-            if side == "over":
-                exp_ret += w * (odds * (1.0 - sum(pmf[: i + 1])) + 1.0 * pmf[i])
-            else:
-                exp_ret += w * odds * sum(pmf[:i])
+            for (home, away), probability in matrix.items():
+                total = home + away
+                adjusted = total - leg
+                side_adjusted = adjusted if side == "over" else -adjusted
+                payout = odds if side_adjusted > 1e-9 else (1.0 if abs(side_adjusted) <= 1e-9 else 0.0)
+                exp_ret += w * probability * payout
         else:
-            i = int(math.floor(leg))
-            if side == "over":
-                exp_ret += w * odds * (1.0 - sum(pmf[: i + 1]))
-            else:
-                exp_ret += w * odds * sum(pmf[: i + 1])
+            for (home, away), probability in matrix.items():
+                total = home + away
+                won = total > leg if side == "over" else total < leg
+                exp_ret += w * probability * (odds if won else 0.0)
     return exp_ret - 1.0
 
 
@@ -170,6 +165,15 @@ def remove_margin(odds):
     raw = [1.0 / o for o in odds]
     s = sum(raw)
     return [r / s for r in raw]
+
+
+def devig(odds_by_outcome):
+    """Return multiplicative no-vig probabilities for a complete market."""
+    if not odds_by_outcome or any(not odds or odds <= 1.0 for odds in odds_by_outcome.values()):
+        return {}
+    labels = list(odds_by_outcome)
+    probabilities = remove_margin([odds_by_outcome[label] for label in labels])
+    return dict(zip(labels, probabilities))
 
 
 def ev(p_true, odds):

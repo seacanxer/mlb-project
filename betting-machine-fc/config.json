@@ -4,7 +4,8 @@
   "scan_match_limit": 500,
   "filters": {
     "min_odds": 1.66,
-    "min_ev": 0.0,
+    "min_ev": 0.05,
+    "min_edge": 0.03,
     "min_probability": 0.0,
     "max_ah_abs_line": 1.5,
     "top_pick_limit": 40,

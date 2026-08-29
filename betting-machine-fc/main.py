@@ -8,6 +8,7 @@ from model import (
     ah_ev,
     ah_ev_away,
     btts_prob,
+    devig,
     ev,
     lam_from_odds,
     lam_from_1x2,
@@ -107,15 +108,19 @@ def analyze_match(o, lh, la, min_odds=1.66, min_ev=0.0, max_ah_line=2.5):
     po = over_prob(2.5, lh, la)
     pu = under_prob(2.5, lh, la)
     o1, od, o2 = o["odds_1x2"][1], o["odds_1x2"][2], o["odds_1x2"][3]
+    market_1x2 = devig({"home": o1, "draw": od, "away": o2})
     # 1X2
-    for market, pick, p, odds in [
-        ("1x2", f"Home ({o['home']})", ph, o1),
-        ("1x2", "Draw", pd, od),
-        ("1x2", f"Away ({o['away']})", pa, o2),
+    for market, pick, p, odds, market_p in [
+        ("1x2", f"Home ({o['home']})", ph, o1, market_1x2.get("home")),
+        ("1x2", "Draw", pd, od, market_1x2.get("draw")),
+        ("1x2", f"Away ({o['away']})", pa, o2, market_1x2.get("away")),
     ]:
         e = ev(p, odds) if odds else -999
         if e >= min_ev and odds and odds >= min_odds:
-            out.append(pick_entry(o, market, pick, p, odds, e))
+            item = pick_entry(o, market, pick, p, odds, e, market_p)
+            item["independent_signal"] = False
+            item["risk_reason"] = "1X2 probabilities are fitted from the same 1X2 prices"
+            out.append(item)
     # O/U: evaluate every bookmaker line with the fitted goal distribution.
     # total_ev handles integer pushes and quarter-line half settlements correctly.
     for line, prices in (o.get("odds_ou") or {}).items():
@@ -123,50 +128,59 @@ def analyze_match(o, lh, la, min_odds=1.66, min_ev=0.0, max_ah_line=2.5):
             line_value = float(line)
         except (TypeError, ValueError):
             continue
-        for side, pick, probability, odds in [
-            ("over", f"Over {line_value:g}", over_prob(line_value, lh, la), prices.get(9)),
-            ("under", f"Under {line_value:g}", under_prob(line_value, lh, la), prices.get(10)),
+        market_ou = devig({"over": prices.get(9), "under": prices.get(10)})
+        for side, pick, probability, odds, market_p in [
+            ("over", f"Over {line_value:g}", over_prob(line_value, lh, la), prices.get(9), market_ou.get("over")),
+            ("under", f"Under {line_value:g}", under_prob(line_value, lh, la), prices.get(10), market_ou.get("under")),
         ]:
             edge = total_ev(line_value, side, odds, lh, la) if odds else -999
             if odds and edge >= min_ev and odds >= min_odds:
-                out.append(pick_entry(o, "ou", pick, probability, odds, edge))
+                out.append(pick_entry(o, "ou", pick, probability, odds, edge, market_p))
     # BTTS
     btts_market = o.get("odds_btts") or {}
     if isinstance(btts_market, (int, float)):
         btts_market = {"yes": btts_market}
-    for pick, p, odds in [
-        ("BTTS Yes", pbt, btts_market.get("yes")),
-        ("BTTS No", 1.0 - pbt, btts_market.get("no")),
+    market_btts = devig({"yes": btts_market.get("yes"), "no": btts_market.get("no")})
+    for pick, p, odds, market_p in [
+        ("BTTS Yes", pbt, btts_market.get("yes"), market_btts.get("yes")),
+        ("BTTS No", 1.0 - pbt, btts_market.get("no"), market_btts.get("no")),
     ]:
         e = ev(p, odds) if odds else -999
         if odds and e >= min_ev and odds >= min_odds:
-            out.append(pick_entry(o, "btts", pick, p, odds, e))
+            out.append(pick_entry(o, "btts", pick, p, odds, e, market_p))
     # AH
+    home_ah = {round(float(line), 4): odds for line, odds in (o.get("odds_ah", {}).get("home", []) or [])}
+    away_ah = {round(float(line), 4): odds for line, odds in (o.get("odds_ah", {}).get("away", []) or [])}
     for line, c in o.get("odds_ah", {}).get("home", []) or []:
         if abs(line) > max_ah_line:
             continue
         e_ah = ah_ev(line, c, lh, la)
         if c >= min_odds and e_ah >= min_ev:
             p_approx = (e_ah + 1.0) / c if c > 0 else 0
-            out.append(pick_entry(o, "ah", f"Home {line:+.2f}", p_approx, c, e_ah))
+            counterpart = away_ah.get(round(-float(line), 4))
+            market_ah = devig({"home": c, "away": counterpart})
+            out.append(pick_entry(o, "ah", f"Home {line:+.2f}", p_approx, c, e_ah, market_ah.get("home")))
     for line, c in o.get("odds_ah", {}).get("away", []) or []:
         if abs(line) > max_ah_line:
             continue
         e_ah = ah_ev_away(line, c, lh, la)
         if c >= min_odds and e_ah >= min_ev:
             p_approx = (e_ah + 1.0) / c if c > 0 else 0
-            out.append(pick_entry(o, "ah", f"Away {line:+.2f}", p_approx, c, e_ah))
+            counterpart = home_ah.get(round(-float(line), 4))
+            market_ah = devig({"away": c, "home": counterpart})
+            out.append(pick_entry(o, "ah", f"Away {line:+.2f}", p_approx, c, e_ah, market_ah.get("away")))
     return out
 
 
-def select_top_picks(candidates, limit=12, per_market=3, per_match=2, min_ev=0.0):
+def select_top_picks(candidates, limit=12, per_market=3, per_match=2, min_ev=0.05, min_edge=0.03):
     """Create a small, diversified shortlist instead of returning every edge.
 
     Gates reject low-confidence longshots and implausibly large model/market gaps.
     At most ``per_match`` different markets are retained for each fixture, then
     market caps provide variety across the full slate.
     """
-    probability_floor = {"1x2": 0.42, "ah": 0.50, "ou": 0.52, "btts": 0.52}
+    probability_floor = {"1x2": 0.45, "ah": 0.55, "ou": 0.54, "btts": 0.54}
+    odds_ceiling = {"1x2": 3.00, "ah": 2.50, "ou": 2.25, "btts": 2.25}
     eligible = []
     for pick in candidates:
         market = pick.get("market")
@@ -175,9 +189,15 @@ def select_top_picks(candidates, limit=12, per_market=3, per_match=2, min_ev=0.0
         edge = float(pick.get("ev") or 0)
         if market not in probability_floor:
             continue
-        if probability < probability_floor[market] or not 1.66 <= odds <= 3.50:
+        if pick.get("independent_signal") is False:
             continue
-        if edge < max(0.0, min_ev) or edge > 0.35:
+        if probability < probability_floor[market] or not 1.66 <= odds <= odds_ceiling[market]:
+            continue
+        market_probability = pick.get("market_probability")
+        probability_edge = pick.get("edge_pct")
+        if market_probability is None or probability_edge is None:
+            continue
+        if edge < max(0.05, min_ev) or edge > 0.25 or probability_edge < min_edge:
             continue
         # Probability drives the rank; EV helps only within a capped sane range.
         score = probability * 70 + min(edge, 0.15) / 0.15 * 30
@@ -206,10 +226,11 @@ def select_top_picks(candidates, limit=12, per_market=3, per_match=2, min_ev=0.0
     return selected
 
 
-def pick_entry(o, market, pick, p, odds, e):
+def pick_entry(o, market, pick, p, odds, e, market_probability=None):
     b = odds - 1.0
     p_val = p if p is not None else ((e + 1.0) / odds if odds > 0 else 0.0)
     kelly = max(0.0, min((b * p_val - (1.0 - p_val)) / b if b > 0 else 0.0, 0.10)) if p_val else 0.0
+    market_p = float(market_probability) if market_probability is not None else None
     return {
         "match_id": o.get("match_id"),
         "match": f"{o['home']} vs {o['away']}",
@@ -222,6 +243,8 @@ def pick_entry(o, market, pick, p, odds, e):
         "probability": round(p_val, 4),
         "odds": round(odds, 3),
         "ev": round(e, 4),
+        "market_probability": round(market_p, 4) if market_p is not None else None,
+        "edge_pct": round(p_val - market_p, 4) if market_p is not None else None,
         "kelly_pct": round(kelly * 100, 2),
     }
 

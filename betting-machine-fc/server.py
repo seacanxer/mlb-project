@@ -15,7 +15,7 @@ from pydantic import BaseModel
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE_DIR)
 
-from model_v2 import (
+from model import (
     ah_ev,
     ah_ev_away,
     btts_prob,
@@ -225,6 +225,7 @@ def execute_live_scan_sync():
             per_market=per_market,
             per_match=per_match,
             min_ev=min_ev,
+            min_edge=float(cfg.get("filters", {}).get("min_edge", 0.03)),
         )
 
         # Every published recommendation is immediately locked for ROI tracking.
@@ -291,6 +292,7 @@ def get_picks(
         per_market=int(cfg.get("filters", {}).get("top_picks_per_market", 3)),
         per_match=int(cfg.get("filters", {}).get("top_picks_per_match", 2)),
         min_ev=float(cfg.get("filters", {}).get("min_ev", 0.0)),
+        min_edge=float(cfg.get("filters", {}).get("min_edge", 0.03)),
     )
 
     filtered = []
@@ -585,7 +587,9 @@ def update_config(cfg: Dict[str, Any]):
     # Enforce minimum odds floor constraint of 1.66
     merged["filters"]["min_odds"] = max(float(merged["filters"].get("min_odds", 1.66)), 1.66)
     merged["filters"]["min_ev"] = max(float(merged["filters"].get("min_ev", 0.0)), 0.0)
-    merged["filters"]["top_picks_per_match"] = 2
+    merged["filters"]["top_picks_per_match"] = min(
+        2, max(1, int(merged["filters"].get("top_picks_per_match", 1)))
+    )
     save_config(merged)
     return {"status": "saved", "config": load_config()}
 

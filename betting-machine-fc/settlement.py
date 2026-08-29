@@ -1,6 +1,6 @@
 import db
 import scores_flashscore as sf
-from model_v2 import ah_payout, ah_payout_away
+from model import ah_payout, ah_payout_away
 from datetime import date, timedelta
 
 

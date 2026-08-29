@@ -10,6 +10,7 @@ from model import (
     ah_payout,
     ah_payout_away,
     btts_prob,
+    devig,
     ev,
     fit_total_from_ou,
     implied_prob,
@@ -17,6 +18,7 @@ from model import (
     match_probs,
     over_prob,
     remove_margin,
+    score_matrix,
     under_prob,
 )
 from main import select_top_picks
@@ -55,12 +57,10 @@ def test_ou():
 def test_integer_line_push():
     # Integer line 2.0: over wins 3+, under wins 0-1, total==2 pushes.
     # So o2 + u2 = 1 - P(exactly 2 goals), NOT 1.0.
-    lam = 2.7
-    push = math.exp(-lam) * lam ** 2 / 2.0
+    matrix, _ = score_matrix(1.5, 1.2)
+    push = sum(p for (home, away), p in matrix.items() if home + away == 2)
     o2 = over_prob(2.0, 1.5, 1.2)
     u2 = under_prob(2.0, 1.5, 1.2)
-    assert approx(o2, 0.5064, 1e-3), o2
-    assert approx(u2, 0.2487, 1e-3), u2
     assert approx(o2 + u2, 1.0 - push, 1e-6)
 
 
@@ -138,6 +138,9 @@ def test_top_picks_are_capped_diversified_and_two_markets_per_match():
             "probability": 0.58,
             "odds": 1.9,
             "ev": 0.10,
+            "market_probability": 0.52,
+            "edge_pct": 0.06,
+            "independent_signal": True,
         })
     picks = select_top_picks(candidates, limit=8, per_market=2, per_match=2)
     assert len(picks) <= 8
@@ -152,13 +155,22 @@ def test_top_picks_are_capped_diversified_and_two_markets_per_match():
     assert all(p["locked"] for p in picks)
 
 
-def test_top_picks_can_include_zero_ev_without_admitting_longshots():
+def test_top_picks_require_ev_buffer_and_reject_longshots():
     candidates = [
-        {"match": "A vs B", "start_ts": 1, "market": "ou", "pick": "Over 2.5", "probability": 0.55, "odds": 1.82, "ev": 0.001},
-        {"match": "C vs D", "start_ts": 2, "market": "1x2", "pick": "Away", "probability": 0.20, "odds": 5.2, "ev": 0.04},
+        {"match": "A vs B", "start_ts": 1, "market": "ou", "pick": "Over 2.5", "probability": 0.55, "market_probability": 0.51, "edge_pct": 0.04, "odds": 1.82, "ev": 0.001, "independent_signal": True},
+        {"match": "C vs D", "start_ts": 2, "market": "1x2", "pick": "Away", "probability": 0.55, "market_probability": 0.19, "edge_pct": 0.36, "odds": 5.2, "ev": 0.04, "independent_signal": True},
+        {"match": "E vs F", "start_ts": 3, "market": "btts", "pick": "BTTS Yes", "probability": 0.58, "market_probability": 0.52, "edge_pct": 0.06, "odds": 1.90, "ev": 0.10, "independent_signal": True},
     ]
     picks = select_top_picks(candidates, min_ev=0.0)
-    assert [p["pick"] for p in picks] == ["Over 2.5"]
+    assert [p["pick"] for p in picks] == ["BTTS Yes"]
+
+
+def test_score_matrix_is_normalized_and_devig_sums_to_one():
+    matrix, total = score_matrix(1.5, 1.2)
+    assert approx(total, 1.0, 1e-12)
+    assert approx(sum(matrix.values()), 1.0, 1e-12)
+    probabilities = devig({"home": 2.0, "draw": 3.5, "away": 4.0})
+    assert approx(sum(probabilities.values()), 1.0, 1e-12)
 
 
 def test_btts_yes_and_no_are_evaluated_when_prices_exist():
