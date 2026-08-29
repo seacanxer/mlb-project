@@ -155,6 +155,7 @@ function renderPicks() {
         <div class="pick-card-header"><span class="market-badge ${marketClass}">${p.market ? p.market.toUpperCase() : 'BET'}</span><span class="lock-badge">🔒 LOCKED</span></div>
         <div class="match-title">${p.match || 'Match'}</div>
         <div class="pick-meta">${p.league || 'Football League'}</div>
+        <div class="pick-kickoff">${formatKickoff(p.start_ts)}</div>
         <div class="pick-selection-box">
           <span class="pick-name">${p.pick}</span>
           <span class="pick-odds">${p.odds.toFixed(3)}</span>
@@ -163,6 +164,15 @@ function renderPicks() {
     `;
     container.appendChild(card);
   });
+}
+
+function formatKickoff(ts) {
+  if (!ts) return '';
+  const d = new Date(Number(ts) * 1000);
+  if (isNaN(d.getTime())) return '';
+  const dateStr = d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  const timeStr = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  return `🗓️ ${dateStr} · ${timeStr}`;
 }
 
 async function loadTracker() {
