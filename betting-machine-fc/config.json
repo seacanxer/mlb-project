@@ -9,7 +9,7 @@
     "max_ah_abs_line": 1.5,
     "top_pick_limit": 40,
     "top_picks_per_market": 12,
-    "top_picks_per_match": 2
+    "top_picks_per_match": 1
   },
   "markets": [
     "1x2",
@@ -22,5 +22,5 @@
     "league": "E0",
     "season": "2526"
   },
-  "tracking_unit": 1.0
+  "tracking_unit": 1
 }
