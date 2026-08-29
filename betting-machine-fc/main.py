@@ -98,19 +98,33 @@ def analyze_match(o, lh, la, min_odds=1.66, min_ev=0.0, max_ah_line=2.5):
     po = over_prob(2.5, lh, la)
     pu = under_prob(2.5, lh, la)
     o1, od, o2 = o["odds_1x2"][1], o["odds_1x2"][2], o["odds_1x2"][3]
-    oov, oun = o["odds_ou"][2.5][9], o["odds_ou"][2.5][10]
-    cands = [
+    oov = o["odds_ou"].get(2.5, {}).get(9)
+    oun = o["odds_ou"].get(2.5, {}).get(10)
+    # 1X2
+    for market, pick, p, odds in [
         ("1x2", f"Home ({o['home']})", ph, o1),
         ("1x2", "Draw", pd, od),
         ("1x2", f"Away ({o['away']})", pa, o2),
-        ("ou", "Over 2.5", po, oov),
-        ("ou", "Under 2.5", pu, oun),
-    ]
-    for market, pick, p, odds in cands:
-        e = ev(p, odds)
-        if e > min_ev and odds >= min_odds:
+    ]:
+        e = ev(p, odds) if odds else -999
+        if e > min_ev and odds and odds >= min_odds:
             out.append(pick_entry(o, market, pick, p, odds, e))
-
+    # O/U 2.5
+    if oov and oun:
+        for market, pick, p, odds in [
+            ("ou", "Over 2.5", po, oov),
+            ("ou", "Under 2.5", pu, oun),
+        ]:
+            e = ev(p, odds)
+            if e > min_ev and odds >= min_odds:
+                out.append(pick_entry(o, market, pick, p, odds, e))
+    # BTTS
+    btts_odds = o.get("odds_btts")
+    if btts_odds:
+        e = ev(pbt, btts_odds)
+        if e > min_ev and btts_odds >= min_odds:
+            out.append(pick_entry(o, "btts", "BTTS Yes", pbt, btts_odds, e))
+    # AH
     for line, c in o.get("odds_ah", {}).get("home", []) or []:
         if abs(line) > max_ah_line:
             continue
@@ -118,7 +132,6 @@ def analyze_match(o, lh, la, min_odds=1.66, min_ev=0.0, max_ah_line=2.5):
         if c >= min_odds and e_ah > min_ev:
             p_approx = (e_ah + 1.0) / c if c > 0 else 0
             out.append(pick_entry(o, "ah", f"Home {line:+.2f}", p_approx, c, e_ah))
-
     for line, c in o.get("odds_ah", {}).get("away", []) or []:
         if abs(line) > max_ah_line:
             continue
@@ -126,7 +139,6 @@ def analyze_match(o, lh, la, min_odds=1.66, min_ev=0.0, max_ah_line=2.5):
         if c >= min_odds and e_ah > min_ev:
             p_approx = (e_ah + 1.0) / c if c > 0 else 0
             out.append(pick_entry(o, "ah", f"Away {line:+.2f}", p_approx, c, e_ah))
-
     return out
 
 

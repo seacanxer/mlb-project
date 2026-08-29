@@ -4,22 +4,21 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 
 const MODELS = [
-  { id: 'auto', name: '🔄 Auto Model Rotation (GPT-5.6 / Claude / DeepSeek)' },
-  { id: 'xkiro/openai/gpt-5.6-sol', name: 'GPT-5.6 Sol (Deep Reasoning)' },
-  { id: 'xkiro/anthropic/claude-fable-5', name: 'Claude Fable 5 (Sabermetric Sharp)' },
-  { id: 'xkiro/deepseek/deepseek-v4-flash-0731', name: 'DeepSeek v4 Flash (Speed & Odds)' },
-  { id: 'tb/deepseek-v4-pro', name: 'DeepSeek v4 Pro (High Conviction)' },
-  { id: 'zai/openai/gpt-5.6-sol', name: 'ZAI OpenAI GPT-5.6' },
-  { id: 'zai/anthropic/claude-fable-5', name: 'ZAI Claude Fable 5' },
+  { id: 'auto', name: '🔄 Auto Model Rotation (Claude / DeepSeek / Qwen)' },
+  { id: 'gr/claude-opus-5', name: 'Claude Opus 5 (GR) — Live' },
+  { id: 'xkiro/deepseek/deepseek-v4-pro', name: 'DeepSeek v4 Pro — Live' },
+  { id: 'xkiro/deepseek/deepseek-v4-flash', name: 'DeepSeek v4 Flash — Live' },
+  { id: 'xkiro/deepseek/deepseek-chat-v3.1', name: 'DeepSeek Chat v3.1 — Live' },
+  { id: 'qwentele/qwen3.8-max', name: 'Qwen3.8 Max (Fast)' },
+  { id: 'sec', name: 'DeepSeek v4 Pro (Sec)' },
 ];
 
 const ROTATION_MODELS = [
-  'xkiro/openai/gpt-5.6-sol',
-  'xkiro/anthropic/claude-fable-5',
-  'xkiro/deepseek/deepseek-v4-flash-0731',
-  'tb/deepseek-v4-pro',
-  'zai/openai/gpt-5.6-sol',
-  'zai/anthropic/claude-fable-5',
+  'gr/claude-opus-5',
+  'xkiro/deepseek/deepseek-v4-pro',
+  'xkiro/deepseek/deepseek-v4-flash',
+  'qwentele/qwen3.8-max',
+  'sec',
 ];
 
 function currentMlbDate() {

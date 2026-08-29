@@ -504,12 +504,14 @@
       <label style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500;">AI Engine:</label>
       <select id="modelSelect" class="select-model" onchange="onModelChange()">
         <option value="auto">🔄 Auto Multi-Model Rotation</option>
-        <option value="xkiro/openai/gpt-5.6-sol">GPT-5.6 Sol (Deep Reasoning)</option>
-        <option value="xkiro/anthropic/claude-fable-5">Claude Fable 5 (Sabermetric Sharp)</option>
-        <option value="xkiro/deepseek/deepseek-v4-flash-0731">DeepSeek v4 Flash (Speed & Odds)</option>
-        <option value="tb/deepseek-v4-pro">DeepSeek v4 Pro (High Conviction)</option>
-        <option value="zai/openai/gpt-5.6-sol">ZAI OpenAI GPT-5.6</option>
-        <option value="zai/anthropic/claude-fable-5">ZAI Claude Fable</option>
+        <option value="gr/claude-opus-5">Claude Opus 5 (GR) — Live</option>
+        <option value="xkiro/deepseek/deepseek-v4-pro">DeepSeek v4 Pro — Live</option>
+        <option value="xkiro/deepseek/deepseek-v4-flash">DeepSeek v4 Flash — Live</option>
+        <option value="xkiro/deepseek/deepseek-chat-v3.1">DeepSeek Chat v3.1 — Live</option>
+        <option value="qwentele/qwen3.8-max">Qwen3.8 Max (Fast)</option>
+        <option value="prime">DeepSeek v4 Flash (Prime)</option>
+        <option value="sec">DeepSeek v4 Pro (Sec)</option>
+        <option value="qwentele/glm-5.1">GLM-5.1</option>
       </select>
     </div>
 
@@ -560,12 +562,11 @@ const BASE_ORIGIN = window.location.origin;
 const PICKER_URL = `${BASE_ORIGIN}/api/pick`;
 
 const MODELS = [
-  'xkiro/openai/gpt-5.6-sol',
-  'xkiro/anthropic/claude-fable-5',
-  'xkiro/deepseek/deepseek-v4-flash-0731',
-  'tb/deepseek-v4-pro',
-  'zai/openai/gpt-5.6-sol',
-  'zai/anthropic/claude-fable-5'
+  'gr/claude-opus-5',
+  'xkiro/deepseek/deepseek-v4-pro',
+  'xkiro/deepseek/deepseek-v4-flash',
+  'qwentele/qwen3.8-max',
+  'sec'
 ];
 
 function currentMlbDate() {

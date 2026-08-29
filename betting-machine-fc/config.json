@@ -1,5 +1,8 @@
 {
   "data_source": "1xbit",
+  "flashscore_leagues": [
+    {"name": "Finland Veikkausliiga", "tournament_id": 76}
+  ],
   "filters": {
     "min_odds": 1.66,
     "min_ev": 0.0,

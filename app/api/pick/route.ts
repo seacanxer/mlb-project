@@ -58,9 +58,9 @@ interface PickResponseData {
   warnings?: string[];
 }
 
-const DEFAULT_MODEL = 'xkiro/openai/gpt-5.6-sol';
-const PICK_TIMEOUT_MS = 15_000;
-const ROUTER_TIMEOUT_MS = 25_000;
+const DEFAULT_MODEL = 'gr/claude-opus-5-thinking';
+const PICK_TIMEOUT_MS = 70_000;
+const ROUTER_TIMEOUT_MS = 90_000;
 
 function clampConfidence(value: unknown): number {
   const parsed = Number(value);

@@ -15,7 +15,7 @@ from pydantic import BaseModel
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE_DIR)
 
-from model import (
+from model_v2 import (
     ah_ev,
     ah_ev_away,
     btts_prob,
@@ -28,8 +28,12 @@ from model import (
     total_ev,
     under_prob,
 )
+import asyncio
+import db
+import settlement
 import scraper_1xbit as sc
 import scraper_historical as sh
+import scraper_flashscore as fs
 from strategy.bankroll import kelly_fraction, monte_carlo_bankroll
 
 app = FastAPI(
@@ -120,21 +124,41 @@ def execute_live_scan_sync():
         min_ev = cfg.get("filters", {}).get("min_ev", 0.0)
         max_ah_line = cfg.get("filters", {}).get("max_ah_abs_line", 2.5)
 
-        raw_matches = sc.list_matches()
+        if cfg.get("data_source") == "flashscore":
+            leagues = cfg.get("flashscore_leagues", [])
+            auto_discover = len(leagues) == 0
+            raw_matches = asyncio.run(fs.list_matches(leagues, auto_discover))
+            if len(raw_matches) == 0:
+                scan_state["progress"] = "FlashScore returned no matches, falling back to 1xbit..."
+                print("[LOG] FlashScore empty, falling back to 1xbit")
+                raw_matches = sc.list_matches()
+                scan_state["progress"] = f"Processing {len(raw_matches)} matches from 1xbit (fallback)..."
+            else:
+                scan_state["progress"] = f"Processing {len(raw_matches)} matches from FlashScore..."
+                print(f"[LOG] FlashScore found {len(raw_matches)} matches")
+        else:
+            raw_matches = sc.list_matches()
+            scan_state["progress"] = f"Processing {len(raw_matches)} matches from 1xbit..."
+            print(f"[LOG] 1xbit found {len(raw_matches)} matches")
         scan_state["progress"] = f"Processing markets for {len(raw_matches)} matches..."
 
         picks = []
         detailed_matches = []
         for i, m in enumerate(raw_matches):
             try:
-                v = sc.get_match(m["I"])
-                o = sc.extract_markets(v)
+                if cfg.get("data_source") == "flashscore":
+                    odds = asyncio.run(fs.get_match_odds(m["I"]))
+                    combined = {**m, "odds": odds}
+                    o = fs.extract_markets(combined)
+                else:
+                    v = sc.get_match(m["I"])
+                    o = sc.extract_markets(v)
                 if not o["odds_1x2"] or 2.5 not in o["odds_ou"]:
                     continue
                 o1, od, o2 = o["odds_1x2"][1], o["odds_1x2"][2], o["odds_1x2"][3]
                 oov = o["odds_ou"][2.5][9]
                 oun = o["odds_ou"][2.5][10]
-                lh, la, fair_1x2, fair_over = lam_from_odds(o1, od, o2, oov, oun, 2.5)
+                lh, la, fair_1x2, fair_over = lam_from_odds(o1, od, o2, oov, oun, 2.5) if oov and oun else (1.5, 1.2, [0.5,0.3,0.2], 0.55)
 
                 ph, pd, pa = match_probs(lh, la)
                 pbt = btts_prob(lh, la)
@@ -144,6 +168,11 @@ def execute_live_scan_sync():
                 from main import analyze_match
                 m_picks = analyze_match(o, lh, la, min_odds, min_ev, max_ah_line)
                 picks.extend(m_picks)
+                # insert into db for settlement tracking
+                for p in m_picks:
+                    db.insert_bet(p)
+
+
 
                 matrix, _ = score_matrix(lh, la)
                 top_scores = sorted(

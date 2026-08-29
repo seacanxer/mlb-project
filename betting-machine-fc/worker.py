@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE_DIR)
 
-from server import execute_live_scan_sync, load_config
+from server import execute_live_scan_sync, load_config, load_picks_file
 
 
 def run_worker_loop(interval_minutes: int = 15, once: bool = False):
