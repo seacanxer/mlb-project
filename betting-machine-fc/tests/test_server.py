@@ -1,0 +1,79 @@
+import os
+import sys
+import pytest
+from fastapi.testclient import TestClient
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from server import app
+
+client = TestClient(app)
+
+
+def test_health_endpoint():
+    response = client.get("/api/health")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "healthy"
+    assert "scan_state" in data
+
+
+def test_picks_endpoint():
+    response = client.get("/api/picks?min_odds=1.66&min_ev=0.0")
+    assert response.status_code == 200
+    data = response.json()
+    assert "summary" in data
+    assert "picks" in data
+    assert data["summary"]["min_odds_floor"] == 1.66
+    for pick in data["picks"]:
+        assert pick["odds"] >= 1.66
+        assert pick["ev"] >= 0.0
+        assert "kelly_pct" in pick
+        assert "flat_stake" in pick
+
+
+def test_picks_odds_floor_enforcement():
+    # Attempting to query with min_odds=1.20 should still enforce min 1.66 floor
+    response = client.get("/api/picks?min_odds=1.20")
+    assert response.status_code == 200
+    data = response.json()
+    for pick in data["picks"]:
+        assert pick["odds"] >= 1.66
+
+
+def test_config_endpoints():
+    res_get = client.get("/api/config")
+    assert res_get.status_code == 200
+    cfg = res_get.json()
+    assert "filters" in cfg
+
+    # Test updating config with odds below 1.66 - should auto-clamp to 1.66
+    cfg["filters"]["min_odds"] = 1.40
+    res_post = client.post("/api/config", json=cfg)
+    assert res_post.status_code == 200
+    saved_cfg = res_post.json()["config"]
+    assert saved_cfg["filters"]["min_odds"] >= 1.66
+
+
+def test_simulation_endpoint():
+    payload = {
+        "bankroll": 1000.0,
+        "stake_pct": 0.02,
+        "odds": 1.95,
+        "probability": 0.58,
+        "rounds": 50,
+        "iterations": 100,
+        "strategy": "flat",
+    }
+    response = client.post("/api/simulate", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert "median" in data
+    assert "p5_worst" in data
+    assert "p95_best" in data
+    assert "ruin_pct" in data
+    assert len(data["sample_trajectories"]) > 0
+
+
+if __name__ == "__main__":
+    pytest.main(["-v", __file__])

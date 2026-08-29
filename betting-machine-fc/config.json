@@ -1,0 +1,21 @@
+{
+  "data_source": "1xbit",
+  "filters": {
+    "min_odds": 1.66,
+    "min_ev": 0.0,
+    "min_probability": 0.0
+  },
+  "markets": [
+    "1x2",
+    "ah",
+    "ou",
+    "btts"
+  ],
+  "output": "picks.json",
+  "historical": {
+    "league": "E0",
+    "season": "2526"
+  },
+  "bankroll": 1000,
+  "stake_pct": 0.02
+}

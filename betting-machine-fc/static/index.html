@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FC Betting Machine — Football Probabilistic Pick Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <!-- Top Navigation Header -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-icon">⚽</div>
+        <div class="brand-text">
+          <div class="brand-title">FC BETTING MACHINE</div>
+          <div class="brand-subtitle">Dixon-Coles Bivariate Poisson Engine · <span class="domain-pill">fc.texasdrill.me</span></div>
+        </div>
+      </div>
+
+      <nav class="nav-tabs" role="tablist">
+        <button class="tab-btn active" data-tab="picks">🎯 Live Picks</button>
+        <button class="tab-btn" data-tab="matches">🏟️ Matches & Matrices</button>
+        <button class="tab-btn" data-tab="backtest">🧪 Backtest Lab</button>
+        <button class="tab-btn" data-tab="bankroll">🎲 Bankroll Sandbox</button>
+        <button class="tab-btn" data-tab="settings">⚙️ Settings</button>
+        <button class="tab-btn" data-tab="deploy">🚀 Deployment</button>
+      </nav>
+
+      <div class="topbar-actions">
+        <button id="btn-scan" class="btn btn-primary btn-scan">
+          <span class="scan-spinner hidden" id="scan-spinner"></span>
+          <span id="scan-btn-text">📡 Run Live Scan</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main App Container -->
+  <main class="main-content">
+
+    <!-- Notification / Status Banner -->
+    <div id="status-banner" class="status-banner hidden">
+      <span id="status-message">Ready</span>
+      <button id="btn-close-banner" class="banner-close">&times;</button>
+    </div>
+
+    <!-- TAB 1: LIVE PICKS -->
+    <section id="tab-picks" class="tab-pane active">
+      <!-- Summary KPIs -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Qualified Picks</div>
+          <div class="kpi-val" id="kpi-qualified-picks">-</div>
+          <div class="kpi-sub">Min odds &ge; 1.66 floor</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Avg Expected Value</div>
+          <div class="kpi-val text-emerald" id="kpi-avg-ev">+0.0%</div>
+          <div class="kpi-sub">Statistical edge</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Avg Decimal Odds</div>
+          <div class="kpi-val text-cyan" id="kpi-avg-odds">-</div>
+          <div class="kpi-sub">Filtered selections</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Active Bankroll</div>
+          <div class="kpi-val" id="kpi-bankroll">$1,000</div>
+          <div class="kpi-sub" id="kpi-flat-stake">Flat Stake: $20 (2%)</div>
+        </div>
+      </div>
+
+      <!-- Filter Controls Bar -->
+      <div class="filter-panel card">
+        <div class="filter-row">
+          <div class="filter-group">
+            <label>Market</label>
+            <div class="pill-group" id="market-pills">
+              <button class="pill active" data-market="all">All</button>
+              <button class="pill" data-market="1x2">1X2</button>
+              <button class="pill" data-market="ah">Asian Handicap</button>
+              <button class="pill" data-market="ou">Over / Under</button>
+              <button class="pill" data-market="btts">BTTS</button>
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <label for="filter-league">League</label>
+            <select id="filter-league" class="form-select">
+              <option value="all">All Leagues</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="filter-min-ev">Min EV Edge</label>
+            <select id="filter-min-ev" class="form-select">
+              <option value="0.0">All Positive (> 0%)</option>
+              <option value="0.02" selected>+2% (Recommended Pro)</option>
+              <option value="0.05">+5% (Strong Edge)</option>
+              <option value="0.10">+10% (High Value)</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="filter-sort">Sort By</label>
+            <select id="filter-sort" class="form-select">
+              <option value="ev">Highest EV</option>
+              <option value="probability">Highest Probability</option>
+              <option value="odds">Highest Odds</option>
+              <option value="kelly">Highest Kelly %</option>
+            </select>
+          </div>
+
+          <div class="filter-group filter-search">
+            <label for="filter-search">Search Match</label>
+            <input type="text" id="filter-search" class="form-input" placeholder="Search team or league...">
+          </div>
+        </div>
+
+        <div class="filter-row-secondary">
+          <div class="odds-range-ctrl">
+            <span class="ctrl-label">Odds Floor: <strong>&ge; 1.66</strong> (Locked)</span>
+            <span class="ctrl-label" style="margin-left: 20px;">Max Odds Cap:</span>
+            <input type="number" id="filter-max-odds" class="form-input form-input-sm" placeholder="No cap" step="0.1" min="1.66">
+          </div>
+          <div class="last-sync-tag" id="last-sync-text">Last scanned: Checking...</div>
+        </div>
+      </div>
+
+      <!-- Picks Cards Grid -->
+      <div id="picks-container" class="picks-grid">
+        <!-- Rendered dynamically -->
+      </div>
+      <div id="picks-empty" class="empty-state hidden">
+        <div class="empty-icon">🔍</div>
+        <h3>No qualified picks found</h3>
+        <p>No markets meet the current filter criteria (Odds &ge; 1.66 &amp; EV threshold). Try lowering EV or clicking <strong>"Run Live Scan"</strong>.</p>
+      </div>
+    </section>
+
+    <!-- TAB 2: MATCHES & DIXON-COLES MATRICES -->
+    <section id="tab-matches" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h2>Scanned Fixtures &amp; Poisson Matrices</h2>
+          <p class="text-muted">Explore derived team lambdas ($\lambda_h, \lambda_a$), fair odds, and exact score probabilities</p>
+        </div>
+        <button id="btn-refresh-matches" class="btn btn-secondary">🔄 Refresh Matches</button>
+      </div>
+
+      <div id="matches-container" class="matches-grid">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- TAB 3: BACKTEST LAB -->
+    <section id="tab-backtest" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h2>Historical Backtest Lab</h2>
+          <p class="text-muted">Validate Dixon-Coles model performance against historical closing odds across European leagues</p>
+        </div>
+      </div>
+
+      <div class="backtest-layout">
+        <!-- Backtest Control Form -->
+        <div class="card backtest-form-card">
+          <h3>Simulation Parameters</h3>
+          <form id="backtest-form">
+            <div class="form-group">
+              <label for="bt-league">League</label>
+              <select id="bt-league" class="form-select">
+                <option value="E0">England — Premier League (E0)</option>
+                <option value="SP1">Spain — La Liga (SP1)</option>
+                <option value="D1">Germany — Bundesliga (D1)</option>
+                <option value="I1">Italy — Serie A (I1)</option>
+                <option value="F1">France — Ligue 1 (F1)</option>
+                <option value="N1">Netherlands — Eredivisie (N1)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="bt-season">Season</label>
+              <select id="bt-season" class="form-select">
+                <option value="2526">2025/2026 (Current)</option>
+                <option value="2425" selected>2024/2025 (Full Season)</option>
+                <option value="2324">2023/2024</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="bt-min-odds">Min Odds Floor</label>
+              <input type="number" id="bt-min-odds" class="form-input" value="1.66" step="0.05" min="1.66">
+            </div>
+
+            <div class="form-group">
+              <label for="bt-min-ev">Min EV Threshold</label>
+              <select id="bt-min-ev" class="form-select">
+                <option value="0.0">All EV > 0.0</option>
+                <option value="0.02" selected>+2% (0.02) Recommended</option>
+                <option value="0.05">+5% (0.05)</option>
+                <option value="0.08">+8% (0.08)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="bt-market">Market</label>
+              <select id="bt-market" class="form-select">
+                <option value="all">All Available (1X2 &amp; O/U)</option>
+                <option value="1x2">1X2 Match Result Only</option>
+                <option value="ou">Over / Under 2.5 Only</option>
+              </select>
+            </div>
+
+            <button type="submit" id="btn-run-backtest" class="btn btn-primary btn-block">
+              🧪 Run Backtest
+            </button>
+          </form>
+        </div>
+
+        <!-- Backtest Results Display -->
+        <div class="backtest-results-area">
+          <div id="bt-metrics-grid" class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-label">Total Bets</div>
+              <div class="kpi-val" id="bt-val-bets">-</div>
+              <div class="kpi-sub" id="bt-sub-matches">Matches evaluated</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Win / Hit Rate</div>
+              <div class="kpi-val text-cyan" id="bt-val-hitrate">-</div>
+              <div class="kpi-sub" id="bt-sub-wins">- wins</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Profit (Flat Units)</div>
+              <div class="kpi-val" id="bt-val-profit">-</div>
+              <div class="kpi-sub">1.0 unit flat stakes</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Model ROI</div>
+              <div class="kpi-val" id="bt-val-roi">-</div>
+              <div class="kpi-sub" id="bt-sub-avg-odds">Avg odds: -</div>
+            </div>
+          </div>
+
+          <!-- Equity Curve Canvas -->
+          <div class="card chart-card">
+            <div class="card-header">
+              <h3>Cumulative Equity Growth (Units)</h3>
+              <span class="badge badge-emerald">Backtested on Closing Odds</span>
+            </div>
+            <div class="canvas-container">
+              <canvas id="equity-chart" width="800" height="260"></canvas>
+            </div>
+          </div>
+
+          <!-- Market Breakdown Table -->
+          <div class="card">
+            <div class="card-header">
+              <h3>Market Performance Breakdown</h3>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table" id="bt-breakdown-table">
+                <thead>
+                  <tr>
+                    <th>Market</th>
+                    <th>Bets Placed</th>
+                    <th>Wins</th>
+                    <th>Hit Rate %</th>
+                    <th>Avg Odds</th>
+                    <th>Profit Units</th>
+                    <th>ROI %</th>
+                  </tr>
+                </thead>
+                <tbody id="bt-breakdown-tbody">
+                  <tr><td colspan="7" class="text-center text-muted">Run a backtest to see market statistics</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: BANKROLL SANDBOX -->
+    <section id="tab-bankroll" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h2>Monte Carlo Bankroll &amp; Kelly Strategy Simulator</h2>
+          <p class="text-muted">Simulate portfolio variance, growth trajectories, and risk of ruin over hundreds of bets</p>
+        </div>
+      </div>
+
+      <div class="bankroll-layout">
+        <div class="card bankroll-form-card">
+          <h3>Simulation Setup</h3>
+          <form id="sim-form">
+            <div class="form-group">
+              <label for="sim-bankroll">Initial Capital ($)</label>
+              <input type="number" id="sim-bankroll" class="form-input" value="1000" min="100" step="50">
+            </div>
+
+            <div class="form-group">
+              <label for="sim-strategy">Staking Strategy</label>
+              <select id="sim-strategy" class="form-select">
+                <option value="flat">Flat 2% Stake (Conservative)</option>
+                <option value="kelly">Fractional Kelly (Dynamic Edge-based)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="sim-odds">Average Decimal Odds</label>
+              <input type="number" id="sim-odds" class="form-input" value="1.95" step="0.05" min="1.66">
+            </div>
+
+            <div class="form-group">
+              <label for="sim-prob">Estimated Model Win Probability</label>
+              <input type="number" id="sim-prob" class="form-input" value="0.58" step="0.01" min="0.1" max="0.99">
+              <small class="text-muted" id="sim-ev-calc">Calculated EV: +13.1%</small>
+            </div>
+
+            <div class="form-group">
+              <label for="sim-rounds">Number of Bets per Run</label>
+              <input type="number" id="sim-rounds" class="form-input" value="250" step="25" min="20" max="1000">
+            </div>
+
+            <div class="form-group">
+              <label for="sim-iterations">Monte Carlo Iterations</label>
+              <input type="number" id="sim-iterations" class="form-input" value="1000" step="100" min="100" max="5000">
+            </div>
+
+            <button type="submit" id="btn-run-sim" class="btn btn-primary btn-block">🎲 Run Simulation</button>
+          </form>
+        </div>
+
+        <div class="bankroll-results-area">
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-label">Median Final Bankroll</div>
+              <div class="kpi-val text-emerald" id="sim-val-median">-</div>
+              <div class="kpi-sub">50th percentile outcome</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">5th Percentile (Downside)</div>
+              <div class="kpi-val text-amber" id="sim-val-p5">-</div>
+              <div class="kpi-sub">Worst 5% variance</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">95th Percentile (Upside)</div>
+              <div class="kpi-val text-cyan" id="sim-val-p95">-</div>
+              <div class="kpi-sub">Top 5% upside run</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Ruin Risk (&gt;50% Drawdown)</div>
+              <div class="kpi-val" id="sim-val-ruin">-</div>
+              <div class="kpi-sub">Probability of halving bank</div>
+            </div>
+          </div>
+
+          <div class="card chart-card">
+            <div class="card-header">
+              <h3>Simulated Trajectory Paths (Sample Runs)</h3>
+            </div>
+            <div class="canvas-container">
+              <canvas id="sim-chart" width="800" height="260"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: SETTINGS -->
+    <section id="tab-settings" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h2>Engine Configuration</h2>
+          <p class="text-muted">Update core parameters in <code>config.json</code> without restarting the server</p>
+        </div>
+      </div>
+
+      <div class="card settings-card">
+        <form id="settings-form">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="cfg-data-source">Data Source</label>
+              <select id="cfg-data-source" class="form-select">
+                <option value="1xbit">1xbit Live LineFeed (Recommended)</option>
+                <option value="historical">Historical Archive</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="cfg-min-odds">Minimum Odds Floor</label>
+              <input type="number" id="cfg-min-odds" class="form-input" value="1.66" min="1.66" step="0.01">
+              <small class="text-muted">Per spec, odds below 1.66 are rejected outright.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="cfg-min-ev">Production EV Threshold</label>
+              <input type="number" id="cfg-min-ev" class="form-input" value="0.02" min="0.0" step="0.005">
+              <small class="text-muted">0.02 (+2%) eliminates longshot variance noise.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="cfg-max-ah">Max Asian Handicap Line</label>
+              <input type="number" id="cfg-max-ah" class="form-input" value="2.0" min="0.5" max="5.0" step="0.25">
+              <small class="text-muted">Lines above 2.0 goals have heavy noise tails.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="cfg-bankroll">Bankroll ($)</label>
+              <input type="number" id="cfg-bankroll" class="form-input" value="1000" min="50" step="50">
+            </div>
+
+            <div class="form-group">
+              <label for="cfg-stake-pct">Flat Stake Percentage</label>
+              <input type="number" id="cfg-stake-pct" class="form-input" value="0.02" min="0.005" max="0.10" step="0.005">
+              <small class="text-muted">0.02 = 2% flat stake per qualified pick.</small>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" id="btn-save-cfg" class="btn btn-primary">💾 Save Configuration</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- TAB 6: DEPLOYMENT GUIDE -->
+    <section id="tab-deploy" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h2>Production Deployment Guide · <span class="domain-highlight">fc.texasdrill.me</span></h2>
+          <p class="text-muted">Production architecture, Nginx reverse proxy, systemd services, and one-command deployment</p>
+        </div>
+      </div>
+
+      <div class="deploy-grid">
+        <div class="card">
+          <div class="card-header">
+            <h3>⚡ Quick Deploy Commands</h3>
+          </div>
+          <div class="code-block">
+            <code># 1. Run automated installer on Ubuntu / Debian VPS:
+chmod +x deploy.sh
+./deploy.sh
+
+# 2. Or run manually with PM2:
+pm2 start ecosystem.config.js
+pm2 save
+
+# 3. Or run with Systemd:
+sudo systemctl enable fc-betting
+sudo systemctl start fc-betting</code>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>🌐 Nginx Domain Configuration (fc.texasdrill.me)</h3>
+          </div>
+          <div class="code-block">
+            <code>server {
+    server_name fc.texasdrill.me;
+    listen 80;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}</code>
+          </div>
+          <p class="text-muted mt-2">To issue free SSL certificate: <code>sudo certbot --nginx -d fc.texasdrill.me</code></p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MATCH DETAIL MODAL (Dixon-Coles Probabilities & Score Grid) -->
+  <div id="match-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h3 id="modal-match-title">Match Analysis</h3>
+          <span id="modal-league-badge" class="badge badge-league">League</span>
+        </div>
+        <button id="btn-close-modal" class="modal-close-btn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-lambdas-bar">
+          <div class="lambda-item">
+            <span class="lbl">Home λ (Attack)</span>
+            <strong id="modal-lh" class="val">-</strong>
+          </div>
+          <div class="lambda-item">
+            <span class="lbl">Away λ (Attack)</span>
+            <strong id="modal-la" class="val">-</strong>
+          </div>
+          <div class="lambda-item">
+            <span class="lbl">Total Expected Goals</span>
+            <strong id="modal-ltot" class="val">-</strong>
+          </div>
+          <div class="lambda-item">
+            <span class="lbl">BTTS Probability</span>
+            <strong id="modal-btts" class="val text-emerald">-</strong>
+          </div>
+        </div>
+
+        <div class="modal-section-title">Top Predicted Scorelines (Dixon-Coles Corrected)</div>
+        <div id="modal-scores-grid" class="scores-pill-grid">
+          <!-- Dynamically populated -->
+        </div>
+
+        <div class="modal-section-title">Market Fair Value vs Bookmaker</div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Market Line</th>
+                <th>Model Probability</th>
+                <th>Fair Odds</th>
+                <th>Live Odds</th>
+                <th>Expected Value (EV)</th>
+              </tr>
+            </thead>
+            <tbody id="modal-markets-tbody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

@@ -2,13 +2,27 @@ node_modules/
 .next/
 *.db
 *.db-journal
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+venv/
+.venv/
+env/
+
+# Environment
 .env.local
 .env
+
+# Build & Test
 dist/
 coverage/
 playwright-report/
 test-results/
 *.tsbuildinfo
+
 # Server-specific (not in repo)
 start_web.sh
 start_worker.sh

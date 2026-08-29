@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  fc-betting-web:
+    build: .
+    container_name: fc-betting-web
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - HOST=0.0.0.0
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./config.json:/app/config.json
+      - ./picks.json:/app/picks.json
+      - ./matches_detailed.json:/app/matches_detailed.json
+      - ./data:/app/data
+
+  fc-betting-worker:
+    build: .
+    container_name: fc-betting-worker
+    restart: always
+    command: ["python", "worker.py", "--interval", "15"]
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./config.json:/app/config.json
+      - ./picks.json:/app/picks.json
+      - ./matches_detailed.json:/app/matches_detailed.json
+      - ./data:/app/data
+    depends_on:
+      - fc-betting-web
