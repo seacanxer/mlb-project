@@ -1,4 +1,5 @@
 import asyncio
+import concurrent.futures
 import json
 import os
 import sys
@@ -135,6 +136,7 @@ def execute_live_scan_sync():
         min_odds = cfg.get("filters", {}).get("min_odds", 1.66)
         min_ev = cfg.get("filters", {}).get("min_ev", 0.0)
         max_ah_line = cfg.get("filters", {}).get("max_ah_abs_line", 2.5)
+        window_hours = float(cfg.get("scan_window_hours", 16))
 
         if cfg.get("data_source") == "flashscore":
             if fs is None:
@@ -152,10 +154,23 @@ def execute_live_scan_sync():
                 print(f"[LOG] FlashScore found {len(raw_matches)} matches")
         else:
             scan_match_limit = int(cfg.get("scan_match_limit", 500))
-            raw_matches = sc.list_matches(count=scan_match_limit)
-            scan_state["progress"] = f"Processing {len(raw_matches)} matches from 1xbit..."
-            print(f"[LOG] 1xbit found {len(raw_matches)} matches")
+            raw_matches = sc.list_matches_paginated(count=scan_match_limit, window_hours=window_hours)
+            scan_state["progress"] = f"Processing {len(raw_matches)} matches from 1xbit ({window_hours:g}h window)..."
+            print(f"[LOG] 1xbit found {len(raw_matches)} matches in {window_hours:g}h window")
         scan_state["progress"] = f"Processing markets for {len(raw_matches)} matches..."
+
+        def _fetch_one(m):
+            try:
+                v = sc.get_match(m["I"])
+                return sc.extract_markets(v)
+            except Exception:
+                return None
+
+        prefetched = []
+        if cfg.get("data_source") != "flashscore" and len(raw_matches) > 30:
+            workers = min(8, max(4, max(1, len(raw_matches)) // 40))
+            with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as ex:
+                prefetched = list(ex.map(_fetch_one, raw_matches))
 
         picks = []
         detailed_matches = []
@@ -166,8 +181,9 @@ def execute_live_scan_sync():
                     combined = {**m, "odds": odds}
                     o = fs.extract_markets(combined)
                 else:
-                    v = sc.get_match(m["I"])
-                    o = sc.extract_markets(v)
+                    o = prefetched[i] if prefetched else _fetch_one(m)
+                    if not o:
+                        continue
                 if not o["odds_1x2"] or 2.5 not in o["odds_ou"]:
                     continue
                 o1, od, o2 = o["odds_1x2"][1], o["odds_1x2"][2], o["odds_1x2"][3]

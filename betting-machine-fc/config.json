@@ -23,5 +23,6 @@
     "league": "E0",
     "season": "2526"
   },
-  "tracking_unit": 1
+  "tracking_unit": 1,
+  "scan_window_hours": 16
 }

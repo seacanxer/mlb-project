@@ -23,6 +23,35 @@ def list_matches(sport=1, count=50, mode=1, country=169):
     return [v for v in j.get("Value", []) if v.get("I")]
 
 
+def list_matches_paginated(sport=1, count=500, mode=1, country=169, window_hours=16, max_pages=60):
+    now = time.time()
+    seen, order = {}, []
+    for page in range(max_pages):
+        url = f"{BASE}BestGamesExtZip?sports={sport}&count={count}&lng=en&mode={mode}&country={country}&page={page}"
+        try:
+            j = fetch(url)
+        except Exception:
+            break
+        v = [x for x in j.get("Value", []) if x.get("I")]
+        if not v:
+            break
+        new = False
+        for x in v:
+            if x["I"] in seen:
+                continue
+            s = x.get("S")
+            if not s:
+                continue
+            if not (now - 60 <= s <= now + float(window_hours) * 3600):
+                continue
+            seen[x["I"]] = x
+            order.append(x)
+            new = True
+        if page > 0 and not new:
+            break
+    return order
+
+
 def get_match(mid, country=169):
     url = f"{BASE}GetGameZip?id={mid}&lng=en&country={country}"
     j = fetch(url)
