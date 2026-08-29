@@ -41,17 +41,32 @@ def init_db():
     conn.close()
 
 def insert_bet(bet):
-    """Lock one recommendation once. Re-scans never duplicate the same line."""
+    """Lock one recommendation per match. If a live (unsettled) lock already exists
+    for the same fixture, keep the one with the higher EV instead of stacking duplicates."""
     conn = _connect()
     c = conn.cursor()
     existing = c.execute('''
-        SELECT id FROM bets
-        WHERE match=? AND start_ts=? AND market=? AND pick=?
+        SELECT id, ev FROM bets
+        WHERE match=? AND start_ts=? AND settled=0
         LIMIT 1
     ''', (
-        bet.get('match'), bet.get('start_ts'), bet.get('market'), bet.get('pick')
+        bet.get('match'), bet.get('start_ts')
     )).fetchone()
     if existing:
+        new_ev = bet.get('ev') or -999
+        if new_ev > (existing['ev'] or -999):
+            c.execute('''
+                UPDATE bets
+                SET market=?, pick=?, odds=?, ev=?, probability=?, placed_at=?
+                WHERE id=?
+            ''', (
+                bet.get('market'), bet.get('pick'), bet.get('odds'),
+                bet.get('ev'), bet.get('probability'),
+                datetime.now().isoformat(), existing['id']
+            ))
+            conn.commit()
+            conn.close()
+            return existing['id'], False
         conn.close()
         return existing['id'], False
     c.execute('''
@@ -75,6 +90,13 @@ def insert_bet(bet):
     conn.commit()
     conn.close()
     return bet_id, True
+
+def update_source_match_id(bet_id, source_match_id):
+    conn = _connect()
+    c = conn.cursor()
+    c.execute('UPDATE bets SET source_match_id=? WHERE id=?', (source_match_id, bet_id))
+    conn.commit()
+    conn.close()
 
 def settle_bet(bet_id, won, profit):
     conn = _connect()

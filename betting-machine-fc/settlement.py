@@ -1,6 +1,7 @@
 import db
-import scraper_1xbit as sc
+import scores_flashscore as sf
 from model_v2 import ah_payout, ah_payout_away
+from datetime import date, timedelta
 
 
 def total_payout(line, side, odds, goals):
@@ -16,22 +17,35 @@ def total_payout(line, side, odds, goals):
     return returned / len(lines)
 
 
+def _kickoff_date_ok(bet, row):
+    """Allow the locked fixture's kickoff date to match the result date,
+    with one day of slack for timezone differences."""
+    ts = bet.get("start_ts") or 0
+    if not ts:
+        return False
+    kick = date.fromtimestamp(ts)
+    rdate = row.get("date_key") or ""
+    if not rdate:
+        return False
+    allowed = {(kick + timedelta(days=i)).isoformat() for i in (0, 1)}
+    return rdate in allowed
+
+
 def settle_all():
-    """Settle each lock from its provider event id, including removed fixtures."""
+    """Settle each lock from flashscore.mobi final scores."""
     settled_count = 0
-    legacy_without_match_id = 0
+    matched = 0
+    index = sf.fetch_recent_results(days=9)
+    lookup = sf.build_lookup(index)
     for bet in db.get_unsettled():
-        match_id = bet.get('source_match_id')
-        if not match_id:
-            legacy_without_match_id += 1
+        row = sf.find_result(bet.get("home"), bet.get("away"), lookup)
+        if not row:
             continue
-
-        result = sc.get_match(match_id)
-        if result.get('WP') != 3:
+        if not _kickoff_date_ok(bet, row):
             continue
-
-        home_goals = int(result.get('G1', 0))
-        away_goals = int(result.get('G2', 0))
+        matched += 1
+        home_goals = row["home_goals"]
+        away_goals = row["away_goals"]
         total = home_goals + away_goals
         margin = home_goals - away_goals
         won = False
@@ -67,5 +81,5 @@ def settle_all():
 
     return {
         'settled_now': settled_count,
-        'legacy_without_match_id': legacy_without_match_id,
+        'matched_results': matched,
     }

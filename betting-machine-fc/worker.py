@@ -8,6 +8,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE_DIR)
 
 from server import execute_live_scan_sync, load_config, load_picks_file
+import settlement
 
 
 def run_worker_loop(interval_minutes: int = 15, once: bool = False):
@@ -20,6 +21,9 @@ def run_worker_loop(interval_minutes: int = 15, once: bool = False):
         now_str = datetime.now(timezone.utc).isoformat()
         print(f"\n[{now_str}] 📡 Triggering live odds scan...")
         try:
+            st = settlement.settle_all()
+            if st.get("settled_now") or st.get("matched_results"):
+                print(f"[{now_str}] ✅ Settlement: {st}")
             execute_live_scan_sync()
             cfg = load_config()
             now_str = datetime.now(timezone.utc).isoformat()
