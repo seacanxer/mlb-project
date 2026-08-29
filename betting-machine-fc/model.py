@@ -200,6 +200,26 @@ def lam_from_odds(odds_home, odds_draw, odds_away, odds_over, odds_under, ou_lin
     return lam_total * ratio, lam_total * (1.0 - ratio), (p_h, p_d, p_a), fair_over
 
 
+def lam_from_1x2(odds_home, odds_draw, odds_away, lo=0.25, hi=3.75, step=0.10):
+    """Fit independent scoring rates to de-vigged 1X2 prices only.
+
+    Totals and BTTS can then be evaluated out-of-sample against their own prices,
+    instead of circularly deriving the goal total from the O/U market being tested.
+    """
+    target = remove_margin([odds_home, odds_draw, odds_away])
+    best = None
+    count = int(round((hi - lo) / step))
+    for i in range(count + 1):
+        lh = lo + i * step
+        for j in range(count + 1):
+            la = lo + j * step
+            probs = match_probs(lh, la)
+            error = sum((actual - wanted) ** 2 for actual, wanted in zip(probs, target))
+            if best is None or error < best[0]:
+                best = (error, lh, la)
+    return best[1], best[2], tuple(target)
+
+
 def strength_lam(home_att, away_def, away_att, home_def, league_avg, home_adv=1.08):
     lh = (home_att / league_avg) * (away_def / league_avg) * league_avg * home_adv
     la = (away_att / league_avg) * (home_def / league_avg) * league_avg

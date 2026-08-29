@@ -28,8 +28,18 @@ def test_picks_endpoint():
     for pick in data["picks"]:
         assert pick["odds"] >= 1.66
         assert pick["ev"] >= 0.0
-        assert "kelly_pct" in pick
-        assert "flat_stake" in pick
+        assert pick["locked"] is True
+        assert "kelly_stake" not in pick
+
+    assert len(data["picks"]) <= data["summary"]["selection_limit"]
+
+
+def test_tracker_endpoint():
+    response = client.get("/api/tracker")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["unit_size"] == 1.0
+    assert "roi_pct" in data["summary"]
 
 
 def test_picks_odds_floor_enforcement():

@@ -13,11 +13,15 @@ from model import (
     ev,
     fit_total_from_ou,
     implied_prob,
+    lam_from_1x2,
     match_probs,
     over_prob,
     remove_margin,
     under_prob,
 )
+from main import select_top_picks
+from main import analyze_match
+from settlement import total_payout
 
 TOL = 1e-3
 
@@ -111,9 +115,53 @@ def test_fit_total():
     assert 0.6 < fair_over < 0.64, fair_over
 
 
+def test_1x2_only_lambda_fit_is_independent_of_totals_market():
+    lh, la, target = lam_from_1x2(2.0, 3.4, 3.8)
+    fitted = match_probs(lh, la)
+    assert sum(abs(a - b) for a, b in zip(fitted, target)) < 0.10
+
+
 def test_implied():
     assert approx(implied_prob(2.0), 0.5)
     assert approx(ev(0.5, 2.1), 0.05)
+
+
+def test_top_picks_are_capped_diversified_and_one_per_match():
+    candidates = []
+    markets = ["1x2", "ah", "ou", "btts"]
+    for i in range(20):
+        candidates.append({
+            "match": f"Home {i // 2} vs Away {i // 2}",
+            "start_ts": i // 2,
+            "market": markets[i % 4],
+            "pick": f"Pick {i}",
+            "probability": 0.58,
+            "odds": 1.9,
+            "ev": 0.10,
+        })
+    picks = select_top_picks(candidates, limit=8, per_market=2)
+    assert len(picks) <= 8
+    assert len({(p["match"], p["start_ts"]) for p in picks}) == len(picks)
+    assert all(sum(1 for p in picks if p["market"] == market) <= 2 for market in markets)
+    assert all(p["locked"] for p in picks)
+
+
+def test_btts_yes_and_no_are_evaluated_when_prices_exist():
+    market = {
+        "home": "A", "away": "B", "league": "Test", "start_ts": 1,
+        "odds_1x2": {1: 2.2, 2: 3.2, 3: 3.2},
+        "odds_ou": {2.5: {9: 2.0, 10: 2.0}},
+        "odds_ah": {}, "odds_btts": {"yes": 2.2, "no": 2.2},
+    }
+    picks = analyze_match(market, 1.5, 1.2, min_odds=1.66, min_ev=-1)
+    btts = {p["pick"] for p in picks if p["market"] == "btts"}
+    assert btts == {"BTTS Yes", "BTTS No"}
+
+
+def test_total_quarter_line_settlement():
+    assert approx(total_payout(2.25, "over", 1.90, 2), 0.5, 1e-9)
+    assert approx(total_payout(2.75, "over", 1.90, 3), 1.45, 1e-9)
+    assert approx(total_payout(3.0, "under", 1.90, 3), 1.0, 1e-9)
 
 
 if __name__ == "__main__":

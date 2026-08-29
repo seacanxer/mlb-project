@@ -111,7 +111,7 @@ async def get_match_odds(match_id):
         odds_1x2 = {}
         odds_ou = {}
         odds_ah = {}
-        odds_btts = None
+        odds_btts = {}
         match_1x2 = re.findall(r'data-odds[_-]?(?:home|draw|away)="([\d.]+)"', html)
         if len(match_1x2) >= 3:
             odds_1x2 = {1: float(match_1x2[0]), 2: float(match_1x2[1]), 3: float(match_1x2[2])}
@@ -125,9 +125,12 @@ async def get_match_odds(match_id):
             odds_ah.setdefault("home", []).append((float(line), float(odds)))
         for line, odds in ah_away:
             odds_ah.setdefault("away", []).append((float(line), float(odds)))
-        btts = re.search(r'data-odds-btts-yes="([\d.]+)"', html)
-        if btts:
-            odds_btts = float(btts.group(1))
+        btts_yes = re.search(r'data-odds-btts-yes="([\d.]+)"', html)
+        btts_no = re.search(r'data-odds-btts-no="([\d.]+)"', html)
+        if btts_yes:
+            odds_btts["yes"] = float(btts_yes.group(1))
+        if btts_no:
+            odds_btts["no"] = float(btts_no.group(1))
         return {"odds_1x2": odds_1x2, "odds_ou": odds_ou, "odds_ah": odds_ah, "odds_btts": odds_btts}
 
 def extract_markets(v):
@@ -141,7 +144,7 @@ def extract_markets(v):
         "odds_1x2": {},
         "odds_ou": {},
         "odds_ah": {},
-        "odds_btts": None,
+        "odds_btts": {},
     }
     odds = v.get("odds", {})
     out["odds_1x2"] = odds.get("odds_1x2", {})

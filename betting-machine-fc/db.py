@@ -1,11 +1,18 @@
+import os
 import sqlite3
-import json
 from datetime import datetime
 
-DB_PATH = '/home/ubuntu/mlb-project/betting-machine-fc/bets.db'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.environ.get('FC_BETS_DB', os.path.join(BASE_DIR, 'bets.db'))
+
+
+def _connect():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
 
 def init_db():
-    conn = sqlite3.connect(DB_PATH)
+    conn = _connect()
     c = conn.cursor()
     c.execute('''
         CREATE TABLE IF NOT EXISTS bets (
@@ -27,15 +34,29 @@ def init_db():
             settled_at TEXT
         )
     ''')
+    columns = {row['name'] for row in c.execute('PRAGMA table_info(bets)').fetchall()}
+    if 'source_match_id' not in columns:
+        c.execute('ALTER TABLE bets ADD COLUMN source_match_id TEXT')
     conn.commit()
     conn.close()
 
 def insert_bet(bet):
-    conn = sqlite3.connect(DB_PATH)
+    """Lock one recommendation once. Re-scans never duplicate the same line."""
+    conn = _connect()
     c = conn.cursor()
+    existing = c.execute('''
+        SELECT id FROM bets
+        WHERE match=? AND start_ts=? AND market=? AND pick=?
+        LIMIT 1
+    ''', (
+        bet.get('match'), bet.get('start_ts'), bet.get('market'), bet.get('pick')
+    )).fetchone()
+    if existing:
+        conn.close()
+        return existing['id'], False
     c.execute('''
-        INSERT INTO bets (match, home, away, league, start_ts, market, pick, odds, ev, probability, placed_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO bets (match, home, away, league, start_ts, market, pick, odds, ev, probability, placed_at, source_match_id)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ''', (
         bet.get('match'),
         bet.get('home'),
@@ -47,23 +68,26 @@ def insert_bet(bet):
         bet.get('odds'),
         bet.get('ev'),
         bet.get('probability'),
-        datetime.now().isoformat()
+        datetime.now().isoformat(),
+        str(bet.get('match_id')) if bet.get('match_id') is not None else None
     ))
+    bet_id = c.lastrowid
     conn.commit()
     conn.close()
+    return bet_id, True
 
 def settle_bet(bet_id, won, profit):
-    conn = sqlite3.connect(DB_PATH)
+    conn = _connect()
     c = conn.cursor()
     c.execute('''
         UPDATE bets SET settled=1, won=?, profit=?, settled_at=?
         WHERE id=?
-    ''', (1 if won else 0, profit, datetime.now().isoformat(), bet_id))
+    ''', (None if won is None else (1 if won else 0), profit, datetime.now().isoformat(), bet_id))
     conn.commit()
     conn.close()
 
 def get_bets(settled=None):
-    conn = sqlite3.connect(DB_PATH)
+    conn = _connect()
     c = conn.cursor()
     if settled is None:
         c.execute('SELECT * FROM bets ORDER BY start_ts DESC')
@@ -71,21 +95,41 @@ def get_bets(settled=None):
         c.execute('SELECT * FROM bets WHERE settled=? ORDER BY start_ts DESC', (1 if settled else 0,))
     rows = c.fetchall()
     conn.close()
-    keys = ['id','match','home','away','league','start_ts','market','pick','odds','ev','probability','placed_at','settled','won','profit','settled_at']
-    return [dict(zip(keys, r)) for r in rows]
+    keys = ['id','match','home','away','league','start_ts','market','pick','odds','ev','probability','placed_at','settled','won','profit','settled_at','source_match_id']
+    return [dict(zip(keys, tuple(r))) for r in rows]
 
 def get_roi():
-    conn = sqlite3.connect(DB_PATH)
+    conn = _connect()
     c = conn.cursor()
-    c.execute('SELECT COUNT(*), SUM(won), SUM(profit) FROM bets WHERE settled=1')
-    total, wins, profit = c.fetchone()
+    c.execute('''
+        SELECT COUNT(*),
+               COALESCE(SUM(CASE WHEN won=1 THEN 1 ELSE 0 END), 0),
+               COALESCE(SUM(CASE WHEN won=0 THEN 1 ELSE 0 END), 0),
+               COALESCE(SUM(CASE WHEN won IS NULL THEN 1 ELSE 0 END), 0),
+               COALESCE(SUM(profit), 0)
+        FROM bets WHERE settled=1
+    ''')
+    total, wins, losses, pushes, profit = tuple(c.fetchone())
     conn.close()
     total = total or 0
     wins = wins or 0
     profit = profit or 0.0
+    conn = _connect()
+    pending_count = conn.execute('SELECT COUNT(*) FROM bets WHERE settled=0').fetchone()[0]
+    conn.close()
     roi = (profit / total * 100) if total > 0 else 0.0
-    hit_rate = (wins / total * 100) if total > 0 else 0.0
-    return {'total_bets': total, 'wins': wins, 'profit': round(profit, 2), 'roi_pct': round(roi, 2), 'hit_rate_pct': round(hit_rate, 2)}
+    decided = wins + losses
+    hit_rate = (wins / decided * 100) if decided > 0 else 0.0
+    return {
+        'locked_picks': pending_count,
+        'settled_picks': total,
+        'wins': wins,
+        'losses': losses,
+        'pushes': pushes,
+        'profit_units': round(profit, 2),
+        'roi_pct': round(roi, 2),
+        'hit_rate_pct': round(hit_rate, 2),
+    }
 
 def get_unsettled():
     return get_bets(settled=False)

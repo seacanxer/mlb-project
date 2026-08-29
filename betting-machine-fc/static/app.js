@@ -18,11 +18,13 @@ document.addEventListener('DOMContentLoaded', () => {
   loadConfig();
   loadPicks();
   loadMatches();
+  loadTracker();
+  initSettlement();
 });
 
 // Tab Switching
 function initTabs() {
-  const tabs = document.querySelectorAll('.tab-btn');
+  const tabs = document.querySelectorAll('.tab-btn[data-tab]');
   tabs.forEach(btn => {
     btn.addEventListener('click', () => {
       tabs.forEach(t => t.classList.remove('active'));
@@ -56,19 +58,11 @@ async function loadConfig() {
     if (!res.ok) return;
     currentConfig = await res.json();
 
-    if (currentConfig.bankroll) {
-      document.getElementById('kpi-bankroll').textContent = `$${currentConfig.bankroll.toLocaleString()}`;
-      const flatStake = (currentConfig.stake_pct || 0.02) * currentConfig.bankroll;
-      document.getElementById('kpi-flat-stake').textContent = `Flat Stake: $${flatStake.toFixed(2)} (${((currentConfig.stake_pct || 0.02) * 100).toFixed(0)}%)`;
-    }
-
     // Populate settings form
     document.getElementById('cfg-data-source').value = currentConfig.data_source || '1xbit';
     document.getElementById('cfg-min-odds').value = currentConfig.filters?.min_odds || 1.66;
     document.getElementById('cfg-min-ev').value = currentConfig.filters?.min_ev || 0.02;
     document.getElementById('cfg-max-ah').value = currentConfig.filters?.max_ah_abs_line || 2.0;
-    document.getElementById('cfg-bankroll').value = currentConfig.bankroll || 1000;
-    document.getElementById('cfg-stake-pct').value = currentConfig.stake_pct || 0.02;
   } catch (err) {
     console.error('Error loading config:', err);
   }
@@ -78,7 +72,7 @@ async function loadConfig() {
 async function loadPicks() {
   try {
     const minEv = document.getElementById('filter-min-ev')?.value || '0.02';
-    const sortBy = document.getElementById('filter-sort')?.value || 'ev';
+    const sortBy = document.getElementById('filter-sort')?.value || 'rank_score';
     const maxOdds = document.getElementById('filter-max-odds')?.value;
 
     let url = `/api/picks?min_odds=1.66&min_ev=${minEv}&sort_by=${sortBy}&sort_order=desc`;
@@ -101,8 +95,6 @@ async function loadPicks() {
 function renderSummary(summary) {
   if (!summary) return;
   document.getElementById('kpi-qualified-picks').textContent = summary.qualified_picks ?? '-';
-  document.getElementById('kpi-avg-ev').textContent = summary.avg_ev_pct ? `+${summary.avg_ev_pct}%` : '+0.0%';
-  document.getElementById('kpi-avg-odds').textContent = summary.avg_odds ? summary.avg_odds.toFixed(3) : '-';
 
   if (summary.last_scan_time) {
     const d = new Date(summary.last_scan_time);
@@ -155,43 +147,66 @@ function renderPicks() {
     const card = document.createElement('div');
     card.className = 'pick-card';
 
-    const evPct = (p.ev * 100).toFixed(1);
-    const probPct = (p.probability * 100).toFixed(1);
     const marketClass = `badge-${p.market || '1x2'}`;
 
     card.innerHTML = `
       <div>
-        <div class="pick-card-header">
-          <span class="league-badge">${p.league || 'Football League'}</span>
-          <span class="market-badge ${marketClass}">${p.market ? p.market.toUpperCase() : 'BET'}</span>
-        </div>
+        <div class="pick-card-header"><span class="market-badge ${marketClass}">${p.market ? p.market.toUpperCase() : 'BET'}</span><span class="lock-badge">🔒 LOCKED</span></div>
         <div class="match-title">${p.match || 'Match'}</div>
+        <div class="pick-meta">${p.league || 'Football League'}</div>
         <div class="pick-selection-box">
-          <span class="pick-name">🎯 ${p.pick}</span>
+          <span class="pick-name">${p.pick}</span>
           <span class="pick-odds">${p.odds.toFixed(3)}</span>
         </div>
-        <div class="metrics-strip">
-          <div class="metric-item">
-            <span class="metric-lbl">Win Prob</span>
-            <span class="metric-val text-cyan">${probPct}%</span>
-          </div>
-          <div class="metric-item">
-            <span class="metric-lbl">Edge / EV</span>
-            <span class="metric-val text-emerald">+${evPct}%</span>
-          </div>
-          <div class="metric-item">
-            <span class="metric-lbl">Kelly %</span>
-            <span class="metric-val text-amber">${p.kelly_pct || '0.0'}%</span>
-          </div>
-        </div>
-      </div>
-      <div class="stake-recommendation-bar">
-        <span>Kelly Stake: <strong class="stake-val">$${(p.kelly_stake || 0).toFixed(2)}</strong></span>
-        <span>Flat 2%: <strong class="stake-val">$${(p.flat_stake || 20).toFixed(2)}</strong></span>
       </div>
     `;
     container.appendChild(card);
   });
+}
+
+async function loadTracker() {
+  try {
+    const res = await fetch('/api/tracker');
+    if (!res.ok) throw new Error('Failed to load ROI tracker');
+    const data = await res.json();
+    const s = data.summary || {};
+    document.getElementById('kpi-locked').textContent = s.locked_picks ?? 0;
+    document.getElementById('kpi-settled').textContent = s.settled_picks ?? 0;
+    const roi = s.roi_pct || 0;
+    const roiEl = document.getElementById('kpi-roi');
+    roiEl.textContent = `${roi >= 0 ? '+' : ''}${roi.toFixed(1)}%`;
+    roiEl.className = `kpi-val ${roi >= 0 ? 'text-emerald' : 'text-rose'}`;
+    document.getElementById('tracker-locked').textContent = s.locked_picks ?? 0;
+    document.getElementById('tracker-record').textContent = `${s.wins || 0}–${s.losses || 0}`;
+    document.getElementById('tracker-pushes').textContent = `${s.pushes || 0} pushes`;
+    document.getElementById('tracker-profit').textContent = `${(s.profit_units || 0).toFixed(2)}u`;
+    document.getElementById('tracker-roi').textContent = `${roi >= 0 ? '+' : ''}${roi.toFixed(1)}%`;
+
+    const rows = [...(data.locked || []), ...(data.settled || [])];
+    const tbody = document.getElementById('tracker-table');
+    tbody.innerHTML = rows.length ? rows.map(b => {
+      const result = !b.settled ? 'Pending' : b.won === 1 ? 'Won' : b.won === 0 ? 'Lost' : 'Push';
+      return `<tr><td>${b.settled ? 'Settled' : '🔒 Locked'}</td><td>${b.match || '-'}</td><td>${(b.market || '').toUpperCase()}</td><td>${b.pick || '-'}</td><td>${Number(b.odds || 0).toFixed(2)}</td><td>${result}${b.settled ? ` (${Number(b.profit || 0).toFixed(2)}u)` : ''}</td></tr>`;
+    }).join('') : '<tr><td colspan="6" class="text-center text-muted">No locked picks yet. Run a live scan first.</td></tr>';
+  } catch (err) {
+    showBanner(err.message, true);
+  }
+}
+
+function initSettlement() {
+  const run = async () => {
+    try {
+      const res = await fetch('/api/settle', { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Settlement failed');
+      showBanner(`✅ Settlement refreshed: ${data.settled_now || 0} picks updated.`);
+      await loadTracker();
+    } catch (err) {
+      showBanner(err.message, true);
+    }
+  };
+  document.getElementById('btn-settle')?.addEventListener('click', run);
+  document.getElementById('btn-settle-tracker')?.addEventListener('click', run);
 }
 
 function initFilters() {
@@ -628,8 +643,7 @@ function initSettingsForm() {
       },
       markets: ['1x2', 'ah', 'ou', 'btts'],
       output: 'picks.json',
-      bankroll: parseFloat(document.getElementById('cfg-bankroll').value) || 1000,
-      stake_pct: parseFloat(document.getElementById('cfg-stake-pct').value) || 0.02,
+      tracking_unit: 1.0,
     };
 
     try {

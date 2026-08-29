@@ -41,7 +41,7 @@ def extract_markets(v):
         "odds_1x2": {},
         "odds_ou": {},
         "odds_ah": {},
-        "odds_btts": None,
+        "odds_btts": {},
     }
     for e in odds:
         t, c, g, p = e.get("T"), e.get("C"), e.get("G"), e.get("P")
@@ -53,8 +53,9 @@ def extract_markets(v):
             out["odds_ah"].setdefault("home", []).append((p, c))
         elif g == 2 and t == 8 and p is not None:
             out["odds_ah"].setdefault("away", []).append((p, c))
-        elif g == 11 and t == 2:  # BTTS Yes
-            out["odds_btts"] = c
+        elif g == 19 and t in (180, 181):
+            # Both teams to score: 180=Yes, 181=No.
+            out["odds_btts"]["yes" if t == 180 else "no"] = c
     return out
 
 

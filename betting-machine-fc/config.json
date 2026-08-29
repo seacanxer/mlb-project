@@ -1,12 +1,17 @@
 {
   "data_source": "1xbit",
   "flashscore_leagues": [
-    {"name": "Finland Veikkausliiga", "tournament_id": 76}
+    {
+      "name": "Finland Veikkausliiga",
+      "tournament_id": 76
+    }
   ],
   "filters": {
     "min_odds": 1.66,
-    "min_ev": 0.0,
-    "min_probability": 0.0
+    "min_ev": 0.02,
+    "min_probability": 0.0,
+    "top_pick_limit": 12,
+    "top_picks_per_market": 3
   },
   "markets": [
     "1x2",
@@ -19,6 +24,5 @@
     "league": "E0",
     "season": "2526"
   },
-  "bankroll": 1000,
-  "stake_pct": 0.02
+  "tracking_unit": 1.0
 }

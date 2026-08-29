@@ -22,12 +22,12 @@
       </div>
 
       <nav class="nav-tabs" role="tablist">
-        <button class="tab-btn active" data-tab="picks">🎯 Live Picks</button>
-        <button class="tab-btn" data-tab="matches">🏟️ Matches & Matrices</button>
-        <button class="tab-btn" data-tab="backtest">🧪 Backtest Lab</button>
-        <button class="tab-btn" data-tab="bankroll">🎲 Bankroll Sandbox</button>
+        <button class="tab-btn active" data-tab="picks">🎯 Top Picks</button>
+        <button class="tab-btn" data-tab="tracker">📊 ROI Tracker</button>
+        <button class="tab-btn" data-tab="matches">🏟️ Model Detail</button>
+        <button class="tab-btn" data-tab="backtest">🧪 Backtest</button>
         <button class="tab-btn" data-tab="settings">⚙️ Settings</button>
-        <button class="tab-btn" data-tab="deploy">🚀 Deployment</button>
+        <button id="btn-settle" class="tab-btn tab-action">✅ Settle</button>
       </nav>
 
       <div class="topbar-actions">
@@ -53,24 +53,24 @@
       <!-- Summary KPIs -->
       <div class="kpi-grid">
         <div class="kpi-card">
-          <div class="kpi-label">Qualified Picks</div>
+          <div class="kpi-label">Top Picks</div>
           <div class="kpi-val" id="kpi-qualified-picks">-</div>
-          <div class="kpi-sub">Min odds &ge; 1.66 floor</div>
+          <div class="kpi-sub">One best pick per match</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-label">Avg Expected Value</div>
-          <div class="kpi-val text-emerald" id="kpi-avg-ev">+0.0%</div>
-          <div class="kpi-sub">Statistical edge</div>
+          <div class="kpi-label">Locked</div>
+          <div class="kpi-val text-emerald" id="kpi-locked">-</div>
+          <div class="kpi-sub">Auto-saved for settlement</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-label">Avg Decimal Odds</div>
-          <div class="kpi-val text-cyan" id="kpi-avg-odds">-</div>
-          <div class="kpi-sub">Filtered selections</div>
+          <div class="kpi-label">Settled</div>
+          <div class="kpi-val text-cyan" id="kpi-settled">-</div>
+          <div class="kpi-sub">Results recorded</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-label">Active Bankroll</div>
-          <div class="kpi-val" id="kpi-bankroll">$1,000</div>
-          <div class="kpi-sub" id="kpi-flat-stake">Flat Stake: $20 (2%)</div>
+          <div class="kpi-label">Realized ROI</div>
+          <div class="kpi-val" id="kpi-roi">0.0%</div>
+          <div class="kpi-sub">Flat 1-unit tracking</div>
         </div>
       </div>
 
@@ -96,10 +96,9 @@
           </div>
 
           <div class="filter-group">
-            <label for="filter-min-ev">Min EV Edge</label>
+            <label for="filter-min-ev">Quality Gate</label>
             <select id="filter-min-ev" class="form-select">
-              <option value="0.0">All Positive (> 0%)</option>
-              <option value="0.02" selected>+2% (Recommended Pro)</option>
+              <option value="0.02" selected>Top Picks (EV &ge; 2%)</option>
               <option value="0.05">+5% (Strong Edge)</option>
               <option value="0.10">+10% (High Value)</option>
             </select>
@@ -108,10 +107,10 @@
           <div class="filter-group">
             <label for="filter-sort">Sort By</label>
             <select id="filter-sort" class="form-select">
+              <option value="rank_score">Best Recommendation</option>
               <option value="ev">Highest EV</option>
               <option value="probability">Highest Probability</option>
               <option value="odds">Highest Odds</option>
-              <option value="kelly">Highest Kelly %</option>
             </select>
           </div>
 
@@ -138,7 +137,29 @@
       <div id="picks-empty" class="empty-state hidden">
         <div class="empty-icon">🔍</div>
         <h3>No qualified picks found</h3>
-        <p>No markets meet the current filter criteria (Odds &ge; 1.66 &amp; EV threshold). Try lowering EV or clicking <strong>"Run Live Scan"</strong>.</p>
+        <p>No recommendation passed the probability, odds, EV, and diversification gates. The engine will not force a pick.</p>
+      </div>
+    </section>
+
+    <section id="tab-tracker" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h2>Locked Pick Performance</h2>
+          <p class="text-muted">Every published top pick is tracked at a flat 1-unit stake. ROI = net profit / settled units.</p>
+        </div>
+        <button id="btn-settle-tracker" class="btn btn-primary">✅ Refresh Settlement</button>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-label">Locked</div><div class="kpi-val" id="tracker-locked">0</div></div>
+        <div class="kpi-card"><div class="kpi-label">Record</div><div class="kpi-val" id="tracker-record">0–0</div><div class="kpi-sub" id="tracker-pushes">0 pushes</div></div>
+        <div class="kpi-card"><div class="kpi-label">Profit</div><div class="kpi-val" id="tracker-profit">0.00u</div></div>
+        <div class="kpi-card"><div class="kpi-label">ROI</div><div class="kpi-val" id="tracker-roi">0.0%</div></div>
+      </div>
+      <div class="card table-responsive">
+        <table class="data-table">
+          <thead><tr><th>Status</th><th>Match</th><th>Market</th><th>Pick</th><th>Odds</th><th>Result</th></tr></thead>
+          <tbody id="tracker-table"><tr><td colspan="6" class="text-center text-muted">Loading tracker…</td></tr></tbody>
+        </table>
       </div>
     </section>
 
@@ -411,16 +432,6 @@
               <small class="text-muted">Lines above 2.0 goals have heavy noise tails.</small>
             </div>
 
-            <div class="form-group">
-              <label for="cfg-bankroll">Bankroll ($)</label>
-              <input type="number" id="cfg-bankroll" class="form-input" value="1000" min="50" step="50">
-            </div>
-
-            <div class="form-group">
-              <label for="cfg-stake-pct">Flat Stake Percentage</label>
-              <input type="number" id="cfg-stake-pct" class="form-input" value="0.02" min="0.005" max="0.10" step="0.005">
-              <small class="text-muted">0.02 = 2% flat stake per qualified pick.</small>
-            </div>
           </div>
 
           <div class="form-actions">

@@ -22,6 +22,7 @@ from model_v2 import (
     ev,
     fit_total_from_ou,
     lam_from_odds,
+    lam_from_1x2,
     match_probs,
     over_prob,
     score_matrix,
@@ -33,8 +34,12 @@ import db
 import settlement
 import scraper_1xbit as sc
 import scraper_historical as sh
-import scraper_flashscore as fs
-from strategy.bankroll import kelly_fraction, monte_carlo_bankroll
+try:
+    import scraper_flashscore as fs
+except ImportError:
+    fs = None
+
+db.init_db()
 
 app = FastAPI(
     title="Football Betting Recommendation Engine API",
@@ -80,8 +85,7 @@ def load_config() -> Dict[str, Any]:
         "markets": ["1x2", "ah", "ou", "btts"],
         "output": "picks.json",
         "historical": {"league": "E0", "season": "2526"},
-        "bankroll": 1000,
-        "stake_pct": 0.02,
+        "tracking_unit": 1.0,
     }
 
 
@@ -125,6 +129,8 @@ def execute_live_scan_sync():
         max_ah_line = cfg.get("filters", {}).get("max_ah_abs_line", 2.5)
 
         if cfg.get("data_source") == "flashscore":
+            if fs is None:
+                raise RuntimeError("FlashScore source requires the optional Playwright dependency")
             leagues = cfg.get("flashscore_leagues", [])
             auto_discover = len(leagues) == 0
             raw_matches = asyncio.run(fs.list_matches(leagues, auto_discover))
@@ -158,7 +164,11 @@ def execute_live_scan_sync():
                 o1, od, o2 = o["odds_1x2"][1], o["odds_1x2"][2], o["odds_1x2"][3]
                 oov = o["odds_ou"][2.5][9]
                 oun = o["odds_ou"][2.5][10]
-                lh, la, fair_1x2, fair_over = lam_from_odds(o1, od, o2, oov, oun, 2.5) if oov and oun else (1.5, 1.2, [0.5,0.3,0.2], 0.55)
+                if oov and oun:
+                    lh, la, fair_1x2 = lam_from_1x2(o1, od, o2)
+                    _, fair_over = fit_total_from_ou(oov, oun, 2.5)
+                else:
+                    lh, la, fair_1x2, fair_over = 1.5, 1.2, [0.5, 0.3, 0.2], 0.55
 
                 ph, pd, pa = match_probs(lh, la)
                 pbt = btts_prob(lh, la)
@@ -168,11 +178,6 @@ def execute_live_scan_sync():
                 from main import analyze_match
                 m_picks = analyze_match(o, lh, la, min_odds, min_ev, max_ah_line)
                 picks.extend(m_picks)
-                # insert into db for settlement tracking
-                for p in m_picks:
-                    db.insert_bet(p)
-
-
 
                 matrix, _ = score_matrix(lh, la)
                 top_scores = sorted(
@@ -200,6 +205,16 @@ def execute_live_scan_sync():
                 time.sleep(0.08)
             except Exception as ex:
                 pass
+
+        from main import select_top_picks
+        top_limit = int(cfg.get("filters", {}).get("top_pick_limit", 12))
+        per_market = int(cfg.get("filters", {}).get("top_picks_per_market", 3))
+        picks = select_top_picks(picks, limit=top_limit, per_market=per_market)
+
+        # Every published recommendation is immediately locked for ROI tracking.
+        for pick in picks:
+            _, created = db.insert_bet(pick)
+            pick["newly_locked"] = created
 
         picks_path = os.path.join(BASE_DIR, "picks.json")
         with open(picks_path, "w", encoding="utf-8") as f:
@@ -248,13 +263,17 @@ def get_picks(
     max_odds: Optional[float] = Query(None, description="Maximum decimal odds cap"),
     min_ev: float = Query(0.0, description="Minimum expected value threshold"),
     search: Optional[str] = Query(None, description="Search query for team names or league"),
-    sort_by: str = Query("ev", description="Sort field: ev, odds, probability, kelly"),
+    sort_by: str = Query("rank_score", description="Sort field: rank_score, ev, odds, probability"),
     sort_order: str = Query("desc", description="Sort direction: asc, desc"),
 ):
     raw_picks = load_picks_file()
     cfg = load_config()
-    bankroll = cfg.get("bankroll", 1000.0)
-    flat_stake_pct = cfg.get("stake_pct", 0.02)
+    from main import select_top_picks
+    raw_picks = select_top_picks(
+        raw_picks,
+        limit=int(cfg.get("filters", {}).get("top_pick_limit", 12)),
+        per_market=int(cfg.get("filters", {}).get("top_picks_per_market", 3)),
+    )
 
     filtered = []
     leagues_set = set()
@@ -294,20 +313,11 @@ def get_picks(
             if q not in match_name and q not in pick_name and q not in league_name:
                 continue
 
-        # Compute monetary stakes
-        b = odds - 1.0
         p_val = prob if prob else ((e + 1.0) / odds if odds > 0 else 0.0)
-        k_fraction = max(0.0, min((b * p_val - (1.0 - p_val)) / b if b > 0 else 0.0, 0.10)) if p_val else 0.0
-        kelly_pct = round(k_fraction * 100, 2)
-        kelly_stake = round(k_fraction * bankroll, 2)
-        flat_stake = round(flat_stake_pct * bankroll, 2)
 
         item = dict(p)
         item["probability"] = round(p_val, 4)
-        item["kelly_pct"] = kelly_pct
-        item["kelly_stake"] = kelly_stake
-        item["flat_stake"] = flat_stake
-        item["roi_projected"] = round(e * 100, 2)
+        item["locked"] = True
         filtered.append(item)
 
     reverse = sort_order.lower() == "desc"
@@ -315,8 +325,8 @@ def get_picks(
         filtered.sort(key=lambda x: x.get("odds", 0.0), reverse=reverse)
     elif sort_by == "probability":
         filtered.sort(key=lambda x: x.get("probability", 0.0), reverse=reverse)
-    elif sort_by == "kelly":
-        filtered.sort(key=lambda x: x.get("kelly_pct", 0.0), reverse=reverse)
+    elif sort_by == "rank_score":
+        filtered.sort(key=lambda x: x.get("rank_score", 0.0), reverse=reverse)
     else:  # default 'ev'
         filtered.sort(key=lambda x: x.get("ev", 0.0), reverse=reverse)
 
@@ -330,8 +340,7 @@ def get_picks(
             "avg_ev_pct": round(avg_ev * 100, 2),
             "avg_odds": round(avg_odds, 3),
             "min_odds_floor": 1.66,
-            "bankroll": bankroll,
-            "flat_stake_pct": round(flat_stake_pct * 100, 2),
+            "selection_limit": cfg.get("filters", {}).get("top_pick_limit", 12),
             "leagues": sorted(list(leagues_set)),
             "markets": sorted(list(markets_set)),
             "last_scan_time": scan_state.get("last_scan_time"),
@@ -344,6 +353,25 @@ def get_picks(
 def get_matches():
     matches = load_detailed_matches()
     return {"count": len(matches), "matches": matches}
+
+
+@app.get("/api/tracker")
+def get_tracker():
+    return {
+        "summary": db.get_roi(),
+        "locked": db.get_unsettled(),
+        "settled": db.get_settled(),
+        "unit_size": 1.0,
+    }
+
+
+@app.post("/api/settle")
+def settle_locked_picks():
+    try:
+        result = settlement.settle_all()
+        return {**result, "summary": db.get_roi()}
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Settlement refresh failed: {exc}")
 
 
 @app.post("/api/scan")
