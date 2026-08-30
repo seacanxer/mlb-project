@@ -54,6 +54,7 @@ def settle_all():
     # 1. Try API-Football for recent days
     import scores_api_football as sf_api
     index_api = sf_api.fetch_recent_results(days=3, use_cache=False)
+    index_fs = {}
     lookup_api = sf_api.build_lookup(index_api)
     for bet in candidates:
         kickoff_date = date.fromtimestamp(bet.get("start_ts")) if bet.get("start_ts") else None
@@ -110,7 +111,7 @@ def settle_all():
 
     # 2. If no settlement from API, fallback to FlashScore
     if settled_count == 0:
-        index_fs = sf.fetch_recent_results(days=9)
+        index_fs = sf.fetch_recent_results(days=7)
         lookup_fs = sf.build_lookup(index_fs)
         for bet in candidates:
             kickoff_date = date.fromtimestamp(bet.get("start_ts")) if bet.get("start_ts") else None
@@ -165,7 +166,13 @@ def settle_all():
             else:
                 settled_count += 1
 
-    result_count = len(index_api) if 'index_api' in locals() else len(index_fs) if 'index_fs' in locals() else 0
+    # Report the feed that was actually used for settlement. API-Football may
+    # return an empty index (suspended/quota) while FlashScore fallback filled
+    # hundreds of rows — don't let the empty one mask a working feed.
+    if 'index_fs' in locals() and len(index_fs) > 0:
+        result_count = len(index_fs)
+    else:
+        result_count = len(index_api) if 'index_api' in locals() else 0
     return {
         'settled_now': settled_count,
         'scores_backfilled': scores_backfilled,
