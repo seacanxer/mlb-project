@@ -1,12 +1,11 @@
 import os
 import sys
-from datetime import datetime, timezone
+from datetime import date
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import db
 import scores_flashscore as sf
-from settlement import _allowed_result_dates
 
 
 def _insert_raw(conn, *, match, start_ts, market, pick, settled, won, profit):
@@ -71,14 +70,24 @@ def test_result_matching_prefers_fixture_date():
         },
     }
     lookup = sf.build_lookup(index)
-    row = sf.find_result("Home", "Away", lookup, allowed_dates={"2026-08-30"})
+    row = sf.find_result("Home", "Away", lookup, kickoff_date=date(2026, 8, 30))
     assert row is not None
     assert row["date_key"] == "2026-08-30"
     assert (row["home_goals"], row["away_goals"]) == (2, 1)
 
 
-def test_allowed_settlement_dates_include_timezone_slack():
-    kickoff = int(datetime(2026, 8, 30, 23, 30, tzinfo=timezone.utc).timestamp())
-    assert _allowed_result_dates({"start_ts": kickoff}) == {
-        "2026-08-29", "2026-08-30", "2026-08-31",
-    }
+def test_settlement_persists_final_score(tmp_path, monkeypatch):
+    monkeypatch.setattr(db, "DB_PATH", str(tmp_path / "bets.db"))
+    db.init_db()
+    bet_id, created = db.insert_bet({
+        "match_id": "fixture-1", "match": "Home vs Away", "home": "Home",
+        "away": "Away", "league": "Test", "start_ts": 100,
+        "market": "1x2", "pick": "Home", "odds": 1.9,
+        "ev": 0.08, "probability": 0.57,
+    })
+    assert created is True
+    db.settle_bet(bet_id, True, 0.9, home_score=3, away_score=1)
+    row = db.get_settled()[0]
+    assert (row["home_score"], row["away_score"]) == (3, 1)
+    assert row["score_status"] == "final"
+    assert row["score_updated_at"] is not None

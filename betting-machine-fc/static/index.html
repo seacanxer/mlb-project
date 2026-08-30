@@ -148,6 +148,7 @@
         <div>
           <h2>Locked Pick Performance</h2>
           <p class="text-muted">Every published top pick is tracked at a flat 1-unit stake. ROI = net profit / settled units.</p>
+          <p id="tracker-last-scan" class="text-muted">Terakhir scan data berhasil: belum tercatat</p>
         </div>
         <button id="btn-settle-tracker" class="btn btn-primary">✅ Refresh Settlement</button>
       </div>
@@ -195,8 +196,8 @@
       </div>
       <div class="card table-responsive">
         <table class="data-table">
-          <thead><tr><th>Status</th><th>Kickoff</th><th>Match</th><th id="th-market" class="sortable" title="Click to sort by market">Market <span id="market-sort-indicator"></span></th><th>Pick</th><th>Odds</th><th>Result</th></tr></thead>
-          <tbody id="tracker-table"><tr><td colspan="7" class="text-center text-muted">Loading tracker…</td></tr></tbody>
+          <thead><tr><th>Status</th><th>Kickoff</th><th>Match</th><th>Score</th><th id="th-market" class="sortable" title="Click to sort by market">Market <span id="market-sort-indicator"></span></th><th>Pick</th><th>Odds</th><th>Result</th></tr></thead>
+          <tbody id="tracker-table"><tr><td colspan="8" class="text-center text-muted">Loading tracker…</td></tr></tbody>
         </table>
       </div>
       </div>

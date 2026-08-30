@@ -103,11 +103,20 @@ function renderSummary(summary) {
   document.getElementById('kpi-qualified-picks').textContent = summary.qualified_picks ?? '-';
 
   if (summary.last_scan_time) {
-    const d = new Date(summary.last_scan_time);
-    document.getElementById('last-sync-text').textContent = `Last scanned: ${d.toLocaleTimeString()}`;
+    document.getElementById('last-sync-text').textContent = `Terakhir scan berhasil: ${formatWibTimestamp(summary.last_scan_time)}`;
   } else {
-    document.getElementById('last-sync-text').textContent = 'Last scanned: Cached live snapshot';
+    document.getElementById('last-sync-text').textContent = 'Terakhir scan berhasil: belum tercatat';
   }
+}
+
+function formatWibTimestamp(value) {
+  if (!value) return 'belum tercatat';
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return 'waktu tidak valid';
+  return `${new Intl.DateTimeFormat('id-ID', {
+    timeZone: 'Asia/Jakarta', day: '2-digit', month: 'short', year: 'numeric',
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
+  }).format(d)} WIB`;
 }
 
 const COUNTRY_MAP = {
@@ -263,6 +272,10 @@ async function loadTracker() {
       const hidden = Number(s.duplicates_hidden || 0);
       dedupNote.textContent = hidden ? `${hidden} duplicate historis disembunyikan` : 'Tidak ada duplicate';
     }
+    const trackerLastScan = document.getElementById('tracker-last-scan');
+    if (trackerLastScan) {
+      trackerLastScan.textContent = `Terakhir scan data berhasil: ${formatWibTimestamp(data.last_successful_scan_time)}`;
+    }
 
     trackerData = data;
     renderTracker();
@@ -333,8 +346,13 @@ function renderTracker() {
       ? (b.won === 1 ? 'Won' : b.won === 0 ? 'Lost' : 'Push')
       : pending[0];
     const resultClass = b.settled ? (b.won === 1 ? 'status-won' : b.won === 0 ? 'status-lost' : 'status-push') : pending[1];
-    return `<tr><td>${b.settled ? 'Settled' : '🔒 Locked'}</td><td><div class="kickoff-date">${dateText}</div><div class="kickoff-time">${timeText}</div></td><td>${b.match || '-'}</td><td>${(b.market || '').toUpperCase()}</td><td>${b.pick || '-'}</td><td>${Number(b.odds || 0).toFixed(2)}</td><td><span class="tracker-status ${resultClass}">${result}</span>${b.settled ? ` <span class="tracker-profit-inline">(${Number(b.profit || 0).toFixed(2)}u)</span>` : ''}</td></tr>`;
-  }).join('') : '<tr><td colspan="7" class="text-center text-muted">No locked picks yet. Run a live scan first.</td></tr>';
+    const hasScore = Number.isInteger(Number(b.home_score)) && Number.isInteger(Number(b.away_score)) && b.home_score !== null && b.away_score !== null;
+    const scoreLabel = b.score_status === 'live' ? 'LIVE' : b.score_status === 'final' ? 'FINAL' : '';
+    const score = hasScore
+      ? `<strong>${Number(b.home_score)}–${Number(b.away_score)}</strong>${scoreLabel ? `<div class="score-status">${scoreLabel}</div>` : ''}`
+      : '<span class="text-muted">Belum tersedia</span>';
+    return `<tr><td>${b.settled ? 'Settled' : '🔒 Locked'}</td><td><div class="kickoff-date">${dateText}</div><div class="kickoff-time">${timeText}</div></td><td>${b.match || '-'}</td><td>${score}</td><td>${(b.market || '').toUpperCase()}</td><td>${b.pick || '-'}</td><td>${Number(b.odds || 0).toFixed(2)}</td><td><span class="tracker-status ${resultClass}">${result}</span>${b.settled ? ` <span class="tracker-profit-inline">(${Number(b.profit || 0).toFixed(2)}u)</span>` : ''}</td></tr>`;
+  }).join('') : '<tr><td colspan="8" class="text-center text-muted">No locked picks yet. Run a live scan first.</td></tr>';
 }
 
 function renderMarketPerformance() {

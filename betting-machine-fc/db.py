@@ -37,6 +37,14 @@ def init_db():
     columns = {row['name'] for row in c.execute('PRAGMA table_info(bets)').fetchall()}
     if 'source_match_id' not in columns:
         c.execute('ALTER TABLE bets ADD COLUMN source_match_id TEXT')
+    if 'home_score' not in columns:
+        c.execute('ALTER TABLE bets ADD COLUMN home_score INTEGER')
+    if 'away_score' not in columns:
+        c.execute('ALTER TABLE bets ADD COLUMN away_score INTEGER')
+    if 'score_status' not in columns:
+        c.execute('ALTER TABLE bets ADD COLUMN score_status TEXT')
+    if 'score_updated_at' not in columns:
+        c.execute('ALTER TABLE bets ADD COLUMN score_updated_at TEXT')
     conn.commit()
     conn.close()
 
@@ -115,13 +123,20 @@ def update_source_match_id(bet_id, source_match_id):
     conn.commit()
     conn.close()
 
-def settle_bet(bet_id, won, profit):
+def settle_bet(bet_id, won, profit, home_score=None, away_score=None, score_status='final'):
     conn = _connect()
     c = conn.cursor()
     c.execute('''
-        UPDATE bets SET settled=1, won=?, profit=?, settled_at=?
+        UPDATE bets SET settled=1, won=?, profit=?, settled_at=?,
+            home_score=COALESCE(?, home_score), away_score=COALESCE(?, away_score),
+            score_status=CASE WHEN ? IS NOT NULL THEN ? ELSE score_status END,
+            score_updated_at=CASE WHEN ? IS NOT NULL AND ? IS NOT NULL THEN ? ELSE score_updated_at END
         WHERE id=?
-    ''', (None if won is None else (1 if won else 0), profit, datetime.now().isoformat(), bet_id))
+    ''', (
+        None if won is None else (1 if won else 0), profit, datetime.now().isoformat(),
+        home_score, away_score, score_status, score_status,
+        home_score, away_score, datetime.now().isoformat(), bet_id,
+    ))
     conn.commit()
     conn.close()
 
@@ -163,7 +178,7 @@ def get_bets(settled=None):
         ''', (1 if settled else 0,))
     rows = c.fetchall()
     conn.close()
-    keys = ['id','match','home','away','league','start_ts','market','pick','odds','ev','probability','placed_at','settled','won','profit','settled_at','source_match_id']
+    keys = ['id','match','home','away','league','start_ts','market','pick','odds','ev','probability','placed_at','settled','won','profit','settled_at','source_match_id','home_score','away_score','score_status','score_updated_at']
     return [dict(zip(keys, tuple(r))) for r in rows]
 
 def get_roi():

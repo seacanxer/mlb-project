@@ -38,15 +38,22 @@ def _kickoff_time_ok(bet):
 
 
 def settle_all():
+    """Settle locks and backfill missing final scores from FlashScore."""
     settled_count = 0
+    scores_backfilled = 0
     matched = 0
     unsettled = db.get_unsettled()
+    missing_scores = [
+        bet for bet in db.get_settled()
+        if bet.get('home_score') is None or bet.get('away_score') is None
+    ]
+    candidates = unsettled + missing_scores
 
     # 1. Try API-Football for recent days
     import scores_api_football as sf_api
     index_api = sf_api.fetch_recent_results(days=3, use_cache=False)
     lookup_api = sf_api.build_lookup(index_api)
-    for bet in unsettled:
+    for bet in candidates:
         kickoff_date = date.fromtimestamp(bet.get("start_ts")) if bet.get("start_ts") else None
         row = sf_api.find_result(bet.get("home"), bet.get("away"), lookup_api, kickoff_date=kickoff_date)
         if not row:
@@ -88,14 +95,22 @@ def settle_all():
 
         if bet['market'] not in ('ah', 'ou'):
             profit = (bet['odds'] - 1.0) if won else -1.0
-        db.settle_bet(bet['id'], won, profit)
-        settled_count += 1
+        db.settle_bet(
+            bet['id'], won, profit,
+            home_score=home_goals,
+            away_score=away_goals,
+            score_status='final',
+        )
+        if bet.get('settled'):
+            scores_backfilled += 1
+        else:
+            settled_count += 1
 
     # 2. If no settlement from API, fallback to FlashScore
     if settled_count == 0:
         index_fs = sf.fetch_recent_results(days=9)
         lookup_fs = sf.build_lookup(index_fs)
-        for bet in unsettled:
+        for bet in candidates:
             kickoff_date = date.fromtimestamp(bet.get("start_ts")) if bet.get("start_ts") else None
             row = sf.find_result(bet.get("home"), bet.get("away"), lookup_fs, kickoff_date=kickoff_date)
             if not row:
@@ -137,12 +152,21 @@ def settle_all():
 
             if bet['market'] not in ('ah', 'ou'):
                 profit = (bet['odds'] - 1.0) if won else -1.0
-            db.settle_bet(bet['id'], won, profit)
-            settled_count += 1
+            db.settle_bet(
+                bet['id'], won, profit,
+                home_score=home_goals,
+                away_score=away_goals,
+                score_status='final',
+            )
+            if bet.get('settled'):
+                scores_backfilled += 1
+            else:
+                settled_count += 1
 
     result_count = len(index_api) if 'index_api' in locals() else len(index_fs) if 'index_fs' in locals() else 0
     return {
         'settled_now': settled_count,
+        'scores_backfilled': scores_backfilled,
         'matched_results': matched,
         'result_count': result_count,
         'unsettled': len(unsettled),

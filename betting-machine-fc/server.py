@@ -104,6 +104,14 @@ def save_config(cfg: Dict[str, Any]) -> None:
         json.dump(cfg, f, indent=2)
 
 
+# Restore the last successful scan after a process/container restart. Failed
+# scans never overwrite this checkpoint.
+_persisted_scan = load_config()
+scan_state["last_scan_time"] = _persisted_scan.get("last_successful_scan_at")
+scan_state["last_scan_count"] = int(_persisted_scan.get("last_successful_scan_count", 0) or 0)
+scan_state["last_scan_picks"] = int(_persisted_scan.get("last_successful_scan_picks", 0) or 0)
+
+
 def load_picks_file() -> List[Dict[str, Any]]:
     picks_path = os.path.join(BASE_DIR, "picks.json")
     if os.path.exists(picks_path):
@@ -259,10 +267,15 @@ def execute_live_scan_sync():
         with open(detailed_path, "w", encoding="utf-8") as f:
             json.dump(detailed_matches, f, ensure_ascii=False, indent=2)
 
-        scan_state["last_scan_time"] = datetime.now(timezone.utc).isoformat()
+        successful_at = datetime.now(timezone.utc).isoformat()
+        scan_state["last_scan_time"] = successful_at
         scan_state["last_scan_count"] = len(detailed_matches)
         scan_state["last_scan_picks"] = len(picks)
         scan_state["progress"] = "Scan completed successfully."
+        cfg["last_successful_scan_at"] = successful_at
+        cfg["last_successful_scan_count"] = len(detailed_matches)
+        cfg["last_successful_scan_picks"] = len(picks)
+        save_config(cfg)
     except Exception as e:
         scan_state["error"] = str(e)
         scan_state["progress"] = f"Scan failed: {e}"
@@ -427,6 +440,7 @@ def get_tracker():
         "settled": [timing(bet) for bet in db.get_settled()],
         "market_performance": db.get_market_performance(),
         "unit_size": 1.0,
+        "last_successful_scan_time": scan_state.get("last_scan_time"),
     }
 
 

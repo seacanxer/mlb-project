@@ -25,7 +25,7 @@ def test_picks_endpoint():
     assert "summary" in data
     assert "picks" in data
     assert data["summary"]["min_odds_floor"] == 1.66
-    assert data["summary"]["max_picks_per_match"] == 1
+    assert data["summary"]["max_picks_per_match"] == 2
     for pick in data["picks"]:
         assert pick["odds"] >= 1.66
         assert pick["ev"] >= 0.0
@@ -43,7 +43,9 @@ def test_tracker_endpoint():
     assert "roi_pct" in data["summary"]
     assert "duplicates_hidden" in data["summary"]
     assert "market_performance" in data
+    assert "last_successful_scan_time" in data
     assert all("timing_status" in bet for bet in data["locked"] + data["settled"])
+    assert all("home_score" in bet and "away_score" in bet for bet in data["locked"] + data["settled"])
 
 
 def test_picks_odds_floor_enforcement():
@@ -67,7 +69,7 @@ def test_config_endpoints():
     assert res_post.status_code == 200
     saved_cfg = res_post.json()["config"]
     assert saved_cfg["filters"]["min_odds"] >= 1.66
-    assert saved_cfg["filters"]["top_picks_per_match"] == 1
+    assert saved_cfg["filters"]["top_picks_per_match"] == 2
     assert saved_cfg["scan_match_limit"] == 500
 
 
