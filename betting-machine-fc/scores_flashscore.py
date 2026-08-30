@@ -648,9 +648,10 @@ def _fuzzy_find(home, away, lookup, require_date=False, target_date=None):
                     best_score = score
                     best = row
 
-    # Prefer date-matched if score >= 0.4
+    # Prefer date-matched if score >= 0.9 (avoids same-date wrong-fixture
+    # matches like "Real Madrid (Women)" -> "Real Madrid")
     if require_date and target_date:
-        if best_date_match and best_date_score >= 0.4:
+        if best_date_match and best_date_score >= 0.9:
             return best_date_match
         # If no date match, maybe a fuzzy match without date? But we require date, so return None
         return None

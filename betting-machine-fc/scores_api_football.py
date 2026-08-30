@@ -122,7 +122,7 @@ def _fuzzy_find(home, away, lookup, target_date=None):
                     best_score = score
                     best = row
     if target_date:
-        if best_date_match and best_date_score >= 0.4:
+        if best_date_match and best_date_score >= 0.9:
             return best_date_match
         return None
     else:
@@ -141,7 +141,9 @@ def find_result(home, away, lookup, kickoff_date=None):
             for row in cands:
                 if row.get('date_key') == kickoff_date.isoformat():
                     return row
-            return cands[0]
+            # Never fall back to a different-date result: that fabricates scores
+            # from a different fixture that happens to share team names.
+            return None
         return cands[0]
     # fuzzy fallback
     return _fuzzy_find(home, away, lookup, target_date=kickoff_date)

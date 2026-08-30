@@ -34,7 +34,9 @@ def _kickoff_time_ok(bet):
     ts = bet.get("start_ts") or 0
     if not ts:
         return False
-    return time.time() >= ts - 1800
+    # Final results only: never settle before the match has had time to end.
+    # 105 min buffer (90' + HT + stoppage); worker re-checks every 15 min.
+    return time.time() >= ts + 6300
 
 
 def settle_all():
