@@ -534,6 +534,7 @@ def fetch_recent_results(days=9, sleep_s=0.4, use_cache=True):
     if use_cache and _CACHE["index"] is not None and now - _CACHE["ts"] < _CACHE["ttl"]:
         return _CACHE["index"]
     index = {}
+    failed = 0
     today = date.today()
     for d in range(0, -days, -1):
         url = f"https://www.flashscore.mobi/?d={d}"
@@ -541,7 +542,9 @@ def fetch_recent_results(days=9, sleep_s=0.4, use_cache=True):
             req = urllib.request.Request(url, headers=UA)
             with urllib.request.urlopen(req, timeout=25) as r:
                 html = r.read().decode("utf-8", "ignore")
-        except Exception:
+        except Exception as exc:
+            failed += 1
+            print(f"[scores_flashscore] WARN fetch failed d={d}: {exc}", flush=True)
             continue
         date_key = (today + timedelta(days=d)).isoformat()
         for m in re.finditer(r'<h4>(.*?)</h4>(.*?)(?=<h4>|$)', html, re.S):
@@ -557,6 +560,11 @@ def fetch_recent_results(days=9, sleep_s=0.4, use_cache=True):
                     index[key] = {"home": parts[0], "away": parts[1], "home_goals": hg,
                                   "away_goals": ag, "fs_id": fsid, "date_key": date_key}
         time.sleep(sleep_s)
+    if failed:
+        print(f"[scores_flashscore] WARN {failed}/{days} day-pages failed to fetch", flush=True)
+    if not index and failed == days:
+        print("[scores_flashscore] ERROR results feed empty — flashscore.mobi unreachable or blocked from this host", flush=True)
+        return index
     _CACHE["ts"] = time.time()
     _CACHE["index"] = index
     return index

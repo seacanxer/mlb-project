@@ -26,6 +26,13 @@ echo "📦 [Deploy] Installing dependencies..."
 "$APP_DIR/venv/bin/pip" install --upgrade pip --quiet
 "$APP_DIR/venv/bin/pip" install -r "$APP_DIR/requirements.txt" --quiet
 
+# 2b. Install Playwright chromium browser (needed by scraper_flashscore.py)
+if "$APP_DIR/venv/bin/python" -c "import playwright" &> /dev/null; then
+    echo "🎭 [Deploy] Installing Playwright chromium browser..."
+    "$APP_DIR/venv/bin/playwright" install chromium \
+        || echo "⚠️  [Deploy] Playwright chromium install failed — flashscore live scraper will be disabled"
+fi
+
 # 3. Run validation & unit test suite
 echo "🧪 [Deploy] Running mathematical model formula tests..."
 "$APP_DIR/venv/bin/python" "$APP_DIR/tests/test_formulas.py"

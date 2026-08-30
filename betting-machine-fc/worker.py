@@ -22,8 +22,12 @@ def run_worker_loop(interval_minutes: int = 15, once: bool = False):
         print(f"\n[{now_str}] 📡 Triggering live odds scan...")
         try:
             st = settlement.settle_all()
-            if st.get("settled_now") or st.get("matched_results"):
-                print(f"[{now_str}] ✅ Settlement: {st}")
+            if st.get("result_count") == 0:
+                print(f"[{now_str}] ⚠️ Settlement skipped: results feed returned 0 matches — flashscore.mobi unreachable/blocked from this host", flush=True)
+            elif st.get("settled_now") or st.get("matched_results"):
+                print(f"[{now_str}] ✅ Settlement: {st}", flush=True)
+            else:
+                print(f"[{now_str}] ℹ️ Settlement: {st}", flush=True)
             execute_live_scan_sync()
             cfg = load_config()
             now_str = datetime.now(timezone.utc).isoformat()

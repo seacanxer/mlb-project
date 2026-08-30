@@ -46,7 +46,8 @@ def settle_all():
     matched = 0
     index = sf.fetch_recent_results(days=9)
     lookup = sf.build_lookup(index)
-    for bet in db.get_unsettled():
+    unsettled = db.get_unsettled()
+    for bet in unsettled:
         row = sf.find_result(bet.get("home"), bet.get("away"), lookup)
         if not row:
             continue
@@ -93,4 +94,6 @@ def settle_all():
     return {
         'settled_now': settled_count,
         'matched_results': matched,
+        'result_count': len(index),
+        'unsettled': len(unsettled),
     }
