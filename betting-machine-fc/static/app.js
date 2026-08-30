@@ -64,6 +64,11 @@ async function loadConfig() {
     document.getElementById('cfg-min-odds').value = currentConfig.filters?.min_odds ?? 1.66;
     document.getElementById('cfg-min-ev').value = currentConfig.filters?.min_ev ?? 0.0;
     document.getElementById('cfg-max-ah').value = currentConfig.filters?.max_ah_abs_line ?? 1.5;
+
+    // Update odds floor display
+    const minOdds = currentConfig.filters?.min_odds ?? 1.66;
+    const display = document.getElementById('odds-floor-display');
+    if (display) display.textContent = `≥ ${minOdds}`;
   } catch (err) {
     console.error('Error loading config:', err);
   }
