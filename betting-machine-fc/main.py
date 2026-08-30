@@ -112,17 +112,18 @@ def analyze_match(o, lh, la, min_odds=1.66, min_ev=0.0, max_ah_line=2.5):
     pu = under_prob(2.5, lh, la)
     o1, od, o2 = o["odds_1x2"][1], o["odds_1x2"][2], o["odds_1x2"][3]
     market_1x2 = devig({"home": o1, "draw": od, "away": o2})
-    # 1X2
+    # 1X2 — circular (experimental), gate lebih ketat di select_top_picks
     for market, pick, p, odds, market_p in [
         ("1x2", f"Home ({o['home']})", ph, o1, market_1x2.get("home")),
         ("1x2", "Draw", pd, od, market_1x2.get("draw")),
         ("1x2", f"Away ({o['away']})", pa, o2, market_1x2.get("away")),
     ]:
         e = ev(p, odds) if odds else -999
-        if e >= min_ev and odds and odds >= min_odds:
+        if e >= min_ev and odds and odds >= min_odds and odds <= 2.20:
             item = pick_entry(o, market, pick, p, odds, e, market_p)
             item["independent_signal"] = False
-            item["risk_reason"] = "1X2 probabilities are fitted from the same 1X2 prices"
+            item["risk_reason"] = "1X2 λ circular — needs rating model"
+            item["experimental"] = True
             out.append(item)
     # O/U: evaluate every bookmaker line with the fitted goal distribution.
     # total_ev handles integer pushes and quarter-line half settlements correctly.
@@ -157,21 +158,30 @@ def analyze_match(o, lh, la, min_odds=1.66, min_ev=0.0, max_ah_line=2.5):
     for line, c in o.get("odds_ah", {}).get("home", []) or []:
         if abs(line) > max_ah_line:
             continue
+        # prefer receiving goals — laying big handicap = longshot
+        if line < -1.0:
+            continue
         e_ah = ah_ev(line, c, lh, la)
-        if c >= min_odds and e_ah >= min_ev:
+        if c >= min_odds and c <= 2.30 and e_ah >= min_ev:
             p_approx = (e_ah + 1.0) / c if c > 0 else 0
             counterpart = away_ah.get(round(-float(line), 4))
             market_ah = devig({"home": c, "away": counterpart})
-            out.append(pick_entry(o, "ah", f"Home {line:+.2f}", p_approx, c, e_ah, market_ah.get("home")))
+            item = pick_entry(o, "ah", f"Home {line:+.2f}", p_approx, c, e_ah, market_ah.get("home"))
+            item["experimental"] = True
+            out.append(item)
     for line, c in o.get("odds_ah", {}).get("away", []) or []:
         if abs(line) > max_ah_line:
             continue
+        if line < -1.0:
+            continue
         e_ah = ah_ev_away(line, c, lh, la)
-        if c >= min_odds and e_ah >= min_ev:
+        if c >= min_odds and c <= 2.30 and e_ah >= min_ev:
             p_approx = (e_ah + 1.0) / c if c > 0 else 0
             counterpart = home_ah.get(round(-float(line), 4))
             market_ah = devig({"away": c, "home": counterpart})
-            out.append(pick_entry(o, "ah", f"Away {line:+.2f}", p_approx, c, e_ah, market_ah.get("away")))
+            item = pick_entry(o, "ah", f"Away {line:+.2f}", p_approx, c, e_ah, market_ah.get("away"))
+            item["experimental"] = True
+            out.append(item)
     return out
 
 
@@ -181,9 +191,15 @@ def select_top_picks(candidates, limit=12, per_market=3, per_match=2, min_ev=0.0
     Gates reject low-confidence longshots and implausibly large model/market gaps.
     At most ``per_match`` different markets are retained for each fixture, then
     market caps provide variety across the full slate.
+
+    1x2/AH are high-variance (circular λ) — stricter gates, experimental badge.
+    OU/BTTS keep base gates. Iceland/Norway/low leagues kept for O/U edge.
     """
-    probability_floor = {"1x2": 0.40, "ah": 0.50, "ou": 0.54, "btts": 0.54}
-    odds_ceiling = {"1x2": 2.20, "ah": 2.50, "ou": 2.25, "btts": 2.25}
+    probability_floor = {"1x2": 0.48, "ah": 0.55, "ou": 0.54, "btts": 0.54}
+    odds_ceiling = {"1x2": 2.20, "ah": 2.30, "ou": 2.30, "btts": 2.30}
+    # per-market stricter edge for circular markets
+    min_edge_floor = {"1x2": 0.04, "ah": 0.035, "ou": 0.02, "btts": 0.02}
+    min_ev_floor = {"1x2": 0.07, "ah": 0.06, "ou": 0.05, "btts": 0.05}
     eligible = []
     for pick in candidates:
         market = pick.get("market")
@@ -192,15 +208,24 @@ def select_top_picks(candidates, limit=12, per_market=3, per_match=2, min_ev=0.0
         edge = float(pick.get("ev") or 0)
         if market not in probability_floor:
             continue
-        if pick.get("independent_signal") is False and pick.get("market") != "1x2":
-            continue
-        if probability < probability_floor[market] or not min_odds <= odds <= (max_odds if max_odds is not None else odds_ceiling[market]):
+        # 1x2 is circular (λ fitted from same 1x2 odds) — allow only if strong
+        if pick.get("independent_signal") is False:
+            if market != "1x2":
+                continue
+            # extra screw for 1x2 circular: need higher prob/edge than base
+            if probability < 0.48 or edge < 0.07:
+                continue
+        eff_prob_floor = probability_floor[market]
+        eff_odds_cap = max_odds if max_odds is not None else odds_ceiling[market]
+        if probability < eff_prob_floor or not min_odds <= odds <= eff_odds_cap:
             continue
         market_probability = pick.get("market_probability")
         probability_edge = pick.get("edge_pct")
         if market_probability is None or probability_edge is None:
             continue
-        if edge < max(0.05, min_ev) or edge > 0.25 or probability_edge < min_edge:
+        eff_min_ev = max(min_ev_floor[market], min_ev)
+        eff_min_edge = max(min_edge_floor[market], min_edge)
+        if edge < eff_min_ev or edge > 0.25 or probability_edge < eff_min_edge:
             continue
         # Probability drives the rank; EV helps only within a capped sane range.
         score = probability * 70 + min(edge, 0.15) / 0.15 * 30

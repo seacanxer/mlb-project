@@ -3,14 +3,14 @@
   "flashscore_leagues": [],
   "scan_match_limit": 500,
   "filters": {
-    "min_odds": 1.55,
+    "min_odds": 1.6,
     "min_ev": 0.0,
     "min_edge": 0.02,
     "min_probability": 0.0,
     "max_ah_abs_line": 2.5,
     "max_odds": 2.50,
-    "top_pick_limit": 60,
-    "top_picks_per_market": 20,
+    "top_pick_limit": 35,
+    "top_picks_per_market": 12,
     "top_picks_per_match": 2
   },
   "markets": [
