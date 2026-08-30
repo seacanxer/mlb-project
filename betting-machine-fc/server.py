@@ -242,6 +242,8 @@ def execute_live_scan_sync():
             per_match=per_match,
             min_ev=min_ev,
             min_edge=float(cfg.get("filters", {}).get("min_edge", 0.03)),
+            min_odds=float(cfg.get("filters", {}).get("min_odds", 1.66)),
+            max_odds=cfg.get("filters", {}).get("max_odds"),
         )
 
         # Every published recommendation is immediately locked for ROI tracking.
@@ -309,6 +311,8 @@ def get_picks(
         per_match=int(cfg.get("filters", {}).get("top_picks_per_match", 2)),
         min_ev=float(cfg.get("filters", {}).get("min_ev", 0.0)),
         min_edge=float(cfg.get("filters", {}).get("min_edge", 0.03)),
+        min_odds=float(cfg.get("filters", {}).get("min_odds", 1.66)),
+        max_odds=cfg.get("filters", {}).get("max_odds"),
     )
 
     filtered = []

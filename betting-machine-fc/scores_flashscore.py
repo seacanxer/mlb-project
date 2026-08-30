@@ -2,6 +2,7 @@ import re
 import time
 import unicodedata
 import urllib.request
+import difflib
 from datetime import date, timedelta
 
 UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"}
@@ -273,8 +274,8 @@ ALIASES = {
     "chaves": ["gd chaves"],
     "vizela": ["fc vizela"],
     "covilha": ["sporting covilha"],
-    "real sociedad": ["la real", "real sociedad"],
-    "athletic club": ["athletic bilbao", "athletic"],
+    "real sociedad": ["la real", "real sociedad", "sociedad"],
+    "athletic club": ["athletic bilbao", "athletic", "athletic bilbao"],
     "atl. madrid": ["atletico madrid", "atletico madrid"],
     "atletico madrid": ["atletico madrid"],
     "sevilla": ["sevilla fc"],
@@ -529,7 +530,7 @@ def name_keys(name):
     return keys
 
 
-def fetch_recent_results(days=9, sleep_s=0.4, use_cache=True):
+def fetch_recent_results(days=14, sleep_s=0.4, use_cache=True):
     now = time.time()
     if use_cache and _CACHE["index"] is not None and now - _CACHE["ts"] < _CACHE["ttl"]:
         return _CACHE["index"]
@@ -579,40 +580,85 @@ def build_lookup(index):
     return lookup
 
 
-def find_result(home, away, lookup, allowed_dates=None):
-    allowed_dates = set(allowed_dates or [])
-
-    def preferred(rows):
-        if allowed_dates:
-            rows = [row for row in rows if row.get("date_key") in allowed_dates]
-        return rows[0] if rows else None
-
+def find_result(home, away, lookup, kickoff_date=None):
+    # Step 1: Exact key match via name_keys — if kickoff_date provided, must match date
     for h in name_keys(home):
         for a in name_keys(away):
             cands = lookup.get((h, a)) or []
-            candidate = preferred(cands)
-            if candidate:
-                return candidate
-    # fallback: token overlap scoring
+            if not cands:
+                continue
+            if kickoff_date:
+                # Find exact candidate with matching date
+                for row in cands:
+                    if row.get('date_key') == kickoff_date.isoformat():
+                        return row
+                # If no date match, don't fallback to wrong date — continue to next key
+                continue
+            else:
+                # No date constraint, return first
+                return cands[0]
+
+    # Step 2: Fallback fuzzy match — but only if kickoff_date is provided (we need date match)
+    if not kickoff_date:
+        # No date filter, fallback to fuzzy
+        return _fuzzy_find(home, away, lookup, require_date=False)
+    else:
+        # With date filter: fuzzy match must also match date
+        return _fuzzy_find(home, away, lookup, require_date=True, target_date=kickoff_date)
+
+def _fuzzy_find(home, away, lookup, require_date=False, target_date=None):
     best = None
     best_score = 0.0
-    htoks = set(t for t in norm(home).split() if len(t) > 2)
-    atoks = set(t for t in norm(away).split() if len(t) > 2)
+    best_date_match = None
+    best_date_score = 0.0
+    htoks = set(t for t in norm(home).split() if len(t) > 1)
+    atoks = set(t for t in norm(away).split() if len(t) > 1)
+    full_h = norm(home)
+    full_a = norm(away)
     for (ch, ca), rows in lookup.items():
         for row in rows:
-            if allowed_dates and row.get("date_key") not in allowed_dates:
-                continue
-            sc = 0.0
-            if htoks:
-                inter_h = len(htoks & set(ch.split()))
-                sc += inter_h / max(len(htoks), len(set(ch.split())))
-            if atoks:
-                inter_a = len(atoks & set(ca.split()))
-                sc += inter_a / max(len(atoks), len(set(ca.split())))
-            sc /= 2
-            if sc > best_score:
-                best_score = sc
-                best = row
-    if best and best_score >= 0.5:
-        return best
-    return None
+            # Build token sets for candidate
+            chtoks = set(ch.split())
+            catoks = set(ca.split())
+            # Jaccard
+            if htoks or chtoks:
+                inter_h = len(htoks & chtoks)
+                union_h = len(htoks | chtoks)
+                jacc_h = inter_h / union_h if union_h else 0.0
+            else:
+                jacc_h = 0.0
+            if atoks or catoks:
+                inter_a = len(atoks & catoks)
+                union_a = len(atoks | catoks)
+                jacc_a = inter_a / union_a if union_a else 0.0
+            else:
+                jacc_a = 0.0
+            # String similarity
+            seq_h = difflib.SequenceMatcher(None, full_h, ch).ratio()
+            seq_a = difflib.SequenceMatcher(None, full_a, ca).ratio()
+            score = (jacc_h + jacc_a + seq_h + seq_a) / 4.0
+            # If date required, only consider rows matching target_date
+            if require_date and target_date:
+                if row.get('date_key') == target_date.isoformat():
+                    if score > best_date_score:
+                        best_date_score = score
+                        best_date_match = row
+            else:
+                if score > best_score:
+                    best_score = score
+                    best = row
+
+    # Prefer date-matched if score >= 0.4
+    if require_date and target_date:
+        if best_date_match and best_date_score >= 0.4:
+            return best_date_match
+        # If no date match, maybe a fuzzy match without date? But we require date, so return None
+        return None
+    else:
+        # No date required: threshold 0.5
+        if best and best_score >= 0.5:
+            return best
+        # If no date required and lower threshold for very weak matches
+        if best and best_score >= 0.3:
+            return best
+        return None

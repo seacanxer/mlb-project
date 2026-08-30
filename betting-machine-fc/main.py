@@ -68,6 +68,9 @@ def run_pipeline(cfg=None):
             per_market=int(cfg.get("filters", {}).get("top_picks_per_market", 3)),
             per_match=int(cfg.get("filters", {}).get("top_picks_per_match", 2)),
             min_ev=float(min_ev),
+            min_edge=float(cfg.get("filters", {}).get("min_edge", 0.03)),
+            min_odds=float(cfg.get("filters", {}).get("min_odds", 1.66)),
+            max_odds=cfg.get("filters", {}).get("max_odds"),
         )
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(picks, f, ensure_ascii=False, indent=2)
@@ -172,7 +175,7 @@ def analyze_match(o, lh, la, min_odds=1.66, min_ev=0.0, max_ah_line=2.5):
     return out
 
 
-def select_top_picks(candidates, limit=12, per_market=3, per_match=2, min_ev=0.05, min_edge=0.03):
+def select_top_picks(candidates, limit=12, per_market=3, per_match=2, min_ev=0.05, min_edge=0.03, min_odds=1.66, max_odds=None):
     """Create a small, diversified shortlist instead of returning every edge.
 
     Gates reject low-confidence longshots and implausibly large model/market gaps.
@@ -191,7 +194,7 @@ def select_top_picks(candidates, limit=12, per_market=3, per_match=2, min_ev=0.0
             continue
         if pick.get("independent_signal") is False and pick.get("market") != "1x2":
             continue
-        if probability < probability_floor[market] or not 1.66 <= odds <= odds_ceiling[market]:
+        if probability < probability_floor[market] or not min_odds <= odds <= (max_odds if max_odds is not None else odds_ceiling[market]):
             continue
         market_probability = pick.get("market_probability")
         probability_edge = pick.get("edge_pct")
