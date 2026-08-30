@@ -309,7 +309,7 @@ function renderTracker() {
 
   const tbody = document.getElementById('tracker-table');
   tbody.innerHTML = rows.length ? rows.map((b) => {
-    const dt = b.start_ts ? new Date(Number(b.start_ts) * 1000).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '-';
+    const dt = b.start_ts ? new Date(Number(b.start_ts) * 1000).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
     const result = !b.settled ? 'Pending' : b.won === 1 ? 'Won' : b.won === 0 ? 'Lost' : 'Push';
     return `<tr><td>${b.settled ? 'Settled' : '🔒 Locked'}</td><td>${dt}</td><td>${b.match || '-'}</td><td>${(b.market || '').toUpperCase()}</td><td>${b.pick || '-'}</td><td>${Number(b.odds || 0).toFixed(2)}</td><td>${result}${b.settled ? ` (${Number(b.profit || 0).toFixed(2)}u)` : ''}</td></tr>`;
   }).join('') : '<tr><td colspan="7" class="text-center text-muted">No locked picks yet. Run a live scan first.</td></tr>';

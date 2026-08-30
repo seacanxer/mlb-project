@@ -367,6 +367,8 @@ def get_picks(
         filtered.sort(key=lambda x: x.get("probability", 0.0), reverse=reverse)
     elif sort_by == "rank_score":
         filtered.sort(key=lambda x: x.get("rank_score", 0.0), reverse=reverse)
+    elif sort_by == "start_ts":
+        filtered.sort(key=lambda x: x.get("start_ts", 0), reverse=reverse)
     else:  # default 'ev'
         filtered.sort(key=lambda x: x.get("ev", 0.0), reverse=reverse)
 

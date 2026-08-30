@@ -179,8 +179,8 @@ def select_top_picks(candidates, limit=12, per_market=3, per_match=2, min_ev=0.0
     At most ``per_match`` different markets are retained for each fixture, then
     market caps provide variety across the full slate.
     """
-    probability_floor = {"1x2": 0.45, "ah": 0.55, "ou": 0.54, "btts": 0.54}
-    odds_ceiling = {"1x2": 3.00, "ah": 2.50, "ou": 2.25, "btts": 2.25}
+    probability_floor = {"1x2": 0.40, "ah": 0.50, "ou": 0.54, "btts": 0.54}
+    odds_ceiling = {"1x2": 2.20, "ah": 2.50, "ou": 2.25, "btts": 2.25}
     eligible = []
     for pick in candidates:
         market = pick.get("market")
@@ -189,8 +189,8 @@ def select_top_picks(candidates, limit=12, per_market=3, per_match=2, min_ev=0.0
         edge = float(pick.get("ev") or 0)
         if market not in probability_floor:
             continue
-        if pick.get("independent_signal") is False:
-            continue
+if pick.get("independent_signal") is False and pick.get("market") != "1x2":
+    continue
         if probability < probability_floor[market] or not 1.66 <= odds <= odds_ceiling[market]:
             continue
         market_probability = pick.get("market_probability")
