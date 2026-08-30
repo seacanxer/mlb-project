@@ -157,6 +157,12 @@
         <div class="kpi-card"><div class="kpi-label">Profit</div><div class="kpi-val" id="tracker-profit">0.00u</div></div>
         <div class="kpi-card"><div class="kpi-label">ROI</div><div class="kpi-val" id="tracker-roi">0.0%</div></div>
       </div>
+      <div class="tracker-subnav" role="tablist" aria-label="ROI Tracker views">
+        <button id="tracker-view-picks" class="pill active" type="button" role="tab" aria-selected="true">Daftar Pick</button>
+        <button id="tracker-view-markets" class="pill" type="button" role="tab" aria-selected="false">Performa per Market</button>
+        <span id="tracker-dedup-note" class="tracker-dedup-note"></span>
+      </div>
+      <div id="tracker-picks-panel">
       <div class="filter-row">
         <div class="filter-group">
           <label for="tracker-filter-market">Market Category</label>
@@ -189,9 +195,18 @@
       </div>
       <div class="card table-responsive">
         <table class="data-table">
-          <thead><tr><th>Status</th><th>Date</th><th>Match</th><th id="th-market" class="sortable" title="Click to sort by market">Market <span id="market-sort-indicator"></span></th><th>Pick</th><th>Odds</th><th>Result</th></tr></thead>
+          <thead><tr><th>Status</th><th>Kickoff</th><th>Match</th><th id="th-market" class="sortable" title="Click to sort by market">Market <span id="market-sort-indicator"></span></th><th>Pick</th><th>Odds</th><th>Result</th></tr></thead>
           <tbody id="tracker-table"><tr><td colspan="7" class="text-center text-muted">Loading tracker…</td></tr></tbody>
         </table>
+      </div>
+      </div>
+      <div id="tracker-markets-panel" class="hidden">
+        <div class="card table-responsive">
+          <table class="data-table">
+            <thead><tr><th>Market</th><th>Settled</th><th>Record</th><th>Win Rate</th><th>Loss Rate</th><th>Profit</th><th>ROI</th></tr></thead>
+            <tbody id="tracker-market-performance"><tr><td colspan="7" class="text-center text-muted">Loading market performance…</td></tr></tbody>
+          </table>
+        </div>
       </div>
     </section>
 

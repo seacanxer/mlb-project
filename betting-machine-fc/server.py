@@ -400,10 +400,28 @@ def get_matches():
 
 @app.get("/api/tracker")
 def get_tracker():
+    now = time.time()
+
+    def timing(bet):
+        item = dict(bet)
+        kickoff = float(item.get("start_ts") or 0)
+        if item.get("settled"):
+            item["timing_status"] = "settled"
+        elif not kickoff:
+            item["timing_status"] = "unknown"
+        elif now < kickoff:
+            item["timing_status"] = "not_started"
+        elif now < kickoff + 3 * 60 * 60:
+            item["timing_status"] = "awaiting_final"
+        else:
+            item["timing_status"] = "settlement_overdue"
+        return item
+
     return {
         "summary": db.get_roi(),
-        "locked": db.get_unsettled(),
-        "settled": db.get_settled(),
+        "locked": [timing(bet) for bet in db.get_unsettled()],
+        "settled": [timing(bet) for bet in db.get_settled()],
+        "market_performance": db.get_market_performance(),
         "unit_size": 1.0,
     }
 

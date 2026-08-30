@@ -41,6 +41,9 @@ def test_tracker_endpoint():
     data = response.json()
     assert data["unit_size"] == 1.0
     assert "roi_pct" in data["summary"]
+    assert "duplicates_hidden" in data["summary"]
+    assert "market_performance" in data
+    assert all("timing_status" in bet for bet in data["locked"] + data["settled"])
 
 
 def test_picks_odds_floor_enforcement():

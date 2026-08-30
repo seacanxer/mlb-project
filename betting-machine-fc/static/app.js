@@ -258,9 +258,15 @@ async function loadTracker() {
     document.getElementById('tracker-pushes').textContent = `${s.pushes || 0} pushes`;
     document.getElementById('tracker-profit').textContent = `${(s.profit_units || 0).toFixed(2)}u`;
     document.getElementById('tracker-roi').textContent = `${roi >= 0 ? '+' : ''}${roi.toFixed(1)}%`;
+    const dedupNote = document.getElementById('tracker-dedup-note');
+    if (dedupNote) {
+      const hidden = Number(s.duplicates_hidden || 0);
+      dedupNote.textContent = hidden ? `${hidden} duplicate historis disembunyikan` : 'Tidak ada duplicate';
+    }
 
     trackerData = data;
     renderTracker();
+    renderMarketPerformance();
   } catch (err) {
     showBanner(err.message, true);
   }
@@ -309,13 +315,62 @@ function renderTracker() {
 
   const tbody = document.getElementById('tracker-table');
   tbody.innerHTML = rows.length ? rows.map((b) => {
-    const dt = b.start_ts ? new Date(Number(b.start_ts) * 1000).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
-    const result = !b.settled ? 'Pending' : b.won === 1 ? 'Won' : b.won === 0 ? 'Lost' : 'Push';
-    return `<tr><td>${b.settled ? 'Settled' : '🔒 Locked'}</td><td>${dt}</td><td>${b.match || '-'}</td><td>${(b.market || '').toUpperCase()}</td><td>${b.pick || '-'}</td><td>${Number(b.odds || 0).toFixed(2)}</td><td>${result}${b.settled ? ` (${Number(b.profit || 0).toFixed(2)}u)` : ''}</td></tr>`;
+    const kickoff = b.start_ts ? new Date(Number(b.start_ts) * 1000) : null;
+    const dateText = kickoff && !isNaN(kickoff.getTime())
+      ? kickoff.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
+      : '-';
+    const timeText = kickoff && !isNaN(kickoff.getTime())
+      ? kickoff.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' })
+      : 'Jam tidak tersedia';
+    const pendingLabels = {
+      not_started: ['Belum mulai', 'status-upcoming'],
+      awaiting_final: ['Berlangsung / menunggu final', 'status-awaiting'],
+      settlement_overdue: ['Lewat estimasi selesai · settlement pending', 'status-overdue'],
+      unknown: ['Waktu tidak diketahui', 'status-unknown'],
+    };
+    const pending = pendingLabels[b.timing_status] || ['Settlement pending', 'status-awaiting'];
+    const result = b.settled
+      ? (b.won === 1 ? 'Won' : b.won === 0 ? 'Lost' : 'Push')
+      : pending[0];
+    const resultClass = b.settled ? (b.won === 1 ? 'status-won' : b.won === 0 ? 'status-lost' : 'status-push') : pending[1];
+    return `<tr><td>${b.settled ? 'Settled' : '🔒 Locked'}</td><td><div class="kickoff-date">${dateText}</div><div class="kickoff-time">${timeText}</div></td><td>${b.match || '-'}</td><td>${(b.market || '').toUpperCase()}</td><td>${b.pick || '-'}</td><td>${Number(b.odds || 0).toFixed(2)}</td><td><span class="tracker-status ${resultClass}">${result}</span>${b.settled ? ` <span class="tracker-profit-inline">(${Number(b.profit || 0).toFixed(2)}u)</span>` : ''}</td></tr>`;
   }).join('') : '<tr><td colspan="7" class="text-center text-muted">No locked picks yet. Run a live scan first.</td></tr>';
 }
 
+function renderMarketPerformance() {
+  const tbody = document.getElementById('tracker-market-performance');
+  if (!tbody) return;
+  const rows = trackerData.market_performance || [];
+  tbody.innerHTML = rows.length ? rows.map((row) => {
+    const roi = Number(row.roi_pct || 0);
+    const profit = Number(row.profit_units || 0);
+    return `<tr>
+      <td><strong>${String(row.market || '').toUpperCase()}</strong></td>
+      <td>${row.bets || 0}</td>
+      <td>${row.wins || 0}–${row.losses || 0}–${row.pushes || 0}</td>
+      <td class="text-emerald">${Number(row.win_rate_pct || 0).toFixed(1)}%</td>
+      <td class="text-rose">${Number(row.loss_rate_pct || 0).toFixed(1)}%</td>
+      <td class="${profit >= 0 ? 'text-emerald' : 'text-rose'}">${profit >= 0 ? '+' : ''}${profit.toFixed(2)}u</td>
+      <td class="${roi >= 0 ? 'text-emerald' : 'text-rose'}">${roi >= 0 ? '+' : ''}${roi.toFixed(1)}%</td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="7" class="text-center text-muted">Belum ada settlement untuk dihitung.</td></tr>';
+}
+
+function setTrackerView(view) {
+  const showMarkets = view === 'markets';
+  document.getElementById('tracker-picks-panel')?.classList.toggle('hidden', showMarkets);
+  document.getElementById('tracker-markets-panel')?.classList.toggle('hidden', !showMarkets);
+  const picksBtn = document.getElementById('tracker-view-picks');
+  const marketsBtn = document.getElementById('tracker-view-markets');
+  picksBtn?.classList.toggle('active', !showMarkets);
+  marketsBtn?.classList.toggle('active', showMarkets);
+  picksBtn?.setAttribute('aria-selected', String(!showMarkets));
+  marketsBtn?.setAttribute('aria-selected', String(showMarkets));
+}
+
 function initTrackerFilters() {
+  document.getElementById('tracker-view-picks')?.addEventListener('click', () => setTrackerView('picks'));
+  document.getElementById('tracker-view-markets')?.addEventListener('click', () => setTrackerView('markets'));
   document.getElementById('tracker-filter-market')?.addEventListener('change', renderTracker);
   document.getElementById('tracker-filter-status')?.addEventListener('change', renderTracker);
   document.getElementById('tracker-sort')?.addEventListener('change', () => {

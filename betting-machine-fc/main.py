@@ -189,8 +189,8 @@ def select_top_picks(candidates, limit=12, per_market=3, per_match=2, min_ev=0.0
         edge = float(pick.get("ev") or 0)
         if market not in probability_floor:
             continue
-if pick.get("independent_signal") is False and pick.get("market") != "1x2":
-    continue
+        if pick.get("independent_signal") is False and pick.get("market") != "1x2":
+            continue
         if probability < probability_floor[market] or not 1.66 <= odds <= odds_ceiling[market]:
             continue
         market_probability = pick.get("market_probability")

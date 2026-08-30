@@ -579,12 +579,20 @@ def build_lookup(index):
     return lookup
 
 
-def find_result(home, away, lookup):
+def find_result(home, away, lookup, allowed_dates=None):
+    allowed_dates = set(allowed_dates or [])
+
+    def preferred(rows):
+        if allowed_dates:
+            rows = [row for row in rows if row.get("date_key") in allowed_dates]
+        return rows[0] if rows else None
+
     for h in name_keys(home):
         for a in name_keys(away):
             cands = lookup.get((h, a)) or []
-            if cands:
-                return cands[0]
+            candidate = preferred(cands)
+            if candidate:
+                return candidate
     # fallback: token overlap scoring
     best = None
     best_score = 0.0
@@ -592,6 +600,8 @@ def find_result(home, away, lookup):
     atoks = set(t for t in norm(away).split() if len(t) > 2)
     for (ch, ca), rows in lookup.items():
         for row in rows:
+            if allowed_dates and row.get("date_key") not in allowed_dates:
+                continue
             sc = 0.0
             if htoks:
                 inter_h = len(htoks & set(ch.split()))

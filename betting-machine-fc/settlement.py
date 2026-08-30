@@ -1,7 +1,7 @@
 import db
 import scores_flashscore as sf
 from model import ah_payout, ah_payout_away
-from datetime import date, timedelta
+from datetime import datetime, timedelta, timezone
 import time
 
 
@@ -24,12 +24,20 @@ def _kickoff_date_ok(bet, row):
     ts = bet.get("start_ts") or 0
     if not ts:
         return False
-    kick = date.fromtimestamp(ts)
+    kick = datetime.fromtimestamp(ts, timezone.utc).date()
     rdate = row.get("date_key") or ""
     if not rdate:
         return False
-    allowed = {(kick + timedelta(days=i)).isoformat() for i in (0, 1)}
+    allowed = {(kick + timedelta(days=i)).isoformat() for i in (-1, 0, 1)}
     return rdate in allowed
+
+
+def _allowed_result_dates(bet):
+    ts = bet.get("start_ts") or 0
+    if not ts:
+        return set()
+    kick = datetime.fromtimestamp(ts, timezone.utc).date()
+    return {(kick + timedelta(days=i)).isoformat() for i in (-1, 0, 1)}
 
 
 def _kickoff_time_ok(bet):
@@ -44,16 +52,19 @@ def settle_all():
     """Settle each lock from flashscore.mobi final scores."""
     settled_count = 0
     matched = 0
-    index = sf.fetch_recent_results(days=9)
+    index = sf.fetch_recent_results(days=14)
     lookup = sf.build_lookup(index)
     unsettled = db.get_unsettled()
     for bet in unsettled:
-        row = sf.find_result(bet.get("home"), bet.get("away"), lookup)
+        if not _kickoff_time_ok(bet):
+            continue
+        row = sf.find_result(
+            bet.get("home"), bet.get("away"), lookup,
+            allowed_dates=_allowed_result_dates(bet),
+        )
         if not row:
             continue
         if not _kickoff_date_ok(bet, row):
-            continue
-        if not _kickoff_time_ok(bet):
             continue
         matched += 1
         home_goals = row["home_goals"]
