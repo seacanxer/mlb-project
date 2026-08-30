@@ -41,18 +41,23 @@ def init_db():
     conn.close()
 
 def insert_bet(bet):
-    """Lock one recommendation per match. If a live (unsettled) lock already exists
-    for the same fixture, keep the one with the higher EV instead of stacking duplicates."""
+    """Lock one recommendation per fixture. If an unsettled lock already exists
+    for the same match+start_ts, keep the higher EV. If it is already settled,
+    skip entirely so scans never stack duplicates."""
     conn = _connect()
     c = conn.cursor()
     existing = c.execute('''
-        SELECT id, ev FROM bets
-        WHERE match=? AND start_ts=? AND settled=0
+        SELECT id, ev, settled FROM bets
+        WHERE match=? AND start_ts=? AND start_ts IS NOT NULL
+        ORDER BY settled DESC, ev DESC
         LIMIT 1
     ''', (
         bet.get('match'), bet.get('start_ts')
     )).fetchone()
     if existing:
+        if existing['settled']:
+            conn.close()
+            return existing['id'], False
         new_ev = bet.get('ev') or -999
         if new_ev > (existing['ev'] or -999):
             c.execute('''

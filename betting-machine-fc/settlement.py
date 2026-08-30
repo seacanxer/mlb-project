@@ -2,6 +2,7 @@ import db
 import scores_flashscore as sf
 from model import ah_payout, ah_payout_away
 from datetime import date, timedelta
+import time
 
 
 def total_payout(line, side, odds, goals):
@@ -31,6 +32,14 @@ def _kickoff_date_ok(bet, row):
     return rdate in allowed
 
 
+def _kickoff_time_ok(bet):
+    """Never settle a fixture whose kickoff hasn't started yet."""
+    ts = bet.get("start_ts") or 0
+    if not ts:
+        return False
+    return time.time() >= ts - 1800
+
+
 def settle_all():
     """Settle each lock from flashscore.mobi final scores."""
     settled_count = 0
@@ -42,6 +51,8 @@ def settle_all():
         if not row:
             continue
         if not _kickoff_date_ok(bet, row):
+            continue
+        if not _kickoff_time_ok(bet):
             continue
         matched += 1
         home_goals = row["home_goals"]
