@@ -8,7 +8,7 @@
     "min_edge": 0.02,
     "min_probability": 0.0,
     "max_ah_abs_line": 2.5,
-    "max_odds": 2.50,
+    "max_odds": 2.5,
     "top_pick_limit": 35,
     "top_picks_per_market": 12,
     "top_picks_per_match": 2
@@ -25,5 +25,8 @@
     "season": "2526"
   },
   "tracking_unit": 1,
-  "scan_window_hours": 16
+  "scan_window_hours": 16,
+  "last_successful_scan_at": "2026-08-30T19:25:58.286472+00:00",
+  "last_successful_scan_count": 104,
+  "last_successful_scan_picks": 23
 }
