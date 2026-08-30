@@ -105,16 +105,77 @@ function renderSummary(summary) {
   }
 }
 
+const COUNTRY_MAP = {
+  'Argentina Championship': 'Argentina',
+  'Australia Championship': 'Australia',
+  'Austrian 2': 'Austria',
+  'Bolivia Cup': 'Bolivia',
+  'Botswana Championship': 'Botswana',
+  'Cambodia Championship': 'Cambodia',
+  'Cambodia Super Cup': 'Cambodia',
+  'Chile Championship': 'Chile',
+  'Club Friendlies': 'Other',
+  'Colombia Championship': 'Colombia',
+  'Coppa Italia': 'Italy',
+  'Dominican Republic Championship': 'Dominican Republic',
+  'Finland Championship U21': 'Finland',
+  'Georgia Championship': 'Georgia',
+  'German Cup U19': 'Germany',
+  'Israel Championship U19': 'Israel',
+  'Italy Cup': 'Italy',
+  'Kyrgyzstan Championship': 'Kyrgyzstan',
+  'Lithuania Championship': 'Lithuania',
+  'Mozambique Championship': 'Mozambique',
+  'Nicaragua Championship': 'Nicaragua',
+  'Oman Professional League': 'Oman',
+  'Paraguay Championship': 'Paraguay',
+  'Peru Championship': 'Peru',
+  'Poland Championship': 'Poland',
+  'Prague Championship': 'Czech Republic',
+  'Republic of Malawi': 'Malawi',
+  'Republic of North Macedonia Championship U19': 'Republic of North Macedonia',
+  'Russian Championship': 'Russia',
+  'Rwanda Super Cup': 'Rwanda',
+  'Saudi Arabia Championship U21': 'Saudi Arabia',
+  'Scotland Championship': 'Scotland',
+  'Serbia Championship U19': 'Serbia',
+  'Simon Bolivar Cup': 'Bolivia',
+  'Slovenian Championship U19': 'Slovenia',
+  'Switzerland Championship': 'Switzerland',
+  'UAE Championship U23': 'UAE'
+};
+
+function splitLeague(l) {
+  const idx = l.indexOf('.');
+  if (idx > 0) {
+    const country = l.slice(0, idx).trim();
+    return { country: COUNTRY_MAP[country] || country, label: l.slice(idx + 1).trim() };
+  }
+  const country = COUNTRY_MAP[l.trim()] || 'Other';
+  const label = country === 'Other' ? l.trim() : l.trim().replace(new RegExp('^' + country + '\\s*'), '').trim() || l.trim();
+  return { country, label };
+}
+
 function populateLeagueFilter(leagues) {
   const select = document.getElementById('filter-league');
   const currentVal = select.value;
   select.innerHTML = '<option value="all">All Leagues</option>';
+  const groups = {};
   leagues.forEach(l => {
-    const opt = document.createElement('option');
-    opt.value = l;
-    opt.textContent = l;
-    if (l === currentVal) opt.selected = true;
-    select.appendChild(opt);
+    const { country, label } = splitLeague(l);
+    (groups[country] = groups[country] || []).push({ full: l, label });
+  });
+  Object.keys(groups).sort((a, b) => a.localeCompare(b)).forEach(country => {
+    const og = document.createElement('optgroup');
+    og.label = country;
+    groups[country].sort((a, b) => a.label.localeCompare(b.label)).forEach(item => {
+      const opt = document.createElement('option');
+      opt.value = item.full;
+      opt.textContent = item.label;
+      if (item.full === currentVal) opt.selected = true;
+      og.appendChild(opt);
+    });
+    select.appendChild(og);
   });
 }
 
