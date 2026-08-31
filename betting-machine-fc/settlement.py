@@ -86,6 +86,22 @@ def _settle_candidates_with(candidates, lookup, find_result, skip_ids=None):
             continue
         if not _kickoff_time_ok(bet):
             continue
+
+        # --- YOUTH MATCH PROTECTION (settlement-level) ---
+        # For age-category bets (U17–U23), double-check that the matched
+        # result is from a youth league. This is a belt-and-suspenders check
+        # that runs even if the feed's find_result already validated.
+        import scores_flashscore as _sf_mod
+        age = _sf_mod.is_youth_bet(bet.get("home"), bet.get("away"))
+        if age:
+            league = (row.get("league") or "").lower()
+            # Accept if league contains the age suffix or is a known youth league
+            if age.lower() not in league and not _sf_mod._YOUTH_LEAGUE_RE.search(league):
+                # Also accept if both team names have the age suffix
+                h_age = bool(_sf_mod._YOUTH_RE.search(row.get("home") or ""))
+                a_age = bool(_sf_mod._YOUTH_RE.search(row.get("away") or ""))
+                if not (h_age and a_age):
+                    continue  # skip — likely a senior match with similar name
         matched += 1
         home_goals = row["home_goals"]
         away_goals = row["away_goals"]

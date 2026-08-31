@@ -510,6 +510,19 @@ ALIASES = {
     "trelleborg": ["trelleborgs"],
     "utskiktens": ["utskiktens bk"],
     "utskiktens bk": ["utskiktens"],
+    # --- International / national team aliases ---
+    "taiwan": ["chinese taipei", "chinese-taipei"],
+    "chinese taipei": ["taiwan"],
+    "south korea": ["korea republic", "korea rep"],
+    "korea republic": ["south korea"],
+    "north korea": ["korea dpr", "dpr korea"],
+    "united arab emirates": ["uae", "u.a.e."],
+    "uae": ["united arab emirates"],
+    "bosnia and herzegovina": ["bosnia", "bih"],
+    "ivory coast": ["cote d ivoire", "cote divoire"],
+    "cote d ivoire": ["ivory coast"],
+    "atletico mineiro": ["atletico-mg", "atletico mg", "mg"],
+    "paris saint-germain": ["psg", "paris sg", "paris saint germain", "paris"],
 }
 
 
@@ -587,6 +600,115 @@ def build_lookup(index):
     return lookup
 
 
+# ---------------------------------------------------------------------------
+# Youth / age-category match protection
+# ---------------------------------------------------------------------------
+# Age-category bets (U17–U23) are extremely vulnerable to wrong-match mapping
+# because name_keys() generates single-token keys like "u19", "u20", "u21".
+# Any team with "U21" in its name will match ANY other team with "U21".
+# This previously caused fabricated scores (e.g. Zorya U21 → Bournemouth U21,
+# all AFC U20 → N. Mariana Islands vs Mongolia 0-7).
+#
+# These helpers detect age-category bets and validate that a matched FlashScore
+# result is genuinely the same youth match — not just a match with the same
+# age suffix.
+
+_YOUTH_RE = re.compile(r'\bU(1[789]|2[0-3])\b', re.I)
+_YOUTH_LEAGUE_RE = re.compile(
+    r'\b(?:U|U-)(1[789]|2[0-3])\b|'
+    r'premier league 2|'
+    r'youth|'
+    r'junior|'
+    r'afc.*u.?2[0-3]|'
+    r'uefa.*u.?1[789]|'
+    r'fifa.*u.?1[789]',
+    re.I,
+)
+
+
+def is_youth_bet(home, away):
+    """Return the age suffix (e.g. 'U21') if this bet is a youth/age-category
+    match, else None."""
+    for name in (home, away):
+        m = _YOUTH_RE.search(name or '')
+        if m:
+            return f'U{m.group(1)}'
+    return None
+
+
+def _validate_youth_match(bet_home, bet_away, row, age_suffix):
+    """Validate that a FlashScore result row is genuinely the same youth match.
+
+    Checks (ALL must pass):
+    1. League name contains the age suffix (U19/U20/U21/etc) OR is a known
+       youth league (Premier League 2, AFC Asian Cup U20, etc).
+    2. The base team name (without age suffix) appears in the FlashScore
+       team names — not just the age suffix.
+    """
+    fs_home = (row.get('home') or '').lower()
+    fs_away = (row.get('away') or '').lower()
+    fs_league = (row.get('league') or row.get('date_key') or '').lower()
+
+    # Check 1: League must be a youth league
+    league_is_youth = bool(_YOUTH_LEAGUE_RE.search(fs_league))
+    age_lower = age_suffix.lower()
+    league_has_age = age_lower in fs_league or age_lower.replace('u', 'u-') in fs_league
+
+    # Also accept if BOTH FlashScore team names have the age suffix
+    # (e.g. "Iraq U20 vs Turkmenistan U20" — clearly a youth match)
+    home_has_age = bool(_YOUTH_RE.search(row.get('home') or ''))
+    away_has_age = bool(_YOUTH_RE.search(row.get('away') or ''))
+    teams_have_age = home_has_age and away_has_age
+
+    if not (league_is_youth or league_has_age or teams_have_age):
+        return False
+
+    # Check 2: Base team name must match — strip the age suffix and compare
+    def strip_age(name):
+        return _YOUTH_RE.sub('', name or '').strip().lower()
+
+    bet_h_base = strip_age(bet_home)
+    bet_a_base = strip_age(bet_away)
+    fs_h_base = strip_age(row.get('home') or '')
+    fs_a_base = strip_age(row.get('away') or '')
+
+    # Expand base names with ALIASES so "taiwan" matches "chinese taipei"
+    def expand_aliases(base):
+        expanded = {base}
+        for canon, al in ALIASES.items():
+            canon_base = strip_age(canon)
+            if base == canon_base:
+                expanded.update(strip_age(a) for a in al)
+            for a in al:
+                al_base = strip_age(a)
+                if base == al_base:
+                    expanded.add(canon_base)
+        return expanded
+
+    bet_h_variants = expand_aliases(bet_h_base)
+    bet_a_variants = expand_aliases(bet_a_base)
+
+    def words_of(s):
+        return [w for w in re.split(r'[\s-]+', s) if len(w) > 2]
+
+    def has_overlap(variants, target):
+        for v in variants:
+            if any(w in target for w in words_of(v)):
+                return True
+        return False
+
+    h_match = has_overlap(bet_h_variants, fs_h_base)
+    a_match = has_overlap(bet_a_variants, fs_a_base)
+
+    # Also try reversed (home/away swap)
+    h_rev = has_overlap(bet_h_variants, fs_a_base)
+    a_rev = has_overlap(bet_a_variants, fs_h_base)
+
+    if (h_match and a_match) or (h_rev and a_rev):
+        return True
+    return False
+
+
 def find_result(home, away, lookup, kickoff_date=None):
     """Find a match result. STRICT matching only — no fuzzy fallback.
 
@@ -597,6 +719,11 @@ def find_result(home, away, lookup, kickoff_date=None):
 
     Now: exact name match (via name_keys + ALIASES) + date proximity only.
     If no exact match is found, return None (unsettled) rather than guessing.
+
+    YOUTH MATCH PROTECTION: For age-category bets (U17–U23), any candidate
+    row is validated via _validate_youth_match() — the league must be a youth
+    league AND the base team name (without age suffix) must overlap. This
+    prevents the "U21 matches U21" false-positive problem.
     """
     target_date = kickoff_date
     allowed_dates = None
@@ -606,6 +733,8 @@ def find_result(home, away, lookup, kickoff_date=None):
             for i in (-1, 0, 1)
         }
 
+    age_suffix = is_youth_bet(home, away)
+
     # Step 1: Try exact key match via name_keys (includes aliases)
     best_date_match = None
     for h in name_keys(home):
@@ -613,19 +742,21 @@ def find_result(home, away, lookup, kickoff_date=None):
             cands = lookup.get((h, a)) or []
             if not cands:
                 continue
-            if allowed_dates:
-                for row in cands:
+            for row in cands:
+                # --- YOUTH MATCH VALIDATION ---
+                if age_suffix:
+                    if not _validate_youth_match(home, away, row, age_suffix):
+                        continue  # skip wrong youth match
+                if allowed_dates:
                     if row.get('date_key') in allowed_dates:
                         return row
-                # If no date match, remember first candidate for later
-                if best_date_match is None:
-                    best_date_match = cands[0]
-            else:
-                return cands[0]
+                    if best_date_match is None:
+                        best_date_match = row
+                else:
+                    return row
 
     # Step 2: No exact name match found.
     # Previously: fuzzy fallback. Now: return None to avoid fabricated data.
-    # If we have a candidate with exact date match, return it; otherwise None.
     if best_date_match and allowed_dates:
         # Already checked — no date match among exact-name candidates
         return None
