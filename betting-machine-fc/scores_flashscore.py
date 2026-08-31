@@ -588,96 +588,45 @@ def build_lookup(index):
 
 
 def find_result(home, away, lookup, kickoff_date=None):
-    # Step 1: Exact key match via name_keys — if kickoff_date provided, must match date
+    """Find a match result. STRICT matching only — no fuzzy fallback.
+
+    The previous fuzzy fallback (_fuzzy_find) caused catastrophic mismatches:
+    e.g. "Zorya Luhansk U21" matched "Bournemouth U21" because the fuzzy
+    algorithm weighted the "U21" token too heavily, or "Jordan U20" matched
+    a completely different U20 match. This produced fabricated 0-7 scores.
+
+    Now: exact name match (via name_keys + ALIASES) + date proximity only.
+    If no exact match is found, return None (unsettled) rather than guessing.
+    """
+    target_date = kickoff_date
+    allowed_dates = None
+    if target_date:
+        allowed_dates = {
+            (target_date + timedelta(days=i)).isoformat()
+            for i in (-1, 0, 1)
+        }
+
+    # Step 1: Try exact key match via name_keys (includes aliases)
+    best_date_match = None
     for h in name_keys(home):
         for a in name_keys(away):
             cands = lookup.get((h, a)) or []
             if not cands:
                 continue
-            if kickoff_date:
-                # Exact date match — but be tolerant of ±1 day (some feeds
-                # publish UTC date, some publish local fixture date, and the
-                # server may run UTC+8).
-                allowed = {
-                    (kickoff_date + timedelta(days=i)).isoformat()
-                    for i in (-1, 0, 1)
-                }
+            if allowed_dates:
                 for row in cands:
-                    if row.get('date_key') in allowed:
+                    if row.get('date_key') in allowed_dates:
                         return row
-                # If no date match (±1d), don't fallback to wrong date —
-                # continue to next key
-                continue
+                # If no date match, remember first candidate for later
+                if best_date_match is None:
+                    best_date_match = cands[0]
             else:
-                # No date constraint, return first
                 return cands[0]
 
-    # Step 2: Fallback fuzzy match — but only if kickoff_date is provided (we need date match)
-    if not kickoff_date:
-        # No date filter, fallback to fuzzy
-        return _fuzzy_find(home, away, lookup, require_date=False)
-    else:
-        # With date filter: fuzzy match must also match date
-        return _fuzzy_find(home, away, lookup, require_date=True, target_date=kickoff_date)
-
-def _fuzzy_find(home, away, lookup, require_date=False, target_date=None):
-    best = None
-    best_score = 0.0
-    best_date_match = None
-    best_date_score = 0.0
-    htoks = set(t for t in norm(home).split() if len(t) > 1)
-    atoks = set(t for t in norm(away).split() if len(t) > 1)
-    full_h = norm(home)
-    full_a = norm(away)
-    for (ch, ca), rows in lookup.items():
-        for row in rows:
-            # Build token sets for candidate
-            chtoks = set(ch.split())
-            catoks = set(ca.split())
-            # Jaccard
-            if htoks or chtoks:
-                inter_h = len(htoks & chtoks)
-                union_h = len(htoks | chtoks)
-                jacc_h = inter_h / union_h if union_h else 0.0
-            else:
-                jacc_h = 0.0
-            if atoks or catoks:
-                inter_a = len(atoks & catoks)
-                union_a = len(atoks | catoks)
-                jacc_a = inter_a / union_a if union_a else 0.0
-            else:
-                jacc_a = 0.0
-            # String similarity
-            seq_h = difflib.SequenceMatcher(None, full_h, ch).ratio()
-            seq_a = difflib.SequenceMatcher(None, full_a, ca).ratio()
-            score = (jacc_h + jacc_a + seq_h + seq_a) / 4.0
-            # If date required, only consider rows matching target_date ±1 day
-            if require_date and target_date:
-                allowed = {
-                    (target_date + timedelta(days=i)).isoformat()
-                    for i in (-1, 0, 1)
-                }
-                if row.get('date_key') in allowed:
-                    if score > best_date_score:
-                        best_date_score = score
-                        best_date_match = row
-            else:
-                if score > best_score:
-                    best_score = score
-                    best = row
-
-    # Prefer date-matched if score >= 0.9 (avoids same-date wrong-fixture
-    # matches like "Real Madrid (Women)" -> "Real Madrid")
-    if require_date and target_date:
-        if best_date_match and best_date_score >= 0.9:
-            return best_date_match
-        # If no date match, maybe a fuzzy match without date? But we require date, so return None
+    # Step 2: No exact name match found.
+    # Previously: fuzzy fallback. Now: return None to avoid fabricated data.
+    # If we have a candidate with exact date match, return it; otherwise None.
+    if best_date_match and allowed_dates:
+        # Already checked — no date match among exact-name candidates
         return None
-    else:
-        # No date required: threshold 0.5
-        if best and best_score >= 0.5:
-            return best
-        # If no date required and lower threshold for very weak matches
-        if best and best_score >= 0.3:
-            return best
-        return None
+    return None
