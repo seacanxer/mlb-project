@@ -8,7 +8,7 @@
  */
 
 import { prisma } from '@/lib/db';
-import { isGameStarted } from '@/lib/utils/timezone';
+import { isGameStarted, mlbScheduleDate } from '@/lib/utils/timezone';
 
 export class ForecastError extends Error {
   constructor(message: string) {
@@ -164,6 +164,78 @@ export async function autoLockActionableForecasts(date: string): Promise<AutoLoc
   }
 
   return summary;
+}
+
+export interface AutoLockUpcomingResult {
+  state: 'no_upcoming' | 'too_early' | 'locking';
+  firstStartUtc?: string;
+  lockAtUtc?: string;
+  minutesLeft?: number;
+  dates?: Array<{ date: string; eligible: number; locked: number; alreadyLocked: number; errors: string[] }>;
+}
+
+/**
+ * Auto-lock every actionable pick once we are within `leadMinutes` of the
+ * earliest (first) pitch of an upcoming slate. Runs repeatedly from the
+ * worker; dedupe inside autoLockActionableForecasts makes it idempotent.
+ */
+export async function autoLockUpcoming(leadMinutes = 60): Promise<AutoLockUpcomingResult> {
+  const now = new Date();
+
+  // All games that haven't started yet (any upcoming slate)
+  const games = await prisma.game.findMany({
+    where: {
+      startTimeUtc: { gt: now },
+      status: { notIn: ['final', 'postponed', 'cancelled'] },
+    },
+    orderBy: { startTimeUtc: 'asc' as const },
+    select: { id: true, startTimeUtc: true, date: true },
+  });
+
+  if (games.length === 0) {
+    return { state: 'no_upcoming' };
+  }
+
+  const firstStart = games[0].startTimeUtc;
+  const lockAt = new Date(firstStart.getTime() - leadMinutes * 60_000);
+  if (now < lockAt) {
+    return {
+      state: 'too_early',
+      firstStartUtc: firstStart.toISOString(),
+      lockAtUtc: lockAt.toISOString(),
+      minutesLeft: Math.max(0, Math.floor((lockAt.getTime() - now.getTime()) / 60_000)),
+    };
+  }
+
+  // In the lock window: group upcoming games by MLB (ET) slate date and lock
+  // each slate whose earliest pitch is within the lead window.
+  const byDate = new Map<string, Date>();
+  for (const game of games) {
+    const slateDate = mlbScheduleDate(game.startTimeUtc);
+    const current = byDate.get(slateDate);
+    if (!current || game.startTimeUtc < current) byDate.set(slateDate, game.startTimeUtc);
+  }
+
+  const dates: AutoLockUpcomingResult['dates'] = [];
+  for (const [date, earliestStart] of byDate) {
+    const slateWindowStart = new Date(earliestStart.getTime() - leadMinutes * 60_000);
+    if (now < slateWindowStart) continue;
+    const summary = await autoLockActionableForecasts(date);
+    dates.push({
+      date,
+      eligible: summary.eligible,
+      locked: summary.locked,
+      alreadyLocked: summary.alreadyLocked,
+      errors: summary.errors.map((e) => e.message),
+    });
+  }
+
+  return {
+    state: 'locking',
+    firstStartUtc: firstStart.toISOString(),
+    lockAtUtc: lockAt.toISOString(),
+    dates,
+  };
 }
 
 /**

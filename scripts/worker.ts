@@ -15,6 +15,7 @@
 
 import cron from 'node-cron';
 import { refreshSlate, refreshResults } from '../lib/services/slateIngestion';
+import { autoLockUpcoming } from '../lib/engine/forecast';
 
 // ---------------------------------------------------------------------------
 // Configuration
@@ -22,6 +23,8 @@ import { refreshSlate, refreshResults } from '../lib/services/slateIngestion';
 
 const SLATE_CRON = process.env.WORKER_SLATE_CRON ?? '0 */3 * * *';
 const RESULTS_CRON = process.env.WORKER_RESULTS_CRON ?? '30 */6 * * *';
+const AUTOLOCK_CRON = process.env.WORKER_AUTOLOCK_CRON ?? '*/5 * * * *';
+const AUTOLOCK_LEAD_MINUTES = parseInt(process.env.WORKER_AUTOLOCK_LEAD_MINUTES ?? '60', 10);
 const STARTUP_REFRESH = (process.env.WORKER_STARTUP_REFRESH ?? 'true') === 'true';
 const LOOKBACK_DAYS = parseInt(process.env.WORKER_LOOKBACK_DAYS ?? '3', 10);
 const IS_ONCE = process.argv.includes('--once');
@@ -122,6 +125,27 @@ async function runResultsRefresh(): Promise<void> {
   log('RESULTS', `✅ Total settled: ${totalSettled}`);
 }
 
+async function runAutoLock(): Promise<void> {
+  log('AUTOLOCK', 'Checking for slates entering the 60-min pre-first-pitch lock window...');
+  try {
+    const result = await autoLockUpcoming(AUTOLOCK_LEAD_MINUTES);
+    if (result.state === 'no_upcoming') {
+      log('AUTOLOCK', 'No upcoming games scheduled yet.');
+      return;
+    }
+    if (result.state === 'too_early') {
+      log('AUTOLOCK', `First pitch ${result.firstStartUtc} — locking in ~${result.minutesLeft} min.`);
+      return;
+    }
+    const parts = (result.dates ?? []).map(
+      (d) => `${d.date}: locked ${d.locked}/${d.eligible} (${d.alreadyLocked} already)`
+    );
+    log('AUTOLOCK', `✅ Lock window open — first pitch ${result.firstStartUtc} | ${parts.join(' | ')}`);
+  } catch (error) {
+    logError('AUTOLOCK', 'Auto-lock run failed', error);
+  }
+}
+
 async function runFullCycle(): Promise<void> {
   log('WORKER', '━━━ Starting full refresh cycle ━━━');
   await runSlateRefresh();
@@ -171,6 +195,15 @@ async function main(): Promise<void> {
     runResultsRefresh().catch((error) => logError('CRON', 'Unhandled results refresh error', error));
   }, { timezone: 'America/New_York' });
   log('CRON', `Results refresh scheduled: ${RESULTS_CRON} (ET)`);
+
+  if (!cron.validate(AUTOLOCK_CRON)) {
+    console.error(`Invalid WORKER_AUTOLOCK_CRON: "${AUTOLOCK_CRON}"`);
+    process.exit(1);
+  }
+  cron.schedule(AUTOLOCK_CRON, () => {
+    runAutoLock().catch((error) => logError('CRON', 'Unhandled autolock error', error));
+  }, { timezone: 'America/New_York' });
+  log('CRON', `Auto-lock scheduled: ${AUTOLOCK_CRON} (ET), lead ${AUTOLOCK_LEAD_MINUTES} min`);
 
   // Startup refresh
   if (STARTUP_REFRESH) {
