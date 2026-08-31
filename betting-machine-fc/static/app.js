@@ -411,7 +411,21 @@ function initSettlement() {
       const res = await fetch('/api/settle', { method: 'POST' });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || 'Settlement failed');
-      showBanner(`✅ Settlement refreshed: ${data.settled_now || 0} picks updated.`);
+      if (data.status === 'busy') {
+        showBanner('Settlement already running — tracker will update when done.', true);
+        return;
+      }
+      showBanner('Settlement running… tracker updates when done.');
+      const deadline = Date.now() + 300000; // 5 min cap
+      let state = data.state || {};
+      while (state.running && Date.now() < deadline) {
+        await new Promise(r => setTimeout(r, 3000));
+        const sr = await fetch('/api/settle/status');
+        state = await sr.json();
+      }
+      const last = state.last || {};
+      if (last.error) throw new Error(last.error);
+      showBanner(`✅ Settlement refreshed: ${last.settled_now || 0} picks updated${last.rechecked ? ` · ${last.rechecked} rechecked` : ''}.`);
       await loadTracker();
     } catch (err) {
       showBanner(err.message, true);

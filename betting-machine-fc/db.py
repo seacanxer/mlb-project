@@ -141,6 +141,16 @@ def settle_bet(bet_id, won, profit, home_score=None, away_score=None, score_stat
     conn.close()
 
 
+def reset_bet(bet_id):
+    conn = _connect()
+    c = conn.cursor()
+    c.execute('''UPDATE bets SET settled=0, won=NULL, profit=NULL, settled_at=NULL,
+        home_score=NULL, away_score=NULL, score_status=NULL, score_updated_at=NULL
+        WHERE id=?''', (bet_id,))
+    conn.commit()
+    conn.close()
+
+
 _CANONICAL_BETS_CTE = '''
     WITH ranked_bets AS (
         SELECT bets.*,

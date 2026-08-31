@@ -3,6 +3,7 @@ import concurrent.futures
 import json
 import os
 import sys
+import threading
 import time
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
@@ -30,7 +31,6 @@ from model import (
     total_ev,
     under_prob,
 )
-import asyncio
 import db
 import settlement
 import scraper_1xbit as sc
@@ -69,6 +69,12 @@ scan_state = {
     "last_scan_picks": 0,
     "error": None,
     "progress": "",
+}
+
+_settle_lock = threading.Lock()
+settle_state: Dict[str, Any] = {
+    "running": False,
+    "last": None,
 }
 
 
@@ -112,26 +118,22 @@ scan_state["last_scan_count"] = int(_persisted_scan.get("last_successful_scan_co
 scan_state["last_scan_picks"] = int(_persisted_scan.get("last_successful_scan_picks", 0) or 0)
 
 
-def load_picks_file() -> List[Dict[str, Any]]:
-    picks_path = os.path.join(BASE_DIR, "picks.json")
-    if os.path.exists(picks_path):
+def _load_json_any(path: str, default: Any) -> Any:
+    if os.path.exists(path):
         try:
-            with open(picks_path, "r", encoding="utf-8") as f:
+            with open(path, "r", encoding="utf-8") as f:
                 return json.load(f)
         except Exception:
-            return []
-    return []
+            return default
+    return default
+
+
+def load_picks_file() -> List[Dict[str, Any]]:
+    return _load_json_any(os.path.join(BASE_DIR, "picks.json"), [])
 
 
 def load_detailed_matches() -> List[Dict[str, Any]]:
-    matches_path = os.path.join(BASE_DIR, "matches_detailed.json")
-    if os.path.exists(matches_path):
-        try:
-            with open(matches_path, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except Exception:
-            return []
-    return []
+    return _load_json_any(os.path.join(BASE_DIR, "matches_detailed.json"), [])
 
 
 def execute_live_scan_sync():
@@ -446,11 +448,31 @@ def get_tracker():
 
 @app.post("/api/settle")
 def settle_locked_picks():
+    with _settle_lock:
+        if settle_state["running"]:
+            return {"status": "busy", "message": "Settlement already running.", "state": settle_state}
+        settle_state["running"] = True
+        settle_state["last"] = None
+        threading.Thread(target=_run_settle_job, daemon=True).start()
+    return {"status": "started", "message": "Settlement running in background.", "state": settle_state}
+
+
+@app.get("/api/settle/status")
+def settle_status():
+    return settle_state
+
+
+def _run_settle_job():
     try:
+        rechecked = settlement.recheck_premature()
         result = settlement.settle_all()
-        return {**result, "summary": db.get_roi()}
+        result["rechecked"] = rechecked
+        result["summary"] = db.get_roi()
+        settle_state["last"] = result
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Settlement refresh failed: {exc}")
+        settle_state["last"] = {"error": str(exc)}
+    finally:
+        settle_state["running"] = False
 
 
 @app.post("/api/scan")

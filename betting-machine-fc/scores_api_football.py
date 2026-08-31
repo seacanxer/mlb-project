@@ -113,7 +113,10 @@ def _fuzzy_find(home, away, lookup, target_date=None):
             seq_h = difflib.SequenceMatcher(None, full_h, ch).ratio()
             seq_a = difflib.SequenceMatcher(None, full_a, ca).ratio()
             score = (jacc_h + jacc_a + seq_h + seq_a) / 4.0
-            if target_date and row.get('date_key') == target_date.isoformat():
+            if target_date and row.get('date_key') in {
+                    (target_date + timedelta(days=i)).isoformat()
+                    for i in (-1, 0, 1)
+                }:
                 if score > best_date_score:
                     best_date_score = score
                     best_date_match = row
@@ -138,8 +141,12 @@ def find_result(home, away, lookup, kickoff_date=None):
     cands = lookup.get((hn, an)) or []
     if cands:
         if kickoff_date:
+            allowed = {
+                (kickoff_date + timedelta(days=i)).isoformat()
+                for i in (-1, 0, 1)
+            }
             for row in cands:
-                if row.get('date_key') == kickoff_date.isoformat():
+                if row.get('date_key') in allowed:
                     return row
             # Never fall back to a different-date result: that fabricates scores
             # from a different fixture that happens to share team names.

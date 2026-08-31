@@ -503,6 +503,13 @@ ALIASES = {
     "zacatepec": ["zacatepec 1948"],
     "alacranes": ["alacranes de durango"],
     "dep. tapatio": ["cd tapatio"],
+    "al qadisiyah": ["al qadsiah"],
+    "al faisaly harmah": ["al faisaly"],
+    "kifisias": ["kifisia"],
+    "trelleborgs": ["trelleborg"],
+    "trelleborg": ["trelleborgs"],
+    "utskiktens": ["utskiktens bk"],
+    "utskiktens bk": ["utskiktens"],
 }
 
 
@@ -588,11 +595,18 @@ def find_result(home, away, lookup, kickoff_date=None):
             if not cands:
                 continue
             if kickoff_date:
-                # Find exact candidate with matching date
+                # Exact date match — but be tolerant of ±1 day (some feeds
+                # publish UTC date, some publish local fixture date, and the
+                # server may run UTC+8).
+                allowed = {
+                    (kickoff_date + timedelta(days=i)).isoformat()
+                    for i in (-1, 0, 1)
+                }
                 for row in cands:
-                    if row.get('date_key') == kickoff_date.isoformat():
+                    if row.get('date_key') in allowed:
                         return row
-                # If no date match, don't fallback to wrong date — continue to next key
+                # If no date match (±1d), don't fallback to wrong date —
+                # continue to next key
                 continue
             else:
                 # No date constraint, return first
@@ -637,9 +651,13 @@ def _fuzzy_find(home, away, lookup, require_date=False, target_date=None):
             seq_h = difflib.SequenceMatcher(None, full_h, ch).ratio()
             seq_a = difflib.SequenceMatcher(None, full_a, ca).ratio()
             score = (jacc_h + jacc_a + seq_h + seq_a) / 4.0
-            # If date required, only consider rows matching target_date
+            # If date required, only consider rows matching target_date ±1 day
             if require_date and target_date:
-                if row.get('date_key') == target_date.isoformat():
+                allowed = {
+                    (target_date + timedelta(days=i)).isoformat()
+                    for i in (-1, 0, 1)
+                }
+                if row.get('date_key') in allowed:
                     if score > best_date_score:
                         best_date_score = score
                         best_date_match = row
