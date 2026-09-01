@@ -351,8 +351,9 @@ function renderTracker() {
     const score = hasScore
       ? `<strong>${Number(b.home_score)}–${Number(b.away_score)}</strong>${scoreLabel ? `<div class="score-status">${scoreLabel}</div>` : ''}`
       : '<span class="text-muted">Belum tersedia</span>';
-    return `<tr><td>${b.settled ? 'Settled' : '🔒 Locked'}</td><td><div class="kickoff-date">${dateText}</div><div class="kickoff-time">${timeText}</div></td><td>${b.match || '-'}</td><td>${score}</td><td>${(b.market || '').toUpperCase()}</td><td>${b.pick || '-'}</td><td>${Number(b.odds || 0).toFixed(2)}</td><td><span class="tracker-status ${resultClass}">${result}</span>${b.settled ? ` <span class="tracker-profit-inline">(${Number(b.profit || 0).toFixed(2)}u)</span>` : ''}</td></tr>`;
-  }).join('') : '<tr><td colspan="8" class="text-center text-muted">No locked picks yet. Run a live scan first.</td></tr>';
+    const league = (b.league || '-').trim() || '-';
+    return `<tr><td>${b.settled ? 'Settled' : '🔒 Locked'}</td><td><div class="kickoff-date">${dateText}</div><div class="kickoff-time">${timeText}</div></td><td>${b.match || '-'}</td><td><span class="league-badge">${league}</span></td><td>${score}</td><td>${(b.market || '').toUpperCase()}</td><td>${b.pick || '-'}</td><td>${Number(b.odds || 0).toFixed(2)}</td><td><span class="tracker-status ${resultClass}">${result}</span>${b.settled ? ` <span class="tracker-profit-inline">(${Number(b.profit || 0).toFixed(2)}u)</span>` : ''}</td></tr>`;
+  }).join('') : '<tr><td colspan="9" class="text-center text-muted">No locked picks yet. Run a live scan first.</td></tr>';
 }
 
 function renderMarketPerformance() {
