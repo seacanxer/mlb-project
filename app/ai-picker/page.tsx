@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
+import { currentDisplayDate, shiftDateOnly } from '@/lib/utils/timezone';
+import { analysisForGame, marketForGame, starterForSide } from '@/lib/aiPickerGame';
 
 const MODELS = [
   { id: 'auto', name: '🔄 Auto Model Rotation (Claude / DeepSeek / Qwen)' },
@@ -21,82 +23,6 @@ const ROTATION_MODELS = [
   'sec',
 ];
 
-function currentMlbDate() {
-  const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'America/New_York',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).formatToParts(new Date());
-  const value = Object.fromEntries(parts.map((part) => [part.type, part.value]));
-  return `${value.year}-${value.month}-${value.day}`;
-}
-
-function starterForSide(game: any, side: 'away' | 'home') {
-  const observations = game.probableStarterObservations || [];
-  return observations.find((item: any) => item.side === side)
-    ?? observations[side === 'away' ? 0 : 1]
-    ?? null;
-}
-
-function parseRunOutput(run: any): Record<string, any> {
-  if (!run?.outputJson) return {};
-  if (typeof run.outputJson === 'object') return run.outputJson;
-  try {
-    return JSON.parse(run.outputJson);
-  } catch {
-    return {};
-  }
-}
-
-function analysisForGame(game: any) {
-  const latest = new Map<string, any>();
-  for (const run of game.modelRuns || []) {
-    if (!latest.has(run.modelId)) latest.set(run.modelId, run);
-  }
-  const mlRun = latest.get('ML_COMBO_V2');
-  const ouRun = latest.get('OU_UNIFIED');
-  const ml = parseRunOutput(mlRun);
-  const ou = parseRunOutput(ouRun);
-  return {
-    moneyline: mlRun ? {
-      finalState: mlRun.finalState,
-      rawScore: mlRun.rawScore,
-      candidateTeamName: ml.candidateTeamName,
-      candidateDecimalOdds: ml.candidateDecimalOdds,
-      hardGates: ml.hardGates || [],
-      warnings: ml.warnings || [],
-    } : null,
-    totals: ouRun ? {
-      finalState: ouRun.finalState,
-      rawGap: ouRun.rawGap,
-      selectedSide: ou.selectedSide,
-      selectedPrice: ou.selectedPrice,
-      marketLine: ou.marketLine,
-      dataQualityScore: ou.dataQualityScore,
-      hardGates: ou.hardGates || [],
-      warnings: ou.warnings || [],
-    } : null,
-  };
-}
-
-function marketForGame(game: any) {
-  const snap = game.marketSnapshots?.[0] || {};
-  const awayCode = game.awayTeam?.abbreviation || 'AWAY';
-  const homeCode = game.homeTeam?.abbreviation || 'HOME';
-  const moneyline = snap.moneyline
-    || (snap.moneylineAway != null && snap.moneylineHome != null
-      ? `${awayCode} ${snap.moneylineAway} / ${homeCode} ${snap.moneylineHome}`
-      : 'Unavailable');
-  const total = snap.total
-    || (snap.totalLine != null
-      ? `${snap.totalLine}${snap.totalOverDecimal != null && snap.totalUnderDecimal != null
-        ? ` (O ${snap.totalOverDecimal} / U ${snap.totalUnderDecimal})`
-        : ''}`
-      : 'Unavailable');
-  return { snap, moneyline, total };
-}
-
 async function runWithConcurrency<T>(
   items: T[],
   limit: number,
@@ -113,7 +39,7 @@ async function runWithConcurrency<T>(
 }
 
 export default function AiPickerPage() {
-  const [date, setDate] = useState(currentMlbDate);
+  const [date, setDate] = useState(currentDisplayDate);
   const [selectedModel, setSelectedModel] = useState('auto');
   const [filter, setFilter] = useState<'all' | 'ml' | 'ou' | 'high_conf'>('all');
   const [games, setGames] = useState<any[]>([]);
@@ -121,20 +47,31 @@ export default function AiPickerPage() {
   const [loadingGames, setLoadingGames] = useState(false);
   const [loadingPicks, setLoadingPicks] = useState(false);
   const [error, setError] = useState('');
+  const requestCycle = useRef(0);
+  const activeRequest = useRef<AbortController | null>(null);
 
   const fetchSlate = useCallback(async (targetDate: string, modelChoice: string) => {
+    activeRequest.current?.abort();
+    const controller = new AbortController();
+    activeRequest.current = controller;
+    const cycle = ++requestCycle.current;
     setLoadingGames(true);
+    setLoadingPicks(false);
     setError('');
     setPicks({});
 
     try {
-      const res = await fetch(`/api/slates/${targetDate}`);
+      const res = await fetch(`/api/slates/${targetDate}?timezone=Asia%2FJakarta`, {
+        signal: controller.signal,
+        cache: 'no-store',
+      });
       if (!res.ok) {
         throw new Error(`Failed to load games: HTTP ${res.status}`);
       }
       const data = await res.json();
       const loadedGames = data.games || [];
       setGames(loadedGames);
+      setLoadingGames(false);
 
       if (loadedGames.length > 0) {
         setLoadingPicks(true);
@@ -145,20 +82,27 @@ export default function AiPickerPage() {
         setPicks(initialLoadingMap);
 
         await runWithConcurrency(loadedGames, 3, (game: any, idx: number) =>
-          generatePickForGame(game, modelChoice, idx)
+          generatePickForGame(game, modelChoice, idx, controller.signal, cycle)
         );
-        setLoadingPicks(false);
+        if (requestCycle.current === cycle) setLoadingPicks(false);
       }
     } catch (err: any) {
+      if (err?.name === 'AbortError') return;
       console.error(err);
       setError(err?.message || 'Error loading slate games.');
       setGames([]);
     } finally {
-      setLoadingGames(false);
+      if (requestCycle.current === cycle) setLoadingGames(false);
     }
   }, []);
 
-  const generatePickForGame = async (game: any, modelChoice: string, index: number) => {
+  const generatePickForGame = async (
+    game: any,
+    modelChoice: string,
+    index: number,
+    signal?: AbortSignal,
+    cycle: number = requestCycle.current
+  ) => {
     const modelToUse = modelChoice === 'auto' ? ROTATION_MODELS[index % ROTATION_MODELS.length] : modelChoice;
     const awayName = game.awayTeam?.name || 'Away';
     const homeName = game.homeTeam?.name || 'Home';
@@ -184,6 +128,7 @@ export default function AiPickerPage() {
           venue: game.venue?.name || '',
           analysis: analysisForGame(game),
         }),
+        signal,
       });
 
       const data = await res.json();
@@ -198,6 +143,7 @@ export default function AiPickerPage() {
         } catch (_) {}
       }
 
+      if (requestCycle.current !== cycle) return;
       setPicks((prev) => ({
         ...prev,
         [game.id]: {
@@ -208,6 +154,7 @@ export default function AiPickerPage() {
         },
       }));
     } catch (err: any) {
+      if (err?.name === 'AbortError' || requestCycle.current !== cycle) return;
       setPicks((prev) => ({
         ...prev,
         [game.id]: {
@@ -222,12 +169,11 @@ export default function AiPickerPage() {
 
   useEffect(() => {
     fetchSlate(date, selectedModel);
+    return () => activeRequest.current?.abort();
   }, [date, selectedModel, fetchSlate]);
 
   const handleDateShift = (days: number) => {
-    const d = new Date(date);
-    d.setDate(d.getDate() + days);
-    setDate(d.toISOString().slice(0, 10));
+    setDate((current) => shiftDateOnly(current, days));
   };
 
   // Filtered games
@@ -328,11 +274,11 @@ export default function AiPickerPage() {
           />
           <button onClick={() => handleDateShift(1)} className="btn btn-secondary" style={{ padding: '0.4rem 0.75rem' }}>Next ›</button>
           <button
-            onClick={() => setDate(currentMlbDate())}
+            onClick={() => setDate(currentDisplayDate())}
             className="btn btn-secondary"
             style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem' }}
           >
-            Today
+            Today (WIB)
           </button>
         </div>
 
@@ -598,7 +544,7 @@ export default function AiPickerPage() {
                             }} />
                           </div>
                           <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '3px' }}>
-                            {modelUsed} · {p?.source === 'llm' ? 'external AI' : 'unavailable'}
+                            {modelUsed} · {p?.source === 'llm' ? 'external AI' : p?.source === 'not-run' ? 'not run' : 'unavailable'}
                           </div>
                           {p?.verdict && (
                             <div style={{

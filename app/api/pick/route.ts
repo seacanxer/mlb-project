@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-type PickSource = 'llm' | 'unavailable';
+type PickSource = 'llm' | 'not-run' | 'unavailable';
 
 interface FrameworkDecision {
   pick: string;
@@ -58,9 +58,15 @@ interface PickResponseData {
   warnings?: string[];
 }
 
-const DEFAULT_MODEL = 'gr/claude-opus-5-thinking';
-const PICK_TIMEOUT_MS = 70_000;
-const ROUTER_TIMEOUT_MS = 90_000;
+const DEFAULT_MODEL = process.env.AI_PICKER_DEFAULT_MODEL || 'gr/claude-opus-5';
+
+function timeoutFromEnv(name: string, fallback: number): number {
+  const value = Number(process.env[name]);
+  return Number.isFinite(value) && value >= 1_000 && value <= 120_000 ? value : fallback;
+}
+
+const PICK_TIMEOUT_MS = timeoutFromEnv('PICKER_SERVICE_TIMEOUT_MS', 25_000);
+const ROUTER_TIMEOUT_MS = timeoutFromEnv('AI_ROUTER_TIMEOUT_MS', 35_000);
 
 function clampConfidence(value: unknown): number {
   const parsed = Number(value);
@@ -154,7 +160,8 @@ async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs: numbe
 }
 
 async function callPickerService(body: PickRequestBody, requestedModel: string): Promise<PickResponseData | null> {
-  const pickerUrl = process.env.PICKER_SERVICE_URL || process.env.AI_PICKER_URL || 'http://127.0.0.1:3001/pick';
+  const pickerUrl = process.env.PICKER_SERVICE_URL || process.env.AI_PICKER_URL;
+  if (!pickerUrl) return null;
 
   try {
     const response = await fetchWithTimeout(
@@ -203,13 +210,14 @@ async function callRouter(body: PickRequestBody, requestedModel: string): Promis
     process.env.NINEROUTER_API_BASE ||
     process.env.ROUTER_API_BASE ||
     process.env.OPENAI_API_BASE ||
-    process.env.AI_BASE_URL ||
-    'http://127.0.0.1:20128/v1';
+    process.env.AI_BASE_URL;
+  if (!routerBase) return null;
   const apiKey = process.env.NINEROUTER_API_KEY || process.env.OPENAI_API_KEY || process.env.AI_API_KEY;
 
   const prompt = `Independently review this MLB matchup using only the supplied market and deterministic-engine evidence.
 Do not invent FIP, xFIP, wOBA, lineups, weather, injuries, bullpen availability, probabilities, or expected value.
-If the evidence is incomplete or the deterministic engine is blocked, return NO PICK.
+If evidence is incomplete or hardGates are present, return NO PICK.
+When data is complete and hardGates are empty, you may provide a conservative AI-only pick even when the framework is below threshold; explain that distinction.
 You may AGREE with the framework, DISAGREE and provide another available-market pick, or ABSTAIN. Your review is advisory and never replaces framework hard gates.
 
 Matchup: ${body.away || 'Unknown'} @ ${body.home || 'Unknown'}
@@ -326,32 +334,79 @@ function attachFrameworkReview(result: PickResponseData, framework: FrameworkDec
 }
 
 function aiUnavailable(requestedModel: string, framework: FrameworkDecision): PickResponseData {
+  const configured = Boolean(
+    process.env.PICKER_SERVICE_URL ||
+    process.env.AI_PICKER_URL ||
+    process.env.NINEROUTER_API_BASE ||
+    process.env.ROUTER_API_BASE ||
+    process.env.OPENAI_API_BASE ||
+    process.env.AI_BASE_URL
+  );
   return {
     pick: 'AI UNAVAILABLE',
     confidence: 0,
     confidenceType: 'none',
-    reason: 'The selected external model did not return a valid response. Check the picker service, 9Router endpoint, model ID, and server-side credentials.',
+    reason: configured
+      ? 'The configured external model did not return a valid response before the timeout. Check the endpoint, model ID, response JSON, and server-side credentials.'
+      : 'External AI review is not configured. Set PICKER_SERVICE_URL or NINEROUTER_API_BASE on the server.',
     model: requestedModel,
     requestedModel,
     source: 'unavailable',
     actionable: false,
     verdict: 'UNAVAILABLE',
     framework,
-    warnings: ['EXTERNAL_MODEL_UNAVAILABLE'],
+    warnings: [configured ? 'EXTERNAL_MODEL_UNAVAILABLE' : 'EXTERNAL_MODEL_NOT_CONFIGURED'],
   };
+}
+
+function aiSkipped(requestedModel: string, framework: FrameworkDecision): PickResponseData {
+  return {
+    pick: 'NO PICK',
+    confidence: 0,
+    confidenceType: 'none',
+    reason: 'External AI was not called because the deterministic framework has no actionable signal. This avoids a slow paid request that cannot bypass hard gates.',
+    model: requestedModel,
+    requestedModel,
+    source: 'not-run',
+    actionable: false,
+    verdict: 'ABSTAIN',
+    framework,
+    warnings: ['FRAMEWORK_NOT_ACTIONABLE'],
+  };
+}
+
+function canAiReview(body: PickRequestBody, framework: FrameworkDecision): boolean {
+  if (framework.actionable) return true;
+  const analyses = [body.analysis?.moneyline, body.analysis?.totals].filter(Boolean) as EngineSummary[];
+  if (analyses.length === 0) return false;
+  const hardGates = analyses.flatMap((analysis) => analysis.hardGates ?? []);
+  const states = analyses.map((analysis) => analysis.finalState ?? '');
+  return hardGates.length === 0 && !states.some((state) => /^(NEEDS_DATA|INVALIDATED)$/.test(state));
+}
+
+async function evaluatePick(body: PickRequestBody): Promise<PickResponseData> {
+  const requestedModel = body.model || DEFAULT_MODEL;
+  const framework = frameworkDecision(body);
+
+  if (!canAiReview(body, framework)) return aiSkipped(requestedModel, framework);
+
+  const pickerResult = await callPickerService(body, requestedModel);
+  const routerResult = pickerResult ?? await callRouter(body, requestedModel);
+  return routerResult
+    ? attachFrameworkReview(routerResult, framework)
+    : aiUnavailable(requestedModel, framework);
 }
 
 export async function POST(req: NextRequest) {
   try {
     const body = (await req.json()) as PickRequestBody;
-    const requestedModel = body.model || DEFAULT_MODEL;
-    const framework = frameworkDecision(body);
-
-    const pickerResult = await callPickerService(body, requestedModel);
-    const routerResult = pickerResult ?? await callRouter(body, requestedModel);
-    const pickData = routerResult
-      ? attachFrameworkReview(routerResult, framework)
-      : aiUnavailable(requestedModel, framework);
+    if (!body.gameId || !body.away || !body.home) {
+      return NextResponse.json(
+        { ok: false, error: 'gameId, away, and home are required' },
+        { status: 400, headers: { 'Access-Control-Allow-Origin': '*' } }
+      );
+    }
+    const pickData = await evaluatePick(body);
 
     return NextResponse.json(
       { ok: true, result: JSON.stringify(pickData), ...pickData },

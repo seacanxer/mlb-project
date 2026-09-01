@@ -8,7 +8,7 @@
  */
 
 import { formatInTimeZone, toZonedTime, fromZonedTime } from 'date-fns-tz';
-import { format, parseISO } from 'date-fns';
+import { addDays, format, parseISO } from 'date-fns';
 
 export const DEFAULT_DISPLAY_TZ = process.env.DEFAULT_TIMEZONE ?? 'Asia/Jakarta';
 export const UTC_TZ = 'UTC';
@@ -49,6 +49,30 @@ export function sourceToUtc(dateStr: string, sourceTz: string): Date {
 export function gameDate(utcDate: Date | string, tz: string = DEFAULT_DISPLAY_TZ): string {
   const d = typeof utcDate === 'string' ? parseISO(utcDate) : utcDate;
   return formatInTimeZone(d, tz, 'yyyy-MM-dd');
+}
+
+/** Return today's calendar date in WIB (or another explicit display timezone). */
+export function currentDisplayDate(now: Date = new Date(), tz: string = DEFAULT_DISPLAY_TZ): string {
+  return formatInTimeZone(now, tz, 'yyyy-MM-dd');
+}
+
+/**
+ * Shift a date-only value without passing through the host machine timezone.
+ * Parsing `YYYY-MM-DD` with `new Date()` can move the visible day on non-UTC hosts.
+ */
+export function shiftDateOnly(date: string, days: number): string {
+  const parsed = parseISO(`${date}T00:00:00`);
+  if (Number.isNaN(parsed.getTime())) throw new Error(`Invalid date: ${date}`);
+  return format(addDays(parsed, days), 'yyyy-MM-dd');
+}
+
+/** UTC bounds for one calendar day in the requested timezone. */
+export function zonedDayBoundsUtc(date: string, tz: string = DEFAULT_DISPLAY_TZ): { start: Date; end: Date } {
+  const nextDate = shiftDateOnly(date, 1);
+  return {
+    start: fromZonedTime(`${date}T00:00:00`, tz),
+    end: fromZonedTime(`${nextDate}T00:00:00`, tz),
+  };
 }
 
 /**

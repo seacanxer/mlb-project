@@ -25,9 +25,9 @@ model Team {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  homeGames  Game[]         @relation("HomeTeam")
-  awayGames  Game[]         @relation("AwayTeam")
-  snapshots  TeamSnapshot[]
+  homeGames Game[]         @relation("HomeTeam")
+  awayGames Game[]         @relation("AwayTeam")
+  snapshots TeamSnapshot[]
 }
 
 model Person {
@@ -37,9 +37,9 @@ model Person {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  pitcherSnapshots  PitcherSnapshot[]
-  pitcherGameLogs   PitcherGameLogStart[]
-  probableStarters  ProbableStarterObservation[]
+  pitcherSnapshots PitcherSnapshot[]
+  pitcherGameLogs  PitcherGameLogStart[]
+  probableStarters ProbableStarterObservation[]
 }
 
 model Venue {
@@ -47,18 +47,18 @@ model Venue {
   name      String
   city      String
   state     String?
-  country   String  @default("US")
+  country   String   @default("US")
   createdAt DateTime @default(now())
 
-  games           Game[]
-  parkFactors     ParkFactorSnapshot[]
+  games       Game[]
+  parkFactors ParkFactorSnapshot[]
 }
 
 model Game {
   id           String   @id // MLB game pk (stringified)
-  date         String   // YYYY-MM-DD in ET (game date)
+  date         String // YYYY-MM-DD in ET (game date)
   startTimeUtc DateTime
-  status       String   // scheduled | in_progress | final | postponed | cancelled
+  status       String // scheduled | in_progress | final | postponed | cancelled
   homeTeamId   String
   awayTeamId   String
   venueId      String
@@ -75,6 +75,7 @@ model Game {
   inputSnapshots              InputSnapshot[]
   modelRuns                   ModelRun[]
   gameResult                  GameResult?
+  aiFinalPicks                AiFinalPick[]
 }
 
 // ---------------------------------------------------------------------------
@@ -82,21 +83,21 @@ model Game {
 // ---------------------------------------------------------------------------
 
 model SourceObservation {
-  id              String   @id @default(cuid())
-  gameId          String?
-  provider        String   // e.g. "mlb-stats-api", "manual-csv"
-  providerId      String?  // provider's record key
-  sourceIdentifier String? // path / endpoint / filename
-  retrievedAt     DateTime
-  effectiveAt     DateTime?
-  season          Int?
-  sourceTimezone  String?
-  rawChecksum     String
-  normalizedData  String   // JSON blob
-  freshnessState  String   // fresh | stale | missing | conflicting
-  validationWarnings String @default("[]") // JSON array of warning codes
-  dataType        String   // schedule | pitcher_stats | team_stats | odds | park_factor | results
-  createdAt       DateTime @default(now())
+  id                 String    @id @default(cuid())
+  gameId             String?
+  provider           String // e.g. "mlb-stats-api", "manual-csv"
+  providerId         String? // provider's record key
+  sourceIdentifier   String? // path / endpoint / filename
+  retrievedAt        DateTime
+  effectiveAt        DateTime?
+  season             Int?
+  sourceTimezone     String?
+  rawChecksum        String
+  normalizedData     String // JSON blob
+  freshnessState     String // fresh | stale | missing | conflicting
+  validationWarnings String    @default("[]") // JSON array of warning codes
+  dataType           String // schedule | pitcher_stats | team_stats | odds | park_factor | results
+  createdAt          DateTime  @default(now())
 
   game Game? @relation(fields: [gameId], references: [id])
 
@@ -106,16 +107,16 @@ model SourceObservation {
 }
 
 model ProbableStarterObservation {
-  id              String   @id @default(cuid())
-  gameId          String
-  personId        String
-  side            String   // home | away
+  id                 String   @id @default(cuid())
+  gameId             String
+  personId           String
+  side               String // home | away
   confirmationStatus String // confirmed | probable | tbd | conflicting | changed
-  gamesStarted    Int?
-  roleLabel       String?  // starter | reliever | opener
-  retrievedAt     DateTime
-  sourceProvider  String
-  createdAt       DateTime @default(now())
+  gamesStarted       Int?
+  roleLabel          String? // starter | reliever | opener
+  retrievedAt        DateTime
+  sourceProvider     String
+  createdAt          DateTime @default(now())
 
   game   Game   @relation(fields: [gameId], references: [id])
   person Person @relation(fields: [personId], references: [id])
@@ -128,22 +129,22 @@ model ProbableStarterObservation {
 // ---------------------------------------------------------------------------
 
 model PitcherSnapshot {
-  id               String   @id @default(cuid())
-  personId         String
-  season           Int
-  era              Float
-  whip             Float
-  inningsPitched   Float    // stored as raw .1/.2 value; outs computed at read
-  outsRecorded     Int      // normalized outs
-  gamesStarted     Int
-  earnedRuns       Int
-  walks            Int
-  strikeouts       Int
-  sourceProvider   String
+  id                  String   @id @default(cuid())
+  personId            String
+  season              Int
+  era                 Float
+  whip                Float
+  inningsPitched      Float // stored as raw .1/.2 value; outs computed at read
+  outsRecorded        Int // normalized outs
+  gamesStarted        Int
+  earnedRuns          Int
+  walks               Int
+  strikeouts          Int
+  sourceProvider      String
   sourceObservationId String?
-  retrievedAt      DateTime
-  freshnessState   String
-  createdAt        DateTime @default(now())
+  retrievedAt         DateTime
+  freshnessState      String
+  createdAt           DateTime @default(now())
 
   person Person @relation(fields: [personId], references: [id])
 
@@ -151,18 +152,18 @@ model PitcherSnapshot {
 }
 
 model PitcherGameLogStart {
-  id               String   @id @default(cuid())
-  personId         String
-  gameDate         String   // YYYY-MM-DD
-  season           Int
-  earnedRuns       Int
-  outsRecorded     Int
-  gameEra          Float    // computed: earnedRuns * 27 / outsRecorded
-  isGoodStart      Boolean  // gameEra < 4.00
-  sourceProvider   String
+  id                  String   @id @default(cuid())
+  personId            String
+  gameDate            String // YYYY-MM-DD
+  season              Int
+  earnedRuns          Int
+  outsRecorded        Int
+  gameEra             Float // computed: earnedRuns * 27 / outsRecorded
+  isGoodStart         Boolean // gameEra < 4.00
+  sourceProvider      String
   sourceObservationId String?
-  retrievedAt      DateTime
-  createdAt        DateTime @default(now())
+  retrievedAt         DateTime
+  createdAt           DateTime @default(now())
 
   person Person @relation(fields: [personId], references: [id])
 
@@ -171,24 +172,24 @@ model PitcherGameLogStart {
 }
 
 model TeamSnapshot {
-  id               String   @id @default(cuid())
-  teamId           String
-  season           Int
-  avg              Float
-  ops              Float
-  runsPerGame      Float
-  bullpenEra       Float?
-  bullpenWhip      Float?
-  wins             Int
-  losses           Int
-  last10Wins       Int
-  last10Losses     Int
-  currentStreak    Int      // positive = win streak, negative = loss streak
-  sourceProvider   String
+  id                  String   @id @default(cuid())
+  teamId              String
+  season              Int
+  avg                 Float
+  ops                 Float
+  runsPerGame         Float
+  bullpenEra          Float?
+  bullpenWhip         Float?
+  wins                Int
+  losses              Int
+  last10Wins          Int
+  last10Losses        Int
+  currentStreak       Int // positive = win streak, negative = loss streak
+  sourceProvider      String
   sourceObservationId String?
-  retrievedAt      DateTime
-  freshnessState   String
-  createdAt        DateTime @default(now())
+  retrievedAt         DateTime
+  freshnessState      String
+  createdAt           DateTime @default(now())
 
   team Team @relation(fields: [teamId], references: [id])
 
@@ -196,19 +197,19 @@ model TeamSnapshot {
 }
 
 model MarketSnapshot {
-  id                 String   @id @default(cuid())
-  gameId             String
-  provider           String
-  retrievedAt        DateTime
-  moneylineHome      Float?   // decimal odds
-  moneylineAway      Float?   // decimal odds
-  moneylineHomeOrig  String?  // original format value e.g. "-145"
-  moneylineAwayOrig  String?  // original format value e.g. "+125"
-  totalLine          Float?
-  totalOverDecimal   Float?
-  totalUnderDecimal  Float?
-  freshnessState     String
-  createdAt          DateTime @default(now())
+  id                String   @id @default(cuid())
+  gameId            String
+  provider          String
+  retrievedAt       DateTime
+  moneylineHome     Float? // decimal odds
+  moneylineAway     Float? // decimal odds
+  moneylineHomeOrig String? // original format value e.g. "-145"
+  moneylineAwayOrig String? // original format value e.g. "+125"
+  totalLine         Float?
+  totalOverDecimal  Float?
+  totalUnderDecimal Float?
+  freshnessState    String
+  createdAt         DateTime @default(now())
 
   game Game @relation(fields: [gameId], references: [id])
 
@@ -216,14 +217,14 @@ model MarketSnapshot {
 }
 
 model ParkFactorSnapshot {
-  id           String   @id @default(cuid())
-  venueId      String
-  season       Int
-  factor       Float    // 1.0 = neutral
-  source       String   // e.g. "fangraphs-2025", "baseball-reference-2025"
-  notes        String?
-  isFallback   Boolean  @default(false)
-  createdAt    DateTime @default(now())
+  id         String   @id @default(cuid())
+  venueId    String
+  season     Int
+  factor     Float // 1.0 = neutral
+  source     String // e.g. "fangraphs-2025", "baseball-reference-2025"
+  notes      String?
+  isFallback Boolean  @default(false)
+  createdAt  DateTime @default(now())
 
   venue Venue @relation(fields: [venueId], references: [id])
 
@@ -247,15 +248,15 @@ model ModelDefinition {
 }
 
 model ModelConfigVersion {
-  id              String   @id @default(cuid())
-  modelId         String
-  semver          String   // e.g. "2.0.1"
-  configJson      String   // JSON blob of all thresholds
-  isActive        Boolean  @default(false)
-  createdAt       DateTime @default(now())
-  createdBy       String   @default("system")
+  id         String   @id @default(cuid())
+  modelId    String
+  semver     String // e.g. "2.0.1"
+  configJson String // JSON blob of all thresholds
+  isActive   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  createdBy  String   @default("system")
 
-  model    ModelDefinition @relation(fields: [modelId], references: [id])
+  model     ModelDefinition @relation(fields: [modelId], references: [id])
   modelRuns ModelRun[]
 
   @@index([modelId, isActive])
@@ -266,43 +267,43 @@ model ModelConfigVersion {
 // ---------------------------------------------------------------------------
 
 model InputSnapshot {
-  id                     String   @id @default(cuid())
-  gameId                 String
-  frozenAt               DateTime @default(now())
-  pitcherSnapshotAwayId  String?
-  pitcherSnapshotHomeId  String?
-  teamSnapshotAwayId     String?
-  teamSnapshotHomeId     String?
-  marketSnapshotId       String?
-  parkFactorSnapshotId   String?
-  gameLogStartsAway      String   @default("[]") // JSON array of PitcherGameLogStart IDs
-  gameLogStartsHome      String   @default("[]")
-  probableStarterAwayId  String?
-  probableStarterHomeId  String?
-  freshnessIssues        String   @default("[]") // JSON array
-  createdAt              DateTime @default(now())
+  id                    String   @id @default(cuid())
+  gameId                String
+  frozenAt              DateTime @default(now())
+  pitcherSnapshotAwayId String?
+  pitcherSnapshotHomeId String?
+  teamSnapshotAwayId    String?
+  teamSnapshotHomeId    String?
+  marketSnapshotId      String?
+  parkFactorSnapshotId  String?
+  gameLogStartsAway     String   @default("[]") // JSON array of PitcherGameLogStart IDs
+  gameLogStartsHome     String   @default("[]")
+  probableStarterAwayId String?
+  probableStarterHomeId String?
+  freshnessIssues       String   @default("[]") // JSON array
+  createdAt             DateTime @default(now())
 
-  game     Game      @relation(fields: [gameId], references: [id])
+  game      Game       @relation(fields: [gameId], references: [id])
   modelRuns ModelRun[]
 
   @@index([gameId])
 }
 
 model ModelRun {
-  id               String   @id @default(cuid())
-  gameId           String
-  modelId          String
-  configVersionId  String
-  inputSnapshotId  String
-  runAt            DateTime @default(now())
-  finalState       String   // NEEDS_DATA | INVALIDATED | SKIP | NO_BET | T2 | T1 | OVER_RISKY | OVER_STRONG_GAP | UNDER_RISKY | UNDER_STRONG_GAP
-  rawScore         Float?   // ML raw Combo Score (preserved even when SKIP)
-  rawGap           Float?   // O/U gap (preserved even when NO_BET)
-  outputJson       String   // full JSON: all intermediate values
-  isLocked         Boolean  @default(false)
-  isInvalidated    Boolean  @default(false)
+  id                 String   @id @default(cuid())
+  gameId             String
+  modelId            String
+  configVersionId    String
+  inputSnapshotId    String
+  runAt              DateTime @default(now())
+  finalState         String // NEEDS_DATA | INVALIDATED | SKIP | NO_BET | T2 | T1 | OVER_RISKY | OVER_STRONG_GAP | UNDER_RISKY | UNDER_STRONG_GAP
+  rawScore           Float? // ML raw Combo Score (preserved even when SKIP)
+  rawGap             Float? // O/U gap (preserved even when NO_BET)
+  outputJson         String // full JSON: all intermediate values
+  isLocked           Boolean  @default(false)
+  isInvalidated      Boolean  @default(false)
   invalidationReason String?
-  createdAt        DateTime @default(now())
+  createdAt          DateTime @default(now())
 
   game          Game               @relation(fields: [gameId], references: [id])
   model         ModelDefinition    @relation(fields: [modelId], references: [id])
@@ -316,12 +317,12 @@ model ModelRun {
 }
 
 model ModelWarning {
-  id          String   @id @default(cuid())
-  modelRunId  String
-  code        String   // e.g. OFFENSE_TIER_MISMATCH, LINE_MOVEMENT
-  severity    String   // warning | info
-  message     String
-  createdAt   DateTime @default(now())
+  id         String   @id @default(cuid())
+  modelRunId String
+  code       String // e.g. OFFENSE_TIER_MISMATCH, LINE_MOVEMENT
+  severity   String // warning | info
+  message    String
+  createdAt  DateTime @default(now())
 
   modelRun ModelRun @relation(fields: [modelRunId], references: [id])
 
@@ -333,15 +334,15 @@ model ModelWarning {
 // ---------------------------------------------------------------------------
 
 model Forecast {
-  id              String   @id @default(cuid())
-  modelRunId      String
-  lockedAt        DateTime
-  marketLine      Float?
-  marketPrice     Float?
-  selectedSide    String?  // home | away | over | under
-  finalState      String
-  notes           String?
-  createdAt       DateTime @default(now())
+  id           String   @id @default(cuid())
+  modelRunId   String
+  lockedAt     DateTime
+  marketLine   Float?
+  marketPrice  Float?
+  selectedSide String? // home | away | over | under
+  finalState   String
+  notes        String?
+  createdAt    DateTime @default(now())
 
   modelRun   ModelRun           @relation(fields: [modelRunId], references: [id])
   revisions  ForecastRevision[]
@@ -352,13 +353,13 @@ model Forecast {
 }
 
 model ForecastRevision {
-  id           String   @id @default(cuid())
-  forecastId   String
-  revisedAt    DateTime @default(now())
-  reason       String   // starter_change | venue_change | line_movement | manual
-  oldState     String
-  newState     String
-  notes        String?
+  id         String   @id @default(cuid())
+  forecastId String
+  revisedAt  DateTime @default(now())
+  reason     String // starter_change | venue_change | line_movement | manual
+  oldState   String
+  newState   String
+  notes      String?
 
   forecast Forecast @relation(fields: [forecastId], references: [id])
 
@@ -366,28 +367,61 @@ model ForecastRevision {
 }
 
 model GameResult {
-  id              String   @id @default(cuid())
-  gameId          String   @unique
-  homeScore       Int
-  awayScore       Int
-  finalStatus     String   // final | cancelled | postponed
-  officialAt      DateTime
-  sourceProvider  String
-  retrievedAt     DateTime
-  createdAt       DateTime @default(now())
+  id             String   @id @default(cuid())
+  gameId         String   @unique
+  homeScore      Int
+  awayScore      Int
+  finalStatus    String // final | cancelled | postponed
+  officialAt     DateTime
+  sourceProvider String
+  retrievedAt    DateTime
+  createdAt      DateTime @default(now())
 
   game        Game         @relation(fields: [gameId], references: [id])
   settlements Settlement[]
 }
 
 model Settlement {
-  id             String   @id @default(cuid())
-  forecastId     String   @unique
-  gameResultId   String
-  outcome        String   // win | loss | push | void | pending
-  settledAt      DateTime @default(now())
-  gradeNotes     String?
+  id           String   @id @default(cuid())
+  forecastId   String   @unique
+  gameResultId String
+  outcome      String // win | loss | push | void | pending
+  settledAt    DateTime @default(now())
+  gradeNotes   String?
 
   forecast   Forecast   @relation(fields: [forecastId], references: [id])
   gameResult GameResult @relation(fields: [gameResultId], references: [id])
+}
+
+// ---------------------------------------------------------------------------
+// AI-curated shortlist and simple flat-unit tracking
+// ---------------------------------------------------------------------------
+
+model AiFinalPick {
+  id             String    @id @default(cuid())
+  slateDateWib   String
+  gameId         String
+  market         String // moneyline | total
+  selection      String
+  marketLine     Float?
+  decimalOdds    Float?
+  classification String // framework_confirmed | ai_only
+  frameworkState String
+  frameworkScore Float?
+  aiModel        String
+  aiRating       Int
+  aiVerdict      String
+  rationale      String
+  status         String    @default("pending") // pending | win | loss | push | void
+  profitUnits    Float?
+  settledAt      DateTime?
+  settlementNote String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  game Game @relation(fields: [gameId], references: [id])
+
+  @@unique([slateDateWib, gameId])
+  @@index([slateDateWib])
+  @@index([status])
 }

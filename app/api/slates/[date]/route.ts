@@ -2,17 +2,34 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { MlbScheduleProvider } from '@/lib/providers/mlbStatsApi';
+import { shiftDateOnly, zonedDayBoundsUtc } from '@/lib/utils/timezone';
+
+function validTimeZone(value: string): boolean {
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone: value }).format();
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: { date: string } }
 ) {
   const { date } = params;
+  const requestedTimezone = req.nextUrl.searchParams.get('timezone');
+  if (requestedTimezone && !validTimeZone(requestedTimezone)) {
+    return NextResponse.json({ error: 'Invalid timezone' }, { status: 400 });
+  }
+  const utcBounds = requestedTimezone ? zonedDayBoundsUtc(date, requestedTimezone) : null;
 
   // 1. Try fetching from Database first if available
   try {
     const dbGames = await prisma.game.findMany({
-      where: { date },
+      where: utcBounds
+        ? { startTimeUtc: { gte: utcBounds.start, lt: utcBounds.end } }
+        : { date },
       include: {
         homeTeam: true,
         awayTeam: true,
@@ -53,7 +70,18 @@ export async function GET(
   // 2. Fallback to Live MLB Stats API
   try {
     const scheduleProvider = new MlbScheduleProvider();
-    const liveResults = await scheduleProvider.getSchedule(date);
+    const scheduleDates = requestedTimezone
+      ? [shiftDateOnly(date, -1), date, shiftDateOnly(date, 1)]
+      : [date];
+    const scheduleResults = await Promise.all(scheduleDates.map((scheduleDate) => scheduleProvider.getSchedule(scheduleDate)));
+    const seenGames = new Set<string>();
+    const liveResults = scheduleResults.flat().filter((item) => {
+      if (seenGames.has(item.data.gameId)) return false;
+      seenGames.add(item.data.gameId);
+      if (!utcBounds) return true;
+      const start = item.data.startTimeUtc.getTime();
+      return start >= utcBounds.start.getTime() && start < utcBounds.end.getTime();
+    });
 
     const formattedGames = liveResults.map((item) => {
       const g = item.data;
@@ -111,7 +139,7 @@ export async function GET(
     });
 
     return NextResponse.json(
-      { date, games: formattedGames, source: 'live-mlb-api' },
+      { date, timezone: requestedTimezone ?? undefined, games: formattedGames, source: 'live-mlb-api' },
       {
         headers: {
           'Access-Control-Allow-Origin': '*',
