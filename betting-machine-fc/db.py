@@ -12,41 +12,41 @@ def _connect():
     return conn
 
 def init_db():
-    conn = _connect()
-    c = conn.cursor()
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS bets (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            match TEXT,
-            home TEXT,
-            away TEXT,
-            league TEXT,
-            start_ts INTEGER,
-            market TEXT,
-            pick TEXT,
-            odds REAL,
-            ev REAL,
-            probability REAL,
-            placed_at TEXT,
-            settled INTEGER DEFAULT 0,
-            won INTEGER DEFAULT 0,
-            profit REAL DEFAULT 0.0,
-            settled_at TEXT
-        )
-    ''')
-    columns = {row['name'] for row in c.execute('PRAGMA table_info(bets)').fetchall()}
-    if 'source_match_id' not in columns:
-        c.execute('ALTER TABLE bets ADD COLUMN source_match_id TEXT')
-    if 'home_score' not in columns:
-        c.execute('ALTER TABLE bets ADD COLUMN home_score INTEGER')
-    if 'away_score' not in columns:
-        c.execute('ALTER TABLE bets ADD COLUMN away_score INTEGER')
-    if 'score_status' not in columns:
-        c.execute('ALTER TABLE bets ADD COLUMN score_status TEXT')
-    if 'score_updated_at' not in columns:
-        c.execute('ALTER TABLE bets ADD COLUMN score_updated_at TEXT')
-    conn.commit()
-    conn.close()
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS bets (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                match TEXT,
+                home TEXT,
+                away TEXT,
+                league TEXT,
+                start_ts INTEGER,
+                market TEXT,
+                pick TEXT,
+                odds REAL,
+                ev REAL,
+                probability REAL,
+                placed_at TEXT,
+                settled INTEGER DEFAULT 0,
+                won INTEGER DEFAULT 0,
+                profit REAL DEFAULT 0.0,
+                settled_at TEXT
+            )
+        ''')
+        columns = {row['name'] for row in c.execute('PRAGMA table_info(bets)').fetchall()}
+        if 'source_match_id' not in columns:
+            c.execute('ALTER TABLE bets ADD COLUMN source_match_id TEXT')
+        if 'home_score' not in columns:
+            c.execute('ALTER TABLE bets ADD COLUMN home_score INTEGER')
+        if 'away_score' not in columns:
+            c.execute('ALTER TABLE bets ADD COLUMN away_score INTEGER')
+        if 'score_status' not in columns:
+            c.execute('ALTER TABLE bets ADD COLUMN score_status TEXT')
+        if 'score_updated_at' not in columns:
+            c.execute('ALTER TABLE bets ADD COLUMN score_updated_at TEXT')
+        conn.commit()
 
 def insert_bet(bet):
     """Lock one recommendation per fixture. If an unsettled lock already exists
@@ -192,27 +192,26 @@ def get_bets(settled=None):
     return [dict(zip(keys, tuple(r))) for r in rows]
 
 def get_roi():
-    conn = _connect()
-    c = conn.cursor()
-    c.execute(_CANONICAL_BETS_CTE + '''
-        SELECT COUNT(*),
-               COALESCE(SUM(CASE WHEN won=1 THEN 1 ELSE 0 END), 0),
-               COALESCE(SUM(CASE WHEN won=0 THEN 1 ELSE 0 END), 0),
-               COALESCE(SUM(CASE WHEN won IS NULL THEN 1 ELSE 0 END), 0),
-               COALESCE(SUM(profit), 0)
-        FROM ranked_bets WHERE duplicate_rank=1 AND settled=1
-    ''')
-    total, wins, losses, pushes, profit = tuple(c.fetchone())
-    conn.close()
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+        c.execute(_CANONICAL_BETS_CTE + '''
+            SELECT COUNT(*),
+                   COALESCE(SUM(CASE WHEN won=1 THEN 1 ELSE 0 END), 0),
+                   COALESCE(SUM(CASE WHEN won=0 THEN 1 ELSE 0 END), 0),
+                   COALESCE(SUM(CASE WHEN won IS NULL THEN 1 ELSE 0 END), 0),
+                   COALESCE(SUM(profit), 0)
+            FROM ranked_bets WHERE duplicate_rank=1 AND settled=1
+        ''')
+        total, wins, losses, pushes, profit = tuple(c.fetchone())
+        # single-connection pending count
+        pending_count = conn.execute(_CANONICAL_BETS_CTE + '''
+            SELECT COUNT(*) FROM ranked_bets
+            WHERE duplicate_rank=1 AND settled=0
+        ''').fetchone()[0]
     total = total or 0
     wins = wins or 0
     profit = profit or 0.0
-    conn = _connect()
-    pending_count = conn.execute(_CANONICAL_BETS_CTE + '''
-        SELECT COUNT(*) FROM ranked_bets
-        WHERE duplicate_rank=1 AND settled=0
-    ''').fetchone()[0]
-    conn.close()
     roi = (profit / total * 100) if total > 0 else 0.0
     decided = wins + losses
     hit_rate = (wins / decided * 100) if decided > 0 else 0.0

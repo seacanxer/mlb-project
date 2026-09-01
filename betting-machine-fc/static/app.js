@@ -5,6 +5,10 @@ let allPicksData = [];
 let allMatchesData = [];
 let currentConfig = null;
 
+function debounce(fn, ms) {
+  let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
+}
+
 // Initialize on DOM loaded
 document.addEventListener('DOMContentLoaded', () => {
   initTabs();
@@ -406,8 +410,13 @@ function initTrackerFilters() {
   });
 }
 
+let isSettling = false;
 function initSettlement() {
   const run = async () => {
+    if (isSettling) return;
+    isSettling = true;
+    document.getElementById('btn-settle')?.setAttribute('disabled','');
+    document.getElementById('btn-settle-tracker')?.setAttribute('disabled','');
     try {
       const res = await fetch('/api/settle', { method: 'POST' });
       const data = await res.json();
@@ -430,6 +439,10 @@ function initSettlement() {
       await loadTracker();
     } catch (err) {
       showBanner(err.message, true);
+    } finally {
+      isSettling = false;
+      document.getElementById('btn-settle')?.removeAttribute('disabled');
+      document.getElementById('btn-settle-tracker')?.removeAttribute('disabled');
     }
   };
   document.getElementById('btn-settle')?.addEventListener('click', run);
@@ -451,17 +464,19 @@ function initFilters() {
   document.getElementById('filter-league')?.addEventListener('change', renderPicks);
   document.getElementById('filter-min-ev')?.addEventListener('change', loadPicks);
   document.getElementById('filter-sort')?.addEventListener('change', loadPicks);
-  document.getElementById('filter-max-odds')?.addEventListener('input', loadPicks);
-  document.getElementById('filter-search')?.addEventListener('input', renderPicks);
+  document.getElementById('filter-max-odds')?.addEventListener('input', debounce(loadPicks, 400));
+  document.getElementById('filter-search')?.addEventListener('input', debounce(renderPicks, 200));
 }
 
 // Live Scanner Integration
+let _scanPoll = null;
 function initScanButton() {
   const btn = document.getElementById('btn-scan');
   const spinner = document.getElementById('scan-spinner');
   const btnText = document.getElementById('scan-btn-text');
 
   btn.addEventListener('click', async () => {
+    if (_scanPoll) return;
     btn.disabled = true;
     spinner.classList.remove('hidden');
     btnText.textContent = 'Scanning 1xbit LineFeed...';
@@ -472,12 +487,12 @@ function initScanButton() {
       const data = await res.json();
 
       // Poll status
-      const pollInterval = setInterval(async () => {
+      _scanPoll = setInterval(async () => {
         try {
           const statusRes = await fetch('/api/scan/status');
           const state = await statusRes.json();
           if (!state.is_running) {
-            clearInterval(pollInterval);
+            clearInterval(_scanPoll); _scanPoll = null;
             btn.disabled = false;
             spinner.classList.add('hidden');
             btnText.textContent = '📡 Run Live Scan';
@@ -493,7 +508,7 @@ function initScanButton() {
             showBanner(state.progress || 'Scanning active matches...');
           }
         } catch (e) {
-          clearInterval(pollInterval);
+          clearInterval(_scanPoll); _scanPoll = null;
           btn.disabled = false;
           spinner.classList.add('hidden');
           btnText.textContent = '📡 Run Live Scan';

@@ -12,7 +12,7 @@ from fastapi import BackgroundTasks, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE_DIR)
@@ -315,6 +315,8 @@ def get_picks(
     search: Optional[str] = Query(None, description="Search query for team names or league"),
     sort_by: str = Query("rank_score", description="Sort field: rank_score, ev, odds, probability"),
     sort_order: str = Query("desc", description="Sort direction: asc, desc"),
+    limit: int = Query(50, ge=1, le=100, description="Pagination limit"),
+    offset: int = Query(0, ge=0, description="Pagination offset"),
 ):
     raw_picks = load_picks_file()
     cfg = load_config()
@@ -393,11 +395,13 @@ def get_picks(
 
     avg_ev = sum(x["ev"] for x in filtered) / len(filtered) if filtered else 0.0
     avg_odds = sum(x["odds"] for x in filtered) / len(filtered) if filtered else 0.0
+    total_filtered = len(filtered)
+    paged = filtered[offset: offset + limit]
 
     return {
         "summary": {
             "total_picks": len(raw_picks),
-            "qualified_picks": len(filtered),
+            "qualified_picks": total_filtered,
             "avg_ev_pct": round(avg_ev * 100, 2),
             "avg_odds": round(avg_odds, 3),
             "min_odds_floor": 1.66,
@@ -407,14 +411,16 @@ def get_picks(
             "markets": sorted(list(markets_set)),
             "last_scan_time": scan_state.get("last_scan_time"),
         },
-        "picks": filtered,
+        "picks": paged,
+        "pagination": {"limit": limit, "offset": offset, "total": total_filtered},
     }
 
 
 @app.get("/api/matches")
-def get_matches():
+def get_matches(limit: int = Query(50, ge=1, le=200), offset: int = Query(0, ge=0)):
     matches = load_detailed_matches()
-    return {"count": len(matches), "matches": matches}
+    total = len(matches)
+    return {"count": total, "matches": matches[offset: offset + limit], "pagination": {"limit": limit, "offset": offset, "total": total}}
 
 
 @app.get("/api/tracker")
@@ -598,8 +604,8 @@ class SimRequest(BaseModel):
     stake_pct: float = 0.02
     odds: float = 1.95
     probability: float = 0.58
-    rounds: int = 200
-    iterations: int = 1000
+    rounds: int = Field(default=200, ge=1, le=500)
+    iterations: int = Field(default=1000, ge=1, le=2000)
     strategy: str = "flat"
 
 
@@ -676,4 +682,4 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     host = os.environ.get("HOST", "0.0.0.0")
     print(f"Starting Football Betting Recommendation Engine on http://{host}:{port}")
-    uvicorn.run("server:app", host=host, port=port, reload=True)
+    uvicorn.run("server:app", host=host, port=port, reload=False)

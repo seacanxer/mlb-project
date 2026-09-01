@@ -4,6 +4,7 @@
 # All formulas are unit-tested in tests/test_formulas.py (vectors verified 2026-08).
 # ============================================================================
 import math
+from functools import lru_cache
 
 MAX_GOALS = 10
 RHO_DEFAULT = -0.13
@@ -25,7 +26,7 @@ def dixon_coles_tau(x, y, lh, la, rho):
     return 1.0
 
 
-def score_matrix(lh, la, rho=RHO_DEFAULT, max_goals=MAX_GOALS):
+def _score_matrix_uncached(lh, la, rho, max_goals):
     m = {}
     tot = 0.0
     for x in range(max_goals + 1):
@@ -36,6 +37,16 @@ def score_matrix(lh, la, rho=RHO_DEFAULT, max_goals=MAX_GOALS):
     if tot <= 0:
         raise ValueError("score matrix has zero probability mass")
     return {score: probability / tot for score, probability in m.items()}, 1.0
+
+
+@lru_cache(maxsize=2048)
+def _cached_score_matrix(lh_r, la_r, rho, max_goals):
+    return _score_matrix_uncached(float(lh_r), float(la_r), float(rho), int(max_goals))
+
+
+def score_matrix(lh, la, rho=RHO_DEFAULT, max_goals=MAX_GOALS):
+    # round to 3 decimals for cache key — lam_from_1x2 steps 0.10 anyway
+    return _cached_score_matrix(round(lh, 3), round(la, 3), round(rho, 3), int(max_goals))
 
 
 def match_probs(lh, la, rho=RHO_DEFAULT, max_goals=MAX_GOALS):
@@ -204,13 +215,9 @@ def lam_from_odds(odds_home, odds_draw, odds_away, odds_over, odds_under, ou_lin
     return lam_total * ratio, lam_total * (1.0 - ratio), (p_h, p_d, p_a), fair_over
 
 
-def lam_from_1x2(odds_home, odds_draw, odds_away, lo=0.25, hi=3.75, step=0.10):
-    """Fit independent scoring rates to de-vigged 1X2 prices only.
-
-    Totals and BTTS can then be evaluated out-of-sample against their own prices,
-    instead of circularly deriving the goal total from the O/U market being tested.
-    """
-    target = remove_margin([odds_home, odds_draw, odds_away])
+@lru_cache(maxsize=4096)
+def _lam_from_1x2_cached(o_h, o_d, o_a, lo, hi, step):
+    target = remove_margin([o_h, o_d, o_a])
     best = None
     count = int(round((hi - lo) / step))
     for i in range(count + 1):
@@ -222,6 +229,11 @@ def lam_from_1x2(odds_home, odds_draw, odds_away, lo=0.25, hi=3.75, step=0.10):
             if best is None or error < best[0]:
                 best = (error, lh, la)
     return best[1], best[2], tuple(target)
+
+
+def lam_from_1x2(odds_home, odds_draw, odds_away, lo=0.25, hi=3.75, step=0.10):
+    """Fit independent scoring rates to de-vigged 1X2 prices only."""
+    return _lam_from_1x2_cached(round(odds_home, 3), round(odds_draw, 3), round(odds_away, 3), lo, hi, step)
 
 
 def strength_lam(home_att, away_def, away_att, home_def, league_avg, home_adv=1.08):
