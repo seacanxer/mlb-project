@@ -277,3 +277,30 @@ def get_unsettled():
 
 def get_settled():
     return get_bets(settled=True)
+
+def get_stuck_bets():
+    import time
+    conn = _connect()
+    now = time.time()
+    cutoff = now - 6300
+    c = conn.cursor()
+    c.execute('''
+        SELECT * FROM bets
+        WHERE settled=0 AND start_ts IS NOT NULL AND start_ts < ?
+        ORDER BY start_ts ASC
+    ''', (cutoff,))
+    rows = c.fetchall()
+    conn.close()
+    keys = ['id','match','home','away','league','start_ts','market','pick','odds','ev','probability','placed_at','settled','won','profit','settled_at','source_match_id','home_score','away_score','score_status','score_updated_at']
+    return [dict(zip(keys, tuple(r))) for r in rows]
+
+def get_bet_by_id(bet_id):
+    conn = _connect()
+    c = conn.cursor()
+    c.execute('SELECT * FROM bets WHERE id=?', (bet_id,))
+    row = c.fetchone()
+    conn.close()
+    if not row:
+        return None
+    keys = ['id','match','home','away','league','start_ts','market','pick','odds','ev','probability','placed_at','settled','won','profit','settled_at','source_match_id','home_score','away_score','score_status','score_updated_at']
+    return dict(zip(keys, tuple(row)))

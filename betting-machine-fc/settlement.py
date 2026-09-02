@@ -24,13 +24,14 @@ def _kickoff_date_ok(bet, row):
         return False
     # FlashScore and API-Football feed dates are UTC-based; server timezone
     # may be CST (UTC+8), so a naive date.fromtimestamp() shifts the day.
-    # Convert via UTC explicitly and tolerate a ±1 day window (some feeds
-    # publish the local fixture date).
+    # Convert via UTC explicitly and tolerate a ±2 day window (some feeds
+    # publish the local fixture date, and Americas matches that start late
+    # at night UTC can appear on the next calendar day in the feed).
     kick = datetime.fromtimestamp(ts, timezone.utc).date()
     rdate = row.get("date_key") or ""
     if not rdate:
         return False
-    allowed = {(kick + timedelta(days=i)).isoformat() for i in (-1, 0, 1)}
+    allowed = {(kick + timedelta(days=i)).isoformat() for i in (-2, -1, 0, 1, 2)}
     return rdate in allowed
 
 
@@ -150,7 +151,20 @@ def _settle_candidates_with(candidates, lookup, find_result, skip_ids=None):
 
 
 def settle_all():
-    """Settle locks and backfill missing final scores from FlashScore."""
+    """Settle locks and backfill missing final scores from FlashScore (primary)
+    with scores_alt (TheSportsDB + OpenLigaDB) as fallback.
+
+    Feed order:
+      1. FlashScore.mobi — primary, 7-day window, ~4000+ matches/day.
+         Carries the vast majority of leagues worldwide.
+      2. scores_alt — fallback for bets FlashScore could not match.
+         Covers major European leagues + MLS/Brazil via TheSportsDB
+         and German leagues via OpenLigaDB. No API key required.
+
+    API-Football (formerly primary) was removed: its API key is suspended,
+    and its find_result() still contained a dangerous fuzzy fallback
+    (threshold 0.3) that could fabricate scores from unrelated matches.
+    """
     unsettled = db.get_unsettled()
     missing_scores = [
         bet for bet in db.get_settled()
@@ -159,26 +173,26 @@ def settle_all():
     candidates = unsettled + missing_scores
     skip_ids = set()
 
-    # 1. API-Football (primary feed — may be suspended/quota-limited).
-    import scores_api_football as sf_api
-    index_api = sf_api.fetch_recent_results(days=3, use_cache=False)
-    lookup_api = sf_api.build_lookup(index_api)
-    settled_count, scores_backfilled, matched = _settle_candidates_with(
-        candidates, lookup_api, sf_api.find_result, skip_ids
-    )
-
-    # 2. FlashScore always runs for anything the primary feed could not
-    #    match (helps missing-score backfill even when API settled a few).
+    # 1. FlashScore (primary feed).
     index_fs = sf.fetch_recent_results(days=7)
     lookup_fs = sf.build_lookup(index_fs)
-    s2, b2, m2 = _settle_candidates_with(candidates, lookup_fs, sf.find_result, skip_ids)
+    settled_count, scores_backfilled, matched = _settle_candidates_with(
+        candidates, lookup_fs, sf.find_result, skip_ids
+    )
+
+    # 2. Alternative feeds (fallback) — only for bets FlashScore missed.
+    import scores_alt as sf_alt
+    index_alt = sf_alt.fetch_recent_results(days=3)
+    lookup_alt = sf_alt.build_lookup(index_alt)
+    s2, b2, m2 = _settle_candidates_with(
+        candidates, lookup_alt, sf_alt.find_result, skip_ids
+    )
     settled_count += s2
     scores_backfilled += b2
     matched += m2
 
-    # Report the feed that was actually used. FlashScore usually carries the
-    # data (API empty/suspended) — don't let an empty index mask a live feed.
-    result_count = len(index_fs) if len(index_fs) > 0 else len(index_api)
+    # Report the primary feed's count; fallback is supplementary.
+    result_count = len(index_fs)
     return {
         "settled_now": settled_count,
         "scores_backfilled": scores_backfilled,

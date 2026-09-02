@@ -117,6 +117,42 @@ ALIASES = {
     "fakel voronezh": ["fakel"],
     "baltika kaliningrad": ["baltika"],
     "rodina moscow": ["rodina"],
+    # --- Nordic / Finnish abbreviations (1xbit full name vs FlashScore abbrev) ---
+    "kuopion palloseura": ["kups", "kuopio"],
+    "kups": ["kuopion palloseura", "kuopio"],
+    "seinajoen jalkapallokerho": ["sjk", "seinajoki"],
+    "sjk": ["seinajoen jalkapallokerho", "seinajoki"],
+    "vaasan palloseura": ["vps", "vaasa"],
+    "vps": ["vaasan palloseura", "vaasa"],
+    "helsingin jalkapalloklubi": ["hjk", "helsinki"],
+    "hjk": ["helsingin jalkapalloklubi", "helsinki"],
+    "ilves": ["ilves tampere"],
+    "rovanmenan palloseura": ["rops", "rovaniemi"],
+    "rops": ["rovanmenan palloseura", "rovaniemi"],
+    # --- Swedish abbreviations ---
+    "djurgardens": ["djurgarden", "djurgardens if"],
+    "djurgarden": ["djurgardens", "djurgardens if"],
+    "hammarby": ["hammarby if"],
+    "aik": ["aik solna", "aik football"],
+    "bk hacken": ["hacken", "bollkronan"],
+    "if elsborg": ["ifk goteborg", "ifk"],
+    "ifk goteborg": ["ifk", "goteborg"],
+    "malmo ff": ["malmo", "mff"],
+    "malmo": ["malmo ff", "mff"],
+    # --- Norwegian abbreviations ---
+    " Odds BK": ["odds", "odds bk"],
+    "odds": ["odds bk"],
+    "molde": ["molde fk"],
+    "rosenborg": ["rbk", "rosenborg bk"],
+    "brann": ["sk brann"],
+    "valerenga": ["vif", "valerenga if"],
+    "viking": ["viking fk"],
+    "stromsgodset": ["stromsgodset if"],
+    "kristiansund": ["kbk", "kristiansund bk"],
+    "sarpsborg 08": ["sarpsborg", "08"],
+    "haugesund": ["fkh", "fk haugesund"],
+    "tromso": ["til", "tromso il"],
+    "ljungskile": ["ljungskile sk"],
     "gremio": ["gremio"],
     "internacional": ["sc internacional", "internacional rs"],
     "vasco da gama": ["vasco", "cr vasco da gama"],
@@ -526,11 +562,24 @@ ALIASES = {
 }
 
 
+# Age-category regex — defined early so name_keys() can use it.
+_YOUTH_RE = re.compile(r'\bU(1[789]|2[0-3])\b', re.I)
+
+
 def norm(s):
     s = unicodedata.normalize("NFKD", s or "")
     s = s.encode("ascii", "ignore").decode()
     s = re.sub(r"[^a-z0-9 ]", " ", s.lower())
+    # Normalize women's-team suffixes: "(Women)", "(W)", " Women", " W"
+    # to a canonical " w" token so that "Altai W" matches "Altai (Women)".
+    s = re.sub(r"\s*\(?wom[ae]n\)?\s*", " w ", s)
+    s = re.sub(r"\s+\(?w\)?\s*$", " w ", s)
+    # Transliteration fixes: cyrillic→latin variant spellings
+    s = s.replace("altay", "altai")
     s = re.sub(r"\s+", " ", s).strip()
+    # Strip trailing " w" only if the base name is long enough to still
+    # be identifiable without it (e.g. "altai w" → "altai" so token
+    # matching works, but keep " w" inside name_keys for women leagues).
     return s
 
 
@@ -545,7 +594,10 @@ def name_keys(name):
             for a in al:
                 if n == norm(a):
                     keys.add(norm(canon))
-    toks = [t for t in n.split() if len(t) > 2]
+    # Generate single-token keys, but exclude age-suffix tokens (u17-u23)
+    # to prevent cross-matching different youth teams that share only the
+    # age suffix (e.g. "Al-Nassr U21" matching "Bournemouth U21").
+    toks = [t for t in n.split() if len(t) > 2 and not _YOUTH_RE.match(t)]
     keys.update(toks)
     return keys
 
@@ -612,8 +664,9 @@ def build_lookup(index):
 # These helpers detect age-category bets and validate that a matched FlashScore
 # result is genuinely the same youth match — not just a match with the same
 # age suffix.
+# (_YOUTH_RE is defined earlier, before norm()/name_keys(), because name_keys
+#  uses it to exclude age-suffix tokens from the single-token key set.)
 
-_YOUTH_RE = re.compile(r'\bU(1[789]|2[0-3])\b', re.I)
 _YOUTH_LEAGUE_RE = re.compile(
     r'\b(?:U|U-)(1[789]|2[0-3])\b|'
     r'premier league 2|'
@@ -628,11 +681,23 @@ _YOUTH_LEAGUE_RE = re.compile(
 
 def is_youth_bet(home, away):
     """Return the age suffix (e.g. 'U21') if this bet is a youth/age-category
-    match, else None."""
-    for name in (home, away):
-        m = _YOUTH_RE.search(name or '')
-        if m:
-            return f'U{m.group(1)}'
+    match, else None.
+
+    Only returns an age suffix if BOTH teams carry it — a senior team
+    playing a youth/select side (e.g. "Al Bidda SC vs Qatar U23") is NOT
+    a youth match and should not trigger youth validation.
+    """
+    m_h = _YOUTH_RE.search(home or '')
+    m_a = _YOUTH_RE.search(away or '')
+    if m_h and m_a:
+        # Both teams have an age suffix — genuine youth match
+        return f'U{m_h.group(1)}'
+    if m_h and not m_a:
+        # Only home has suffix — check if away is a national-team youth side
+        # (e.g. "Qatar U23" as away vs "Al Bidda SC" as home = mixed, not youth)
+        return None
+    if m_a and not m_h:
+        return None
     return None
 
 
@@ -730,7 +795,7 @@ def find_result(home, away, lookup, kickoff_date=None):
     if target_date:
         allowed_dates = {
             (target_date + timedelta(days=i)).isoformat()
-            for i in (-1, 0, 1)
+            for i in (-2, -1, 0, 1, 2)
         }
 
     age_suffix = is_youth_bet(home, away)

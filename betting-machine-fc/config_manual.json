@@ -1,0 +1,5 @@
+{
+  "settlement": {
+    "stuck_threshold_minutes": 105
+  }
+}

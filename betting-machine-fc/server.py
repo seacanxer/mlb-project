@@ -436,7 +436,7 @@ def get_tracker():
             item["timing_status"] = "unknown"
         elif now < kickoff:
             item["timing_status"] = "not_started"
-        elif now < kickoff + 3 * 60 * 60:
+        elif now < kickoff + 6300:  # 105 min buffer — same as stuck definition
             item["timing_status"] = "awaiting_final"
         else:
             item["timing_status"] = "settlement_overdue"
@@ -466,6 +466,84 @@ def settle_locked_picks():
 @app.get("/api/settle/status")
 def settle_status():
     return settle_state
+
+@app.get("/api/stuck-bets")
+def get_stuck_bets():
+    bets = db.get_stuck_bets()
+    return {
+        "count": len(bets),
+        "bets": bets,
+        "cutoff_minutes": 105,
+        "now": time.time(),
+    }
+
+@app.get("/stuck")
+def serve_stuck():
+    stuck_path = os.path.join(STATIC_DIR, "stuck.html")
+    if os.path.exists(stuck_path):
+        return FileResponse(stuck_path)
+    return JSONResponse({"error": "stuck.html not found"}, status_code=404)
+
+
+class ManualSettleRequest(BaseModel):
+    bet_id: int
+    home_score: int
+    away_score: int
+
+
+@app.post("/api/manual-settle")
+def manual_settle(req: ManualSettleRequest):
+    import settlement as stl
+    bet = db.get_bet_by_id(req.bet_id)
+    if not bet:
+        raise HTTPException(status_code=404, detail="Bet not found")
+    if bet.get("settled"):
+        raise HTTPException(status_code=400, detail="Bet already settled")
+
+    # Reuse settlement logic to compute profit/won
+    home_goals = req.home_score
+    away_goals = req.away_score
+    total = home_goals + away_goals
+    margin = home_goals - away_goals
+    won = False
+    profit = -1.0
+
+    if bet["market"] == "1x2":
+        if "Home" in bet["pick"]:
+            won = margin > 0
+        elif "Draw" in bet["pick"]:
+            won = margin == 0
+        elif "Away" in bet["pick"]:
+            won = margin < 0
+    elif bet["market"] == "ou":
+        line = float(bet["pick"].split()[1])
+        side = "over" if "Over" in bet["pick"] else "under"
+        profit = stl.total_payout(line, side, bet["odds"], total) - 1.0
+        won = True if profit > 0 else (False if profit < 0 else None)
+    elif bet["market"] == "btts":
+        both_scored = home_goals >= 1 and away_goals >= 1
+        won = both_scored if "Yes" in bet["pick"] else not both_scored
+    elif bet["market"] == "ah":
+        from model import ah_payout, ah_payout_away
+        line = float(bet["pick"].split()[1])
+        payout = (ah_payout(line, bet["odds"], margin)
+                  if "Home" in bet["pick"]
+                  else ah_payout_away(line, bet["odds"], margin))
+        profit = payout - 1.0
+        won = True if profit > 0 else (False if profit < 0 else None)
+
+    if bet["market"] not in ("ah", "ou"):
+        profit = (bet["odds"] - 1.0) if won else -1.0
+
+    db.settle_bet(
+        req.bet_id,
+        won,
+        profit,
+        home_score=home_goals,
+        away_score=away_goals,
+        score_status="manual",
+    )
+    return {"status": "settled", "bet_id": req.bet_id, "won": won, "profit": round(profit, 3)}
 
 
 def _run_settle_job():

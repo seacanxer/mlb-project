@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stuck Bets — Lewat Estimasi Selesai</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    .stuck-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .stuck-header h1 { font-size: 1.75rem; font-weight: 800; margin: 0; }
+    .stuck-header .badge { background: #f59e0b; color: #000; padding: 0.25rem 0.75rem; border-radius: 9999px; font-weight: 700; font-size: 0.85rem; }
+    .stuck-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    .stuck-table th { background: #0a1628; text-align: left; padding: 0.75rem 1rem; color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); }
+    .stuck-table td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .stuck-table tr:hover { background: rgba(255,255,255,0.02); }
+    .stuck-table .elapsed { font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+    .elapsed-warning { color: #f59e0b; }
+    .elapsed-danger { color: #ef4444; }
+    .btn-sm { padding: 0.3rem 0.7rem; font-size: 0.8rem; border-radius: 6px; border: none; cursor: pointer; background: var(--surface); color: #fff; border: 1px solid var(--border); }
+    .btn-sm:hover { background: var(--border); }
+    .btn-sm.primary { background: #2563eb; border-color: #2563eb; }
+    .btn-sm.primary:hover { background: #1d4ed8; }
+    .text-muted { color: var(--muted); }
+    .empty-state { text-align: center; padding: 3rem; color: var(--muted); }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 0.5rem; }
+    .last-refresh { font-size: 0.8rem; color: var(--muted); margin-top: 1rem; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-box {
+      background: #0a1628;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 420px;
+      width: 90%;
+    }
+    .modal-box h3 { margin-top: 0; }
+    .modal-box label { display: block; margin: 0.75rem 0 0.25rem; font-weight: 600; }
+    .modal-box input { width: 100%; padding: 0.5rem; background: #070d18; border: 1px solid var(--border); color: #fff; border-radius: 6px; }
+    .modal-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; justify-content: flex-end; }
+    .modal-actions .btn { padding: 0.5rem 1.25rem; }
+    .modal-actions .btn-secondary { background: transparent; border: 1px solid var(--border); }
+    .modal-actions .btn-secondary:hover { background: var(--border); }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-icon">⏳</div>
+        <div class="brand-text">
+          <div class="brand-title">STUCK BETS</div>
+          <div class="brand-subtitle">Lewat estimasi selesai · settlement pending</div>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button id="btn-refresh" class="btn btn-primary">🔄 Refresh</button>
+        <a href="/" class="btn btn-secondary" style="margin-left: 0.5rem;">← Back to Main</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="stuck-header">
+      <div>
+        <h1>⏳ Stuck Bets</h1>
+        <p class="text-muted">Bets that have passed 105 minutes since kickoff but are still unsettled.</p>
+      </div>
+      <span class="badge" id="count-badge">0</span>
+    </div>
+
+    <div class="card" style="overflow-x: auto;">
+      <table class="stuck-table" id="stuck-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Match</th>
+            <th>League</th>
+            <th>Kickoff (Local)</th>
+            <th>Elapsed</th>
+            <th>Market</th>
+            <th>Pick</th>
+            <th>Odds</th>
+            <th>EV</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="stuck-tbody">
+          <tr><td colspan="10" class="text-center text-muted">Loading...</td></tr>
+        </tbody>
+      </table>
+      <div id="stuck-empty" class="empty-state hidden">
+        <div class="icon">✅</div>
+        <h3>Tidak ada bet stuck</h3>
+        <p>Semua bet sudah settle atau belum melewati 105 menit.</p>
+      </div>
+    </div>
+
+    <div class="last-refresh" id="last-refresh">Last refreshed: —</div>
+  </main>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="settle-modal">
+    <div class="modal-box">
+      <h3>✅ Manual Settle</h3>
+      <p id="modal-match" style="color: var(--muted); margin-bottom: 1rem;">Match: —</p>
+      <label>Home Score</label>
+      <input type="number" id="input-home" min="0" step="1" value="0">
+      <label>Away Score</label>
+      <input type="number" id="input-away" min="0" step="1" value="0">
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="modal-cancel">Cancel</button>
+        <button class="btn btn-primary" id="modal-confirm">✅ Settle</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = '/api/stuck-bets';
+    const SETTLE_URL = '/api/manual-settle';
+    const tbody = document.getElementById('stuck-tbody');
+    const emptyEl = document.getElementById('stuck-empty');
+    const countBadge = document.getElementById('count-badge');
+    const lastRefresh = document.getElementById('last-refresh');
+
+    // Modal elements
+    const modal = document.getElementById('settle-modal');
+    const modalMatch = document.getElementById('modal-match');
+    const inputHome = document.getElementById('input-home');
+    const inputAway = document.getElementById('input-away');
+    const modalCancel = document.getElementById('modal-cancel');
+    const modalConfirm = document.getElementById('modal-confirm');
+    let pendingBetId = null;
+
+    function formatElapsed(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const hrs = Math.floor(mins / 60);
+      const remMins = mins % 60;
+      if (hrs > 0) return `${hrs}h ${remMins}m`;
+      return `${mins}m`;
+    }
+
+    function formatDate(ts) {
+      if (!ts) return '—';
+      const d = new Date(ts * 1000);
+      return d.toLocaleString('en-US', { timeZone: 'Asia/Jakarta', hour12: false });
+    }
+
+    function render(bets) {
+      if (!bets || bets.length === 0) {
+        tbody.innerHTML = '';
+        emptyEl.classList.remove('hidden');
+        countBadge.textContent = '0';
+        return;
+      }
+      emptyEl.classList.add('hidden');
+      countBadge.textContent = bets.length;
+      const now = Date.now() / 1000;
+      let html = '';
+      for (const b of bets) {
+        const elapsed = now - (b.start_ts || 0);
+        const elapsedStr = formatElapsed(elapsed);
+        const elapsedClass = elapsed > 7200 ? 'elapsed-danger' : (elapsed > 6300 ? 'elapsed-warning' : '');
+        const kickoff = b.start_ts ? formatDate(b.start_ts) : '—';
+        html += `<tr>
+          <td><code>${b.id}</code></td>
+          <td><strong>${b.home} vs ${b.away}</strong></td>
+          <td>${b.league || '—'}</td>
+          <td>${kickoff}</td>
+          <td class="elapsed ${elapsedClass}">${elapsedStr}</td>
+          <td>${b.market || '—'}</td>
+          <td>${b.pick || '—'}</td>
+          <td>${b.odds || '—'}</td>
+          <td>${b.ev ? (b.ev * 100).toFixed(1) + '%' : '—'}</td>
+          <td>
+            <button class="btn-sm primary" data-id="${b.id}" onclick="openModal(${b.id}, '${b.home} vs ${b.away}')">✅ Settle</button>
+          </td>
+        </tr>`;
+      }
+      tbody.innerHTML = html;
+    }
+
+    function openModal(id, match) {
+      pendingBetId = id;
+      modalMatch.textContent = 'Match: ' + match;
+      inputHome.value = 0;
+      inputAway.value = 0;
+      modal.classList.add('active');
+    }
+
+    function closeModal() {
+      modal.classList.remove('active');
+      pendingBetId = null;
+    }
+
+    async function confirmSettle() {
+      if (!pendingBetId) return;
+      const home = parseInt(inputHome.value, 10) || 0;
+      const away = parseInt(inputAway.value, 10) || 0;
+      try {
+        const res = await fetch(SETTLE_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bet_id: pendingBetId, home_score: home, away_score: away })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          alert('Error: ' + (data.detail || data.message || 'Unknown error'));
+          return;
+        }
+        alert(`Bet ${pendingBetId} settled: ${home}-${away} | ${data.won ? 'WIN' : 'LOSS'} | Profit: ${data.profit.toFixed(2)}u`);
+        closeModal();
+        fetchStuck();
+      } catch (e) {
+        alert('Failed to settle: ' + e.message);
+      }
+    }
+
+    modalCancel.addEventListener('click', closeModal);
+    modalConfirm.addEventListener('click', confirmSettle);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+    async function fetchStuck() {
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        render(data.bets);
+        lastRefresh.textContent = `Last refreshed: ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Jakarta', hour12: false })}`;
+      } catch (e) {
+        console.error(e);
+        tbody.innerHTML = '<tr><td colspan="10" class="text-center text-muted">Error loading data</td></tr>';
+      }
+    }
+
+    document.getElementById('btn-refresh').addEventListener('click', fetchStuck);
+    fetchStuck();
+    setInterval(fetchStuck, 60000);
+  </script>
+</body>
+</html>

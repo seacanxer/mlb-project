@@ -23,7 +23,7 @@ def run_worker_loop(interval_minutes: int = 15, once: bool = False):
         try:
             st = settlement.settle_all()
             if st.get("result_count") == 0:
-                print(f"[{now_str}] ⚠️ Settlement skipped: results feed returned 0 matches — flashscore.mobi unreachable/blocked from this host", flush=True)
+                print(f"[{now_str}] ⚠️ Settlement skipped: FlashScore results feed returned 0 matches — flashscore.mobi unreachable/blocked from this host", flush=True)
             elif st.get("settled_now") or st.get("matched_results"):
                 print(f"[{now_str}] ✅ Settlement: {st}", flush=True)
             else:

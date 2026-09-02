@@ -303,7 +303,7 @@ function renderTracker() {
     rows = rows.filter(b => (b.market || '').toLowerCase() === marketFilter.toLowerCase());
   }
   if (statusFilter === 'locked') {
-    rows = rows.filter(b => !b.settled);
+    rows = rows.filter(b => !b.settled && (b.timing_status === 'not_started' || b.timing_status === 'awaiting_final'));
   } else if (statusFilter === 'settled') {
     rows = rows.filter(b => b.settled);
   }
