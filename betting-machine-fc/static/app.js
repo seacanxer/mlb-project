@@ -408,11 +408,30 @@ function setTrackerView(view) {
 }
 
 function initTrackerFilters() {
-  document.querySelectorAll('.tracker-status-view').forEach((button) => {
-    button.addEventListener('click', () => setTrackerView(button.dataset.trackerView || 'all'));
+  console.log('initTrackerFilters called');
+  const btns = document.querySelectorAll('.tracker-status-view');
+  console.log('Found tracker buttons:', btns.length);
+  btns.forEach((button) => {
+    button.addEventListener('click', (e) => {
+      console.log('Tracker view clicked:', button.dataset.trackerView);
+      e.preventDefault();
+      setTrackerView(button.dataset.trackerView || 'all');
+    });
   });
-  document.getElementById('tracker-view-markets')?.addEventListener('click', () => setTrackerView('markets'));
-  document.getElementById('tracker-filter-market')?.addEventListener('change', renderTracker);
+  const marketsBtn = document.getElementById('tracker-view-markets');
+  if (marketsBtn) {
+    marketsBtn.addEventListener('click', (e) => {
+      console.log('Markets view clicked');
+      e.preventDefault();
+      setTrackerView('markets');
+    });
+  } else {
+    console.warn('tracker-view-markets not found');
+  }
+  document.getElementById('tracker-filter-market')?.addEventListener('change', () => {
+    console.log('Market filter changed');
+    renderTracker();
+  });
   document.getElementById('tracker-sort')?.addEventListener('change', () => {
     const ind = document.getElementById('market-sort-indicator');
     if (ind) ind.textContent = '';
@@ -425,6 +444,7 @@ function initTrackerFilters() {
     if (ind) ind.textContent = marketSortDir === 'asc' ? '▲' : '▼';
     renderTracker();
   });
+  console.log('initTrackerFilters done');
 }
 
 let isSettling = false;
