@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
+from typing import List, Optional
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE_DIR)
@@ -563,6 +564,24 @@ def manual_settle(req: ManualSettleRequest):
         score_status="manual",
     )
     return {"status": "settled", "bet_id": req.bet_id, "won": won, "profit": round(profit, 3)}
+
+
+class DeleteStuckRequest(BaseModel):
+    bet_ids: Optional[List[int]] = None
+    start_date: Optional[str] = None
+    end_date: Optional[str] = None
+
+
+@app.post("/api/stuck/delete")
+def delete_stuck_bets(req: DeleteStuckRequest):
+    if req.bet_ids:
+        deleted = db.delete_bets(req.bet_ids)
+        return {"deleted": deleted, "message": f"Deleted {deleted} bets by ID."}
+    elif req.start_date or req.end_date:
+        deleted = db.delete_bets_by_date_range(req.start_date, req.end_date)
+        return {"deleted": deleted, "message": f"Deleted {deleted} bets in date range."}
+    else:
+        raise HTTPException(status_code=400, detail="Provide bet_ids or date range.")
 
 
 def _run_settle_job():

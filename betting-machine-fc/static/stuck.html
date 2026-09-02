@@ -23,11 +23,17 @@
     .btn-sm:hover { background: var(--border); }
     .btn-sm.primary { background: #2563eb; border-color: #2563eb; }
     .btn-sm.primary:hover { background: #1d4ed8; }
+    .btn-sm.danger { background: #dc2626; border-color: #dc2626; }
+    .btn-sm.danger:hover { background: #b91c1c; }
     .text-muted { color: var(--muted); }
     .empty-state { text-align: center; padding: 3rem; color: var(--muted); }
     .empty-state .icon { font-size: 3rem; margin-bottom: 0.5rem; }
     .last-refresh { font-size: 0.8rem; color: var(--muted); margin-top: 1rem; }
-
+    .delete-bar { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin-bottom: 1rem; padding: 0.75rem 1rem; background: var(--bg-card); border-radius: var(--radius-md); border: 1px solid var(--border); }
+    .delete-bar input[type="date"] { background: rgba(15,23,42,0.8); border: 1px solid var(--border); color: #fff; padding: 0.4rem 0.6rem; border-radius: 4px; }
+    .delete-bar .btn { padding: 0.4rem 1rem; font-size: 0.85rem; }
+    .checkbox-col { width: 30px; text-align: center; }
+    .checkbox-col input[type="checkbox"] { transform: scale(1.2); accent-color: var(--emerald); }
     /* Modal */
     .modal-overlay {
       position: fixed;
@@ -82,10 +88,26 @@
       <span class="badge" id="count-badge">0</span>
     </div>
 
+    <!-- Delete Controls -->
+    <div class="delete-bar">
+      <div style="display:flex; align-items:center; gap:0.5rem;">
+        <button id="btn-delete-selected" class="btn btn-sm danger">🗑️ Hapus Terpilih</button>
+        <span style="font-size:0.8rem; color:var(--muted);">(centang bet)</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:0.5rem; margin-left:auto;">
+        <label style="font-size:0.8rem; color:var(--muted);">Dari:</label>
+        <input type="date" id="delete-start-date">
+        <label style="font-size:0.8rem; color:var(--muted);">Sampai:</label>
+        <input type="date" id="delete-end-date">
+        <button id="btn-delete-range" class="btn btn-sm danger">🗑️ Hapus Rentang</button>
+      </div>
+    </div>
+
     <div class="card" style="overflow-x: auto;">
       <table class="stuck-table" id="stuck-table">
         <thead>
           <tr>
+            <th class="checkbox-col"><input type="checkbox" id="select-all"></th>
             <th>ID</th>
             <th>Match</th>
             <th>League</th>
@@ -99,7 +121,7 @@
           </tr>
         </thead>
         <tbody id="stuck-tbody">
-          <tr><td colspan="10" class="text-center text-muted">Loading...</td></tr>
+          <tr><td colspan="11" class="text-center text-muted">Loading...</td></tr>
         </tbody>
       </table>
       <div id="stuck-empty" class="empty-state hidden">
@@ -131,10 +153,12 @@
   <script>
     const API_URL = '/api/stuck-bets';
     const SETTLE_URL = '/api/manual-settle';
+    const DELETE_URL = '/api/stuck/delete';
     const tbody = document.getElementById('stuck-tbody');
     const emptyEl = document.getElementById('stuck-empty');
     const countBadge = document.getElementById('count-badge');
     const lastRefresh = document.getElementById('last-refresh');
+    const selectAllCheckbox = document.getElementById('select-all');
 
     // Modal elements
     const modal = document.getElementById('settle-modal');
@@ -164,6 +188,7 @@
         tbody.innerHTML = '';
         emptyEl.classList.remove('hidden');
         countBadge.textContent = '0';
+        selectAllCheckbox.checked = false;
         return;
       }
       emptyEl.classList.add('hidden');
@@ -176,6 +201,7 @@
         const elapsedClass = elapsed > 7200 ? 'elapsed-danger' : (elapsed > 6300 ? 'elapsed-warning' : '');
         const kickoff = b.start_ts ? formatDate(b.start_ts) : '—';
         html += `<tr>
+          <td class="checkbox-col"><input type="checkbox" class="bet-checkbox" data-id="${b.id}"></td>
           <td><code>${b.id}</code></td>
           <td><strong>${b.home} vs ${b.away}</strong></td>
           <td>${b.league || '—'}</td>
@@ -191,6 +217,17 @@
         </tr>`;
       }
       tbody.innerHTML = html;
+
+      // Re-bind select all state
+      const checkboxes = document.querySelectorAll('.bet-checkbox');
+      selectAllCheckbox.checked = checkboxes.length > 0 && Array.from(checkboxes).every(cb => cb.checked);
+      // Bind individual checkbox change to update select-all state
+      checkboxes.forEach(cb => {
+        cb.addEventListener('change', () => {
+          const all = document.querySelectorAll('.bet-checkbox');
+          selectAllCheckbox.checked = all.length > 0 && Array.from(all).every(c => c.checked);
+        });
+      });
     }
 
     function openModal(id, match) {
@@ -233,6 +270,65 @@
     modalConfirm.addEventListener('click', confirmSettle);
     modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
 
+    async function deleteSelected() {
+      const checkboxes = document.querySelectorAll('.bet-checkbox:checked');
+      if (checkboxes.length === 0) {
+        alert('Tidak ada bet yang dipilih.');
+        return;
+      }
+      const ids = Array.from(checkboxes).map(cb => parseInt(cb.dataset.id, 10));
+      if (!confirm(`Hapus ${ids.length} bet yang dipilih?`)) return;
+      try {
+        const res = await fetch(DELETE_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bet_ids: ids })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          alert('Error: ' + (data.detail || data.message || 'Unknown error'));
+          return;
+        }
+        alert(`Berhasil menghapus ${data.deleted} bet.`);
+        fetchStuck();
+      } catch (e) {
+        alert('Gagal menghapus: ' + e.message);
+      }
+    }
+
+    async function deleteByDateRange() {
+      const startDate = document.getElementById('delete-start-date').value;
+      const endDate = document.getElementById('delete-end-date').value;
+      if (!startDate && !endDate) {
+        alert('Isi minimal satu tanggal (Dari atau Sampai).');
+        return;
+      }
+      if (!confirm(`Hapus semua bet stuck dari tanggal ${startDate || 'awal'} sampai ${endDate || 'sekarang'}?`)) return;
+      try {
+        const res = await fetch(DELETE_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ start_date: startDate, end_date: endDate })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          alert('Error: ' + (data.detail || data.message || 'Unknown error'));
+          return;
+        }
+        alert(`Berhasil menghapus ${data.deleted} bet dalam rentang.`);
+        fetchStuck();
+      } catch (e) {
+        alert('Gagal menghapus: ' + e.message);
+      }
+    }
+
+    document.getElementById('btn-delete-selected').addEventListener('click', deleteSelected);
+    document.getElementById('btn-delete-range').addEventListener('click', deleteByDateRange);
+
+    selectAllCheckbox.addEventListener('change', function() {
+      document.querySelectorAll('.bet-checkbox').forEach(cb => cb.checked = this.checked);
+    });
+
     async function fetchStuck() {
       try {
         const res = await fetch(API_URL);
@@ -241,7 +337,7 @@
         lastRefresh.textContent = `Last refreshed: ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Jakarta', hour12: false })}`;
       } catch (e) {
         console.error(e);
-        tbody.innerHTML = '<tr><td colspan="10" class="text-center text-muted">Error loading data</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="11" class="text-center text-muted">Error loading data</td></tr>';
       }
     }
 

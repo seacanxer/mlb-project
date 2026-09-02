@@ -305,3 +305,40 @@ def get_bet_by_id(bet_id):
         return None
     keys = ['id','match','home','away','league','start_ts','market','pick','odds','ev','probability','placed_at','settled','won','profit','settled_at','source_match_id','home_score','away_score','score_status','score_updated_at']
     return dict(zip(keys, tuple(row)))
+
+def delete_bets(bet_ids):
+    if not bet_ids:
+        return 0
+    conn = _connect()
+    c = conn.cursor()
+    placeholders = ','.join('?' * len(bet_ids))
+    c.execute(f'DELETE FROM bets WHERE id IN ({placeholders})', bet_ids)
+    deleted = c.rowcount
+    conn.commit()
+    conn.close()
+    return deleted
+
+def delete_bets_by_date_range(start_date, end_date):
+    import time
+    from datetime import datetime, timezone, timedelta
+    if not start_date and not end_date:
+        return 0
+    conn = _connect()
+    c = conn.cursor()
+    conditions = []
+    params = []
+    if start_date:
+        start_ts = int(datetime.strptime(start_date, '%Y-%m-%d').replace(tzinfo=timezone.utc).timestamp())
+        conditions.append('start_ts >= ?')
+        params.append(start_ts)
+    if end_date:
+        end_dt = datetime.strptime(end_date, '%Y-%m-%d').replace(tzinfo=timezone.utc)
+        end_ts = int((end_dt + timedelta(days=1)).timestamp()) - 1
+        conditions.append('start_ts <= ?')
+        params.append(end_ts)
+    where = ' AND '.join(conditions)
+    c.execute(f'DELETE FROM bets WHERE settled=0 AND {where}', params)
+    deleted = c.rowcount
+    conn.commit()
+    conn.close()
+    return deleted
