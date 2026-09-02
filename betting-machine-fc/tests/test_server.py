@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from server import app
+from server import app, classify_settlement_status
 
 client = TestClient(app)
 
@@ -44,8 +44,22 @@ def test_tracker_endpoint():
     assert "duplicates_hidden" in data["summary"]
     assert "market_performance" in data
     assert "last_successful_scan_time" in data
-    assert all("timing_status" in bet for bet in data["locked"] + data["settled"])
-    assert all("home_score" in bet and "away_score" in bet for bet in data["locked"] + data["settled"])
+    buckets = ["locked", "live", "overdue", "settled"]
+    assert set(data["status_counts"]) == set(buckets)
+    all_bets = [bet for status in buckets for bet in data[status]]
+    assert all(bet["settlement_status"] in buckets for bet in all_bets)
+    assert all("timing_status" in bet for bet in all_bets)
+    assert all("home_score" in bet and "away_score" in bet for bet in all_bets)
+    assert data["summary"]["pending_picks"] == sum(data["status_counts"][status] for status in ("locked", "live", "overdue"))
+
+
+def test_settlement_status_buckets_follow_kickoff_clock():
+    now = 1_000_000
+    assert classify_settlement_status({"settled": 1, "start_ts": now - 10_000}, now) == "settled"
+    assert classify_settlement_status({"settled": 0, "start_ts": now + 60}, now) == "locked"
+    assert classify_settlement_status({"settled": 0, "start_ts": now - 60}, now) == "live"
+    assert classify_settlement_status({"settled": 0, "start_ts": now - 6_301}, now) == "overdue"
+    assert classify_settlement_status({"settled": 0, "start_ts": None}, now) == "locked"
 
 
 def test_picks_odds_floor_enforcement():

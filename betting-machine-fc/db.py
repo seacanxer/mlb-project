@@ -284,9 +284,10 @@ def get_stuck_bets():
     now = time.time()
     cutoff = now - 6300
     c = conn.cursor()
-    c.execute('''
-        SELECT * FROM bets
-        WHERE settled=0 AND start_ts IS NOT NULL AND start_ts < ?
+    c.execute(_CANONICAL_BETS_CTE + '''
+        SELECT * FROM ranked_bets
+        WHERE duplicate_rank=1 AND settled=0
+          AND start_ts IS NOT NULL AND start_ts < ?
         ORDER BY start_ts ASC
     ''', (cutoff,))
     rows = c.fetchall()

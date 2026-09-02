@@ -91,3 +91,20 @@ def test_settlement_persists_final_score(tmp_path, monkeypatch):
     assert (row["home_score"], row["away_score"]) == (3, 1)
     assert row["score_status"] == "final"
     assert row["score_updated_at"] is not None
+
+
+def test_overdue_query_hides_historical_duplicates(tmp_path, monkeypatch):
+    monkeypatch.setattr(db, "DB_PATH", str(tmp_path / "bets.db"))
+    db.init_db()
+    conn = db._connect()
+    for offset in range(3):
+        _insert_raw(
+            conn, match="Old Home vs Old Away", start_ts=100 + offset,
+            market="ou", pick="Under 2.5", settled=0, won=None, profit=None,
+        )
+    conn.commit()
+    conn.close()
+
+    overdue = db.get_stuck_bets()
+    assert len(overdue) == 1
+    assert overdue[0]["match"] == "Old Home vs Old Away"

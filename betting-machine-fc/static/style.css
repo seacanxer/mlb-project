@@ -853,6 +853,17 @@ canvas {
   gap: 8px;
   margin: 18px 0;
 }
+.tracker-status-view span {
+  display: inline-block;
+  min-width: 1.35rem;
+  margin-left: 0.3rem;
+  padding: 0.05rem 0.35rem;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.14);
+  font-size: 0.7rem;
+  text-align: center;
+}
+.tracker-status-view.active span { background: rgba(255, 255, 255, 0.18); }
 
 .tracker-dedup-note {
   margin-left: auto;

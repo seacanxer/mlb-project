@@ -423,29 +423,48 @@ def get_matches(limit: int = Query(50, ge=1, le=200), offset: int = Query(0, ge=
     return {"count": total, "matches": matches[offset: offset + limit], "pagination": {"limit": limit, "offset": offset, "total": total}}
 
 
+def classify_settlement_status(bet, now=None):
+    """Return the live tracker bucket without persisting time-sensitive state."""
+    current_time = time.time() if now is None else now
+    kickoff = float(bet.get("start_ts") or 0)
+    if bet.get("settled"):
+        return "settled"
+    if not kickoff or current_time < kickoff:
+        return "locked"
+    if current_time < kickoff + 6300:  # 105-minute final-score buffer
+        return "live"
+    return "overdue"
+
+
+def tracker_item(bet, now=None):
+    item = dict(bet)
+    item["settlement_status"] = classify_settlement_status(item, now)
+    # Compatibility for older clients while settlement_status becomes canonical.
+    item["timing_status"] = item["settlement_status"]
+    return item
+
+
 @app.get("/api/tracker")
 def get_tracker():
     now = time.time()
-
-    def timing(bet):
-        item = dict(bet)
-        kickoff = float(item.get("start_ts") or 0)
-        if item.get("settled"):
-            item["timing_status"] = "settled"
-        elif not kickoff:
-            item["timing_status"] = "unknown"
-        elif now < kickoff:
-            item["timing_status"] = "not_started"
-        elif now < kickoff + 6300:  # 105 min buffer — same as stuck definition
-            item["timing_status"] = "awaiting_final"
-        else:
-            item["timing_status"] = "settlement_overdue"
-        return item
+    unsettled = [tracker_item(bet, now) for bet in db.get_unsettled()]
+    settled = [tracker_item(bet, now) for bet in db.get_settled()]
+    buckets = {
+        "locked": [bet for bet in unsettled if bet["settlement_status"] == "locked"],
+        "live": [bet for bet in unsettled if bet["settlement_status"] == "live"],
+        "overdue": [bet for bet in unsettled if bet["settlement_status"] == "overdue"],
+        "settled": settled,
+    }
+    summary = db.get_roi()
+    summary["pending_picks"] = summary["locked_picks"]
+    summary["locked_picks"] = len(buckets["locked"])
+    summary["live_picks"] = len(buckets["live"])
+    summary["overdue_picks"] = len(buckets["overdue"])
 
     return {
-        "summary": db.get_roi(),
-        "locked": [timing(bet) for bet in db.get_unsettled()],
-        "settled": [timing(bet) for bet in db.get_settled()],
+        "summary": summary,
+        **buckets,
+        "status_counts": {status: len(rows) for status, rows in buckets.items()},
         "market_performance": db.get_market_performance(),
         "unit_size": 1.0,
         "last_successful_scan_time": scan_state.get("last_scan_time"),

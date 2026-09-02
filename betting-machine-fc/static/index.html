@@ -152,21 +152,27 @@
         </div>
         <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
   <button id="btn-settle-tracker" class="btn btn-primary">✅ Refresh Settlement</button>
-  <a href="/stuck" target="_blank" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.4rem 1rem;">⏳ Stuck Bets (Overdue)</a>
 </div>
       </div>
       <div class="kpi-grid">
         <div class="kpi-card"><div class="kpi-label">Locked</div><div class="kpi-val" id="tracker-locked">0</div></div>
+        <div class="kpi-card"><div class="kpi-label">Live</div><div class="kpi-val text-cyan" id="tracker-live">0</div></div>
+        <div class="kpi-card"><div class="kpi-label">Overdue</div><div class="kpi-val text-rose" id="tracker-overdue">0</div></div>
         <div class="kpi-card"><div class="kpi-label">Record</div><div class="kpi-val" id="tracker-record">0–0</div><div class="kpi-sub" id="tracker-pushes">0 pushes</div></div>
         <div class="kpi-card"><div class="kpi-label">Profit</div><div class="kpi-val" id="tracker-profit">0.00u</div></div>
         <div class="kpi-card"><div class="kpi-label">ROI</div><div class="kpi-val" id="tracker-roi">0.0%</div></div>
       </div>
       <div class="tracker-subnav" role="tablist" aria-label="ROI Tracker views">
-        <button id="tracker-view-picks" class="pill active" type="button" role="tab" aria-selected="true">Daftar Pick</button>
+        <button class="pill tracker-status-view active" data-tracker-view="all" type="button" role="tab" aria-selected="true">All <span id="tracker-count-all">0</span></button>
+        <button class="pill tracker-status-view" data-tracker-view="locked" type="button" role="tab" aria-selected="false">🔒 Locked <span id="tracker-count-locked">0</span></button>
+        <button class="pill tracker-status-view" data-tracker-view="live" type="button" role="tab" aria-selected="false">🔴 Live <span id="tracker-count-live">0</span></button>
+        <button class="pill tracker-status-view" data-tracker-view="overdue" type="button" role="tab" aria-selected="false">⏳ Overdue <span id="tracker-count-overdue">0</span></button>
+        <button class="pill tracker-status-view" data-tracker-view="settled" type="button" role="tab" aria-selected="false">✅ Settled <span id="tracker-count-settled">0</span></button>
         <button id="tracker-view-markets" class="pill" type="button" role="tab" aria-selected="false">Performa per Market</button>
         <span id="tracker-dedup-note" class="tracker-dedup-note"></span>
       </div>
       <div id="tracker-picks-panel">
+      <h3 id="tracker-view-title" style="margin: 0.75rem 0;">All Settlement Statuses</h3>
       <div class="filter-row">
         <div class="filter-group">
           <label for="tracker-filter-market">Market Category</label>
@@ -176,14 +182,6 @@
             <option value="ah">Asian Handicap</option>
             <option value="ou">Over / Under</option>
             <option value="btts">BTTS</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label for="tracker-filter-status">Status</label>
-          <select id="tracker-filter-status" class="form-select">
-            <option value="all">All</option>
-            <option value="locked">🔒 Locked</option>
-            <option value="settled">Settled</option>
           </select>
         </div>
         <div class="filter-group">

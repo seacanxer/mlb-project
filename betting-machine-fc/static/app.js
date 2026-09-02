@@ -267,6 +267,8 @@ async function loadTracker() {
     roiEl.textContent = `${roi >= 0 ? '+' : ''}${roi.toFixed(1)}%`;
     roiEl.className = `kpi-val ${roi >= 0 ? 'text-emerald' : 'text-rose'}`;
     document.getElementById('tracker-locked').textContent = s.locked_picks ?? 0;
+    document.getElementById('tracker-live').textContent = s.live_picks ?? 0;
+    document.getElementById('tracker-overdue').textContent = s.overdue_picks ?? 0;
     document.getElementById('tracker-record').textContent = `${s.wins || 0}–${s.losses || 0}`;
     document.getElementById('tracker-pushes').textContent = `${s.pushes || 0} pushes`;
     document.getElementById('tracker-profit').textContent = `${(s.profit_units || 0).toFixed(2)}u`;
@@ -281,6 +283,15 @@ async function loadTracker() {
       trackerLastScan.textContent = `Terakhir scan data berhasil: ${formatWibTimestamp(data.last_successful_scan_time)}`;
     }
 
+    const counts = data.status_counts || {};
+    const totalStatuses = ['locked', 'live', 'overdue', 'settled']
+      .reduce((sum, status) => sum + Number(counts[status] || 0), 0);
+    document.getElementById('tracker-count-all').textContent = totalStatuses;
+    ['locked', 'live', 'overdue', 'settled'].forEach((status) => {
+      const el = document.getElementById(`tracker-count-${status}`);
+      if (el) el.textContent = Number(counts[status] || 0);
+    });
+
     trackerData = data;
     renderTracker();
     renderMarketPerformance();
@@ -290,24 +301,21 @@ async function loadTracker() {
 }
 
 let marketSortDir = 'asc';
-let trackerData = { locked: [], settled: [] };
+let trackerData = { locked: [], live: [], overdue: [], settled: [] };
+let trackerStatusView = 'all';
 
 function renderTracker() {
   const marketFilter = document.getElementById('tracker-filter-market')?.value || 'all';
-  const statusFilter = document.getElementById('tracker-filter-status')?.value || 'all';
   const sortVal = document.getElementById('tracker-sort')?.value || 'date_desc';
 
-  let rows = [...(trackerData.locked || []), ...(trackerData.settled || [])];
+  const statuses = ['locked', 'live', 'overdue', 'settled'];
+  let rows = trackerStatusView === 'all'
+    ? statuses.flatMap(status => trackerData[status] || [])
+    : [...(trackerData[trackerStatusView] || [])];
 
   if (marketFilter !== 'all') {
     rows = rows.filter(b => (b.market || '').toLowerCase() === marketFilter.toLowerCase());
   }
-  if (statusFilter === 'locked') {
-    rows = rows.filter(b => !b.settled && (b.timing_status === 'not_started' || b.timing_status === 'awaiting_final'));
-  } else if (statusFilter === 'settled') {
-    rows = rows.filter(b => b.settled);
-  }
-
   const marketRank = { '1x2': 0, 'ah': 1, 'ou': 2, 'btts': 3, '': 9 };
   const dir = marketSortDir === 'asc' ? 1 : -1;
   switch (sortVal) {
@@ -340,12 +348,12 @@ function renderTracker() {
       ? kickoff.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' })
       : 'Jam tidak tersedia';
     const pendingLabels = {
-      not_started: ['Belum mulai', 'status-upcoming'],
-      awaiting_final: ['Berlangsung / menunggu final', 'status-awaiting'],
-      settlement_overdue: ['Lewat estimasi selesai · settlement pending', 'status-overdue'],
-      unknown: ['Waktu tidak diketahui', 'status-unknown'],
+      locked: ['Locked · belum mulai', 'status-upcoming'],
+      live: ['Live / menunggu final', 'status-awaiting'],
+      overdue: ['Overdue · settlement pending', 'status-overdue'],
     };
-    const pending = pendingLabels[b.timing_status] || ['Settlement pending', 'status-awaiting'];
+    const status = b.settlement_status || b.timing_status || (b.settled ? 'settled' : 'locked');
+    const pending = pendingLabels[status] || ['Settlement pending', 'status-awaiting'];
     const result = b.settled
       ? (b.won === 1 ? 'Won' : b.won === 0 ? 'Lost' : 'Push')
       : pending[0];
@@ -356,8 +364,9 @@ function renderTracker() {
       ? `<strong>${Number(b.home_score)}–${Number(b.away_score)}</strong>${scoreLabel ? `<div class="score-status">${scoreLabel}</div>` : ''}`
       : '<span class="text-muted">Belum tersedia</span>';
     const league = (b.league || '-').trim() || '-';
-    return `<tr><td>${b.settled ? 'Settled' : '🔒 Locked'}</td><td><div class="kickoff-date">${dateText}</div><div class="kickoff-time">${timeText}</div></td><td>${b.match || '-'}</td><td><span class="league-badge">${league}</span></td><td>${score}</td><td>${(b.market || '').toUpperCase()}</td><td>${b.pick || '-'}</td><td>${Number(b.odds || 0).toFixed(2)}</td><td><span class="tracker-status ${resultClass}">${result}</span>${b.settled ? ` <span class="tracker-profit-inline">(${Number(b.profit || 0).toFixed(2)}u)</span>` : ''}</td></tr>`;
-  }).join('') : '<tr><td colspan="9" class="text-center text-muted">No locked picks yet. Run a live scan first.</td></tr>';
+    const statusLabels = { locked: '🔒 Locked', live: '🔴 Live', overdue: '⏳ Overdue', settled: '✅ Settled' };
+    return `<tr><td><span class="tracker-status ${resultClass}">${statusLabels[status] || status}</span></td><td><div class="kickoff-date">${dateText}</div><div class="kickoff-time">${timeText}</div></td><td>${b.match || '-'}</td><td><span class="league-badge">${league}</span></td><td>${score}</td><td>${(b.market || '').toUpperCase()}</td><td>${b.pick || '-'}</td><td>${Number(b.odds || 0).toFixed(2)}</td><td><span class="tracker-status ${resultClass}">${result}</span>${b.settled ? ` <span class="tracker-profit-inline">(${Number(b.profit || 0).toFixed(2)}u)</span>` : ''}</td></tr>`;
+  }).join('') : `<tr><td colspan="9" class="text-center text-muted">No ${trackerStatusView === 'all' ? '' : trackerStatusView + ' '}picks found.</td></tr>`;
 }
 
 function renderMarketPerformance() {
@@ -381,21 +390,29 @@ function renderMarketPerformance() {
 
 function setTrackerView(view) {
   const showMarkets = view === 'markets';
+  if (!showMarkets) trackerStatusView = view;
   document.getElementById('tracker-picks-panel')?.classList.toggle('hidden', showMarkets);
   document.getElementById('tracker-markets-panel')?.classList.toggle('hidden', !showMarkets);
-  const picksBtn = document.getElementById('tracker-view-picks');
   const marketsBtn = document.getElementById('tracker-view-markets');
-  picksBtn?.classList.toggle('active', !showMarkets);
   marketsBtn?.classList.toggle('active', showMarkets);
-  picksBtn?.setAttribute('aria-selected', String(!showMarkets));
   marketsBtn?.setAttribute('aria-selected', String(showMarkets));
+  document.querySelectorAll('.tracker-status-view').forEach((button) => {
+    const active = !showMarkets && button.dataset.trackerView === trackerStatusView;
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-selected', String(active));
+  });
+  const titles = { all: 'All Settlement Statuses', locked: 'Locked Picks', live: 'Live Matches', overdue: 'Overdue Settlements', settled: 'Settled Results' };
+  const title = document.getElementById('tracker-view-title');
+  if (title) title.textContent = titles[trackerStatusView] || 'Settlement Tracker';
+  if (!showMarkets) renderTracker();
 }
 
 function initTrackerFilters() {
-  document.getElementById('tracker-view-picks')?.addEventListener('click', () => setTrackerView('picks'));
+  document.querySelectorAll('.tracker-status-view').forEach((button) => {
+    button.addEventListener('click', () => setTrackerView(button.dataset.trackerView || 'all'));
+  });
   document.getElementById('tracker-view-markets')?.addEventListener('click', () => setTrackerView('markets'));
   document.getElementById('tracker-filter-market')?.addEventListener('change', renderTracker);
-  document.getElementById('tracker-filter-status')?.addEventListener('change', renderTracker);
   document.getElementById('tracker-sort')?.addEventListener('change', () => {
     const ind = document.getElementById('market-sort-indicator');
     if (ind) ind.textContent = '';
