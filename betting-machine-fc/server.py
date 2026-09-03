@@ -24,7 +24,6 @@ from model import (
     btts_prob,
     ev,
     fit_total_from_ou,
-    lam_from_odds,
     lam_from_1x2,
     match_probs,
     over_prob,
@@ -185,6 +184,8 @@ def execute_live_scan_sync():
 
         picks = []
         detailed_matches = []
+        from fatigue import load_ledger, save_ledger
+        _ledger = load_ledger()
         for i, m in enumerate(raw_matches):
             try:
                 if cfg.get("data_source") == "flashscore":
@@ -205,6 +206,23 @@ def execute_live_scan_sync():
                     _, fair_over = fit_total_from_ou(oov, oun, 2.5)
                 else:
                     lh, la, fair_1x2, fair_over = 1.5, 1.2, [0.5, 0.3, 0.2], 0.55
+
+                # Independent strength blend (fallback: market-only, no bias)
+                try:
+                    from strength_rating import hybrid_lams
+                    lh, la, lam_src = hybrid_lams(
+                        o.get("home"), o.get("away"), o.get("league"), lh, la,
+                        weight=float(cfg.get("strength_weight", 0.4)))
+                except Exception:
+                    lam_src = "market-only"
+                # Rest-days / congestion fatigue
+                try:
+                    from fatigue import apply_rest_adjustment, record_fixtures
+                    lh, la, _fat = apply_rest_adjustment(
+                        o.get("home"), o.get("away"), o.get("start_ts"), lh, la, _ledger)
+                    record_fixtures(_ledger, [(o.get("home"), o.get("away"), o.get("start_ts"))])
+                except Exception:
+                    pass
 
                 ph, pd, pa = match_probs(lh, la)
                 pbt = btts_prob(lh, la)
@@ -279,6 +297,10 @@ def execute_live_scan_sync():
         cfg["last_successful_scan_count"] = len(detailed_matches)
         cfg["last_successful_scan_picks"] = len(picks)
         save_config(cfg)
+        try:
+            save_ledger(_ledger)
+        except Exception:
+            pass
     except Exception as e:
         scan_state["error"] = str(e)
         scan_state["progress"] = f"Scan failed: {e}"
@@ -628,21 +650,31 @@ def run_backtest(req: BacktestRequest):
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to fetch historical data: {str(e)}")
 
-    normalized_rows = [sh.normalize(r) for r in rows if r.get("Date") and r.get("FTHG") is not None]
+    normalized_rows = sorted(
+        [sh.normalize(r) for r in rows if r.get("Date") and r.get("FTHG") is not None],
+        key=lambda r: (r.get("date") or ""),
+    )
 
     from main import backtest_one
+    from strength_rating import prev_season_code
 
     matches_evaluated = []
     bets_placed = []
     equity_curve = [0.0]
     running_profit = 0.0
+    # OOS discipline: previous-season ratings + chronological ephemeral ledger
+    bt_ledger: Dict[str, list] = {}
+    bt_season = prev_season_code(req.season)
+    bt_weight = float(load_config().get("strength_weight", 0.4))
 
     market_stats: Dict[str, Dict[str, Any]] = {}
 
     for r in normalized_rows:
         if r["fthg"] is None or r["ftag"] is None:
             continue
-        res = backtest_one(r, min_odds=req.min_odds, min_ev=req.min_ev)
+        res = backtest_one(r, min_odds=req.min_odds, min_ev=req.min_ev,
+                           ledger=bt_ledger, league_code=req.league,
+                           rating_season=bt_season, strength_weight=bt_weight)
         matches_evaluated.append(res)
 
         for p in res.get("picks", []):

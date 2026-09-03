@@ -2,6 +2,7 @@ node_modules/
 .next/
 *.db
 *.db-journal
+team_ledger.json
 
 # Python
 __pycache__/

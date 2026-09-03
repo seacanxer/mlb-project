@@ -10,13 +10,14 @@ from model import (
     btts_prob,
     devig,
     ev,
-    lam_from_odds,
     lam_from_1x2,
     match_probs,
     over_prob,
     total_ev,
     under_prob,
 )
+from fatigue import apply_rest_adjustment, record_fixtures
+from strength_rating import hybrid_lams, parse_fd_date
 
 
 def run_pipeline(cfg=None):
@@ -35,10 +36,12 @@ def run_pipeline(cfg=None):
 
     if src == "1xbit":
         import scraper_1xbit as sc
+        from fatigue import load_ledger, save_ledger, apply_rest_adjustment, record_fixtures
 
         matches = sc.list_matches()
         picks = []
         detailed_matches = []
+        _ledger = load_ledger()
         for m in matches:
             try:
                 v = sc.get_match(m["I"])
@@ -50,6 +53,19 @@ def run_pipeline(cfg=None):
                 oun = o["odds_ou"][2.5][10]
                 lh, la, fair_1x2 = lam_from_1x2(o1, od, o2)
                 _, fair_over = fit_total_from_ou(oov, oun, 2.5)
+                try:
+                    from strength_rating import hybrid_lams
+                    lh, la, _src = hybrid_lams(
+                        o.get("home"), o.get("away"), o.get("league"), lh, la,
+                        weight=float(cfg.get("strength_weight", 0.4)))
+                except Exception:
+                    pass
+                try:
+                    lh, la, _f = apply_rest_adjustment(
+                        o.get("home"), o.get("away"), o.get("start_ts"), lh, la, _ledger)
+                    record_fixtures(_ledger, [(o.get("home"), o.get("away"), o.get("start_ts"))])
+                except Exception:
+                    pass
                 m_picks = analyze_match(o, lh, la, min_odds, min_ev, max_ah_line=max_ah_line)
                 picks.extend(m_picks)
                 detailed_matches.append({
@@ -79,19 +95,34 @@ def run_pipeline(cfg=None):
         with open(detailed_path, "w", encoding="utf-8") as f:
             json.dump(detailed_matches, f, ensure_ascii=False, indent=2)
 
+        try:
+            from fatigue import save_ledger
+            save_ledger(_ledger)
+        except Exception:
+            pass
         summarize(picks)
         return picks
     elif src == "historical":
         import scraper_historical as sh
+        from strength_rating import prev_season_code
 
         league = cfg.get("historical", {}).get("league", "E0")
         season = cfg.get("historical", {}).get("season", "2526")
         rows = sh.load_rows(sh.download(league, season))
         results = []
-        for r in map(sh.normalize, rows):
-            if r["fthg"] is None:
-                continue
-            results.append(backtest_one(r, min_odds, min_ev))
+        # OOS discipline: ratings from PREVIOUS season only (no lookahead);
+        # ephemeral fatigue ledger in chronological order.
+        bt_season = prev_season_code(season)
+        bt_ledger = {}
+        normed = sorted(
+            (r for r in map(sh.normalize, rows) if r["fthg"] is not None),
+            key=lambda r: (r.get("date") or ""),
+        )
+        for r in normed:
+            results.append(backtest_one(
+                r, min_odds, min_ev, ledger=bt_ledger,
+                league_code=league, rating_season=bt_season,
+                strength_weight=float(cfg.get("strength_weight", 0.4))))
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(results, f, ensure_ascii=False, indent=2)
         summarize(results)
@@ -195,7 +226,7 @@ def select_top_picks(candidates, limit=12, per_market=3, per_match=2, min_ev=0.0
     1x2/AH are high-variance (circular λ) — stricter gates, experimental badge.
     OU/BTTS keep base gates. Iceland/Norway/low leagues kept for O/U edge.
     """
-    probability_floor = {"1x2": 0.48, "ah": 0.55, "ou": 0.54, "btts": 0.54}
+    probability_floor = {"1x2": 0.48, "ah": 0.55, "ou": 0.58, "btts": 0.58}
     odds_ceiling = {"1x2": 2.20, "ah": 2.30, "ou": 2.30, "btts": 2.30}
     # per-market stricter edge for circular markets
     min_edge_floor = {"1x2": 0.04, "ah": 0.035, "ou": 0.02, "btts": 0.02}
@@ -277,13 +308,29 @@ def pick_entry(o, market, pick, p, odds, e, market_probability=None):
     }
 
 
-def backtest_one(r, min_odds=1.66, min_ev=0.0):
+def backtest_one(r, min_odds=1.66, min_ev=0.0, ledger=None,
+                 league_code=None, rating_season=None, strength_weight=0.4):
     o1, od, o2 = r["odds_home"], r["odds_draw"], r["odds_away"]
     oov, oun = r["odds_over"], r["odds_under"]
     fthg, ftag = r["fthg"], r["ftag"]
     total = fthg + ftag
     margin = fthg - ftag
-    lh, la, _, _ = lam_from_odds(o1, od, o2, oov, oun, 2.5)
+    lh, la, _ = lam_from_1x2(o1, od, o2)  # same fitter as live scan (no OU circularity)
+    if league_code:
+        try:
+            lh, la, _s = hybrid_lams(r.get("home"), r.get("away"), league_code,
+                                     lh, la, weight=strength_weight, season=rating_season)
+        except Exception:
+            pass
+    if ledger is not None:
+        try:
+            d = parse_fd_date(r.get("date"))
+            ts = d.toordinal() * 86400 + 43200 if d else 0  # noon UTC
+            lh, la, _f = apply_rest_adjustment(
+                r.get("home"), r.get("away"), ts, lh, la, ledger)
+            record_fixtures(ledger, [(r.get("home"), r.get("away"), ts)])
+        except Exception:
+            pass
     ph, pd, pa = match_probs(lh, la)
     pbt = btts_prob(lh, la)
     po = over_prob(2.5, lh, la)
