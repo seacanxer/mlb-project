@@ -27,7 +27,7 @@
   },
   "tracking_unit": 1,
   "scan_window_hours": 16,
-  "last_successful_scan_at": "2026-09-02T11:59:43.443191+00:00",
-  "last_successful_scan_count": 287,
-  "last_successful_scan_picks": 24
+  "last_successful_scan_at": "2026-09-04T16:13:20.588259+00:00",
+  "last_successful_scan_count": 365,
+  "last_successful_scan_picks": 23
 }
