@@ -227,10 +227,45 @@ def load_board():
     return {"generated_at": None, "count": 0, "board": [], "error": "board not generated yet"}
 
 
-def scan_intel(window_hours=16, max_matches=400, progress=None):
+# Intel scan scope (Tuan, 2026-09-06): liga utama + kasta 2 tiap negara only,
+# biar scan ga berat. Codes = top-2 tiers per country (whitelist).
+INTEL_ALLOW = {
+    "E0", "E1",    # England: PL, Championship
+    "SP1", "SP2",  # Spain: La Liga, Segunda
+    "D1", "D2",    # Germany: Bundesliga, 2. Bundesliga
+    "I1", "I2",    # Italy: Serie A, B
+    "F1", "F2",    # France: Ligue 1, 2
+    "N1",          # Netherlands: Eredivisie
+    "P1",          # Portugal: Liga Portugal
+    "B1",          # Belgium: First Division A
+    "T1",          # Turkey: SuperLiga
+    "G1",          # Greece: SuperLeague
+    "SC0", "SC1",  # Scotland: Premiership, Championship
+    "PL1", "PL2",  # Poland: Ekstraklasa, Liga 1
+    "NO1", "NO2",  # Norway: Eliteserien, 1. Division
+    "SE1", "SE2",  # Sweden: Allsvenskan, Superettan
+    "IS1",         # Iceland: Besta deild
+}
+
+
+def scan_intel(window_hours=40, max_matches=500, progress=None):
     import scraper_1xbit as sc
+    from league_profiles import get_league_profile
 
     raw = sc.list_matches_paginated(count=max_matches, window_hours=window_hours)
+    before = len(raw)
+    kept = []
+    for m in raw:
+        lg = m.get("L") or ""
+        prof = get_league_profile(lg)
+        if prof.route == "blocked":
+            continue
+        if prof.key not in INTEL_ALLOW:
+            continue
+        kept.append(m)
+    raw = kept
+    if len(raw) != before and progress:
+        progress(f"scoped {len(raw)}/{before} matches (top-2 tiers only)")
 
     def _fetch(m):
         try:

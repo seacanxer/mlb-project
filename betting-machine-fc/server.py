@@ -255,6 +255,17 @@ def execute_live_scan_sync():
             raw_matches = sc.list_matches_paginated(count=scan_match_limit, window_hours=window_hours)
             scan_state["progress"] = f"Processing {len(raw_matches)} matches from 1xbit ({window_hours:g}h window)..."
             print(f"[LOG] 1xbit found {len(raw_matches)} matches in {window_hours:g}h window")
+            # League routing: skip blocked leagues BEFORE detail fetch (PRD FR-7).
+            # The 1xbit feed is ordered by nearest kickoff, so an unbounded
+            # list is dominated by amateur/Asian/women's/youth leagues that the
+            # router blocks anyway. Filtering here keeps the expensive detail
+            # fetch for the rated/shadow/market_only slate that can produce picks.
+            from league_profiles import get_league_profile
+            before = len(raw_matches)
+            raw_matches = [m for m in raw_matches if (get_league_profile(m.get("L") or "")).route != "blocked"]
+            if len(raw_matches) != before:
+                print(f"[LOG] league routing: kept {len(raw_matches)}/{before} matches (blocked dropped)")
+                scan_state["progress"] = f"Processing {len(raw_matches)} eligible matches ({before} found, blocked dropped)..."
         scan_state["progress"] = f"Processing markets for {len(raw_matches)} matches..."
         diagnostics = {
             "discovered": len(raw_matches),
@@ -1045,7 +1056,7 @@ def _run_intel_scan():
     intel_state["running"] = True
     intel_state["error"] = None
     try:
-        last = intel_mod.scan_intel(window_hours=16, max_matches=500,
+        last = intel_mod.scan_intel(window_hours=40, max_matches=600,
                                     progress=lambda msg: intel_state.update(progress=msg))
         intel_state["last"] = {
             "generated_at": last.get("generated_at"),

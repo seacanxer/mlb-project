@@ -28,7 +28,7 @@
     "season": "2526"
   },
   "tracking_unit": 1,
-  "scan_window_hours": 16,
+  "scan_window_hours": 40,
   "parlay": {
     "tiers": {
       "safe": {
@@ -57,7 +57,7 @@
       }
     }
   },
-  "last_successful_scan_at": "2026-09-05T12:22:23.156672+00:00",
-  "last_successful_scan_count": 1064,
-  "last_successful_scan_picks": 9
+  "last_successful_scan_at": "2026-09-05T20:28:30.951249+00:00",
+  "last_successful_scan_count": 70,
+  "last_successful_scan_picks": 7
 }
