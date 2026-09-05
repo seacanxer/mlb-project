@@ -10,6 +10,7 @@ import {
   impliedProbability,
   parseOddsToDecimal,
   OddsConversionError,
+  twoWayNoVigProbabilities,
 } from '@/lib/utils/odds';
 
 describe('americanToDecimal', () => {
@@ -20,6 +21,19 @@ describe('americanToDecimal', () => {
   it('positive American +125 → 2.25', () => expect(americanToDecimal(125)).toBeCloseTo(2.25));
   it('positive American +200 → 3.0', () => expect(americanToDecimal(200)).toBeCloseTo(3.0));
   it('throws for 0', () => expect(() => americanToDecimal(0)).toThrow(OddsConversionError));
+});
+
+describe('twoWayNoVigProbabilities', () => {
+  it('normalizes both sides to one and exposes the overround', () => {
+    const result = twoWayNoVigProbabilities(1.8, 2.1);
+    expect((result.first ?? 0) + (result.second ?? 0)).toBeCloseTo(1);
+    expect(result.first).toBeCloseTo(0.5385, 3);
+    expect(result.overround).toBeCloseTo(0.0317, 3);
+  });
+
+  it('returns unavailable when either side is missing', () => {
+    expect(twoWayNoVigProbabilities(1.8, null).first).toBeNull();
+  });
 });
 
 describe('impliedProbability', () => {

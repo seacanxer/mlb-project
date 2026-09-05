@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_OU_TOTALS_CONFIG } from '@/lib/config/modelConfig';
-import { runOUTotalsEngine, type OUTotalsInputs } from '@/lib/engine/overunderUnified';
+import { poissonTotalProbabilities, runOUTotalsEngine, type OUTotalsInputs } from '@/lib/engine/overunderUnified';
 
 const fiveLogs = Array.from({ length: 5 }, () => ({ earnedRuns: 2, outsRecorded: 18 }));
 
@@ -44,6 +44,15 @@ function inputs(overrides: Partial<OUTotalsInputs> = {}): OUTotalsInputs {
 }
 
 describe('Unified MLB Totals v4', () => {
+  it('publishes a complete experimental distribution including integer pushes', () => {
+    const half = poissonTotalProbabilities(8.5, 8.5);
+    expect(half.over + half.under).toBeCloseTo(1, 8);
+    expect(half.push).toBe(0);
+
+    const integer = poissonTotalProbabilities(8, 8);
+    expect(integer.over + integer.under + integer.push).toBeCloseTo(1, 8);
+    expect(integer.push).toBeGreaterThan(0);
+  });
   it('can publish an OVER using the Over price', () => {
     const result = runOUTotalsEngine(inputs({
       awayRpg: 5.7,

@@ -9,6 +9,7 @@
 
 import type { OUTotalsConfig } from '@/lib/config/modelConfig';
 import type { FinalState, HardGateCode, WarningCode } from './types';
+import { twoWayNoVigProbabilities } from '@/lib/utils/odds';
 
 export interface OUGameLogEntry {
   earnedRuns: number;
@@ -68,6 +69,10 @@ export interface OUTotalsResult {
   lineMovement: number | null;
   noVigOverProbability: number | null;
   noVigUnderProbability: number | null;
+  estimatedOverProbability: number | null;
+  estimatedUnderProbability: number | null;
+  estimatedPushProbability: number | null;
+  estimatedProbabilityEdge: number | null;
   leagueRpg: number | null;
   awayRpg: number | null;
   homeRpg: number | null;
@@ -153,14 +158,27 @@ function staffRuns(
   };
 }
 
-function noVigProbabilities(over: number | null, under: number | null) {
-  if (over === null || under === null || over <= 1 || under <= 1) {
-    return { over: null, under: null };
+/** Experimental total-run distribution. It remains diagnostic until calibrated. */
+export function poissonTotalProbabilities(mean: number, line: number) {
+  if (!Number.isFinite(mean) || mean <= 0 || !Number.isFinite(line) || line < 0) {
+    return { over: 0, under: 0, push: 0 };
   }
-  const overRaw = 1 / over;
-  const underRaw = 1 / under;
-  const total = overRaw + underRaw;
-  return { over: overRaw / total, under: underRaw / total };
+  const integerLine = Number.isInteger(line);
+  const underMax = integerLine ? line - 1 : Math.floor(line);
+  let probability = Math.exp(-mean);
+  let under = underMax >= 0 ? probability : 0;
+  let push = integerLine && line === 0 ? probability : 0;
+  const maxNeeded = Math.max(Math.floor(line), 0);
+  for (let runs = 1; runs <= maxNeeded; runs += 1) {
+    probability *= mean / runs;
+    if (runs <= underMax) under += probability;
+    if (integerLine && runs === line) push = probability;
+  }
+  return {
+    over: clamp(1 - under - push, 0, 1),
+    under: clamp(under, 0, 1),
+    push: clamp(push, 0, 1),
+  };
 }
 
 function qualityScore(warnings: WarningCode[], hardGates: HardGateCode[]): number {
@@ -205,6 +223,10 @@ function emptyResult(
       ? inputs.marketLine - inputs.openingTotalLine : null,
     noVigOverProbability: null,
     noVigUnderProbability: null,
+    estimatedOverProbability: null,
+    estimatedUnderProbability: null,
+    estimatedPushProbability: null,
+    estimatedProbabilityEdge: null,
     leagueRpg: inputs.leagueRpg,
     awayRpg: inputs.awayRpg,
     homeRpg: inputs.homeRpg,
@@ -377,7 +399,13 @@ export function runOUTotalsEngine(inputs: OUTotalsInputs, config: OUTotalsConfig
     }
   }
 
-  const noVig = noVigProbabilities(inputs.overDecimal, inputs.underDecimal);
+  const noVig = twoWayNoVigProbabilities(inputs.overDecimal, inputs.underDecimal);
+  const estimated = poissonTotalProbabilities(independentModelTotal, inputs.marketLine!);
+  const estimatedProbabilityEdge = selectedSide === 'over' && noVig.first !== null
+    ? estimated.over - noVig.first
+    : selectedSide === 'under' && noVig.second !== null
+    ? estimated.under - noVig.second
+    : null;
   return {
     isExperimental: true,
     isCalibrated: false,
@@ -388,8 +416,12 @@ export function runOUTotalsEngine(inputs: OUTotalsInputs, config: OUTotalsConfig
     marketLine: inputs.marketLine,
     openingTotalLine: inputs.openingTotalLine,
     lineMovement,
-    noVigOverProbability: noVig.over,
-    noVigUnderProbability: noVig.under,
+    noVigOverProbability: noVig.first,
+    noVigUnderProbability: noVig.second,
+    estimatedOverProbability: estimated.over,
+    estimatedUnderProbability: estimated.under,
+    estimatedPushProbability: estimated.push,
+    estimatedProbabilityEdge,
     leagueRpg: inputs.leagueRpg,
     awayRpg: inputs.awayRpg,
     homeRpg: inputs.homeRpg,

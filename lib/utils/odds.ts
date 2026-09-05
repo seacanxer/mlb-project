@@ -46,6 +46,27 @@ export function impliedProbability(decimal: number): number {
   return 1 / decimal;
 }
 
+/** Remove the bookmaker margin from a complete two-way decimal market. */
+export function twoWayNoVigProbabilities(
+  firstDecimal: number | null,
+  secondDecimal: number | null,
+): { first: number | null; second: number | null; overround: number | null } {
+  if (
+    firstDecimal === null || secondDecimal === null ||
+    !Number.isFinite(firstDecimal) || !Number.isFinite(secondDecimal) ||
+    firstDecimal <= 1 || secondDecimal <= 1
+  ) return { first: null, second: null, overround: null };
+
+  const firstRaw = 1 / firstDecimal;
+  const secondRaw = 1 / secondDecimal;
+  const total = firstRaw + secondRaw;
+  return {
+    first: firstRaw / total,
+    second: secondRaw / total,
+    overround: total - 1,
+  };
+}
+
 /**
  * Parse an odds string that could be American ("-145", "+125") or decimal ("1.69").
  * Returns decimal odds always.

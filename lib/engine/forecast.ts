@@ -17,6 +17,17 @@ export class ForecastError extends Error {
   }
 }
 
+/** Only evidence tiers approved for official flat-unit tracking. */
+export const OFFICIAL_FORECAST_STATES = new Set([
+  'T1',
+  'OVER_STRONG_GAP',
+  'UNDER_STRONG_GAP',
+]);
+
+export function isOfficialForecastState(state: string): boolean {
+  return OFFICIAL_FORECAST_STATES.has(state);
+}
+
 /**
  * Lock a model run as a forecast.
  * Throws ForecastError if the game has already started or run is already locked.
@@ -32,13 +43,8 @@ export async function lockForecast(
   if (!run) throw new ForecastError('Model run not found');
   if (run.isLocked) throw new ForecastError('This model run is already locked');
   if (run.isInvalidated) throw new ForecastError('Cannot lock an invalidated model run');
-  const actionableStates = new Set([
-    'T1', 'T2',
-    'OVER_RISKY', 'OVER_STRONG_GAP',
-    'UNDER_RISKY', 'UNDER_STRONG_GAP',
-  ]);
-  if (!actionableStates.has(run.finalState)) {
-    throw new ForecastError('Only actionable T1/T2 or O/U RISKY/STRONG signals can be locked');
+  if (!isOfficialForecastState(run.finalState)) {
+    throw new ForecastError('Only official T1 or O/U STRONG signals can be locked; T2/RISKY remain watchlist-only');
   }
 
   const existingGameModelForecast = await prisma.forecast.findFirst({
@@ -107,7 +113,7 @@ export interface AutoLockSummary {
   errors: Array<{ runId: string; message: string }>;
 }
 
-/** Lock the latest published ML and unified O/U actionable pick per game. */
+/** Lock the latest published ML and unified O/U official pick per game. */
 export async function autoLockActionableForecasts(date: string): Promise<AutoLockSummary> {
   const summary: AutoLockSummary = {
     date,
@@ -130,16 +136,10 @@ export async function autoLockActionableForecasts(date: string): Promise<AutoLoc
     },
   });
 
-  const actionable = new Set([
-    'T1', 'T2',
-    'OVER_RISKY', 'OVER_STRONG_GAP',
-    'UNDER_RISKY', 'UNDER_STRONG_GAP',
-  ]);
-
   for (const game of games) {
     for (const modelId of ['ML_COMBO_V2', 'OU_UNIFIED']) {
       const run = game.modelRuns.find((candidate) => candidate.modelId === modelId);
-      if (!run || !actionable.has(run.finalState)) continue;
+      if (!run || !isOfficialForecastState(run.finalState)) continue;
       summary.eligible += 1;
 
       const existing = await prisma.forecast.findFirst({

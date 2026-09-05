@@ -18,6 +18,11 @@ export default function Backtest() {
     return `${((wins / total) * 100).toFixed(1)}%`;
   };
 
+  const signed = (value: number | null | undefined, suffix = '') => {
+    if (value == null) return '—';
+    return `${value >= 0 ? '+' : ''}${value.toFixed(2)}${suffix}`;
+  };
+
   return (
     <div>
       <div className="page-header">
@@ -31,8 +36,8 @@ export default function Backtest() {
 
       <div className="card" style={{ marginBottom: '1.5rem', background: 'rgba(215,119,6,0.06)', borderColor: 'rgba(215,119,6,0.3)' }}>
         <p style={{ fontSize: '0.85rem', color: 'var(--amber-lt)' }}>
-          ⚠ Hit rate is based on formula scoring, not calibrated probability. Sample sizes below 50 are not predictive.
-          ROI is hidden until market prices and a declared flat-stake policy are configured.
+          ⚠ Formula scores are not calibrated win probabilities. ROI uses the actual locked decimal price and a flat one-unit stake.
+          Small samples and missing closing quotes remain explicitly marked.
         </p>
       </div>
 
@@ -50,6 +55,21 @@ export default function Backtest() {
         </div>
       ) : (
         <>
+          <div className="stat-grid" style={{ marginBottom: '1.5rem' }}>
+            {[
+              { label: 'Record', value: `${data.overall.wins}-${data.overall.losses}-${data.overall.pushes}` },
+              { label: 'Profit', value: signed(data.overall.profitUnits, 'u') },
+              { label: 'ROI', value: signed(data.overall.roiPct, '%') },
+              { label: 'Average odds', value: data.overall.averageOdds?.toFixed(2) ?? '—' },
+              { label: 'Average CLV', value: signed(data.overall.averageClvPct, '%') },
+              { label: 'CLV coverage', value: `${data.overall.closingPriceCoverage}/${data.overall.pricedSettlements}` },
+            ].map((item) => (
+              <div className="card" key={item.label} style={{ padding: '1rem' }}>
+                <div className="muted" style={{ fontSize: '0.72rem', textTransform: 'uppercase' }}>{item.label}</div>
+                <div className="mono-val" style={{ fontSize: '1.25rem', fontWeight: 800, marginTop: '0.25rem' }}>{item.value}</div>
+              </div>
+            ))}
+          </div>
           <table className="data-table" aria-label="Backtest results by model version">
             <thead>
               <tr>
@@ -60,7 +80,10 @@ export default function Backtest() {
                 <th>Losses</th>
                 <th>Pushes</th>
                 <th>Hit Rate</th>
+                <th>Profit</th>
                 <th>ROI</th>
+                <th>Avg Odds</th>
+                <th>Avg CLV</th>
               </tr>
             </thead>
             <tbody>
@@ -80,14 +103,44 @@ export default function Backtest() {
                   <td className="mono-val" style={{ color: 'var(--green-lt)' }}>{row.wins}</td>
                   <td className="mono-val" style={{ color: 'var(--red-lt)' }}>{row.losses}</td>
                   <td className="mono-val" style={{ color: 'var(--muted)' }}>{row.pushes}</td>
-                  <td className="mono-val" style={{ fontWeight: 600 }}>{hitRate(row.wins, row.total - row.pushes)}</td>
-                  <td className="muted" style={{ fontSize: '0.8rem' }}>N/A — configure stake policy</td>
+                  <td className="mono-val" style={{ fontWeight: 600 }}>{hitRate(row.wins, row.wins + row.losses)}</td>
+                  <td className="mono-val">{signed(row.profitUnits, 'u')}</td>
+                  <td className="mono-val">{signed(row.roiPct, '%')}</td>
+                  <td className="mono-val">{row.averageOdds?.toFixed(2) ?? '—'}</td>
+                  <td className="mono-val" title={`${row.closingPriceCoverage} closing quote(s) available`}>
+                    {signed(row.averageClvPct, '%')}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          <div className="grid-2" style={{ marginTop: '1.5rem' }}>
+            {[
+              { title: 'Performance by Market', rows: data.byMarket },
+              { title: 'Performance by Tier', rows: data.byTier },
+            ].map((section) => (
+              <div className="card" key={section.title} style={{ overflowX: 'auto' }}>
+                <h2 style={{ fontSize: '0.95rem', marginBottom: '0.75rem' }}>{section.title}</h2>
+                <table className="data-table">
+                  <thead><tr><th>Group</th><th>Record</th><th>Profit</th><th>ROI</th><th>CLV</th></tr></thead>
+                  <tbody>
+                    {section.rows?.map((row: any) => (
+                      <tr key={row.key}>
+                        <td style={{ fontWeight: 600 }}>{String(row.key).replaceAll('_', ' ')}</td>
+                        <td className="mono-val">{row.wins}-{row.losses}-{row.pushes}</td>
+                        <td className="mono-val">{signed(row.profitUnits, 'u')}</td>
+                        <td className="mono-val">{signed(row.roiPct, '%')}</td>
+                        <td className="mono-val">{signed(row.averageClvPct, '%')}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ))}
+          </div>
           <p className="muted" style={{ fontSize: '0.75rem', marginTop: '1rem' }}>
             {data.note}
+            {' '}{data.stakePolicy}
           </p>
         </>
       )}

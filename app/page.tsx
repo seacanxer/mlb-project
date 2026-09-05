@@ -11,7 +11,7 @@ function getLatestRun(runs: any[], modelId: string) {
 }
 
 function isActionableRun(run: any) {
-  return ['T1', 'T2', 'OVER_RISKY', 'OVER_STRONG_GAP', 'UNDER_RISKY', 'UNDER_STRONG_GAP']
+  return ['T1', 'OVER_STRONG_GAP', 'UNDER_STRONG_GAP']
     .includes(run?.finalState);
 }
 
@@ -285,6 +285,7 @@ export default function DailySlate() {
                 const homeStarter = game.probableStarterObservations?.find((starter: any) => starter.side === 'home');
                 const awayStarter = game.probableStarterObservations?.find((starter: any) => starter.side === 'away');
                 const mlActionable = mlRun?.finalState === 'T1' || mlRun?.finalState === 'T2';
+                const mlOfficial = mlRun?.finalState === 'T1';
                 const mlLocked = game.modelRuns?.some((run: any) =>
                   run.modelId === 'ML_COMBO_V2' && run.forecasts?.length > 0
                 );
@@ -359,7 +360,7 @@ export default function DailySlate() {
                     </td>
                     <td>
                       <div style={{ display: 'grid', gap: '0.3rem', minWidth: 92 }}>
-                        {isActionableRun(mlRun) && (
+                        {mlOfficial && (
                           mlLocked ? <span style={{ color: 'var(--green-lt)', fontSize: '0.72rem' }}>🔒 ML locked</span> : (
                             <button className="btn btn-ghost btn-sm" disabled={!!locking} onClick={() => lockRun(mlRun)}>
                               {locking === mlRun.id ? '…' : 'Lock ML'}
@@ -373,7 +374,7 @@ export default function DailySlate() {
                             </button>
                           )
                         )}
-                        {!isActionableRun(mlRun) && !isActionableRun(ouRun) && <span className="muted">—</span>}
+                        {!mlOfficial && !isActionableRun(ouRun) && <span className="muted">Watchlist</span>}
                       </div>
                     </td>
                     <td>
@@ -412,7 +413,7 @@ export default function DailySlate() {
             </tbody>
           </table>
           <p className="muted" style={{ fontSize: '0.75rem', marginTop: '1rem' }}>
-            ML Pick is published only for T1/T2. T1/T2 are score tiers, not win probabilities. O/U LEAN is watchlist-only and cannot be locked; RISKY/STRONG are actionable experimental tiers, not calibrated probabilities.
+            T1 is the official ML tier; T2 remains a visible watchlist signal. Formula scores are not win probabilities. Only O/U STRONG can be locked; LEAN and RISKY remain shadow/watchlist while totals calibration is incomplete.
           </p>
         </div>
       )}

@@ -51,7 +51,7 @@ function lockSideForRun(run: any): string {
 }
 
 function isLockableRun(run: any): boolean {
-  return ['T1', 'T2', 'OVER_RISKY', 'OVER_STRONG_GAP', 'UNDER_RISKY', 'UNDER_STRONG_GAP']
+  return ['T1', 'OVER_STRONG_GAP', 'UNDER_STRONG_GAP']
     .includes(run.finalState);
 }
 
@@ -158,7 +158,7 @@ export default function MatchDetail() {
       {mlOut && (
         <section aria-labelledby="ml-heading">
           <h2 id="ml-heading" style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '1rem', color: '#f1f5f9' }}>
-            Moneyline — Combo Score v2.0
+            Moneyline — Combo Score v2.1 (heuristic score, not win probability)
           </h2>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
             <div>
@@ -200,7 +200,12 @@ export default function MatchDetail() {
             <FactorCard label="ERA Gap" points={mlOut.eraGapPoints} max={35} detail={`EraGap: ${mlOut.eraGap?.toFixed(2)}`} />
             <FactorCard label="Offense Quality" points={mlOut.offensePoints} max={25} detail={`AVG: ${mlOut.offenseAvgLabel} · OPS: ${mlOut.offenseOpsLabel}`} />
             <FactorCard label="Pitcher Last 5" points={mlOut.gameLogPoints} max={20} detail={`${mlOut.gameLogGoodStarts} good starts · Trend: ${mlOut.trend}`} />
-            <FactorCard label="Market Alignment" points={mlOut.marketAlignmentPoints} max={10} detail={`Fair: ${mlOut.fairDecimal?.toFixed(2) ?? 'N/A'}`} />
+            <FactorCard
+              label="Market Alignment"
+              points={mlOut.marketAlignmentPoints}
+              max={10}
+              detail={`Heuristic anchor: ${mlOut.fairDecimal?.toFixed(2) ?? 'N/A'} · No-vig market: ${mlOut.marketNoVigProbability == null ? '—' : `${(mlOut.marketNoVigProbability * 100).toFixed(1)}%`}`}
+            />
             <FactorCard label="Team Form" points={mlOut.teamFormPoints} max={10} />
           </div>
         </section>
@@ -244,6 +249,14 @@ export default function MatchDetail() {
               <div>
                 <div className="muted" style={{ fontSize: '0.75rem' }}>Data Quality</div>
                 <div className="mono-val" style={{ fontWeight: 700 }}>{ouOut.dataQualityScore}/100</div>
+              </div>
+            )}
+            {ouOut.estimatedOverProbability != null && (
+              <div>
+                <div className="muted" style={{ fontSize: '0.75rem' }}>Experimental O / U / Push</div>
+                <div className="mono-val" style={{ fontWeight: 700 }}>
+                  {(ouOut.estimatedOverProbability * 100).toFixed(1)}% / {(ouOut.estimatedUnderProbability * 100).toFixed(1)}% / {(ouOut.estimatedPushProbability * 100).toFixed(1)}%
+                </div>
               </div>
             )}
             {ouOut.capReached && <span className="warning-pill">⚠ CAP REACHED ±3.0</span>}
@@ -292,7 +305,7 @@ export default function MatchDetail() {
                 <div className="divider" style={{ margin: '0.5rem 0' }} />
               </>}
               <div className="muted" style={{ fontSize: '0.75rem' }}>
-                Not calibrated: no win probability or EV is published. Missing context: {ouOut.missingContexts?.join(', ') ?? '—'}.
+                Distribution probabilities are experimental diagnostics, not calibrated betting confidence. Estimated edge versus the no-vig market: {ouOut.estimatedProbabilityEdge == null ? '—' : `${(ouOut.estimatedProbabilityEdge * 100).toFixed(1)}pp`}. Missing context: {ouOut.missingContexts?.join(', ') ?? '—'}.
               </div>
             </>}
           </div>
@@ -347,6 +360,11 @@ export default function MatchDetail() {
                 >
                   {locking === run.id ? '⏳ Locking…' : '🔒 Lock Forecast'}
                 </button>
+              )}
+              {!run.isLocked && !run.isInvalidated && !isLockableRun(run) && ['T2', 'OVER_RISKY', 'UNDER_RISKY', 'OVER_LEAN', 'UNDER_LEAN'].includes(run.finalState) && (
+                <div className="muted" style={{ fontSize: '0.75rem', marginTop: '0.4rem' }}>
+                  Watchlist/shadow signal — not eligible for official settlement.
+                </div>
               )}
               {run.forecasts?.map((f: any) => (
                 <div key={f.id} className="muted" style={{ fontSize: '0.75rem', marginTop: '0.3rem' }}>

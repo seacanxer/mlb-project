@@ -68,7 +68,7 @@ The browser sends the selected model ID and a compact summary of the determinist
 ### Locking a Forecast
 
 1. Verify starters are confirmed and odds are fresh.
-2. Use **Lock ML/O/U** beside one pick, or **Lock All Picks** for the slate. Results also has a bulk lock button.
+2. Use **Lock ML/O/U** beside an official T1 or O/U STRONG pick, or **Lock All Picks** for the slate. T2 and O/U RISKY remain visible as watchlist/shadow signals and are not settled as official bets.
 3. Locks are immutable and only allowed before first pitch; one authoritative lock is retained per game/model.
 4. Use **Fetch Final Scores** on Results after games finish. Official MLB scores auto-grade WIN/LOSS/PUSH.
 

@@ -17,6 +17,7 @@ import {
 } from '@/lib/config/modelConfig';
 import type { MoneylineConfig } from '@/lib/config/modelConfig';
 import type { FinalState, WarningCode, PitcherTrend, HardGateCode } from './types';
+import { twoWayNoVigProbabilities } from '@/lib/utils/odds';
 
 // ---------------------------------------------------------------------------
 // Input / output types
@@ -50,6 +51,7 @@ export interface MoneylineInputs {
 
   // Market
   candidateDecimalOdds: number | null;
+  opponentDecimalOdds?: number | null;
   eraGap?: number; // pre-computed if available
 
   // Team form
@@ -77,6 +79,9 @@ export interface MoneylineResult {
   trend: PitcherTrend;
   marketAlignmentPoints: number;
   fairDecimal: number | null;
+  marketNoVigProbability: number | null;
+  marketOverround: number | null;
+  confidenceType: 'heuristic-score';
   teamFormPoints: number;
 
   // Totals
@@ -282,6 +287,10 @@ export function runMoneylineEngine(
     inputs.candidateDecimalOdds !== null
       ? calcMarketAlignmentPoints(eraGap, inputs.candidateDecimalOdds, config)
       : { points: 0, fairDecimal: null, hardGateMarket: false };
+  const market = twoWayNoVigProbabilities(
+    inputs.candidateDecimalOdds,
+    inputs.opponentDecimalOdds ?? null,
+  );
 
   if (alignmentResult.fairDecimal === null && eraGap >= 1.0) {
     warnings.push('UNDEFINED_MARKET_ANCHOR');
@@ -337,6 +346,9 @@ export function runMoneylineEngine(
     trend: gameLogResult.trend,
     marketAlignmentPoints: alignmentResult.points,
     fairDecimal: alignmentResult.fairDecimal,
+    marketNoVigProbability: market.first,
+    marketOverround: market.overround,
+    confidenceType: 'heuristic-score',
     teamFormPoints,
     rawScore,
     finalState,

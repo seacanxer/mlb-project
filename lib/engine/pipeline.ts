@@ -151,6 +151,7 @@ export async function analyzeGame(gameId: string): Promise<PipelineResult> {
     candidateOps: homeTeamSnap?.ops ?? 0,
     candidateGameLogs: homeGameLogs,
     candidateDecimalOdds: market?.moneylineHome ?? null,
+    opponentDecimalOdds: market?.moneylineAway ?? null,
     last10Wins: homeTeamSnap?.last10Wins ?? 0,
     last10Losses: homeTeamSnap?.last10Losses ?? 0,
     winStreak: Math.max(homeTeamSnap?.currentStreak ?? 0, 0),
@@ -176,6 +177,7 @@ export async function analyzeGame(gameId: string): Promise<PipelineResult> {
     candidateOps: awayTeamSnap?.ops ?? 0,
     candidateGameLogs: awayGameLogs,
     candidateDecimalOdds: market?.moneylineAway ?? null,
+    opponentDecimalOdds: market?.moneylineHome ?? null,
     last10Wins: awayTeamSnap?.last10Wins ?? 0,
     last10Losses: awayTeamSnap?.last10Losses ?? 0,
     winStreak: Math.max(awayTeamSnap?.currentStreak ?? 0, 0),
@@ -253,6 +255,26 @@ export async function analyzeGame(gameId: string): Promise<PipelineResult> {
         candidateTeamId: selectedTeam.id,
         candidateTeamName: selectedTeam.name,
         candidateDecimalOdds: selectedOdds ?? null,
+        // Persist point-in-time features used by future calibration work. These
+        // are diagnostics, not silently converted into a claimed probability.
+        featureSnapshot: {
+          candidateKMinusBbPer9: selectedML.side === 'home'
+            ? rateDifferencePerNine(homeSnap?.strikeouts, homeSnap?.walks, homeSnap?.outsRecorded)
+            : rateDifferencePerNine(awaySnap?.strikeouts, awaySnap?.walks, awaySnap?.outsRecorded),
+          opponentKMinusBbPer9: selectedML.side === 'home'
+            ? rateDifferencePerNine(awaySnap?.strikeouts, awaySnap?.walks, awaySnap?.outsRecorded)
+            : rateDifferencePerNine(homeSnap?.strikeouts, homeSnap?.walks, homeSnap?.outsRecorded),
+          candidateBullpenEra: selectedML.side === 'home' ? homeTeamSnap?.bullpenEra ?? null : awayTeamSnap?.bullpenEra ?? null,
+          candidateBullpenWhip: selectedML.side === 'home' ? homeTeamSnap?.bullpenWhip ?? null : awayTeamSnap?.bullpenWhip ?? null,
+          opponentBullpenEra: selectedML.side === 'home' ? awayTeamSnap?.bullpenEra ?? null : homeTeamSnap?.bullpenEra ?? null,
+          opponentBullpenWhip: selectedML.side === 'home' ? awayTeamSnap?.bullpenWhip ?? null : homeTeamSnap?.bullpenWhip ?? null,
+          opponentAvg: selectedML.side === 'home' ? awayTeamSnap?.avg ?? null : homeTeamSnap?.avg ?? null,
+          opponentOps: selectedML.side === 'home' ? awayTeamSnap?.ops ?? null : homeTeamSnap?.ops ?? null,
+          marketNoVigProbability: selectedMLResult.marketNoVigProbability,
+          marketOverround: selectedMLResult.marketOverround,
+          parkFactor: parkFactor?.factor ?? null,
+          parkFactorIsFallback: Boolean(parkFactor?.isFallback),
+        },
         evaluatedCandidates: {
           home: {
             rawScore: homeMLResult.rawScore,
@@ -308,6 +330,15 @@ export async function analyzeGame(gameId: string): Promise<PipelineResult> {
   }
 
   return { gameId, mlRunId: mlRun.id, ouRunId: ouRun.id };
+}
+
+function rateDifferencePerNine(
+  strikeouts: number | null | undefined,
+  walks: number | null | undefined,
+  outsRecorded: number | null | undefined,
+): number | null {
+  if (strikeouts == null || walks == null || !outsRecorded) return null;
+  return Number((((strikeouts - walks) * 27) / outsRecorded).toFixed(3));
 }
 
 // ---------------------------------------------------------------------------

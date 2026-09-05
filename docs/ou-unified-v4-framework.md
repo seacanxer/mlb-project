@@ -32,13 +32,18 @@ Gap = ProjectedTotal - MarketTotal
 
 - absolute gap below 0.25: NO BET
 - 0.25-0.39: LEAN, directional watchlist only
-- 0.40-0.79: RISKY, lockable when price and quality pass
+- 0.40-0.79: RISKY, shadow/watchlist only while calibration is incomplete
 - 0.80 or more: STRONG, subject to quality caps
 - selected-side decimal price below 1.85: downgrade to LEAN
 
 Thirty innings are required. A 30-59.2 IP starter is a borderline sample and
 cannot receive unrestricted confidence. Missing starters, total/price, team
 RPG, bullpen ERA, park factor, or stale odds remain hard gates.
+
+The engine also publishes an experimental Poisson Over/Under/Push distribution
+and its difference from the no-vig market probability. It is a diagnostic only;
+the legacy gap and data-quality gates remain authoritative until rolling
+out-of-sample calibration is available.
 
 ## Why the formula changed
 

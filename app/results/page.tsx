@@ -278,30 +278,21 @@ export default function ResultsPage() {
   const pushes = allForecasts.filter(f => f.settlement?.outcome === 'push').length;
   const pending = allForecasts.filter(f => !f.settlement).length;
 
-  // ── settlement record: units (ROI) + streak ─────────────────────────────
-  // Units counted from ML pick decimal odds (reliable in ML outputJson).
-  const mlOddsFromRun = (run: any): number | null => {
-    if (!run?.outputJson) return null;
-    try {
-      const m = Number(JSON.parse(run.outputJson)?.candidateDecimalOdds);
-      return isFinite(m) && m > 1 ? m : null;
-    } catch { return null; }
-  };
-
+  // ── settlement record: flat one-unit profit and ROI ─────────────────────
   let netUnits = 0, unitsCounted = 0;
-  for (const g of games) {
-    const run = getResultRun(g.modelRuns, 'ML_COMBO_V2');
-    const fc = getLockedForecast(run);
+  for (const fc of allForecasts as any[]) {
     if (!fc?.settlement) continue;
-    if (fc.settlement.outcome === 'push' || fc.settlement.outcome === 'void') continue;
-    const odds = mlOddsFromRun(run);
-    if (odds === null) continue;
+    if (fc.settlement.outcome === 'void') continue;
+    const odds = Number(fc.marketPrice);
+    if (!isFinite(odds) || odds <= 1) continue;
     unitsCounted++;
-    netUnits += fc.settlement.outcome === 'win' ? odds - 1 : -1;
+    if (fc.settlement.outcome === 'win') netUnits += odds - 1;
+    else if (fc.settlement.outcome === 'loss') netUnits -= 1;
   }
   const settledCount = wins + losses + pushes;
   const winRate = wins + losses > 0 ? wins / (wins + losses) : null;
-  const roiLabel = unitsCounted > 0 ? `${netUnits >= 0 ? '+' : ''}${netUnits.toFixed(2)}u` : '—';
+  const profitLabel = unitsCounted > 0 ? `${netUnits >= 0 ? '+' : ''}${netUnits.toFixed(2)}u` : '—';
+  const roiLabel = unitsCounted > 0 ? `${netUnits >= 0 ? '+' : ''}${(netUnits / unitsCounted * 100).toFixed(1)}%` : '—';
 
   // current streak over settled picks (in game order)
   const orderedSettled = games.flatMap(g => {
@@ -362,7 +353,7 @@ export default function ResultsPage() {
             onClick={lockSlatePicks}
             disabled={locking || fetching || grading}
             aria-busy={locking}
-            title="Lock every actionable ML and O/U pick before first pitch"
+            title="Lock every official T1 or O/U STRONG pick before first pitch"
           >
             {locking ? '⏳ Locking…' : '🔒 Lock Picks'}
           </button>
@@ -458,10 +449,14 @@ export default function ResultsPage() {
             </div>
           </div>
           <div>
-            <div className="muted" style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Net Units (ROI)</div>
+            <div className="muted" style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Profit</div>
             <div style={{ fontSize: '1.15rem', fontWeight: 800, color: netUnits >= 0 ? 'var(--green-lt)' : 'var(--red-lt)' }}>
-              {roiLabel}
+              {profitLabel}
             </div>
+          </div>
+          <div>
+            <div className="muted" style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>ROI</div>
+            <div style={{ fontSize: '1.15rem', fontWeight: 800, color: netUnits >= 0 ? 'var(--green-lt)' : 'var(--red-lt)' }}>{roiLabel}</div>
           </div>
           <div>
             <div className="muted" style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Streak</div>
@@ -587,7 +582,7 @@ export default function ResultsPage() {
                         </div>
                       ) : mlRun ? (
                         <span className="muted" style={{ fontSize: '0.75rem' }}>
-                          {mlRun.finalState === 'T1' || mlRun.finalState === 'T2' ? 'Not locked' : 'No pick'}
+                          {mlRun.finalState === 'T1' ? 'Not locked' : mlRun.finalState === 'T2' ? 'Watchlist' : 'No pick'}
                         </span>
                       ) : (
                         <span className="muted">—</span>
