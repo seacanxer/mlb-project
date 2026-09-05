@@ -74,6 +74,7 @@ settle_state: Dict[str, Any] = {
     "running": False,
     "last": None,
 }
+parlay_settle_state: Dict[str, Any] = {"running": False, "last": None}
 
 parlay_review_state: Dict[str, Any] = {
     "fingerprint": None,
@@ -218,7 +219,7 @@ async def _review_parlays_with_ai(framework: Dict[str, Any]) -> Dict[str, Any]:
     if not content:
         raise RuntimeError("AI reviewer returned no content")
     result = apply_ai_selection(framework, _parse_ai_json(content), load_config().get("parlay", {}).get("tiers"))
-    result["ai_status"] = "reviewed"
+    result["ai_status"] = "reviewed" if result.get("ai_validation") == "validated" else "framework_fallback"
     result["ai_model"] = model
     return result
 
@@ -555,16 +556,45 @@ def get_parlay_picks():
         cached_review.get("fingerprint") == framework["fingerprint"]
         and isinstance(cached_review.get("result"), dict)
     ):
-        return {
+        result = {
             **cached_review["result"],
             "reviewed_at": cached_review.get("reviewed_at"),
         }
-    return {
-        **framework,
-        "ai_status": "not_run" if os.getenv("FC_AI_BASE_URL") else "not_configured",
-        "ai_model": os.getenv("FC_AI_MODEL") or None,
-        "reviewed_at": None,
-    }
+    else:
+        result = {
+            **framework,
+            "ai_status": "not_run" if os.getenv("FC_AI_BASE_URL") else "not_configured",
+            "ai_model": os.getenv("FC_AI_MODEL") or None,
+            "reviewed_at": None,
+        }
+    return {**result, "tracking": {"summary": db.get_parlay_roi(), "slips": db.get_parlay_slips()}}
+
+
+@app.post("/api/parlay-picks/generate")
+def generate_parlay_picks():
+    framework = _parlay_framework()
+    saved = db.insert_parlay_batch(framework, "framework")
+    return {**framework, "ai_status": "framework", "saved": saved,
+            "tracking": {"summary": db.get_parlay_roi(), "slips": db.get_parlay_slips()}}
+
+
+@app.post("/api/parlay-picks/generate-ai")
+async def generate_ai_parlay_picks():
+    framework = _parlay_framework()
+    try:
+        reviewed = await _review_parlays_with_ai(framework)
+        reviewed_at = datetime.now(timezone.utc).isoformat()
+        saved = db.insert_parlay_batch(reviewed, "ai_reviewed")
+        parlay_review_state.update({"fingerprint": framework["fingerprint"], "result": reviewed,
+                                    "reviewed_at": reviewed_at, "model": reviewed.get("ai_model"), "error": None})
+        _save_parlay_review(dict(parlay_review_state))
+        return {**reviewed, "reviewed_at": reviewed_at, "saved": saved,
+                "tracking": {"summary": db.get_parlay_roi(), "slips": db.get_parlay_slips()}}
+    except Exception as exc:
+        return JSONResponse(status_code=503, content={
+            "detail": "AI parlay unavailable; no AI-labelled slip was saved.", "ai_error": str(exc),
+            "framework": framework,
+        })
 
 
 @app.post("/api/parlay-picks/review")
@@ -763,6 +793,7 @@ def _run_settle_job():
     try:
         rechecked = settlement.recheck_premature()
         result = settlement.settle_all()
+        result["parlays"] = settlement.settle_parlays()
         result["rechecked"] = rechecked
         result["summary"] = db.get_roi()
         settle_state["last"] = result
@@ -770,6 +801,29 @@ def _run_settle_job():
         settle_state["last"] = {"error": str(exc)}
     finally:
         settle_state["running"] = False
+
+
+def _run_parlay_settle_job():
+    try:
+        parlay_settle_state["last"] = settlement.settle_parlays()
+    except Exception as exc:
+        parlay_settle_state["last"] = {"error": str(exc)}
+    finally:
+        parlay_settle_state["running"] = False
+
+
+@app.post("/api/parlay-settle")
+def trigger_parlay_settlement(background_tasks: BackgroundTasks):
+    if parlay_settle_state["running"]:
+        return {"status": "busy", "state": parlay_settle_state}
+    parlay_settle_state["running"] = True
+    background_tasks.add_task(_run_parlay_settle_job)
+    return {"status": "started", "state": parlay_settle_state}
+
+
+@app.get("/api/parlay-settle/status")
+def get_parlay_settlement_status():
+    return parlay_settle_state
 
 
 @app.post("/api/scan")

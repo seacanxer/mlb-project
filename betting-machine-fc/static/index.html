@@ -151,8 +151,10 @@
           <p id="parlay-source-note" class="text-muted">Loading framework recommendations…</p>
         </div>
         <div class="parlay-actions">
-          <button id="btn-refresh-parlay" class="btn btn-secondary">↻ Refresh Framework</button>
-          <button id="btn-ai-parlay" class="btn btn-primary">✨ Run AI Review</button>
+          <button id="btn-refresh-parlay" class="btn btn-secondary">↻ Refresh</button>
+          <button id="btn-generate-parlay" class="btn btn-secondary">🧾 Generate Parlay</button>
+          <button id="btn-ai-parlay" class="btn btn-primary">✨ Generate AI Parlay</button>
+          <button id="btn-settle-parlay" class="btn btn-primary">✅ Settle Parlays</button>
         </div>
       </div>
       <div class="parlay-method card">
@@ -163,6 +165,20 @@
       </div>
       <div id="parlay-container" class="parlay-grid">
         <div class="card text-muted">Loading slips…</div>
+      </div>
+      <div class="section-header parlay-history-heading">
+        <div><h2>Parlay Results & ROI</h2><p class="text-muted">Tracked separately at a flat 1-unit stake per generated slip.</p></div>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-label">Pending</div><div class="kpi-val" id="parlay-pending">0</div></div>
+        <div class="kpi-card"><div class="kpi-label">Settled</div><div class="kpi-val" id="parlay-settled">0</div></div>
+        <div class="kpi-card"><div class="kpi-label">Record</div><div class="kpi-val" id="parlay-record">0–0</div><div class="kpi-sub" id="parlay-pushes">0 pushes</div></div>
+        <div class="kpi-card"><div class="kpi-label">Profit</div><div class="kpi-val" id="parlay-profit">0.00u</div></div>
+        <div class="kpi-card"><div class="kpi-label">ROI</div><div class="kpi-val" id="parlay-roi">0.0%</div></div>
+      </div>
+      <div class="table-container">
+        <table><thead><tr><th>Generated (WIB)</th><th>Tier / Source</th><th>Legs</th><th>Combined Odds</th><th>Status</th><th>Profit</th></tr></thead>
+        <tbody id="parlay-history-body"><tr><td colspan="6" class="text-muted">No generated parlays yet.</td></tr></tbody></table>
       </div>
     </section>
 
@@ -624,6 +640,6 @@ sudo systemctl start fc-betting</code>
     </div>
   </div>
 
-  <script src="/static/app.js?v=17"></script>
+  <script src="/static/app.js?v=18"></script>
 </body>
 </html>

@@ -18,6 +18,27 @@ def total_payout(line, side, odds, goals):
     return returned / len(lines)
 
 
+def selection_return(market, pick, odds, home_goals, away_goals):
+    """Return the settled stake multiplier for one leg (0=loss, 1=push)."""
+    total = home_goals + away_goals
+    margin = home_goals - away_goals
+    if market == 'ou':
+        line = float(pick.split()[1])
+        return total_payout(line, 'over' if 'Over' in pick else 'under', odds, total)
+    if market == 'ah':
+        line = float(pick.split()[1])
+        return (ah_payout(line, odds, margin) if 'Home' in pick
+                else ah_payout_away(line, odds, margin))
+    if market == 'btts':
+        won = (home_goals >= 1 and away_goals >= 1) == ('Yes' in pick)
+        return odds if won else 0.0
+    if market == '1x2':
+        won = (('Home' in pick and margin > 0) or ('Draw' in pick and margin == 0)
+               or ('Away' in pick and margin < 0))
+        return odds if won else 0.0
+    raise ValueError(f'Unsupported market: {market}')
+
+
 def _kickoff_date_ok(bet, row):
     ts = bet.get("start_ts") or 0
     if not ts:
@@ -200,3 +221,38 @@ def settle_all():
         "result_count": result_count,
         "unsettled": len(unsettled),
     }
+
+
+def _settle_parlay_candidates_with(candidates, lookup, find_result, settled_ids):
+    settled = 0
+    for leg in candidates:
+        if leg['id'] in settled_ids:
+            continue
+        ts = leg.get('start_ts')
+        kickoff_date = datetime.fromtimestamp(float(ts), timezone.utc).date() if ts else None
+        row = find_result(leg.get('home'), leg.get('away'), lookup, kickoff_date=kickoff_date)
+        if not row or not _kickoff_date_ok(leg, row) or not _kickoff_time_ok(leg):
+            continue
+        returned = selection_return(
+            leg['market'], leg['pick'], float(leg['odds']),
+            row['home_goals'], row['away_goals'],
+        )
+        result = 'win' if returned > 1.0 + 1e-9 else ('loss' if returned < 1.0 - 1e-9 else 'push')
+        db.settle_parlay_leg(leg['id'], result, returned, row['home_goals'], row['away_goals'])
+        settled_ids.add(leg['id'])
+        settled += 1
+    return settled
+
+
+def settle_parlays():
+    """Settle stored parlay legs from the same verified final-score feeds."""
+    candidates = db.get_pending_parlay_legs()
+    settled_ids = set()
+    index_fs = sf.fetch_recent_results(days=7)
+    settled = _settle_parlay_candidates_with(candidates, sf.build_lookup(index_fs), sf.find_result, settled_ids)
+    import scores_alt as sf_alt
+    index_alt = sf_alt.fetch_recent_results(days=3)
+    settled += _settle_parlay_candidates_with(
+        candidates, sf_alt.build_lookup(index_alt), sf_alt.find_result, settled_ids
+    )
+    return {'legs_settled_now': settled, 'pending_legs_before': len(candidates), 'summary': db.get_parlay_roi()}

@@ -46,7 +46,154 @@ def init_db():
             c.execute('ALTER TABLE bets ADD COLUMN score_status TEXT')
         if 'score_updated_at' not in columns:
             c.execute('ALTER TABLE bets ADD COLUMN score_updated_at TEXT')
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS parlay_slips (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                generation_key TEXT UNIQUE,
+                fingerprint TEXT,
+                tier TEXT,
+                label TEXT,
+                source TEXT,
+                combined_odds REAL,
+                model_joint_probability REAL,
+                generated_at TEXT,
+                status TEXT DEFAULT 'pending',
+                profit REAL,
+                settled_at TEXT
+            )
+        ''')
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS parlay_legs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                parlay_id INTEGER NOT NULL,
+                candidate_id TEXT,
+                source_match_id TEXT,
+                match TEXT,
+                home TEXT,
+                away TEXT,
+                league TEXT,
+                start_ts INTEGER,
+                market TEXT,
+                pick TEXT,
+                odds REAL,
+                result TEXT DEFAULT 'pending',
+                leg_return REAL,
+                home_score INTEGER,
+                away_score INTEGER,
+                settled_at TEXT,
+                FOREIGN KEY(parlay_id) REFERENCES parlay_slips(id) ON DELETE CASCADE
+            )
+        ''')
+        c.execute('CREATE INDEX IF NOT EXISTS idx_parlay_legs_status ON parlay_legs(result, start_ts)')
         conn.commit()
+
+
+def insert_parlay_batch(payload, source='framework'):
+    """Persist ready slips once per input fingerprint, source, and tier."""
+    now = datetime.now().isoformat()
+    created = []
+    conn = _connect()
+    try:
+        conn.execute('PRAGMA foreign_keys=ON')
+        for slip in payload.get('slips', []):
+            if slip.get('status') not in {'ready', 'ready_with_fallback'}:
+                continue
+            tier = slip.get('tier')
+            slip_source = slip.get('source') or source
+            generation_key = f"{payload.get('fingerprint')}|{slip_source}|{tier}"
+            cursor = conn.execute('''
+                INSERT OR IGNORE INTO parlay_slips
+                (generation_key, fingerprint, tier, label, source, combined_odds,
+                 model_joint_probability, generated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (generation_key, payload.get('fingerprint'), tier, slip.get('label'), slip_source,
+                  slip.get('combined_odds'), slip.get('model_joint_probability'), now))
+            if not cursor.rowcount:
+                row = conn.execute('SELECT id FROM parlay_slips WHERE generation_key=?', (generation_key,)).fetchone()
+                created.append({'id': row['id'], 'tier': tier, 'created': False})
+                continue
+            parlay_id = cursor.lastrowid
+            for leg in slip.get('legs', []):
+                conn.execute('''
+                    INSERT INTO parlay_legs
+                    (parlay_id, candidate_id, source_match_id, match, home, away, league,
+                     start_ts, market, pick, odds)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ''', (parlay_id, leg.get('id'), str(leg.get('match_id') or ''), leg.get('match'),
+                      leg.get('home'), leg.get('away'), leg.get('league'), leg.get('start_ts'),
+                      leg.get('market'), leg.get('pick'), leg.get('odds')))
+            created.append({'id': parlay_id, 'tier': tier, 'created': True})
+        conn.commit()
+    finally:
+        conn.close()
+    return created
+
+
+def get_parlay_slips(limit=100):
+    conn = _connect()
+    slips = [dict(row) for row in conn.execute(
+        'SELECT * FROM parlay_slips ORDER BY generated_at DESC, id DESC LIMIT ?', (limit,)
+    ).fetchall()]
+    for slip in slips:
+        slip['legs'] = [dict(row) for row in conn.execute(
+            'SELECT * FROM parlay_legs WHERE parlay_id=? ORDER BY id', (slip['id'],)
+        ).fetchall()]
+        slip['leg_count'] = len(slip['legs'])
+    conn.close()
+    return slips
+
+
+def get_pending_parlay_legs():
+    conn = _connect()
+    rows = conn.execute('''
+        SELECT l.* FROM parlay_legs l JOIN parlay_slips s ON s.id=l.parlay_id
+        WHERE s.status='pending' AND l.result='pending' ORDER BY l.start_ts
+    ''').fetchall()
+    conn.close()
+    return [dict(row) for row in rows]
+
+
+def settle_parlay_leg(leg_id, result, leg_return, home_score, away_score):
+    now = datetime.now().isoformat()
+    conn = _connect()
+    row = conn.execute('SELECT parlay_id FROM parlay_legs WHERE id=?', (leg_id,)).fetchone()
+    if not row:
+        conn.close()
+        return
+    parlay_id = row['parlay_id']
+    conn.execute('''UPDATE parlay_legs SET result=?, leg_return=?, home_score=?, away_score=?, settled_at=? WHERE id=?''',
+                 (result, leg_return, home_score, away_score, now, leg_id))
+    legs = conn.execute('SELECT result, leg_return FROM parlay_legs WHERE parlay_id=?', (parlay_id,)).fetchall()
+    if legs and all(leg['result'] != 'pending' for leg in legs):
+        total_return = 1.0
+        for leg in legs:
+            total_return *= float(leg['leg_return'])
+        profit = total_return - 1.0
+        status = 'won' if profit > 1e-9 else ('lost' if profit < -1e-9 else 'push')
+        conn.execute('UPDATE parlay_slips SET status=?, profit=?, settled_at=? WHERE id=?',
+                     (status, profit, now, parlay_id))
+    conn.commit()
+    conn.close()
+
+
+def get_parlay_roi():
+    conn = _connect()
+    row = conn.execute('''
+        SELECT COUNT(*) AS settled,
+               SUM(CASE WHEN status='won' THEN 1 ELSE 0 END) AS wins,
+               SUM(CASE WHEN status='lost' THEN 1 ELSE 0 END) AS losses,
+               SUM(CASE WHEN status='push' THEN 1 ELSE 0 END) AS pushes,
+               COALESCE(SUM(profit), 0) AS profit
+        FROM parlay_slips WHERE status!='pending'
+    ''').fetchone()
+    pending = conn.execute("SELECT COUNT(*) FROM parlay_slips WHERE status='pending'").fetchone()[0]
+    conn.close()
+    settled = row['settled'] or 0
+    profit = float(row['profit'] or 0)
+    return {'pending': pending, 'settled': settled, 'wins': row['wins'] or 0,
+            'losses': row['losses'] or 0, 'pushes': row['pushes'] or 0,
+            'profit_units': round(profit, 2),
+            'roi_pct': round(profit / settled * 100, 2) if settled else 0.0}
 
 def insert_bet(bet):
     """Lock one recommendation per fixture. If an unsettled lock already exists

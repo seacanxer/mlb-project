@@ -74,7 +74,9 @@ def qualified_candidates(picks: Iterable[Dict[str, Any]]) -> List[Dict[str, Any]
         odds = _number(source.get("odds"))
         probability = _number(source.get("probability"))
         conservative_ev = _number(source.get("conservative_ev"), _number(source.get("ev")) - 0.02)
-        if odds <= 1 or not 0 < probability < 1 or conservative_ev < 0.02:
+        # Keep marginal positive-edge official picks available for the controlled
+        # fill pass. Tier thresholds below remain the primary selection gate.
+        if odds <= 1 or not 0 < probability < 1 or conservative_ev < 0:
             continue
         item = dict(source)
         item["id"] = candidate_id(item)
@@ -116,22 +118,26 @@ def _summarize_slip(
     max_legs = int(spec.get("max_legs", min_legs))
     combined_odds = math.prod(_number(leg.get("odds"), 1.0) for leg in legs)
     model_probability = math.prod(_number(leg.get("probability"), 0.0) for leg in legs)
+    fallback_count = sum(1 for leg in legs if leg.get("tier_fallback"))
+    ready = min_legs <= len(legs)
     return {
         "tier": tier,
         "label": spec["label"],
-        "status": "ready" if min_legs <= len(legs) else "insufficient_candidates",
+        "status": "ready_with_fallback" if ready and fallback_count else ("ready" if ready else "insufficient_candidates"),
         "source": source,
         "min_legs": min_legs,
         "max_legs": max_legs,
         "required_legs": min_legs,
         "leg_count": len(legs),
+        "fallback_count": fallback_count,
         "legs": legs,
         "combined_odds": round(combined_odds, 3) if legs else None,
         "market_implied_probability": round(1.0 / combined_odds, 4) if combined_odds > 1 else None,
         "model_joint_probability": round(model_probability, 4) if legs else None,
         "rationale": rationale or (
-            "Framework-ranked independent fixtures using full-coverage official picks."
-            if min_legs <= len(legs) else
+            (f"Framework-ranked independent fixtures; {fallback_count} controlled-fill leg(s) use a smaller but still non-negative conservative edge."
+             if fallback_count else "Framework-ranked independent fixtures using full-coverage official picks.")
+            if ready else
             f"Only {len(legs)} of {min_legs} independent qualified legs are available; no weak leg was forced."
         ),
     }
@@ -165,6 +171,26 @@ def build_parlay_slips(
             league_counts[league] = league_counts.get(league, 0) + 1
             if len(legs) >= int(spec.get("max_legs", spec.get("min_legs", 1))):
                 break
+        # Fill only to the minimum with full-coverage, official, non-negative
+        # conservative-EV candidates. Absolute tier odds and league caps stay in force.
+        if len(legs) < int(spec["min_legs"]):
+            fallback_pool = [candidate for candidate in candidates if (
+                _number(candidate.get("odds")) <= _number(spec["max_leg_odds"])
+                and _number(candidate.get("probability")) >= 0.50
+                and _match_key(candidate) not in used_matches
+            )]
+            for source_candidate in _rank(fallback_pool, tier):
+                match_key = _match_key(source_candidate)
+                league = str(source_candidate.get("league") or "Unknown")
+                if match_key in used_matches or league_counts.get(league, 0) >= int(spec["max_legs_per_league"]):
+                    continue
+                candidate = dict(source_candidate)
+                candidate["tier_fallback"] = True
+                legs.append(candidate)
+                used_matches.add(match_key)
+                league_counts[league] = league_counts.get(league, 0) + 1
+                if len(legs) >= int(spec["min_legs"]):
+                    break
         slips.append(_summarize_slip(tier, spec, legs))
 
     fingerprint_payload = [{key: candidate.get(key) for key in ("id", "odds", "probability", "rank_score")} for candidate in candidates]
@@ -228,4 +254,14 @@ def apply_ai_selection(
             fallback = dict(framework_by_tier[tier])
             fallback["rationale"] = f"AI proposal failed validation; framework fallback used. {fallback['rationale']}"
             slips.append(fallback)
-    return {**framework, "slips": slips}
+    if any(slip.get("source") != "ai_reviewed" for slip in slips):
+        safe_fallback = []
+        for slip in framework.get("slips", []):
+            fallback = dict(slip)
+            fallback["rationale"] = (
+                "AI proposal failed validation across one or more tiers; the complete framework set was preserved. "
+                + str(slip.get("rationale") or "")
+            )
+            safe_fallback.append(fallback)
+        return {**framework, "slips": safe_fallback, "ai_validation": "framework_fallback"}
+    return {**framework, "slips": slips, "ai_validation": "validated"}

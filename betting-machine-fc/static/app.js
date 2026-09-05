@@ -34,43 +34,54 @@ function escapeHtml(value) {
   })[char]);
 }
 
-async function loadParlays(runAiReview = false) {
+async function loadParlays(action = 'refresh') {
   const container = document.getElementById('parlay-container');
   const note = document.getElementById('parlay-source-note');
   const aiButton = document.getElementById('btn-ai-parlay');
+  const frameworkButton = document.getElementById('btn-generate-parlay');
   if (!container) return;
   container.innerHTML = '<div class="card text-muted">Building validated slips…</div>';
-  if (runAiReview && aiButton) {
+  if (action === 'ai' && aiButton) {
     aiButton.disabled = true;
-    aiButton.textContent = '⏳ AI reviewing…';
+    aiButton.textContent = '⏳ AI generating…';
   }
+  if (action === 'framework' && frameworkButton) frameworkButton.disabled = true;
   try {
-    const res = await fetch(runAiReview ? '/api/parlay-picks/review' : '/api/parlay-picks', {
-      method: runAiReview ? 'POST' : 'GET'
-    });
-    if (!res.ok) throw new Error('Failed to load parlay recommendations');
+    const url = action === 'ai' ? '/api/parlay-picks/generate-ai'
+      : action === 'framework' ? '/api/parlay-picks/generate' : '/api/parlay-picks';
+    const res = await fetch(url, { method: action === 'refresh' ? 'GET' : 'POST' });
     const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || data.ai_error || 'Failed to load parlay recommendations');
     renderParlays(data);
+    renderParlayTracking(data.tracking || {});
     if (note) {
       const source = data.ai_status === 'reviewed'
         ? `AI-reviewed by ${data.ai_model || 'configured model'}`
+        : data.ai_status === 'framework_fallback'
+        ? 'AI response failed one or more framework gates — framework slips preserved'
         : data.ai_status === 'unavailable'
         ? 'AI unavailable — showing deterministic framework slips'
         : data.ai_status === 'not_configured'
         ? 'Framework mode — AI reviewer is not configured'
+        : data.ai_status === 'framework' ? 'Framework parlay generated and tracked'
         : 'Framework mode — AI review has not been run';
       note.textContent = `${source} · ${Number(data.candidate_count || 0)} qualified candidates${data.reviewed_at ? ` · ${formatWibTimestamp(data.reviewed_at)}` : ''}`;
     }
     if (data.ai_status === 'unavailable' && data.ai_error) {
       showBanner(`AI review unavailable; framework slips preserved. ${data.ai_error}`, true);
     }
+    if (action !== 'refresh') {
+      const created = (data.saved || []).filter(item => item.created).length;
+      showBanner(created ? `${created} parlay slip baru disimpan untuk settlement.` : 'Slip identik sudah tercatat; tidak dibuat duplikat.');
+    }
   } catch (err) {
     container.innerHTML = `<div class="empty-state"><h3>Parlay recommendations unavailable</h3><p>${escapeHtml(err.message)}</p></div>`;
   } finally {
     if (aiButton) {
       aiButton.disabled = false;
-      aiButton.textContent = '✨ Run AI Review';
+      aiButton.textContent = '✨ Generate AI Parlay';
     }
+    if (frameworkButton) frameworkButton.disabled = false;
   }
 }
 
@@ -79,7 +90,7 @@ function renderParlays(data) {
   if (!container) return;
   const tierIcons = { safe: '🛡️', recommended: '⭐', aggressive: '🔥' };
   container.innerHTML = (data.slips || []).map(slip => {
-    const ready = slip.status === 'ready';
+    const ready = ['ready', 'ready_with_fallback'].includes(slip.status);
     const source = slip.source === 'ai_reviewed' ? 'AI + Framework' : 'Framework';
     const legs = (slip.legs || []).map((leg, index) => `
       <div class="parlay-leg">
@@ -105,7 +116,7 @@ function renderParlays(data) {
           <span class="parlay-source">${escapeHtml(source)}</span>
         </div>
         <div class="parlay-status ${ready ? 'ready' : 'incomplete'}">
-          ${ready ? `${slip.leg_count}-leg slip (${slip.min_legs}-${slip.max_legs}) ready` : `${slip.leg_count}/${slip.required_legs} qualified legs — no forced selection`}
+          ${ready ? `${slip.leg_count}-leg slip (${slip.min_legs}-${slip.max_legs}) ready${slip.fallback_count ? ` · ${slip.fallback_count} controlled fill` : ''}` : `${slip.leg_count}/${slip.required_legs} qualified legs — no forced selection`}
         </div>
         <div class="parlay-legs">${legs || '<p class="text-muted">No candidate currently passes this tier.</p>'}</div>
         <div class="parlay-summary">
@@ -119,10 +130,58 @@ function renderParlays(data) {
   }).join('') || '<div class="empty-state"><h3>No parlay slips available</h3><p>Run a live scan to populate qualified O/U and AH candidates.</p></div>';
 }
 
+function renderParlayTracking(tracking) {
+  const summary = tracking.summary || {};
+  const set = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
+  set('parlay-pending', summary.pending || 0);
+  set('parlay-settled', summary.settled || 0);
+  set('parlay-record', `${summary.wins || 0}–${summary.losses || 0}`);
+  set('parlay-pushes', `${summary.pushes || 0} pushes`);
+  set('parlay-profit', `${Number(summary.profit_units || 0).toFixed(2)}u`);
+  set('parlay-roi', `${Number(summary.roi_pct || 0).toFixed(1)}%`);
+  const body = document.getElementById('parlay-history-body');
+  if (!body) return;
+  body.innerHTML = (tracking.slips || []).map(slip => `
+    <tr>
+      <td>${formatWibTimestamp(slip.generated_at)}</td>
+      <td><strong>${escapeHtml(slip.label || slip.tier)}</strong><br><small>${slip.source === 'ai_reviewed' ? 'AI + Framework' : 'Framework'}</small></td>
+      <td>${slip.leg_count || 0}</td>
+      <td>${Number(slip.combined_odds || 0).toFixed(2)}</td>
+      <td><span class="status-badge ${escapeHtml(slip.status)}">${escapeHtml(String(slip.status || '').toUpperCase())}</span></td>
+      <td>${slip.profit == null ? '—' : `${Number(slip.profit).toFixed(2)}u`}</td>
+    </tr>`).join('') || '<tr><td colspan="6" class="text-muted">No generated parlays yet.</td></tr>';
+}
+
+async function settleParlays() {
+  const button = document.getElementById('btn-settle-parlay');
+  if (button) { button.disabled = true; button.textContent = '⏳ Settling…'; }
+  try {
+    const start = await fetch('/api/parlay-settle', { method: 'POST' });
+    if (!start.ok) throw new Error('Unable to start parlay settlement');
+    for (let attempt = 0; attempt < 30; attempt += 1) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      const state = await fetch('/api/parlay-settle/status').then(response => response.json());
+      if (!state.running) {
+        if (state.last?.error) throw new Error(state.last.error);
+        showBanner(`${state.last?.legs_settled_now || 0} parlay legs settled.`);
+        await loadParlays('refresh');
+        return;
+      }
+    }
+    showBanner('Settlement masih berjalan. Refresh beberapa saat lagi.');
+  } catch (err) {
+    showBanner(`Parlay settlement failed: ${err.message}`, true);
+  } finally {
+    if (button) { button.disabled = false; button.textContent = '✅ Settle Parlays'; }
+  }
+}
+
 function initParlay() {
-  document.getElementById('btn-refresh-parlay')?.addEventListener('click', () => loadParlays(false));
-  document.getElementById('btn-ai-parlay')?.addEventListener('click', () => loadParlays(true));
-  loadParlays(false);
+  document.getElementById('btn-refresh-parlay')?.addEventListener('click', () => loadParlays('refresh'));
+  document.getElementById('btn-generate-parlay')?.addEventListener('click', () => loadParlays('framework'));
+  document.getElementById('btn-ai-parlay')?.addEventListener('click', () => loadParlays('ai'));
+  document.getElementById('btn-settle-parlay')?.addEventListener('click', settleParlays);
+  loadParlays('refresh');
 }
 
 // Tab Switching

@@ -52,3 +52,11 @@ def test_invalid_ai_legs_fall_back_to_framework():
     })
     assert result["slips"][0]["source"] == "framework"
     assert "failed validation" in result["slips"][0]["rationale"]
+
+
+def test_controlled_fill_uses_only_non_negative_edge_official_candidates():
+    candidates = [pick(i, probability=0.56, cev=0.005) for i in range(12)]
+    result = build_parlay_slips(candidates)
+    assert all(slip["status"] == "ready_with_fallback" for slip in result["slips"])
+    assert all(leg["conservative_ev"] >= 0 for slip in result["slips"] for leg in slip["legs"])
+    assert sum(slip["fallback_count"] for slip in result["slips"]) == 12
