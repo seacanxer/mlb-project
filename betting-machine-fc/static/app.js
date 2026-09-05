@@ -1138,7 +1138,7 @@ function initSettingsForm() {
 
 
 // ---------------------------------------------------------------------------
-// Market Intel (PRD v2) — Parlindunganup-style board
+// Market Intel (PRD v2) — texas-style board
 // ---------------------------------------------------------------------------
 let allIntel = [];
 

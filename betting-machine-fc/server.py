@@ -1033,7 +1033,7 @@ def update_config(cfg: Dict[str, Any]):
 
 
 # ---------------------------------------------------------------------------
-# Market Intelligence (PRD v2) — Parlindunganup-style workflow
+# Market Intelligence (PRD v2) — texas-style workflow
 # ---------------------------------------------------------------------------
 
 intel_state: Dict[str, Any] = {"running": False, "last": None, "error": None}

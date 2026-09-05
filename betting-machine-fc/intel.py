@@ -1,4 +1,4 @@
-"""Market intelligence board — Parlindunganup-style analysis (PRD v2).
+"""Market intelligence board — texas-style analysis (PRD v2).
 
 Workflow replicated:
 1. probability 1X2 + expected home/away/total + goal difference
