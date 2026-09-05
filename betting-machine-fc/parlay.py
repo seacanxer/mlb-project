@@ -144,6 +144,7 @@ def build_parlay_slips(
     candidates = qualified_candidates(picks)
     tier_config = {**DEFAULT_PARLAY_CONFIG, **(config or {})}
     slips = []
+    previous_legs: List[Dict[str, Any]] = []
     for tier in ("safe", "recommended", "aggressive"):
         spec = {**DEFAULT_PARLAY_CONFIG[tier], **tier_config.get(tier, {})}
         eligible = [candidate for candidate in candidates if (
@@ -152,6 +153,18 @@ def build_parlay_slips(
             and _number(candidate.get("odds")) <= _number(spec["max_leg_odds"])
         )]
         legs, used_matches, league_counts = [], set(), {}
+        eligible_by_id = {candidate["id"]: candidate for candidate in eligible}
+        for leg in previous_legs:
+            candidate = eligible_by_id.get(leg["id"])
+            if not candidate:
+                continue
+            match_key = _match_key(candidate)
+            if match_key in used_matches:
+                continue
+            legs.append(candidate)
+            used_matches.add(match_key)
+            league = str(candidate.get("league") or "Unknown")
+            league_counts[league] = league_counts.get(league, 0) + 1
         for candidate in _rank(eligible, tier):
             match_key = _match_key(candidate)
             league = str(candidate.get("league") or "Unknown")
@@ -163,6 +176,7 @@ def build_parlay_slips(
             if len(legs) >= int(spec.get("max_legs", spec.get("min_legs", 1))):
                 break
         slips.append(_summarize_slip(tier, spec, legs))
+        previous_legs = list(legs)
 
     fingerprint_payload = [{key: candidate.get(key) for key in ("id", "odds", "probability", "rank_score")} for candidate in candidates]
     fingerprint = hashlib.sha256(json.dumps(fingerprint_payload, sort_keys=True).encode("utf-8")).hexdigest()[:16]
@@ -191,12 +205,31 @@ def apply_ai_selection(
     by_id = {candidate["id"]: candidate for candidate in framework.get("candidates", [])}
     framework_by_tier = {slip["tier"]: slip for slip in framework.get("slips", [])}
     slips = []
+    previous_legs: List[Dict[str, Any]] = []
     for tier in ("safe", "recommended", "aggressive"):
         spec = {**DEFAULT_PARLAY_CONFIG[tier], **tier_config.get(tier, {})}
         proposal = selections.get(tier) if isinstance(selections, dict) else None
         ids = proposal.get("leg_ids", []) if isinstance(proposal, dict) else []
         rationale = str(proposal.get("rationale", "")).strip() if isinstance(proposal, dict) else ""
         legs, used_matches, league_counts = [], set(), {}
+        eligible_by_id = {candidate["id"]: candidate for candidate in by_id.values()}
+        for leg in previous_legs:
+            candidate = eligible_by_id.get(leg["id"])
+            if not candidate:
+                continue
+            if (
+                _number(candidate.get("probability")) < _number(spec["min_probability"])
+                or _number(candidate.get("conservative_ev")) < _number(spec["min_conservative_ev"])
+                or _number(candidate.get("odds")) > _number(spec["max_leg_odds"])
+            ):
+                continue
+            match_key = _match_key(candidate)
+            if match_key in used_matches:
+                continue
+            legs.append(candidate)
+            used_matches.add(match_key)
+            league = str(candidate.get("league") or "Unknown")
+            league_counts[league] = league_counts.get(league, 0) + 1
         for candidate_key in ids:
             candidate = by_id.get(str(candidate_key))
             if not candidate:
@@ -217,9 +250,11 @@ def apply_ai_selection(
             if len(legs) >= int(spec.get("max_legs", spec.get("min_legs", 1))):
                 break
         if len(legs) >= int(spec.get("min_legs", 1)):
-            slips.append(_summarize_slip(tier, spec, legs, "ai_reviewed", rationale or "AI ranking validated by framework gates."))
+            slip = _summarize_slip(tier, spec, legs, "ai_reviewed", rationale or "AI ranking validated by framework gates.")
+            slips.append(slip)
         else:
             fallback = dict(framework_by_tier[tier])
             fallback["rationale"] = f"AI proposal failed validation; framework fallback used. {fallback['rationale']}"
             slips.append(fallback)
+        previous_legs = list(legs)
     return {**framework, "slips": slips}

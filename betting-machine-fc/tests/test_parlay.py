@@ -21,6 +21,11 @@ def test_builds_three_independent_tiered_slips():
         assert slip["status"] == "ready"
         assert len({leg["match_id"] for leg in slip["legs"]}) == slip["leg_count"]
         assert slip["combined_odds"] > 1
+    safe_legs = {leg["id"] for leg in result["slips"][0]["legs"]}
+    recommended_legs = {leg["id"] for leg in result["slips"][1]["legs"]}
+    aggressive_legs = {leg["id"] for leg in result["slips"][2]["legs"]}
+    assert safe_legs <= recommended_legs
+    assert recommended_legs <= aggressive_legs
 
 def test_tier_leg_ranges_lower_bound():
     result = build_parlay_slips([pick(i) for i in range(3)])
