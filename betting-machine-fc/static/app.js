@@ -1135,3 +1135,196 @@ function initSettingsForm() {
     }
   });
 }
+
+
+// ---------------------------------------------------------------------------
+// Market Intel (PRD v2) — Parlindunganup-style board
+// ---------------------------------------------------------------------------
+let allIntel = [];
+
+function wib(ts) {
+  if (!ts) return '-';
+  const d = new Date(ts * 1000);
+  return d.toLocaleString('en-GB', { timeZone: 'Asia/Jakarta', hour12: false, weekday: 'short', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+}
+
+function intelDecisionBadge(decision) {
+  const colorMap = {
+    'BET': 'badge-green', 'WATCH': 'badge-amber', 'SHADOW': 'badge-blue',
+    'NO BET': 'badge-gray', 'UNSUPPORTED': 'badge-red',
+  };
+  return `<span class="badge ${colorMap[decision] || 'badge-gray'}">${decision}</span>`;
+}
+
+function mvtBadge(pct) {
+  if (pct === null || pct === undefined) return '<span class="text-muted">—</span>';
+  const dir = pct > 0 ? '↑' : (pct < 0 ? '↓' : '→');
+  const color = pct > 0 ? '#ef4444' : (pct < 0 ? '#22c55e' : '#9ca3af');
+  return `<span style="color:${color}">${dir} ${Math.abs(pct).toFixed(2)}%</span>`;
+}
+
+async function loadIntel() {
+  const decision = document.getElementById('intel-filter-decision')?.value || 'all';
+  const league = document.getElementById('intel-filter-league')?.value || 'all';
+  const search = (document.getElementById('intel-filter-search')?.value || '').trim().toLowerCase();
+  let url = '/api/intel?limit=2000';
+  if (decision && decision !== 'all') url += `&decision=${encodeURIComponent(decision)}`;
+  if (league && league !== 'all') url += `&league=${encodeURIComponent(league)}`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('intel fetch failed');
+    const data = await res.json();
+    allIntel = data.board || [];
+    if (search) allIntel = allIntel.filter(i => (i.home + ' ' + i.away + ' ' + (i.league||'')).toLowerCase().includes(search));
+    const meta = document.getElementById('intel-meta');
+    if (meta) {
+      const gen = data.generated_at ? new Date(data.generated_at).toLocaleString('en-GB', { timeZone: 'Asia/Jakarta' }) : '-';
+      meta.textContent = `Board: ${data.count} matches · Generated ${gen} · Single-bookmaker reference (WATCH/SHADOW max)`;
+    }
+    populateIntelLeagueFilter(allIntel);
+    renderIntel();
+  } catch (err) {
+    console.error('intel error', err);
+    document.getElementById('intel-tbody').innerHTML = `<tr><td colspan="11" class="text-muted">Error loading intel board: ${err.message}</td></tr>`;
+  }
+}
+
+function populateIntelLeagueFilter(items) {
+  const sel = document.getElementById('intel-filter-league');
+  if (!sel) return;
+  const current = sel.value;
+  const leagues = [...new Set(items.map(i => i.league).filter(Boolean))].sort();
+  sel.innerHTML = '<option value="all">All Leagues</option>' + leagues.map(l => `<option value="${l}">${l}</option>`).join('');
+  sel.value = current;
+}
+
+function renderIntel() {
+  const tbody = document.getElementById('intel-tbody');
+  const empty = document.getElementById('intel-empty');
+  if (!allIntel.length) {
+    tbody.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+  tbody.innerHTML = allIntel.map(i => {
+    const ou = i.main_ou || {};
+    const ah = i.main_ah || {};
+    const rec = i.recommendation || {};
+    const mov = ou.over_mvt_pct !== undefined ? `${mvtBadge(ou.over_mvt_pct)} / ${mvtBadge(ou.under_mvt_pct)}` : '<span class="text-muted">—</span>';
+    return `<tr>
+      <td>${wib(i.start_ts)}</td>
+      <td class="text-muted small">${i.league || '-'}</td>
+      <td><strong>${i.home} vs ${i.away}</strong></td>
+      <td>${i.lambdas?.total ?? '-'}</td>
+      <td>${ou.line != null ? `O/U ${ou.line} (${ou.over_odds}/${ou.under_odds})` : '-'}</td>
+      <td>${mov}</td>
+      <td>${ah.home_line != null ? `AH ${ah.home_line} @ ${ah.home_odds}` : '-'}</td>
+      <td>${rec.pick ? `${rec.pick} @ ${rec.odds} (EV ${(rec.ev*100).toFixed(1)}%)` : '<span class="text-muted">—</span>'}</td>
+      <td>${intelDecisionBadge(i.decision)}</td>
+      <td class="small text-muted">${i.decide_reason || ''}</td>
+      <td><button class="btn btn-sm" onclick="openIntelModal('${i.match_id}')">View</button></td>
+    </tr>`;
+  }).join('');
+}
+
+async function openIntelModal(matchId) {
+  try {
+    const res = await fetch(`/api/intel/match/${encodeURIComponent(matchId)}`);
+    if (!res.ok) throw new Error('detail fetch failed');
+    const i = await res.json();
+    const ctx = i.context || [];
+    const history = i.history || [];
+    const ctxHtml = ctx.length ? ctx.map(c => `<div class="intel-note"><strong>${c.confidence}</strong> — ${c.note}<br><span class="text-muted small">${c.source||'no source'} · ${c.author||'?'} · ${c.created_at||''}</span></div>`).join('') : '<p class="text-muted">Belum ada context.</p>';
+    const histHtml = history.length ? history.slice(-8).map(h => `<div class="text-muted small">${h.observed_at} · ${h.market} ${h.line} ${h.side} @ ${h.odds}</div>`).join('') : '<p class="text-muted">Belum ada snapshot.</p>';
+    const html = `
+      <div class="intel-detail">
+        <h3>${i.home} vs ${i.away} <span class="text-muted">(${i.league})</span></h3>
+        <p>Kickoff: ${wib(i.start_ts)} WIB · Coverage: <strong>${i.coverage}</strong> (${i.data_grade})</p>
+        <div class="kpi-grid small">
+          <div class="kpi-card"><div class="kpi-label">Model</div><div class="kpi-val">${i.lambdas?.total}</div><div class="kpi-sub">Total goals</div></div>
+          <div class="kpi-card"><div class="kpi-label">Home</div><div class="kpi-val">${i.lambdas?.home}</div><div class="kpi-sub">λ home</div></div>
+          <div class="kpi-card"><div class="kpi-label">Away</div><div class="kpi-val">${i.lambdas?.away}</div><div class="kpi-sub">λ away</div></div>
+          <div class="kpi-card"><div class="kpi-label">1X2</div><div class="kpi-val small">${(i.probs?.home*100).toFixed(0)}/${(i.probs?.draw*100).toFixed(0)}/${(i.probs?.away*100).toFixed(0)}</div><div class="kpi-sub">H/D/A %</div></div>
+        </div>
+        <h4>Rekomendasi</h4>
+        ${i.recommendation ? `<p><strong>${i.recommendation.pick}</strong> @ ${i.recommendation.odds} · EV ${(i.recommendation.ev*100).toFixed(1)}% · prob ${(i.recommendation.prob*100).toFixed(0)}%</p>` : '<p class="text-muted">Tidak ada line defensif memenuhi gate.</p>'}
+        ${intelDecisionBadge(i.decision)} <span class="text-muted small">${i.decide_reason}</span>
+        <h4>Odds Movement (snapshot terakhir)</h4>
+        <div class="intel-hist">${histHtml}</div>
+        <h4>Context</h4>
+        <div class="intel-notes">${ctxHtml}</div>
+        <div class="intel-add-note">
+          <textarea id="intel-note-text" class="form-input" placeholder="Tambah context: lineup, absensi, motivasi, dll."></textarea>
+          <button class="btn btn-sm" onclick="addIntelNote('${i.match_id}')">Simpan Context</button>
+        </div>
+      </div>`;
+    const modal = document.getElementById('match-modal');
+    const body = modal.querySelector('.modal-card');
+    body.innerHTML = `<div class="modal-header"><h2>Market Intel</h2><button id="btn-close-modal" class="modal-close-btn">&times;</button></div>` + html;
+    modal.classList.remove('hidden');
+    document.getElementById('btn-close-modal')?.addEventListener('click', () => modal.classList.add('hidden'));
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.add('hidden'); });
+  } catch (err) {
+    console.error('intel modal error', err);
+    showBanner('Error buka detail: ' + err.message, true);
+  }
+}
+
+async function addIntelNote(matchId) {
+  const text = document.getElementById('intel-note-text')?.value?.trim();
+  if (!text) { showBanner('Isi note dulu', true); return; }
+  try {
+    const res = await fetch('/api/intel/context', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ match_id: matchId, note: text, source: 'manual', confidence: 'medium', author: 'Tuan' }),
+    });
+    if (!res.ok) throw new Error('context save failed');
+    showBanner('✅ Context tersimpan');
+    loadIntel();
+    openIntelModal(matchId);
+  } catch (err) {
+    showBanner('Error simpan context: ' + err.message, true);
+  }
+}
+
+function initIntelTab() {
+  document.getElementById('btn-refresh-intel')?.addEventListener('click', async () => {
+    const btn = document.getElementById('btn-refresh-intel');
+    btn.disabled = true;
+    btn.textContent = 'Scanning...';
+    try {
+      const res = await fetch('/api/intel/refresh', { method: 'POST' });
+      if (!res.ok) throw new Error('refresh trigger failed');
+      showBanner('📡 Intel scan dimulai...');
+      let tries = 0;
+      const t = setInterval(async () => {
+        tries++;
+        const s = await (await fetch('/api/intel/status')).json();
+        if (!s.running || tries > 120) {
+          clearInterval(t);
+          btn.disabled = false;
+          btn.textContent = '↻ Refresh';
+          if (s.error) showBanner('Intel scan error: ' + s.error, true);
+          else showBanner('✅ Intel board selesai di-refresh');
+          loadIntel();
+        }
+      }, 2500);
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = '↻ Refresh';
+      showBanner('Gagal trigger intel scan: ' + err.message, true);
+    }
+  });
+  document.getElementById('intel-filter-decision')?.addEventListener('change', loadIntel);
+  document.getElementById('intel-filter-league')?.addEventListener('change', loadIntel);
+  document.getElementById('intel-filter-search')?.addEventListener('input', debounce(loadIntel, 400));
+}
+
+// wire up tab loaders
+const _origInitTabs = initTabs;
+initTabs = function () {
+  _origInitTabs();
+  initIntelTab();
+};

@@ -1032,6 +1032,103 @@ def update_config(cfg: Dict[str, Any]):
     return {"status": "saved", "config": load_config()}
 
 
+# ---------------------------------------------------------------------------
+# Market Intelligence (PRD v2) — Parlindunganup-style workflow
+# ---------------------------------------------------------------------------
+
+intel_state: Dict[str, Any] = {"running": False, "last": None, "error": None}
+
+
+def _run_intel_scan():
+    global intel_state
+    import intel as intel_mod
+    intel_state["running"] = True
+    intel_state["error"] = None
+    try:
+        last = intel_mod.scan_intel(window_hours=16, max_matches=500,
+                                    progress=lambda msg: intel_state.update(progress=msg))
+        intel_state["last"] = {
+            "generated_at": last.get("generated_at"),
+            "count": last.get("count"),
+            "window_hours": last.get("window_hours"),
+        }
+        intel_state["progress"] = "Intel scan completed."
+    except Exception as e:
+        intel_state["error"] = str(e)
+        intel_state["progress"] = f"Intel scan failed: {e}"
+    finally:
+        intel_state["running"] = False
+
+
+@app.get("/api/intel")
+def get_intel(market: Optional[str] = Query(None), league: Optional[str] = Query(None),
+              decision: Optional[str] = Query(None), limit: int = Query(200, ge=1, le=2000),
+              offset: int = Query(0, ge=0)):
+    import intel as intel_mod
+    board = intel_mod.load_board()
+    items = board.get("board", [])
+    if market:
+        items = [i for i in items if (i.get("main_ou") and market.lower() in ("ou", "total", "over/under"))
+                 or (i.get("main_ah") and market.lower() in ("ah", "handicap", "asian handicap"))]
+    if league:
+        items = [i for i in items if league.lower() in (i.get("league") or "").lower()]
+    if decision:
+        items = [i for i in items if (i.get("decision") or "").lower() == decision.lower()]
+    total = len(items)
+    items = items[offset:offset + limit]
+    return {
+        "generated_at": board.get("generated_at"),
+        "count": board.get("count"),
+        "total_filtered": total,
+        "offset": offset,
+        "limit": limit,
+        "board": items,
+        "state": {k: intel_state[k] for k in ("running", "last", "error") if k in intel_state},
+    }
+
+
+@app.post("/api/intel/refresh")
+def trigger_intel_scan(background_tasks: BackgroundTasks):
+    if intel_state["running"]:
+        return {"status": "busy", "message": "intel scan already running", "state": intel_state}
+    background_tasks.add_task(_run_intel_scan)
+    return {"status": "started", "message": "intel scan started", "state": intel_state}
+
+
+@app.get("/api/intel/status")
+def get_intel_status():
+    return intel_state
+
+
+@app.get("/api/intel/match/{match_id}")
+def get_intel_match(match_id: str):
+    import intel as intel_mod
+    board = intel_mod.load_board()
+    item = next((i for i in board.get("board", []) if i.get("match_id") == match_id), None)
+    if not item:
+        raise HTTPException(status_code=404, detail="match not in intel board")
+    item["history"] = db.get_intel_history(match_id)
+    item["context"] = db.get_intel_context(match_id)
+    return item
+
+
+class IntelContextRequest(BaseModel):
+    match_id: str
+    note: str = Field(..., min_length=3, max_length=2000)
+    source: Optional[str] = None
+    confidence: str = "medium"
+    author: Optional[str] = None
+    effective_at: Optional[str] = None
+
+
+@app.post("/api/intel/context")
+def add_intel_context(req: IntelContextRequest):
+    db.save_intel_context(req.match_id, req.note, source=req.source,
+                          confidence=req.confidence, author=req.author,
+                          effective_at=req.effective_at)
+    return {"status": "saved", "context": db.get_intel_context(req.match_id)}
+
+
 if __name__ == "__main__":
     import uvicorn
 

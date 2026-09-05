@@ -86,6 +86,7 @@ def init_db():
         ''')
         c.execute('CREATE INDEX IF NOT EXISTS idx_parlay_legs_status ON parlay_legs(result, start_ts)')
         conn.commit()
+    init_intel_tables()
 
 
 def insert_parlay_batch(payload, source='framework'):
@@ -489,3 +490,118 @@ def delete_bets_by_date_range(start_date, end_date):
     conn.commit()
     conn.close()
     return deleted
+
+
+# ---------------------------------------------------------------------------
+# Market Intelligence (PRD v2) — opening-odds snapshots + context notes
+# ---------------------------------------------------------------------------
+
+_INTEL_SCHEMA = '''
+CREATE TABLE IF NOT EXISTS intel_snapshots (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    match_id TEXT NOT NULL,
+    home TEXT,
+    away TEXT,
+    league TEXT,
+    start_ts INTEGER,
+    observed_at TEXT NOT NULL,
+    market TEXT NOT NULL,
+    line REAL NOT NULL,
+    side TEXT NOT NULL,
+    odds REAL NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_intel_snapshots_match
+    ON intel_snapshots(match_id, market, line, side, observed_at);
+CREATE TABLE IF NOT EXISTS intel_context (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    match_id TEXT NOT NULL,
+    note TEXT NOT NULL,
+    source TEXT,
+    confidence TEXT DEFAULT 'medium',
+    author TEXT,
+    effective_at TEXT,
+    created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_intel_context_match ON intel_context(match_id);
+'''
+
+
+def init_intel_tables():
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.executescript(_INTEL_SCHEMA)
+
+
+def save_intel_snapshot(match_id, home, away, league, start_ts, observed_at,
+                        market, line, side, odds):
+    """Stores one quote. Opening = first observed_at per key (INSERT OR IGNORE
+    keeps it immutable while later scans keep appending current quotes)."""
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.execute(
+            '''INSERT OR IGNORE INTO intel_snapshots
+               (id, match_id, home, away, league, start_ts, observed_at, market, line, side, odds)
+               SELECT COALESCE((SELECT id FROM intel_snapshots WHERE match_id=? AND market=? AND line=? AND side=? ORDER BY observed_at ASC LIMIT 1), NULL),
+                      ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+               WHERE NOT EXISTS (
+                   SELECT 1 FROM intel_snapshots
+                   WHERE match_id=? AND market=? AND line=? AND side=?
+                     AND observed_at <= ?
+               )
+            ''',
+            (match_id, market, line, side,
+             match_id, home, away, league, start_ts, observed_at, market, line, side, odds,
+             match_id, market, line, side, observed_at),
+        )
+        conn.commit()
+
+
+def get_intel_openings():
+    """Return the first (opening) quote for every (match_id, market, line, side)."""
+    conn = _connect()
+    rows = conn.execute('''
+        SELECT s.match_id, s.market, s.line, s.side, s.odds
+        FROM intel_snapshots s
+        JOIN (SELECT match_id, market, line, side, MIN(observed_at) AS first_at
+              FROM intel_snapshots GROUP BY match_id, market, line, side) g
+          ON s.match_id=g.match_id AND s.market=g.market
+         AND s.line=g.line AND s.side=g.side AND s.observed_at=g.first_at
+    ''').fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_intel_history(match_id, market=None):
+    conn = _connect()
+    sql = 'SELECT observed_at, market, line, side, odds FROM intel_snapshots WHERE match_id=?'
+    params = [match_id]
+    if market:
+        sql += ' AND market=?'
+        params.append(market)
+    sql += ' ORDER BY observed_at ASC, line ASC, side ASC'
+    rows = conn.execute(sql, params).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def save_intel_context(match_id, note, source=None, confidence='medium',
+                       author=None, effective_at=None):
+    from datetime import datetime
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.execute(
+            '''INSERT INTO intel_context
+               (match_id, note, source, confidence, author, effective_at, created_at)
+               VALUES (?,?,?,?,?,?,?)''',
+            (match_id, note, source, confidence, author, effective_at,
+             datetime.now().isoformat()),
+        )
+        conn.commit()
+
+
+def get_intel_context(match_id):
+    conn = _connect()
+    rows = conn.execute(
+        'SELECT id, note, source, confidence, author, effective_at, created_at '
+        'FROM intel_context WHERE match_id=? ORDER BY created_at DESC',
+        (match_id,),
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
