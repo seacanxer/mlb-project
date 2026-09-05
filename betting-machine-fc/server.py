@@ -193,7 +193,8 @@ async def _review_parlays_with_ai(framework: Dict[str, Any]) -> Dict[str, Any]:
         "framework-qualified candidates. Never invent a match, market, price, or ID. "
         "Use different matches inside each slip. Return strict JSON with keys safe, "
         "recommended, aggressive; each contains leg_ids and a concise rationale. "
-        "Required leg counts are 2, 3, and 4 respectively. Favor data quality, robust "
+        "Required leg counts: safe 3-4, recommended 4-5, aggressive 5-8. "
+        "Favor data quality, robust "
         "probability, conservative EV, league diversity, and low cross-leg correlation.\n"
         f"Candidates: {json.dumps(candidates, ensure_ascii=False)}"
     )

@@ -13,7 +13,8 @@ from typing import Any, Dict, Iterable, List, Optional
 DEFAULT_PARLAY_CONFIG = {
     "safe": {
         "label": "Tier 1 Safe",
-        "legs": 2,
+        "min_legs": 3,
+        "max_legs": 4,
         "min_probability": 0.58,
         "min_conservative_ev": 0.02,
         "max_leg_odds": 2.05,
@@ -21,7 +22,8 @@ DEFAULT_PARLAY_CONFIG = {
     },
     "recommended": {
         "label": "Tier 2 Recommended Pick",
-        "legs": 3,
+        "min_legs": 4,
+        "max_legs": 5,
         "min_probability": 0.55,
         "min_conservative_ev": 0.02,
         "max_leg_odds": 2.30,
@@ -29,7 +31,8 @@ DEFAULT_PARLAY_CONFIG = {
     },
     "aggressive": {
         "label": "Tier 3 Confidence Aggressive",
-        "legs": 4,
+        "min_legs": 5,
+        "max_legs": 8,
         "min_probability": 0.52,
         "min_conservative_ev": 0.02,
         "max_leg_odds": 2.50,
@@ -109,15 +112,18 @@ def _summarize_slip(
     source: str = "framework",
     rationale: Optional[str] = None,
 ) -> Dict[str, Any]:
-    required = int(spec["legs"])
+    min_legs = int(spec.get("min_legs", 1))
+    max_legs = int(spec.get("max_legs", min_legs))
     combined_odds = math.prod(_number(leg.get("odds"), 1.0) for leg in legs)
     model_probability = math.prod(_number(leg.get("probability"), 0.0) for leg in legs)
     return {
         "tier": tier,
         "label": spec["label"],
-        "status": "ready" if len(legs) == required else "insufficient_candidates",
+        "status": "ready" if min_legs <= len(legs) else "insufficient_candidates",
         "source": source,
-        "required_legs": required,
+        "min_legs": min_legs,
+        "max_legs": max_legs,
+        "required_legs": min_legs,
         "leg_count": len(legs),
         "legs": legs,
         "combined_odds": round(combined_odds, 3) if legs else None,
@@ -125,8 +131,8 @@ def _summarize_slip(
         "model_joint_probability": round(model_probability, 4) if legs else None,
         "rationale": rationale or (
             "Framework-ranked independent fixtures using full-coverage official picks."
-            if len(legs) == required else
-            f"Only {len(legs)} of {required} independent qualified legs are available; no weak leg was forced."
+            if min_legs <= len(legs) else
+            f"Only {len(legs)} of {min_legs} independent qualified legs are available; no weak leg was forced."
         ),
     }
 
@@ -154,7 +160,7 @@ def build_parlay_slips(
             legs.append(candidate)
             used_matches.add(match_key)
             league_counts[league] = league_counts.get(league, 0) + 1
-            if len(legs) == int(spec["legs"]):
+            if len(legs) >= int(spec.get("max_legs", spec.get("min_legs", 1))):
                 break
         slips.append(_summarize_slip(tier, spec, legs))
 
@@ -208,9 +214,9 @@ def apply_ai_selection(
             legs.append(candidate)
             used_matches.add(match_key)
             league_counts[league] = league_counts.get(league, 0) + 1
-            if len(legs) == int(spec["legs"]):
+            if len(legs) >= int(spec.get("max_legs", spec.get("min_legs", 1))):
                 break
-        if len(legs) == int(spec["legs"]):
+        if len(legs) >= int(spec.get("min_legs", 1)):
             slips.append(_summarize_slip(tier, spec, legs, "ai_reviewed", rationale or "AI ranking validated by framework gates."))
         else:
             fallback = dict(framework_by_tier[tier])

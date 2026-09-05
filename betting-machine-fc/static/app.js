@@ -105,7 +105,7 @@ function renderParlays(data) {
           <span class="parlay-source">${escapeHtml(source)}</span>
         </div>
         <div class="parlay-status ${ready ? 'ready' : 'incomplete'}">
-          ${ready ? `${slip.leg_count}-leg slip ready` : `${slip.leg_count}/${slip.required_legs} qualified legs — no forced selection`}
+          ${ready ? `${slip.leg_count}-leg slip (${slip.min_legs}-${slip.max_legs}) ready` : `${slip.leg_count}/${slip.required_legs} qualified legs — no forced selection`}
         </div>
         <div class="parlay-legs">${legs || '<p class="text-muted">No candidate currently passes this tier.</p>'}</div>
         <div class="parlay-summary">
