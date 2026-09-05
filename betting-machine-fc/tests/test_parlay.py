@@ -12,7 +12,7 @@ def pick(i, probability=0.60, odds=1.85, cev=0.05, market="ou"):
 
 
 def test_builds_three_independent_tiered_slips():
-    result = build_parlay_slips([pick(i) for i in range(12)])
+    result = build_parlay_slips([pick(i) for i in range(20)])
     assert [slip["leg_count"] for slip in result["slips"]] == [4, 5, 8]
     assert [slip["min_legs"] for slip in result["slips"]] == [3, 4, 5]
     assert [slip["max_legs"] for slip in result["slips"]] == [4, 5, 8]
@@ -24,8 +24,9 @@ def test_builds_three_independent_tiered_slips():
     safe_legs = {leg["id"] for leg in result["slips"][0]["legs"]}
     recommended_legs = {leg["id"] for leg in result["slips"][1]["legs"]}
     aggressive_legs = {leg["id"] for leg in result["slips"][2]["legs"]}
-    assert safe_legs <= recommended_legs
-    assert recommended_legs <= aggressive_legs
+    assert safe_legs.isdisjoint(recommended_legs)
+    assert safe_legs.isdisjoint(aggressive_legs)
+    assert recommended_legs.isdisjoint(aggressive_legs)
 
 def test_tier_leg_ranges_lower_bound():
     result = build_parlay_slips([pick(i) for i in range(3)])
