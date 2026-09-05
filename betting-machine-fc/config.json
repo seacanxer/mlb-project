@@ -29,6 +29,31 @@
   },
   "tracking_unit": 1,
   "scan_window_hours": 16,
+  "parlay": {
+    "tiers": {
+      "safe": {
+        "legs": 2,
+        "min_probability": 0.58,
+        "min_conservative_ev": 0.02,
+        "max_leg_odds": 2.05,
+        "max_legs_per_league": 1
+      },
+      "recommended": {
+        "legs": 3,
+        "min_probability": 0.55,
+        "min_conservative_ev": 0.02,
+        "max_leg_odds": 2.3,
+        "max_legs_per_league": 2
+      },
+      "aggressive": {
+        "legs": 4,
+        "min_probability": 0.52,
+        "min_conservative_ev": 0.02,
+        "max_leg_odds": 2.5,
+        "max_legs_per_league": 2
+      }
+    }
+  },
   "last_successful_scan_at": "2026-09-04T16:13:20.588259+00:00",
   "last_successful_scan_count": 365,
   "last_successful_scan_picks": 23

@@ -868,6 +868,113 @@ canvas {
   border-color: rgba(245, 158, 11, 0.48);
   box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.10), 0 10px 28px rgba(0, 0, 0, 0.38);
 }
+
+/* ==========================================================================
+   PARLAY PICKS
+   ========================================================================== */
+.parlay-actions, .parlay-method {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.parlay-method {
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding: 14px 18px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.parlay-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.parlay-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  min-width: 0;
+}
+
+.parlay-safe { border-color: rgba(16, 185, 129, .45); }
+.parlay-recommended { border-color: rgba(56, 189, 248, .48); }
+.parlay-aggressive { border-color: rgba(245, 158, 11, .52); }
+.parlay-incomplete { opacity: .78; border-style: dashed; }
+
+.parlay-card-header,
+.parlay-card-header > div,
+.parlay-leg,
+.parlay-summary {
+  display: flex;
+  align-items: center;
+}
+
+.parlay-card-header { justify-content: space-between; gap: 12px; }
+.parlay-card-header > div { gap: 8px; }
+.parlay-card-header h3 { font-size: 16px; margin: 0; }
+.parlay-tier-icon { font-size: 20px; }
+.parlay-source {
+  border-radius: 999px;
+  background: rgba(148, 163, 184, .12);
+  color: var(--text-muted);
+  padding: 4px 8px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.parlay-status {
+  margin: 12px 0;
+  padding: 7px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.parlay-status.ready { color: var(--emerald); background: rgba(16, 185, 129, .1); }
+.parlay-status.incomplete { color: var(--amber); background: rgba(245, 158, 11, .1); }
+
+.parlay-legs { display: grid; gap: 8px; }
+.parlay-leg {
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid rgba(148, 163, 184, .12);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, .02);
+}
+.parlay-leg-number {
+  display: grid;
+  place-items: center;
+  flex: 0 0 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(56, 189, 248, .12);
+  color: var(--cyan);
+  font: 700 11px 'JetBrains Mono', monospace;
+}
+.parlay-leg-main { display: grid; gap: 2px; min-width: 0; flex: 1; }
+.parlay-leg-main strong { color: var(--text-main); font-size: 13px; }
+.parlay-leg-main span, .parlay-leg-main small { color: var(--text-muted); font-size: 11px; }
+.parlay-leg-price { display: grid; text-align: right; }
+.parlay-leg-price strong { color: var(--text-main); font-family: 'JetBrains Mono', monospace; }
+.parlay-leg-price small { color: var(--text-dim); font-size: 10px; }
+
+.parlay-summary {
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+}
+.parlay-summary div { display: grid; gap: 3px; }
+.parlay-summary span { color: var(--text-dim); font-size: 10px; }
+.parlay-summary strong { font: 700 13px 'JetBrains Mono', monospace; }
+.parlay-rationale { color: var(--text-muted); font-size: 11px; line-height: 1.5; margin: 12px 0 0; }
+
+@media (max-width: 1100px) { .parlay-grid { grid-template-columns: 1fr; } }
 .tracker-status-view span {
   display: inline-block;
   min-width: 1.35rem;

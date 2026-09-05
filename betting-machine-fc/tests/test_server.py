@@ -37,6 +37,18 @@ def test_picks_endpoint():
     assert len(data["picks"]) <= data["summary"]["selection_limit"]
 
 
+def test_parlay_endpoint_always_returns_three_framework_tiers():
+    response = client.get("/api/parlay-picks")
+    assert response.status_code == 200
+    data = response.json()
+    assert [slip["tier"] for slip in data["slips"]] == ["safe", "recommended", "aggressive"]
+    assert data["methodology"]["independent_games_required"] is True
+    for slip in data["slips"]:
+        match_keys = [leg.get("match_id") or (leg.get("match"), leg.get("start_ts")) for leg in slip["legs"]]
+        assert len(match_keys) == len(set(map(str, match_keys)))
+        assert all(leg["coverage_status"] == "full" for leg in slip["legs"])
+
+
 def test_tracker_endpoint():
     response = client.get("/api/tracker")
     assert response.status_code == 200

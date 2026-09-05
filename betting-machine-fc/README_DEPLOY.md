@@ -2,6 +2,21 @@
 
 This guide explains how to deploy the Football Betting Recommendation Engine and web dashboard to `fc.texasdrill.me`.
 
+## Optional AI review for Parlay Picks
+
+Parlay slips work in deterministic framework mode without credentials. To let
+an OpenAI-compatible model re-rank only framework-approved legs, configure:
+
+```bash
+FC_AI_BASE_URL=https://your-openai-compatible-router.example/v1
+FC_AI_API_KEY=replace-me
+FC_AI_MODEL=replace-me
+FC_AI_TIMEOUT_SECONDS=30
+```
+
+Credentials stay on the server. Invented, duplicated, or below-tier AI legs
+are rejected and replaced by the deterministic framework slip.
+
 ---
 
 ## 1. Prerequisites on the Server (Ubuntu / Debian VPS)

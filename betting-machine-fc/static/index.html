@@ -23,6 +23,7 @@
 
       <nav class="nav-tabs" role="tablist">
         <button class="tab-btn active" data-tab="picks">🎯 Top Picks</button>
+        <button class="tab-btn" data-tab="parlay">🧾 Parlay Picks</button>
         <button class="tab-btn" data-tab="tracker">📊 ROI Tracker</button>
         <button class="tab-btn" data-tab="matches">🏟️ Model Detail</button>
         <button class="tab-btn" data-tab="backtest">🧪 Backtest</button>
@@ -138,6 +139,30 @@
         <div class="empty-icon">🔍</div>
         <h3>No qualified picks found</h3>
         <p>No O/U or AH recommendation passed the coverage, price, conservative EV, and diversification gates. The engine will not force a pick.</p>
+      </div>
+    </section>
+
+    <!-- TAB: PARLAY PICKS -->
+    <section id="tab-parlay" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h2>Parlay Picks</h2>
+          <p class="text-muted">Three framework-gated slips. AI may reorder validated legs, but cannot invent or bypass a pick.</p>
+          <p id="parlay-source-note" class="text-muted">Loading framework recommendations…</p>
+        </div>
+        <div class="parlay-actions">
+          <button id="btn-refresh-parlay" class="btn btn-secondary">↻ Refresh Framework</button>
+          <button id="btn-ai-parlay" class="btn btn-primary">✨ Run AI Review</button>
+        </div>
+      </div>
+      <div class="parlay-method card">
+        <span>✓ Different match per leg</span>
+        <span>✓ O/U and AH official picks only</span>
+        <span>✓ Full data coverage</span>
+        <span>⚠ Combined probability assumes independent legs</span>
+      </div>
+      <div id="parlay-container" class="parlay-grid">
+        <div class="card text-muted">Loading slips…</div>
       </div>
     </section>
 

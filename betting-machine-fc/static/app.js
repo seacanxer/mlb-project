@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initSimForm();
   initSettingsForm();
   initModal();
+  initParlay();
 
   loadConfig();
   loadPicks();
@@ -26,6 +27,103 @@ document.addEventListener('DOMContentLoaded', () => {
   loadTracker();
   initSettlement();
 });
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>'"]/g, char => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+  })[char]);
+}
+
+async function loadParlays(runAiReview = false) {
+  const container = document.getElementById('parlay-container');
+  const note = document.getElementById('parlay-source-note');
+  const aiButton = document.getElementById('btn-ai-parlay');
+  if (!container) return;
+  container.innerHTML = '<div class="card text-muted">Building validated slips…</div>';
+  if (runAiReview && aiButton) {
+    aiButton.disabled = true;
+    aiButton.textContent = '⏳ AI reviewing…';
+  }
+  try {
+    const res = await fetch(runAiReview ? '/api/parlay-picks/review' : '/api/parlay-picks', {
+      method: runAiReview ? 'POST' : 'GET'
+    });
+    if (!res.ok) throw new Error('Failed to load parlay recommendations');
+    const data = await res.json();
+    renderParlays(data);
+    if (note) {
+      const source = data.ai_status === 'reviewed'
+        ? `AI-reviewed by ${data.ai_model || 'configured model'}`
+        : data.ai_status === 'unavailable'
+        ? 'AI unavailable — showing deterministic framework slips'
+        : data.ai_status === 'not_configured'
+        ? 'Framework mode — AI reviewer is not configured'
+        : 'Framework mode — AI review has not been run';
+      note.textContent = `${source} · ${Number(data.candidate_count || 0)} qualified candidates${data.reviewed_at ? ` · ${formatWibTimestamp(data.reviewed_at)}` : ''}`;
+    }
+    if (data.ai_status === 'unavailable' && data.ai_error) {
+      showBanner(`AI review unavailable; framework slips preserved. ${data.ai_error}`, true);
+    }
+  } catch (err) {
+    container.innerHTML = `<div class="empty-state"><h3>Parlay recommendations unavailable</h3><p>${escapeHtml(err.message)}</p></div>`;
+  } finally {
+    if (aiButton) {
+      aiButton.disabled = false;
+      aiButton.textContent = '✨ Run AI Review';
+    }
+  }
+}
+
+function renderParlays(data) {
+  const container = document.getElementById('parlay-container');
+  if (!container) return;
+  const tierIcons = { safe: '🛡️', recommended: '⭐', aggressive: '🔥' };
+  container.innerHTML = (data.slips || []).map(slip => {
+    const ready = slip.status === 'ready';
+    const source = slip.source === 'ai_reviewed' ? 'AI + Framework' : 'Framework';
+    const legs = (slip.legs || []).map((leg, index) => `
+      <div class="parlay-leg">
+        <div class="parlay-leg-number">${index + 1}</div>
+        <div class="parlay-leg-main">
+          <strong>${escapeHtml(leg.pick)}</strong>
+          <span>${escapeHtml(leg.match)}</span>
+          <small>${escapeHtml(leg.league || 'Unknown league')} · ${formatKickoff(leg.start_ts)}</small>
+        </div>
+        <div class="parlay-leg-price">
+          <strong>${Number(leg.odds || 0).toFixed(2)}</strong>
+          <small>${String(leg.market || '').toUpperCase()}</small>
+        </div>
+      </div>
+    `).join('');
+    return `
+      <article class="parlay-card parlay-${escapeHtml(slip.tier)} ${ready ? '' : 'parlay-incomplete'}">
+        <div class="parlay-card-header">
+          <div>
+            <span class="parlay-tier-icon">${tierIcons[slip.tier] || '🧾'}</span>
+            <h3>${escapeHtml(slip.label)}</h3>
+          </div>
+          <span class="parlay-source">${escapeHtml(source)}</span>
+        </div>
+        <div class="parlay-status ${ready ? 'ready' : 'incomplete'}">
+          ${ready ? `${slip.leg_count}-leg slip ready` : `${slip.leg_count}/${slip.required_legs} qualified legs — no forced selection`}
+        </div>
+        <div class="parlay-legs">${legs || '<p class="text-muted">No candidate currently passes this tier.</p>'}</div>
+        <div class="parlay-summary">
+          <div><span>Combined Odds</span><strong>${slip.combined_odds ? Number(slip.combined_odds).toFixed(2) : '—'}</strong></div>
+          <div><span>Market Implied</span><strong>${slip.market_implied_probability ? `${(Number(slip.market_implied_probability) * 100).toFixed(1)}%` : '—'}</strong></div>
+          <div><span>Model Joint*</span><strong>${slip.model_joint_probability ? `${(Number(slip.model_joint_probability) * 100).toFixed(1)}%` : '—'}</strong></div>
+        </div>
+        <p class="parlay-rationale">${escapeHtml(slip.rationale)}</p>
+      </article>
+    `;
+  }).join('') || '<div class="empty-state"><h3>No parlay slips available</h3><p>Run a live scan to populate qualified O/U and AH candidates.</p></div>';
+}
+
+function initParlay() {
+  document.getElementById('btn-refresh-parlay')?.addEventListener('click', () => loadParlays(false));
+  document.getElementById('btn-ai-parlay')?.addEventListener('click', () => loadParlays(true));
+  loadParlays(false);
+}
 
 // Tab Switching
 function initTabs() {
@@ -547,6 +645,7 @@ function initScanButton() {
               showBanner(`✅ Scan complete! ${state.last_scan_count} matches, ${state.last_scan_picks} Official Picks (${coverage}${warning}).`);
               loadPicks();
               loadMatches();
+              loadParlays(false);
             }
           } else {
             showBanner(state.progress || 'Scanning active matches...');

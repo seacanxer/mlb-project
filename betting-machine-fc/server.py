@@ -8,6 +8,8 @@ import time
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
+import httpx
+
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
@@ -29,6 +31,7 @@ import settlement
 import scraper_1xbit as sc
 import scraper_historical as sh
 from prediction import build_projection
+from parlay import apply_ai_selection, build_parlay_slips
 try:
     import scraper_flashscore as fs
 except ImportError:
@@ -71,6 +74,15 @@ settle_state: Dict[str, Any] = {
     "running": False,
     "last": None,
 }
+
+parlay_review_state: Dict[str, Any] = {
+    "fingerprint": None,
+    "result": None,
+    "reviewed_at": None,
+    "model": None,
+    "error": None,
+}
+PARLAY_REVIEW_PATH = os.path.join(BASE_DIR, "data", "parlay_review.json")
 
 
 def load_config() -> Dict[str, Any]:
@@ -129,6 +141,85 @@ def load_picks_file() -> List[Dict[str, Any]]:
 
 def load_detailed_matches() -> List[Dict[str, Any]]:
     return _load_json_any(os.path.join(BASE_DIR, "matches_detailed.json"), [])
+
+
+def _parlay_framework() -> Dict[str, Any]:
+    cfg = load_config()
+    return build_parlay_slips(load_picks_file(), cfg.get("parlay", {}).get("tiers"))
+
+
+def _load_parlay_review() -> Dict[str, Any]:
+    cached = _load_json_any(PARLAY_REVIEW_PATH, {})
+    return cached if isinstance(cached, dict) else {}
+
+
+def _save_parlay_review(payload: Dict[str, Any]) -> None:
+    os.makedirs(os.path.dirname(PARLAY_REVIEW_PATH), exist_ok=True)
+    temporary = f"{PARLAY_REVIEW_PATH}.tmp"
+    with open(temporary, "w", encoding="utf-8") as handle:
+        json.dump(payload, handle, ensure_ascii=False, indent=2)
+    os.replace(temporary, PARLAY_REVIEW_PATH)
+
+
+def _ai_chat_url(base_url: str) -> str:
+    cleaned = base_url.rstrip("/")
+    if cleaned.endswith("/chat/completions"):
+        return cleaned
+    return f"{cleaned}/chat/completions" if cleaned.endswith("/v1") else f"{cleaned}/v1/chat/completions"
+
+
+def _parse_ai_json(content: str) -> Dict[str, Any]:
+    cleaned = content.strip()
+    if cleaned.startswith("```"):
+        cleaned = cleaned.split("\n", 1)[-1]
+        cleaned = cleaned.rsplit("```", 1)[0].strip()
+    parsed = json.loads(cleaned)
+    return parsed.get("slips", parsed) if isinstance(parsed, dict) else {}
+
+
+async def _review_parlays_with_ai(framework: Dict[str, Any]) -> Dict[str, Any]:
+    base_url = os.getenv("FC_AI_BASE_URL", "").strip()
+    api_key = os.getenv("FC_AI_API_KEY", "").strip()
+    model = os.getenv("FC_AI_MODEL", "").strip()
+    if not base_url or not api_key or not model:
+        raise RuntimeError("FC_AI_BASE_URL, FC_AI_API_KEY, and FC_AI_MODEL must be configured")
+
+    candidates = [{key: pick.get(key) for key in (
+        "id", "match", "league", "start_ts", "market", "pick", "odds",
+        "probability", "conservative_ev", "rank_score", "data_grade"
+    )} for pick in framework.get("candidates", [])]
+    prompt = (
+        "You are a football betting risk reviewer. Select only IDs from the supplied "
+        "framework-qualified candidates. Never invent a match, market, price, or ID. "
+        "Use different matches inside each slip. Return strict JSON with keys safe, "
+        "recommended, aggressive; each contains leg_ids and a concise rationale. "
+        "Required leg counts are 2, 3, and 4 respectively. Favor data quality, robust "
+        "probability, conservative EV, league diversity, and low cross-leg correlation.\n"
+        f"Candidates: {json.dumps(candidates, ensure_ascii=False)}"
+    )
+    timeout_seconds = min(max(float(os.getenv("FC_AI_TIMEOUT_SECONDS", "30")), 5.0), 60.0)
+    async with httpx.AsyncClient(timeout=timeout_seconds) as client:
+        response = await client.post(
+            _ai_chat_url(base_url),
+            headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+            json={
+                "model": model,
+                "temperature": 0.1,
+                "messages": [
+                    {"role": "system", "content": "You review deterministic picks; framework gates are authoritative."},
+                    {"role": "user", "content": prompt},
+                ],
+            },
+        )
+        response.raise_for_status()
+        payload = response.json()
+    content = payload.get("choices", [{}])[0].get("message", {}).get("content", "")
+    if not content:
+        raise RuntimeError("AI reviewer returned no content")
+    result = apply_ai_selection(framework, _parse_ai_json(content), load_config().get("parlay", {}).get("tiers"))
+    result["ai_status"] = "reviewed"
+    result["ai_model"] = model
+    return result
 
 
 def execute_live_scan_sync():
@@ -453,6 +544,58 @@ def get_matches(limit: int = Query(50, ge=1, le=200), offset: int = Query(0, ge=
     matches = load_detailed_matches()
     total = len(matches)
     return {"count": total, "matches": matches[offset: offset + limit], "pagination": {"limit": limit, "offset": offset, "total": total}}
+
+
+@app.get("/api/parlay-picks")
+def get_parlay_picks():
+    framework = _parlay_framework()
+    cached_review = _load_parlay_review()
+    if (
+        cached_review.get("fingerprint") == framework["fingerprint"]
+        and isinstance(cached_review.get("result"), dict)
+    ):
+        return {
+            **cached_review["result"],
+            "reviewed_at": cached_review.get("reviewed_at"),
+        }
+    return {
+        **framework,
+        "ai_status": "not_run" if os.getenv("FC_AI_BASE_URL") else "not_configured",
+        "ai_model": os.getenv("FC_AI_MODEL") or None,
+        "reviewed_at": None,
+    }
+
+
+@app.post("/api/parlay-picks/review")
+async def review_parlay_picks():
+    framework = _parlay_framework()
+    try:
+        reviewed = await _review_parlays_with_ai(framework)
+        reviewed_at = datetime.now(timezone.utc).isoformat()
+        parlay_review_state.update({
+            "fingerprint": framework["fingerprint"],
+            "result": reviewed,
+            "reviewed_at": reviewed_at,
+            "model": reviewed.get("ai_model"),
+            "error": None,
+        })
+        _save_parlay_review(dict(parlay_review_state))
+        return {**reviewed, "reviewed_at": reviewed_at}
+    except Exception as exc:
+        parlay_review_state.update({
+            "fingerprint": framework["fingerprint"],
+            "result": None,
+            "reviewed_at": None,
+            "model": os.getenv("FC_AI_MODEL") or None,
+            "error": str(exc),
+        })
+        return {
+            **framework,
+            "ai_status": "unavailable",
+            "ai_model": os.getenv("FC_AI_MODEL") or None,
+            "ai_error": str(exc),
+            "reviewed_at": None,
+        }
 
 
 def classify_settlement_status(bet, now=None):
