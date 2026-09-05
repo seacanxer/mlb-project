@@ -5,22 +5,27 @@ import Link from 'next/link';
 import { currentDisplayDate, shiftDateOnly } from '@/lib/utils/timezone';
 import { analysisForGame, marketForGame, starterForSide } from '@/lib/aiPickerGame';
 
-const MODELS = [
-  { id: 'auto', name: '🔄 Auto Model Rotation (Claude / DeepSeek / Qwen)' },
+// Model config source of truth: config/ai-models.json (served via /api/ai-models).
+// Static fallbacks below keep the page usable if the fetch fails.
+const FALLBACK_MODELS = [
+  { id: 'auto', name: '🔄 Auto Model Rotation (Claude / DeepSeek / Qwen / Grok)' },
   { id: 'gr/claude-opus-5', name: 'Claude Opus 5 (GR) — Live' },
   { id: 'xkiro/deepseek/deepseek-v4-pro', name: 'DeepSeek v4 Pro — Live' },
   { id: 'xkiro/deepseek/deepseek-v4-flash', name: 'DeepSeek v4 Flash — Live' },
   { id: 'xkiro/deepseek/deepseek-chat-v3.1', name: 'DeepSeek Chat v3.1 — Live' },
-  { id: 'qwentele/qwen3.8-max', name: 'Qwen3.8 Max (Fast)' },
-  { id: 'sec', name: 'DeepSeek v4 Pro (Sec)' },
+  { id: 'qwentele/qwen3.8-max', name: 'Qwen3.8 Max — Live' },
+  { id: 'qwentele/glm-5.1', name: 'GLM-5.1 — Live' },
+  { id: 'gcli/grok-4.6-xhigh', name: 'Grok 4.6 xHigh (gcli) — Live' },
+  { id: 'prime', name: 'DeepSeek v4 Flash (Prime) — Live' },
+  { id: 'sec', name: 'DeepSeek v4 Pro (Sec) — Live' },
 ];
 
-const ROTATION_MODELS = [
+const FALLBACK_ROTATION = [
   'gr/claude-opus-5',
   'xkiro/deepseek/deepseek-v4-pro',
   'xkiro/deepseek/deepseek-v4-flash',
   'qwentele/qwen3.8-max',
-  'sec',
+  'gcli/grok-4.6-xhigh',
 ];
 
 async function runWithConcurrency<T>(
@@ -41,6 +46,8 @@ async function runWithConcurrency<T>(
 export default function AiPickerPage() {
   const [date, setDate] = useState(currentDisplayDate);
   const [selectedModel, setSelectedModel] = useState('auto');
+  const [models, setModels] = useState(FALLBACK_MODELS);
+  const [rotation, setRotation] = useState(FALLBACK_ROTATION);
   const [filter, setFilter] = useState<'all' | 'ml' | 'ou' | 'high_conf'>('all');
   const [games, setGames] = useState<any[]>([]);
   const [picks, setPicks] = useState<Record<string, any>>({});
@@ -49,6 +56,22 @@ export default function AiPickerPage() {
   const [error, setError] = useState('');
   const requestCycle = useRef(0);
   const activeRequest = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/ai-models')
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
+      .then((cfg: any) => {
+        if (cancelled) return;
+        if (Array.isArray(cfg.options) && cfg.options.length) setModels(cfg.options);
+        if (Array.isArray(cfg.rotation) && cfg.rotation.length) setRotation(cfg.rotation);
+        if (typeof cfg.defaultModel === 'string' && cfg.defaultModel) setSelectedModel(cfg.defaultModel);
+      })
+      .catch((err) => console.warn('[ai-models] fallback to static config:', err?.message));
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const fetchSlate = useCallback(async (targetDate: string, modelChoice: string) => {
     activeRequest.current?.abort();
@@ -103,7 +126,7 @@ export default function AiPickerPage() {
     signal?: AbortSignal,
     cycle: number = requestCycle.current
   ) => {
-    const modelToUse = modelChoice === 'auto' ? ROTATION_MODELS[index % ROTATION_MODELS.length] : modelChoice;
+    const modelToUse = modelChoice === 'auto' ? rotation[index % rotation.length] : modelChoice;
     const awayName = game.awayTeam?.name || 'Away';
     const homeName = game.homeTeam?.name || 'Home';
     const awayStarter = starterForSide(game, 'away');
@@ -299,7 +322,7 @@ export default function AiPickerPage() {
               outline: 'none',
             }}
           >
-            {MODELS.map((m) => (
+            {models.map((m) => (
               <option key={m.id} value={m.id}>
                 {m.name}
               </option>

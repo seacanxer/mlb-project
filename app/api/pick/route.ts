@@ -1,4 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
+import fs from 'fs';
+import path from 'path';
+
+export interface AiModelConfig {
+  updatedAt: string;
+  defaultModel: string;
+  rotation: string[];
+  options: { id: string; name: string }[];
+}
+
+const AI_MODELS_PATH = path.join(process.cwd(), 'config', 'ai-models.json');
+
+function loadAiModelConfig(): AiModelConfig {
+  const raw = fs.readFileSync(AI_MODELS_PATH, 'utf8');
+  const parsed = JSON.parse(raw) as AiModelConfig;
+  if (!Array.isArray(parsed.options) || !Array.isArray(parsed.rotation) || !parsed.defaultModel) {
+    throw new Error('Invalid ai-models.json format');
+  }
+  return parsed;
+}
 
 type PickSource = 'llm' | 'not-run' | 'unavailable';
 
@@ -58,7 +78,14 @@ interface PickResponseData {
   warnings?: string[];
 }
 
-const DEFAULT_MODEL = process.env.AI_PICKER_DEFAULT_MODEL || 'gr/claude-opus-5';
+const DEFAULT_MODEL = (() => {
+  try {
+    const cfg = loadAiModelConfig();
+    return cfg.defaultModel;
+  } catch {
+    return process.env.AI_PICKER_DEFAULT_MODEL || 'gr/claude-opus-5';
+  }
+})();
 
 function timeoutFromEnv(name: string, fallback: number): number {
   const value = Number(process.env[name]);

@@ -1,0 +1,23 @@
+{
+  "updatedAt": "2026-09-05T05:40:00Z",
+  "defaultModel": "gr/claude-opus-5",
+  "rotation": [
+    "gr/claude-opus-5",
+    "xkiro/deepseek/deepseek-v4-pro",
+    "xkiro/deepseek/deepseek-v4-flash",
+    "qwentele/qwen3.8-max",
+    "gcli/grok-4.6-xhigh"
+  ],
+  "options": [
+    { "id": "auto", "name": "🔄 Auto Model Rotation (Claude / DeepSeek / Qwen / Grok)" },
+    { "id": "gr/claude-opus-5", "name": "Claude Opus 5 (GR) — Live" },
+    { "id": "xkiro/deepseek/deepseek-v4-pro", "name": "DeepSeek v4 Pro — Live" },
+    { "id": "xkiro/deepseek/deepseek-v4-flash", "name": "DeepSeek v4 Flash — Live" },
+    { "id": "xkiro/deepseek/deepseek-chat-v3.1", "name": "DeepSeek Chat v3.1 — Live" },
+    { "id": "qwentele/qwen3.8-max", "name": "Qwen3.8 Max — Live" },
+    { "id": "qwentele/glm-5.1", "name": "GLM-5.1 — Live" },
+    { "id": "gcli/grok-4.6-xhigh", "name": "Grok 4.6 xHigh (gcli) — Live" },
+    { "id": "prime", "name": "DeepSeek v4 Flash (Prime) — Live" },
+    { "id": "sec", "name": "DeepSeek v4 Pro (Sec) — Live" }
+  ]
+}

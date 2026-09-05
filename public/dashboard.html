@@ -566,8 +566,45 @@ const MODELS = [
   'xkiro/deepseek/deepseek-v4-pro',
   'xkiro/deepseek/deepseek-v4-flash',
   'qwentele/qwen3.8-max',
-  'sec'
+  'gcli/grok-4.6-xhigh'
 ];
+
+// Load live model config from /api/ai-models (source of truth: config/ai-models.json).
+// Populates MODEL_OPTIONS (select dropdown) + MODELS (rotation) without a rebuild.
+let MODEL_OPTIONS = [
+  { id: 'auto', name: '🔄 Auto Model Rotation (Claude / DeepSeek / Qwen / Grok)' },
+  { id: 'gr/claude-opus-5', name: 'Claude Opus 5 (GR) — Live' },
+  { id: 'xkiro/deepseek/deepseek-v4-pro', name: 'DeepSeek v4 Pro — Live' },
+  { id: 'xkiro/deepseek/deepseek-v4-flash', name: 'DeepSeek v4 Flash — Live' },
+  { id: 'xkiro/deepseek/deepseek-chat-v3.1', name: 'DeepSeek Chat v3.1 — Live' },
+  { id: 'qwentele/qwen3.8-max', name: 'Qwen3.8 Max — Live' },
+  { id: 'qwentele/glm-5.1', name: 'GLM-5.1 — Live' },
+  { id: 'gcli/grok-4.6-xhigh', name: 'Grok 4.6 xHigh (gcli) — Live' },
+  { id: 'prime', name: 'DeepSeek v4 Flash (Prime) — Live' },
+  { id: 'sec', name: 'DeepSeek v4 Pro (Sec) — Live' }
+];
+(function loadModelConfig() {
+  fetch(`${BASE_ORIGIN}/api/ai-models`)
+    .then((r) => (r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status))))
+    .then((cfg) => {
+      if (Array.isArray(cfg.options) && cfg.options.length) MODEL_OPTIONS = cfg.options;
+      if (Array.isArray(cfg.rotation) && cfg.rotation.length) MODELS.length = 0, MODELS.push(...cfg.rotation);
+      const sel = document.getElementById('modelSelect');
+      if (sel) {
+        sel.innerHTML = '';
+        for (const opt of MODEL_OPTIONS) {
+          const el = document.createElement('option');
+          el.value = opt.id;
+          el.textContent = opt.name;
+          sel.appendChild(el);
+        }
+        if (typeof cfg.defaultModel === 'string' && cfg.defaultModel && cfg.defaultModel !== 'auto') {
+          sel.value = cfg.defaultModel;
+        }
+      }
+    })
+    .catch((err) => console.warn('[ai-models] fallback to static config:', err && err.message));
+})();
 
 function currentMlbDate() {
   const parts = new Intl.DateTimeFormat('en-US', {
