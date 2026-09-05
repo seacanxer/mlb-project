@@ -139,6 +139,7 @@ function renderParlayTracking(tracking) {
   set('parlay-pushes', `${summary.pushes || 0} pushes`);
   set('parlay-profit', `${Number(summary.profit_units || 0).toFixed(2)}u`);
   set('parlay-roi', `${Number(summary.roi_pct || 0).toFixed(1)}%`);
+  window._parlaySlips = tracking.slips || [];
   const body = document.getElementById('parlay-history-body');
   if (!body) return;
   body.innerHTML = (tracking.slips || []).map(slip => `
@@ -149,7 +150,29 @@ function renderParlayTracking(tracking) {
       <td>${Number(slip.combined_odds || 0).toFixed(2)}</td>
       <td><span class="status-badge ${escapeHtml(slip.status)}">${escapeHtml(String(slip.status || '').toUpperCase())}</span></td>
       <td>${slip.profit == null ? '—' : `${Number(slip.profit).toFixed(2)}u`}</td>
-    </tr>`).join('') || '<tr><td colspan="6" class="text-muted">No generated parlays yet.</td></tr>';
+      <td><button class="btn btn-secondary btn-sm" onclick="openParlayModal(${slip.id})">👁 View</button></td>
+    </tr>`).join('') || '<tr><td colspan="7" class="text-muted">No generated parlays yet.</td></tr>';
+}
+
+function openParlayModal(slipId) {
+  const slips = (window._parlaySlips || []);
+  const slip = slips.find(s => s.id === slipId);
+  if (!slip) return;
+  document.getElementById('parlay-modal-title').textContent = `${slip.label || slip.tier} · ${slip.status.toUpperCase()}`;
+  document.getElementById('parlay-modal-meta').textContent =
+    `${formatWibTimestamp(slip.generated_at)} · ${slip.leg_count} legs · Combined ${Number(slip.combined_odds || 0).toFixed(2)}` +
+    (slip.profit != null ? ` · Profit ${Number(slip.profit).toFixed(2)}u` : '');
+  const body = document.getElementById('parlay-modal-legs');
+  body.innerHTML = (slip.legs || []).map((leg, index) => `
+    <tr>
+      <td>${index + 1}</td>
+      <td><strong>${escapeHtml(leg.match)}</strong><br><small>${escapeHtml(leg.league || 'Unknown league')} · ${formatKickoff(leg.start_ts)}</small></td>
+      <td>${escapeHtml(leg.pick)}<br><small class="text-muted">${String(leg.market || '').toUpperCase()}</small></td>
+      <td>${Number(leg.odds || 0).toFixed(2)}</td>
+      <td>${leg.home_score != null ? `${leg.home_score}–${leg.away_score}` : '—'}</td>
+      <td><span class="status-badge ${escapeHtml(leg.result || 'pending')}">${escapeHtml(String(leg.result || 'pending').toUpperCase())}</span></td>
+    </tr>`).join('') || '<tr><td colspan="6" class="text-muted">No legs recorded.</td></tr>';
+  document.getElementById('parlay-modal').classList.remove('hidden');
 }
 
 async function settleParlays() {
@@ -781,6 +804,9 @@ function renderMatches() {
 function initModal() {
   document.getElementById('btn-close-modal')?.addEventListener('click', () => {
     document.getElementById('match-modal').classList.add('hidden');
+  });
+  document.getElementById('btn-close-parlay-modal')?.addEventListener('click', () => {
+    document.getElementById('parlay-modal').classList.add('hidden');
   });
 }
 

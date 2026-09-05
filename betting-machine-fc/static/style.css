@@ -184,6 +184,12 @@ body {
   background: rgba(255, 255, 255, 0.1);
 }
 
+.btn-sm {
+  padding: 4px 10px;
+  font-size: 12px;
+  gap: 4px;
+}
+
 .btn-block {
   width: 100%;
 }

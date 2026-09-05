@@ -177,8 +177,8 @@
         <div class="kpi-card"><div class="kpi-label">ROI</div><div class="kpi-val" id="parlay-roi">0.0%</div></div>
       </div>
       <div class="table-container">
-        <table><thead><tr><th>Generated (WIB)</th><th>Tier / Source</th><th>Legs</th><th>Combined Odds</th><th>Status</th><th>Profit</th></tr></thead>
-        <tbody id="parlay-history-body"><tr><td colspan="6" class="text-muted">No generated parlays yet.</td></tr></tbody></table>
+        <table><thead><tr><th>Generated (WIB)</th><th>Tier / Source</th><th>Legs</th><th>Combined Odds</th><th>Status</th><th>Profit</th><th></th></tr></thead>
+        <tbody id="parlay-history-body"><tr><td colspan="7" class="text-muted">No generated parlays yet.</td></tr></tbody></table>
       </div>
     </section>
 
@@ -640,6 +640,37 @@ sudo systemctl start fc-betting</code>
     </div>
   </div>
 
-  <script src="/static/app.js?v=18"></script>
+  <!-- PARLAY DETAIL MODAL -->
+  <div id="parlay-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h3 id="parlay-modal-title">Parlay Details</h3>
+          <span id="parlay-modal-meta" class="text-muted"></span>
+        </div>
+        <button id="btn-close-parlay-modal" class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-section-title">Legs</div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Match</th>
+                <th>Pick</th>
+                <th>Odds</th>
+                <th>Score</th>
+                <th>Result</th>
+              </tr>
+            </thead>
+            <tbody id="parlay-modal-legs"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js?v=19"></script>
 </body>
 </html>
