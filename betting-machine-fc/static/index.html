@@ -53,9 +53,9 @@
       <!-- Summary KPIs -->
       <div class="kpi-grid">
         <div class="kpi-card">
-          <div class="kpi-label">Top Picks</div>
+          <div class="kpi-label">Official Picks</div>
           <div class="kpi-val" id="kpi-qualified-picks">-</div>
-          <div class="kpi-sub">Up to 2 safest markets per match</div>
+          <div class="kpi-sub"><span id="kpi-top-signals">0</span> strongest signals marked Top Pick</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">Locked</div>
@@ -81,10 +81,8 @@
             <label>Market</label>
             <div class="pill-group" id="market-pills">
               <button class="pill active" data-market="all">All</button>
-              <button class="pill" data-market="1x2">1X2</button>
               <button class="pill" data-market="ah">Asian Handicap</button>
               <button class="pill" data-market="ou">Over / Under</button>
-              <button class="pill" data-market="btts">BTTS</button>
             </div>
           </div>
 
@@ -139,7 +137,7 @@
       <div id="picks-empty" class="empty-state hidden">
         <div class="empty-icon">🔍</div>
         <h3>No qualified picks found</h3>
-        <p>No recommendation passed the probability, odds, EV, and diversification gates. The engine will not force a pick.</p>
+        <p>No O/U or AH recommendation passed the coverage, price, conservative EV, and diversification gates. The engine will not force a pick.</p>
       </div>
     </section>
 

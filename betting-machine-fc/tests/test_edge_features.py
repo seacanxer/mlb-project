@@ -9,7 +9,7 @@ import fatigue
 import strength_rating as sr
 from fatigue import apply_rest_adjustment, record_fixtures, rest_factor
 from main import backtest_one, select_top_picks
-from model import lam_from_1x2
+from model import fit_total_from_ou, strength_lam
 
 
 def test_parse_fd_date():
@@ -111,31 +111,45 @@ def test_ledger_trims_and_roundtrips(tmp_path):
     assert back["a"] == sorted(lg["a"])[-fatigue.MAX_KEPT:]
 
 
-def test_backtest_uses_1x2_fitter():
+def test_backtest_uses_ou_market_total():
     r = {"date": "15/08/2025", "home": "H", "away": "A", "fthg": 2, "ftag": 1,
          "odds_home": 2.0, "odds_draw": 3.4, "odds_away": 3.8,
          "odds_over": 2.1, "odds_under": 1.8}
     res = backtest_one(r, min_odds=1.0, min_ev=-9)
-    lh, la, _ = lam_from_1x2(2.0, 3.4, 3.8)
-    assert abs(res["lambdas"]["home"] - round(lh, 3)) < 1e-9
-    assert abs(res["lambdas"]["away"] - round(la, 3)) < 1e-9
+    fitted_total, _ = fit_total_from_ou(2.1, 1.8, 2.5)
+    assert abs(sum(res["lambdas"].values()) - round(fitted_total, 3)) < 2e-3
+
+
+def test_neutral_strength_preserves_league_goal_scale():
+    lh, la = strength_lam(1.0, 1.0, 1.0, 1.0, league_avg=1.45, home_adv=1.20)
+    assert abs(lh - 1.74) < 1e-9
+    assert abs(la - 1.45) < 1e-9
 
 
 def _cand(market, prob, odds, ev_val, edge, indep=True):
     return {"match": "X vs Y", "start_ts": 1, "market": market, "pick": "P",
             "probability": prob, "odds": odds, "ev": ev_val,
             "market_probability": prob - edge, "edge_pct": edge,
-            "independent_signal": indep}
+            "independent_signal": indep, "conservative_ev": ev_val - 0.02,
+            "coverage_status": "full", "selection_status": "official"}
 
 
-def test_gates_ou_floor_058():
+def test_ou_selection_uses_conservative_ev_not_raw_probability_floor():
     cands = [_cand("ou", 0.55, 1.9, 0.10, 0.05), _cand("ou", 0.59, 1.9, 0.10, 0.05)]
-    picks = select_top_picks(cands, min_ev=0.0, min_edge=0.02, min_odds=1.6)
-    assert len(picks) == 1 and picks[0]["probability"] == 0.59
+    cands[0]["match"], cands[0]["start_ts"] = "A vs B", 1
+    cands[1]["match"], cands[1]["start_ts"] = "C vs D", 2
+    picks = select_top_picks(cands, min_ev=0.0, min_odds=1.6)
+    assert len(picks) == 2
 
 
-def test_gates_1x2_circular_strict():
+def test_production_selector_rejects_non_ou_ah_markets():
     weak = _cand("1x2", 0.45, 2.0, 0.06, 0.05, indep=False)
     strong = _cand("1x2", 0.50, 2.0, 0.08, 0.05, indep=False)
     picks = select_top_picks([weak, strong], min_ev=0.0, min_edge=0.02, min_odds=1.6)
-    assert [p["probability"] for p in picks] == [0.50]
+    assert picks == []
+
+
+def test_shadow_candidates_cannot_become_official():
+    candidate = _cand("ou", 0.60, 1.9, 0.12, 0.06)
+    candidate.update({"coverage_status": "shadow", "selection_status": "shadow"})
+    assert select_top_picks([candidate], min_odds=1.6) == []

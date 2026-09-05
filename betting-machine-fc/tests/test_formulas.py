@@ -155,14 +155,15 @@ def test_top_picks_are_capped_diversified_and_two_markets_per_match():
     assert all(p["locked"] for p in picks)
 
 
-def test_top_picks_require_ev_buffer_and_reject_longshots():
+def test_official_selector_requires_v4_coverage_and_ou_ah_market():
     candidates = [
-        {"match": "A vs B", "start_ts": 1, "market": "ou", "pick": "Over 2.5", "probability": 0.55, "market_probability": 0.51, "edge_pct": 0.04, "odds": 1.82, "ev": 0.001, "independent_signal": True},
-        {"match": "C vs D", "start_ts": 2, "market": "1x2", "pick": "Away", "probability": 0.55, "market_probability": 0.19, "edge_pct": 0.36, "odds": 5.2, "ev": 0.04, "independent_signal": True},
-        {"match": "E vs F", "start_ts": 3, "market": "btts", "pick": "BTTS Yes", "probability": 0.58, "market_probability": 0.52, "edge_pct": 0.06, "odds": 1.90, "ev": 0.10, "independent_signal": True},
+        {"match": "A vs B", "start_ts": 1, "market": "ou", "pick": "Over 2.5", "probability": 0.55, "odds": 1.82, "ev": 0.001, "conservative_ev": -0.019, "coverage_status": "full", "selection_status": "official"},
+        {"match": "C vs D", "start_ts": 2, "market": "1x2", "pick": "Away", "probability": 0.55, "odds": 2.0, "ev": 0.10, "conservative_ev": 0.08, "coverage_status": "full", "selection_status": "official"},
+        {"match": "E vs F", "start_ts": 3, "market": "ah", "pick": "Home -0.25", "probability": 0.54, "odds": 1.90, "ev": 0.10, "conservative_ev": 0.08, "coverage_status": "full", "selection_status": "official", "league": "League A"},
     ]
     picks = select_top_picks(candidates, min_ev=0.0)
-    assert [p["pick"] for p in picks] == ["BTTS Yes"]
+    assert [p["pick"] for p in picks] == ["Home -0.25"]
+    assert picks[0]["is_top_pick"] is True
 
 
 def test_score_matrix_is_normalized_and_devig_sums_to_one():
@@ -173,7 +174,7 @@ def test_score_matrix_is_normalized_and_devig_sums_to_one():
     assert approx(sum(probabilities.values()), 1.0, 1e-12)
 
 
-def test_btts_yes_and_no_are_evaluated_when_prices_exist():
+def test_btts_is_inactive_in_ou_ah_formula():
     market = {
         "home": "A", "away": "B", "league": "Test", "start_ts": 1,
         "odds_1x2": {1: 2.2, 2: 3.2, 3: 3.2},
@@ -182,7 +183,7 @@ def test_btts_yes_and_no_are_evaluated_when_prices_exist():
     }
     picks = analyze_match(market, 1.5, 1.2, min_odds=1.66, min_ev=-1)
     btts = {p["pick"] for p in picks if p["market"] == "btts"}
-    assert btts == {"BTTS Yes", "BTTS No"}
+    assert btts == set()
 
 
 def test_total_quarter_line_settlement():

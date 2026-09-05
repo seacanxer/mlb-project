@@ -4,7 +4,6 @@
   "scan_match_limit": 500,
   "filters": {
     "min_odds": 1.66,
-    "strength_weight": 0.4,
     "min_ev": 0.0,
     "min_edge": 0.02,
     "min_probability": 0.0,
@@ -12,14 +11,17 @@
     "max_odds": 2.5,
     "top_pick_limit": 35,
     "top_picks_per_market": 12,
-    "top_picks_per_match": 2
+    "top_picks_per_match": 1,
+    "top_signal_limit": 5
   },
   "markets": [
-    "1x2",
     "ah",
-    "ou",
-    "btts"
+    "ou"
   ],
+  "formula": {
+    "version": "ou-ah-v4.0.0",
+    "strength_weight_override": null
+  },
   "output": "picks.json",
   "historical": {
     "league": "E0",

@@ -853,6 +853,21 @@ canvas {
   gap: 8px;
   margin: 18px 0;
 }
+
+.official-badge,
+.top-pick-badge {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .5px;
+}
+
+.official-badge { color: var(--emerald); }
+.top-pick-badge { color: var(--amber); }
+
+.top-pick-card {
+  border-color: rgba(245, 158, 11, 0.48);
+  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.10), 0 10px 28px rgba(0, 0, 0, 0.38);
+}
 .tracker-status-view span {
   display: inline-block;
   min-width: 1.35rem;

@@ -106,6 +106,14 @@ def total_ev(line, side, odds, lh, la, max_goals=MAX_GOALS):
     return exp_ret - 1.0
 
 
+def total_fair_odds(line, side, lh, la, max_goals=MAX_GOALS):
+    """Settlement-aware fair decimal odds, including pushes/half outcomes."""
+    base = total_ev(line, side, 0.0, lh, la, max_goals=max_goals) + 1.0
+    unit = total_ev(line, side, 1.0, lh, la, max_goals=max_goals) + 1.0
+    win_component = unit - base
+    return (1.0 - base) / win_component if win_component > 1e-12 else float("inf")
+
+
 def _sub_lines(h):
     """Split an Asian handicap (home perspective) into component legs.
     Quarter lines split into two half-legs: q-0.25 and q+0.25.
@@ -168,6 +176,15 @@ def ah_ev_away(away_handicap, odds, lh, la, rho=RHO_DEFAULT, max_goals=MAX_GOALS
     return exp_ret - 1.0
 
 
+def ah_fair_odds(handicap, side, lh, la, rho=RHO_DEFAULT, max_goals=MAX_GOALS):
+    """Settlement-aware fair price for a home or away Asian handicap."""
+    fn = ah_ev if side == "home" else ah_ev_away
+    base = fn(handicap, 0.0, lh, la, rho=rho, max_goals=max_goals) + 1.0
+    unit = fn(handicap, 1.0, lh, la, rho=rho, max_goals=max_goals) + 1.0
+    win_component = unit - base
+    return (1.0 - base) / win_component if win_component > 1e-12 else float("inf")
+
+
 def implied_prob(odds):
     return 1.0 / odds
 
@@ -199,13 +216,61 @@ def fit_total_from_ou(odds_over, odds_under, line=2.5, lo=0.1, hi=6.0, steps=600
     implied_o = implied_prob(odds_over)
     implied_u = implied_prob(odds_under)
     fair_over = implied_o / (implied_o + implied_u)
-    best = None
-    for i in range(steps + 1):
-        lam = lo + (hi - lo) * i / steps
-        p_over = over_prob(line, lam * 0.5, lam * 0.5)
-        if best is None or abs(p_over - fair_over) < best[0]:
-            best = (abs(p_over - fair_over), lam)
-    return best[1], fair_over
+    def objective(lam):
+        if abs(float(line) % 0.5) < 1e-9 and abs(float(line) % 1.0) > 1e-9:
+            return over_prob(line, lam * 0.5, lam * 0.5) - fair_over
+        # Integer and quarter lines include refund components, so equalize
+        # settlement-aware expected returns instead of binary probabilities.
+        over_return = total_ev(line, "over", odds_over, lam * 0.5, lam * 0.5) + 1.0
+        under_return = total_ev(line, "under", odds_under, lam * 0.5, lam * 0.5) + 1.0
+        return over_return - under_return
+
+    left, right = float(lo), float(hi)
+    f_left, f_right = objective(left), objective(right)
+    if f_left * f_right > 0:
+        fitted = left if abs(f_left) <= abs(f_right) else right
+    else:
+        for _ in range(48):
+            mid = (left + right) / 2.0
+            f_mid = objective(mid)
+            if f_left * f_mid <= 0:
+                right, f_right = mid, f_mid
+            else:
+                left, f_left = mid, f_mid
+        fitted = (left + right) / 2.0
+    fitted_over = over_prob(line, fitted * 0.5, fitted * 0.5)
+    return fitted, fitted_over
+
+
+def fit_margin_from_ah(total, home_line, home_odds, away_line, away_odds,
+                       prior_margin=0.0, steps=600):
+    """Infer expected goal margin by balancing exact AH expected payouts."""
+    total = max(0.2, float(total))
+    bound = total - 0.2
+    def objective(margin):
+        lh = (total + margin) / 2.0
+        la = (total - margin) / 2.0
+        home_return = ah_ev(home_line, home_odds, lh, la) + 1.0
+        away_return = ah_ev_away(away_line, away_odds, lh, la) + 1.0
+        return home_return - away_return, home_return, away_return
+
+    left, right = -bound, bound
+    f_left, _, _ = objective(left)
+    f_right, _, _ = objective(right)
+    if f_left * f_right > 0:
+        candidates = [left, max(left, min(right, prior_margin)), right]
+        fitted = min(candidates, key=lambda value: abs(objective(value)[0]))
+    else:
+        for _ in range(48):
+            mid = (left + right) / 2.0
+            f_mid, _, _ = objective(mid)
+            if f_left * f_mid <= 0:
+                right, f_right = mid, f_mid
+            else:
+                left, f_left = mid, f_mid
+        fitted = (left + right) / 2.0
+    _, home_return, away_return = objective(fitted)
+    return fitted, (home_return + away_return) / 2.0
 
 
 def lam_from_odds(odds_home, odds_draw, odds_away, odds_over, odds_under, ou_line=2.5):
@@ -237,8 +302,11 @@ def lam_from_1x2(odds_home, odds_draw, odds_away, lo=0.25, hi=3.75, step=0.10):
 
 
 def strength_lam(home_att, away_def, away_att, home_def, league_avg, home_adv=1.08):
-    lh = (home_att / league_avg) * (away_def / league_avg) * league_avg * home_adv
-    la = (away_att / league_avg) * (home_def / league_avg) * league_avg
+    # att/def are normalized multipliers centered on 1.0.  Dividing them by
+    # league_avg again destroyed the scale and made a neutral matchup far too
+    # low-scoring.  Neutral ratings now reproduce the fitted league baseline.
+    lh = home_att * away_def * league_avg * home_adv
+    la = away_att * home_def * league_avg
     return lh, la
 
 

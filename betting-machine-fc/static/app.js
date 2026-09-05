@@ -105,6 +105,7 @@ async function loadPicks() {
 function renderSummary(summary) {
   if (!summary) return;
   document.getElementById('kpi-qualified-picks').textContent = summary.qualified_picks ?? '-';
+  document.getElementById('kpi-top-signals').textContent = summary.top_pick_count ?? 0;
 
   if (summary.last_scan_time) {
     document.getElementById('last-sync-text').textContent = `Terakhir scan berhasil: ${formatWibTimestamp(summary.last_scan_time)}`;
@@ -229,11 +230,14 @@ function renderPicks() {
 
     const marketClass = `badge-${p.market || '1x2'}`;
 
+    const signalLabel = p.is_top_pick ? '🔥 TOP PICK' : '✅ OFFICIAL';
+    const signalClass = p.is_top_pick ? 'top-pick-badge' : 'official-badge';
+    card.classList.toggle('top-pick-card', Boolean(p.is_top_pick));
     card.innerHTML = `
       <div>
-        <div class="pick-card-header"><span class="market-badge ${marketClass}">${p.market ? p.market.toUpperCase() : 'BET'}</span><span class="lock-badge">🔒 LOCKED</span></div>
+        <div class="pick-card-header"><span class="market-badge ${marketClass}">${p.market ? p.market.toUpperCase() : 'BET'}</span><span class="${signalClass}">${signalLabel}</span></div>
         <div class="match-title">${p.match || 'Match'}</div>
-        <div class="pick-meta">${p.league || 'Football League'}</div>
+        <div class="pick-meta">${p.league || 'Football League'} · ${p.formula_version || 'legacy'}</div>
         <div class="pick-kickoff">${formatKickoff(p.start_ts)}</div>
         <div class="pick-selection-box">
           <span class="pick-name">${p.pick}</span>
@@ -249,9 +253,9 @@ function formatKickoff(ts) {
   if (!ts) return '';
   const d = new Date(Number(ts) * 1000);
   if (isNaN(d.getTime())) return '';
-  const dateStr = d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-  const timeStr = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-  return `🗓️ ${dateStr} · ${timeStr}`;
+  const dateStr = d.toLocaleDateString('en-GB', { timeZone: 'Asia/Jakarta', day: '2-digit', month: 'short', year: 'numeric' });
+  const timeStr = d.toLocaleTimeString('en-GB', { timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit', hour12: false });
+  return `🗓️ ${dateStr} · ${timeStr} WIB`;
 }
 
 async function loadTracker() {
@@ -342,10 +346,10 @@ function renderTracker() {
   tbody.innerHTML = rows.length ? rows.map((b) => {
     const kickoff = b.start_ts ? new Date(Number(b.start_ts) * 1000) : null;
     const dateText = kickoff && !isNaN(kickoff.getTime())
-      ? kickoff.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
+      ? kickoff.toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', day: '2-digit', month: 'short', year: 'numeric' })
       : '-';
     const timeText = kickoff && !isNaN(kickoff.getTime())
-      ? kickoff.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' })
+      ? `${kickoff.toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit', hour12: false })} WIB`
       : 'Jam tidak tersedia';
     const pendingLabels = {
       locked: ['Locked · belum mulai', 'status-upcoming'],
@@ -537,7 +541,10 @@ function initScanButton() {
             if (state.error) {
               showBanner(`Scan failed: ${state.error}`, true);
             } else {
-              showBanner(`✅ Scan complete! Evaluated ${state.last_scan_count} matches with ${state.last_scan_picks} qualified picks.`);
+              const diag = state.diagnostics || {};
+              const coverage = `full ${diag.full || 0}, shadow ${diag.shadow || 0}, blocked ${diag.blocked || 0}, market-only ${diag.market_only || 0}`;
+              const warning = (diag.errors || []).length ? `, ${(diag.errors || []).length} processing errors logged` : '';
+              showBanner(`✅ Scan complete! ${state.last_scan_count} matches, ${state.last_scan_picks} Official Picks (${coverage}${warning}).`);
               loadPicks();
               loadMatches();
             }
@@ -646,9 +653,10 @@ window.openMatchModal = function(idx) {
   } else {
     picks.forEach(p => {
       const tr = document.createElement('tr');
-      const fairOdds = p.probability > 0 ? (1.0 / p.probability).toFixed(3) : '-';
+      const fairOdds = p.fair_odds ? Number(p.fair_odds).toFixed(3) : (p.probability > 0 ? (1.0 / p.probability).toFixed(3) : '-');
+      const status = (p.selection_status || 'shadow').replace('_', ' ').toUpperCase();
       tr.innerHTML = `
-        <td><strong>${p.pick}</strong> (${p.market.toUpperCase()})</td>
+        <td><strong>${p.pick}</strong> (${p.market.toUpperCase()})<br><small class="text-muted">${status} · ${p.lambda_source || 'unknown source'}</small></td>
         <td>${(p.probability * 100).toFixed(1)}%</td>
         <td>${fairOdds}</td>
         <td><strong>${p.odds.toFixed(3)}</strong></td>
@@ -920,7 +928,7 @@ function initSettingsForm() {
         min_ev: parseFloat(document.getElementById('cfg-min-ev').value) || 0.0,
         max_ah_abs_line: parseFloat(document.getElementById('cfg-max-ah').value) || 2.0,
       },
-      markets: ['1x2', 'ah', 'ou', 'btts'],
+      markets: ['ah', 'ou'],
       output: 'picks.json',
       tracking_unit: 1.0,
     };

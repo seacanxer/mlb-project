@@ -13,28 +13,22 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
-from typing import List, Optional
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE_DIR)
 
 from model import (
-    ah_ev,
-    ah_ev_away,
     btts_prob,
-    ev,
-    fit_total_from_ou,
-    lam_from_1x2,
     match_probs,
     over_prob,
     score_matrix,
-    total_ev,
     under_prob,
 )
 import db
 import settlement
 import scraper_1xbit as sc
 import scraper_historical as sh
+from prediction import build_projection
 try:
     import scraper_flashscore as fs
 except ImportError:
@@ -69,6 +63,7 @@ scan_state = {
     "last_scan_picks": 0,
     "error": None,
     "progress": "",
+    "diagnostics": {},
 }
 
 _settle_lock = threading.Lock()
@@ -95,9 +90,9 @@ def load_config() -> Dict[str, Any]:
             "max_ah_abs_line": 1.5,
             "top_pick_limit": 40,
             "top_picks_per_market": 12,
-            "top_picks_per_match": 2,
+            "top_picks_per_match": 1,
         },
-        "markets": ["1x2", "ah", "ou", "btts"],
+        "markets": ["ah", "ou"],
         "output": "picks.json",
         "historical": {"league": "E0", "season": "2526"},
         "tracking_unit": 1.0,
@@ -168,6 +163,16 @@ def execute_live_scan_sync():
             scan_state["progress"] = f"Processing {len(raw_matches)} matches from 1xbit ({window_hours:g}h window)..."
             print(f"[LOG] 1xbit found {len(raw_matches)} matches in {window_hours:g}h window")
         scan_state["progress"] = f"Processing markets for {len(raw_matches)} matches..."
+        diagnostics = {
+            "discovered": len(raw_matches),
+            "processed": 0,
+            "full": 0,
+            "shadow": 0,
+            "market_only": 0,
+            "blocked": 0,
+            "missing_markets": 0,
+            "errors": [],
+        }
 
         def _fetch_one(m):
             try:
@@ -195,26 +200,15 @@ def execute_live_scan_sync():
                 else:
                     o = prefetched[i] if prefetched else _fetch_one(m)
                     if not o:
+                        diagnostics["missing_markets"] += 1
                         continue
-                if not o["odds_1x2"] or 2.5 not in o["odds_ou"]:
-                    continue
-                o1, od, o2 = o["odds_1x2"][1], o["odds_1x2"][2], o["odds_1x2"][3]
-                oov = o["odds_ou"][2.5][9]
-                oun = o["odds_ou"][2.5][10]
-                if oov and oun:
-                    lh, la, fair_1x2 = lam_from_1x2(o1, od, o2)
-                    _, fair_over = fit_total_from_ou(oov, oun, 2.5)
-                else:
-                    lh, la, fair_1x2, fair_over = 1.5, 1.2, [0.5, 0.3, 0.2], 0.55
-
-                # Independent strength blend (fallback: market-only, no bias)
-                try:
-                    from strength_rating import hybrid_lams
-                    lh, la, lam_src = hybrid_lams(
-                        o.get("home"), o.get("away"), o.get("league"), lh, la,
-                        weight=float(cfg.get("strength_weight", 0.4)))
-                except Exception:
-                    lam_src = "market-only"
+                projection = build_projection(
+                    o,
+                    strength_weight=cfg.get("formula", {}).get("strength_weight_override"),
+                )
+                coverage = projection.get("coverage_status", "market_only")
+                diagnostics[coverage if coverage in diagnostics else "market_only"] += 1
+                lh, la = projection["home"], projection["away"]
                 # Rest-days / congestion fatigue
                 try:
                     from fatigue import apply_rest_adjustment, record_fixtures
@@ -230,7 +224,11 @@ def execute_live_scan_sync():
                 pu = under_prob(2.5, lh, la)
 
                 from main import analyze_match
-                m_picks = analyze_match(o, lh, la, min_odds, min_ev, max_ah_line)
+                m_picks = analyze_match(
+                    o, lh, la, min_odds, min_ev, max_ah_line,
+                    projection_meta=projection,
+                    active_markets=cfg.get("markets", ["ou", "ah"]),
+                )
                 picks.extend(m_picks)
 
                 matrix, _ = score_matrix(lh, la)
@@ -243,8 +241,9 @@ def execute_live_scan_sync():
                 detailed_matches.append({
                     "info": o,
                     "lambdas": {"home": round(lh, 3), "away": round(la, 3), "total": round(lh + la, 3)},
-                    "fair_1x2": [round(x, 4) for x in fair_1x2],
-                    "fair_over25": round(fair_over, 4),
+                    "fair_1x2": [round(x, 4) for x in projection["fair_1x2"]],
+                    "fair_over25": round(projection["fair_over"], 4),
+                    "model": projection,
                     "probs": {
                         "home": round(ph, 4),
                         "draw": round(pd, 4),
@@ -256,14 +255,19 @@ def execute_live_scan_sync():
                     "top_scores": top_scores,
                     "picks": m_picks,
                 })
+                diagnostics["processed"] += 1
                 time.sleep(0.08)
             except Exception as ex:
-                pass
+                if len(diagnostics["errors"]) < 12:
+                    diagnostics["errors"].append({
+                        "match_id": str(m.get("I", "unknown")),
+                        "reason": str(ex),
+                    })
 
         from main import select_top_picks
         top_limit = int(cfg.get("filters", {}).get("top_pick_limit", 12))
         per_market = int(cfg.get("filters", {}).get("top_picks_per_market", 3))
-        per_match = int(cfg.get("filters", {}).get("top_picks_per_match", 2))
+        per_match = int(cfg.get("filters", {}).get("top_picks_per_match", 1))
         picks = select_top_picks(
             picks,
             limit=top_limit,
@@ -273,6 +277,7 @@ def execute_live_scan_sync():
             min_edge=float(cfg.get("filters", {}).get("min_edge", 0.03)),
             min_odds=float(cfg.get("filters", {}).get("min_odds", 1.66)),
             max_odds=cfg.get("filters", {}).get("max_odds"),
+            top_signal_limit=int(cfg.get("filters", {}).get("top_signal_limit", 5)),
         )
 
         # Every published recommendation is immediately locked for ROI tracking.
@@ -292,6 +297,7 @@ def execute_live_scan_sync():
         scan_state["last_scan_time"] = successful_at
         scan_state["last_scan_count"] = len(detailed_matches)
         scan_state["last_scan_picks"] = len(picks)
+        scan_state["diagnostics"] = diagnostics
         scan_state["progress"] = "Scan completed successfully."
         cfg["last_successful_scan_at"] = successful_at
         cfg["last_successful_scan_count"] = len(detailed_matches)
@@ -330,7 +336,7 @@ def health_check():
 
 @app.get("/api/picks")
 def get_picks(
-    market: Optional[str] = Query(None, description="Filter by market: 1x2, ah, ou, btts"),
+    market: Optional[str] = Query(None, description="Filter by active market: ah, ou"),
     league: Optional[str] = Query(None, description="Filter by league string"),
     min_odds: float = Query(1.66, ge=1.0, description="Minimum decimal odds floor"),
     max_odds: Optional[float] = Query(None, description="Maximum decimal odds cap"),
@@ -348,11 +354,12 @@ def get_picks(
         raw_picks,
         limit=int(cfg.get("filters", {}).get("top_pick_limit", 12)),
         per_market=int(cfg.get("filters", {}).get("top_picks_per_market", 3)),
-        per_match=int(cfg.get("filters", {}).get("top_picks_per_match", 2)),
+        per_match=int(cfg.get("filters", {}).get("top_picks_per_match", 1)),
         min_ev=float(cfg.get("filters", {}).get("min_ev", 0.0)),
         min_edge=float(cfg.get("filters", {}).get("min_edge", 0.03)),
         min_odds=float(cfg.get("filters", {}).get("min_odds", 1.66)),
         max_odds=cfg.get("filters", {}).get("max_odds"),
+        top_signal_limit=int(cfg.get("filters", {}).get("top_signal_limit", 5)),
     )
 
     filtered = []
@@ -425,11 +432,13 @@ def get_picks(
         "summary": {
             "total_picks": len(raw_picks),
             "qualified_picks": total_filtered,
+            "top_pick_count": sum(1 for pick in filtered if pick.get("is_top_pick")),
+            "formula_version": cfg.get("formula", {}).get("version", "ou-ah-v4.0.0"),
             "avg_ev_pct": round(avg_ev * 100, 2),
             "avg_odds": round(avg_odds, 3),
             "min_odds_floor": 1.66,
             "selection_limit": cfg.get("filters", {}).get("top_pick_limit", 12),
-            "max_picks_per_match": cfg.get("filters", {}).get("top_picks_per_match", 2),
+            "max_picks_per_match": cfg.get("filters", {}).get("top_picks_per_match", 1),
             "leagues": sorted(list(leagues_set)),
             "markets": sorted(list(markets_set)),
             "last_scan_time": scan_state.get("last_scan_time"),
@@ -665,7 +674,7 @@ def run_backtest(req: BacktestRequest):
     # OOS discipline: previous-season ratings + chronological ephemeral ledger
     bt_ledger: Dict[str, list] = {}
     bt_season = prev_season_code(req.season)
-    bt_weight = float(load_config().get("strength_weight", 0.4))
+    bt_weight = load_config().get("formula", {}).get("strength_weight_override")
 
     market_stats: Dict[str, Dict[str, Any]] = {}
 
@@ -684,7 +693,7 @@ def run_backtest(req: BacktestRequest):
 
             odds = p["odds"]
             won = p["won"]
-            profit = (odds - 1.0) if won else -1.0
+            profit = float(p.get("profit", (odds - 1.0) if won else (-1.0 if won is False else 0.0)))
             running_profit += profit
             equity_curve.append(round(running_profit, 2))
 
@@ -705,13 +714,13 @@ def run_backtest(req: BacktestRequest):
             if m not in market_stats:
                 market_stats[m] = {"bets": 0, "wins": 0, "profit": 0.0, "total_odds": 0.0}
             market_stats[m]["bets"] += 1
-            if won:
+            if profit > 0:
                 market_stats[m]["wins"] += 1
             market_stats[m]["profit"] += profit
             market_stats[m]["total_odds"] += odds
 
     total_bets = len(bets_placed)
-    total_wins = sum(1 for b in bets_placed if b["won"])
+    total_wins = sum(1 for b in bets_placed if b["profit_unit"] > 0)
     total_profit = sum(b["profit_unit"] for b in bets_placed)
     roi_pct = (total_profit / total_bets * 100) if total_bets > 0 else 0.0
     hit_rate = (total_wins / total_bets * 100) if total_bets > 0 else 0.0
@@ -817,8 +826,9 @@ def update_config(cfg: Dict[str, Any]):
     # Enforce minimum odds floor constraint of 1.66
     merged["filters"]["min_odds"] = max(float(merged["filters"].get("min_odds", 1.66)), 1.66)
     merged["filters"]["min_ev"] = max(float(merged["filters"].get("min_ev", 0.0)), 0.0)
-    merged["filters"]["top_picks_per_match"] = min(
-        2, max(1, int(merged["filters"].get("top_picks_per_match", 1)))
+    merged["filters"]["top_picks_per_match"] = 1
+    merged["filters"]["top_signal_limit"] = min(
+        8, max(1, int(merged["filters"].get("top_signal_limit", 5)))
     )
     save_config(merged)
     return {"status": "saved", "config": load_config()}

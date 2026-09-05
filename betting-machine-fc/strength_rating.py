@@ -10,8 +10,8 @@
 #  - league_avg / home_adv estimated per (league, season) from weighted data.
 #  - att/def fitted by alternating updates + geometric-mean normalisation
 #    (identifiability: mean att = mean def = 1), max 100 iters, tol 1e-6.
-#  - Unknown teams (promoted / name mismatch) fall back to neutral 1.0 for
-#    that side only — never silently dropped to market-only for both sides.
+#  - Unknown teams (promoted / name mismatch) fail full coverage explicitly;
+#    they are never replaced by a neutral rating masquerading as evidence.
 #  - Ratings cached to data/ratings_{CODE}_{SEASON}.json, rebuilt if older
 #    than 7 days. Live path resolves season = current file with >=50 matches,
 #    else previous season. Backtest callers MUST pass the previous season
@@ -45,18 +45,24 @@ LEAGUE_MAP = {
     "spain segunda division": "SP2",
     "germany bundesliga": "D1",
     "germany bundesliga 2": "D2",
+    "germany 2 bundesliga": "D2",
     "italy serie a": "I1",
     "italy serie b": "I2",
     "france ligue 1": "F1",
     "france ligue 2": "F2",
     "netherlands eredivisie": "N1",
     "portugal liga portugal": "P1",
+    "portugal primeira liga": "P1",
     "belgium first division a": "B1",
     "belgium division 1": "B1",
     "turkey super lig": "T1",
+    "turkey superliga": "T1",
     "greece superleague": "G1",
     "greece super league": "G1",
     "scotland premiership": "SC0",
+    "scotland championship": "SC1",
+    "scotland league one": "SC2",
+    "scotland league two": "SC3",
 }
 
 _mem_cache = {}
@@ -245,17 +251,22 @@ def league_code_for(label):
 
 def match_team(name, teams):
     """Resolve a team name to a ratings key: exact norm, else token Jaccard
-    >= 0.5, else None (caller uses neutral 1.0)."""
+    >= 0.5, else None (caller rejects full coverage)."""
     if not name or not teams:
         return None
-    n = norm(name)
+    aliases = {
+        "1 koln": "fc koln",
+        "borussia monchengladbach": "m gladbach",
+        "paris saint germain": "paris sg",
+    }
+    n = aliases.get(norm(name), norm(name))
     for t in teams:
-        if norm(t) == n:
+        if aliases.get(norm(t), norm(t)) == n:
             return t
     toks = set(n.split())
     best, best_j = None, 0.0
     for t in teams:
-        ct = set(norm(t).split())
+        ct = set(aliases.get(norm(t), norm(t)).split())
         union = toks | ct
         j = len(toks & ct) / len(union) if union else 0.0
         if j > best_j:
@@ -286,10 +297,14 @@ def strength_lams(home, away, league_label, season=None):
     teams = payload["teams"]
     hk = match_team(home, teams)
     ak = match_team(away, teams)
-    hatt = teams[hk]["att"] if hk else 1.0
-    adef = teams[ak]["def"] if ak else 1.0
-    aatt = teams[ak]["att"] if ak else 1.0
-    hdef = teams[hk]["def"] if hk else 1.0
+    # An unmatched provider team name is not full model coverage.  Falling
+    # back to a neutral team here used to masquerade as an independent signal.
+    if not hk or not ak:
+        return None
+    hatt = teams[hk]["att"]
+    adef = teams[ak]["def"]
+    aatt = teams[ak]["att"]
+    hdef = teams[hk]["def"]
     lh, la = strength_lam(hatt, adef, aatt, hdef,
                           payload.get("league_avg", 1.35),
                           payload.get("home_adv", 1.25))
