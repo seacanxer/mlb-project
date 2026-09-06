@@ -1166,6 +1166,87 @@ def add_intel_context(req: IntelContextRequest):
     return {"status": "saved", "context": db.get_intel_context(req.match_id)}
 
 
+@app.get("/api/intel/context")
+def list_intel_context(match_id: Optional[str] = Query(None)):
+    if match_id:
+        return {"context": db.get_intel_context(match_id)}
+    import intel as intel_mod
+    board = intel_mod.load_board()
+    ids = [i.get("match_id") for i in board.get("board", []) if i.get("match_id")]
+    all_ctx = []
+    for mid in ids[:50]:
+        all_ctx.extend(db.get_intel_context(mid) or [])
+    return {"context": all_ctx, "matches_checked": min(len(ids), 50)}
+
+
+@app.get("/api/kpis")
+def get_kpis():
+    import kpi_feedback as kf
+    return kf.compute_kpis()
+
+
+@app.post("/api/kpis/backfill")
+def backfill_kpis():
+    import kpi_feedback as kf
+    n = kf.backfill_kpis()
+    return {"status": "ok", "backfilled": n, "kpis": kf.compute_kpis()}
+
+
+@app.get("/api/kpis/coverage")
+def get_kpis_coverage():
+    import kpi_feedback as kf
+    conn = kf._connect if hasattr(kf, "_connect") else None
+    import sqlite3
+    db_path = getattr(kf, "DB_PATH", "/home/ubuntu/mlb-project/betting-machine-fc/bets.db")
+    c = sqlite3.connect(db_path)
+    c.row_factory = sqlite3.Row
+    rows = c.execute(
+        "SELECT coverage_status, market, odds_band, won, profit FROM bet_kpis"
+    ).fetchall()
+    c.close()
+    buckets = {}
+    from collections import defaultdict
+    for r in rows:
+        key = (r["coverage_status"], r["market"], r["odds_band"])
+        b = buckets.setdefault(key, {"total": 0, "settled": 0, "wins": 0, "losses": 0,
+                                     "pushes": 0, "profit": 0.0})
+        b["total"] += 1
+        b["settled"] += 1
+        if r["won"] == 1:
+            b["wins"] += 1
+        elif r["won"] == 0:
+            b["losses"] += 1
+        else:
+            b["pushes"] += 1
+        b["profit"] += r["profit"] or 0
+    out = []
+    for (cov, market, band), b in buckets.items():
+        b["win_rate"] = round(b["wins"] / max(b["settled"] - b["pushes"], 1), 4)
+        b["roi_pct"] = round(100.0 * b["profit"] / max(b["settled"], 1), 2)
+        b["coverage"] = cov
+        b["market"] = market
+        b["odds_band"] = band
+        out.append(b)
+    out.sort(key=lambda x: x["settled"], reverse=True)
+    return {"rows": out, "total": len(out)}
+
+
+@app.get("/api/crosscheck")
+def get_crosscheck(limit: int = Query(30, ge=1, le=100)):
+    import odds_crosscheck as oc
+    rows = oc.crosscheck_board(limit=limit)
+    counts = {"agree": 0, "disagree": 0, "no_fs": 0}
+    for r in rows:
+        v = r.get("verdict") or "no_fs"
+        counts[v] = counts.get(v, 0) + 1
+    return {
+        "rows": rows,
+        "summary": counts,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "total": len(rows),
+    }
+
+
 if __name__ == "__main__":
     import uvicorn
 

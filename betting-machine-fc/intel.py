@@ -28,6 +28,7 @@ from model import (
 )
 from prediction import build_projection, select_main_ah, select_main_ou
 from league_profiles import get_league_profile
+import elo_rating
 import db
 
 BOARD_PATH = os.path.join(BASE_DIR, "intel_board.json")
@@ -76,6 +77,25 @@ def analyze_intel(o, snapshots=None):
         return item
 
     lh, la = proj["home"], proj["away"]
+    cov_status = proj.get("coverage_status", "market_only")
+    if cov_status in ("shadow", "market_only"):
+        try:
+            elh, ela, esrc = elo_rating.elo_hybrid(
+                o.get("home"), o.get("away"), league, lh, la
+            )
+            if esrc == "market+elo":
+                lh, la = elh, ela
+                proj["coverage_status"] = "full"
+                proj["lambda_source"] = "market+elo"
+                proj["data_grade"] = "B"
+                proj["coverage_reason"] = "internal Elo team ratings"
+                proj["league_model"] = "ELO"
+                item["coverage"] = "full"
+                item["data_grade"] = "B"
+                item["league_model"] = "ELO"
+                item["coverage_reason"] = proj["coverage_reason"]
+        except Exception:
+            pass
     total = lh + la
     ph, pd, pa = match_probs(lh, la)
     pbt = btts_prob(lh, la)

@@ -495,8 +495,76 @@ async function loadTracker() {
     trackerData = data;
     renderTracker();
     renderMarketPerformance();
+    loadKpiFeedback();
+    loadCrosscheck();
   } catch (err) {
     showBanner(err.message, true);
+  }
+}
+
+async function loadKpiFeedback() {
+  const tbody = document.getElementById('kpi-feedback-rows');
+  try {
+    const res = await fetch('/api/kpis/coverage');
+    if (!res.ok) throw new Error('kpi fetch failed');
+    const data = await res.json();
+    const rows = (data.rows || []).slice(0, 50);
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">Belum ada data KPI.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = rows.map(r => {
+      const rec = `${r.wins}-${r.losses}${r.pushes ? '-' + r.pushes : ''}`;
+      const roi = r.roi_pct || 0;
+      const cls = roi >= 0 ? 'text-emerald' : 'text-rose';
+      return `<tr>
+        <td>${r.coverage}</td>
+        <td>${r.market || '-'}</td>
+        <td>${r.odds_band || '-'}</td>
+        <td>${r.settled}</td>
+        <td>${rec}</td>
+        <td>${((r.win_rate || 0) * 100).toFixed(1)}%</td>
+        <td>${(r.profit || 0).toFixed(2)}u</td>
+        <td class="${cls}">${roi >= 0 ? '+' : ''}${roi.toFixed(1)}%</td>
+      </tr>`;
+    }).join('');
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">Error: ${err.message}</td></tr>`;
+  }
+}
+
+async function loadCrosscheck() {
+  const tbody = document.getElementById('crosscheck-rows');
+  const meta = document.getElementById('crosscheck-meta');
+  try {
+    const res = await fetch('/api/crosscheck?limit=30');
+    if (!res.ok) throw new Error('crosscheck fetch failed');
+    const data = await res.json();
+    const rows = data.results || data.rows || data.board || [];
+    const counts = data.summary || {};
+    if (meta) meta.textContent = `Agree: ${counts.agree ?? '-'} · Disagree: ${counts.disagree ?? '-'} · No FS: ${counts.no_fs ?? '-'} · Generated ${data.generated_at || '-'}`;
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">Belum ada data cross-check.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = rows.map(r => {
+      const verdict = (r.verdict || 'no_fs').toLowerCase();
+      const rec = r.recommendation || {};
+      const cls = verdict === 'agree' ? 'text-emerald' : verdict === 'disagree' ? 'text-rose' : 'text-muted';
+      const label = verdict === 'agree' ? '✅ Agree' : verdict === 'disagree' ? '⚠️ Disagree' : '—';
+      return `<tr>
+        <td><strong>${r.home || r.match || ''} vs ${r.away || ''}</strong></td>
+        <td class="text-muted small">${r.league || ''}</td>
+        <td>${r.fs_ou_line ?? '-'}</td>
+        <td>${r.fs_ou_over_odds ?? '-'}</td>
+        <td>${r.xbit_ou_over_odds ?? rec.odds ?? '-'}</td>
+        <td>${r.fs_ah_line ?? '-'}</td>
+        <td>${r.xbit_ah_line ?? '-'}</td>
+        <td class="${cls}">${label}</td>
+      </tr>`;
+    }).join('');
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">Error: ${err.message}</td></tr>`;
   }
 }
 

@@ -314,6 +314,23 @@
           </table>
         </div>
       </div>
+      <div id="tracker-kpis-panel" class="card" style="margin-top: 1rem;">
+        <h3 style="margin: 0 0 0.5rem;">KPI Feedback per Kategori</h3>
+        <p class="text-muted small">Hit-rate &amp; ROI empiris per coverage status × market × odds band — buat tahu kategori mana yang paling confidence (dari 640 settled bets).</p>
+        <table class="data-table">
+          <thead><tr><th>Coverage</th><th>Market</th><th>Odds Band</th><th>Settled</th><th>Record</th><th>Win Rate</th><th>Profit</th><th>ROI</th></tr></thead>
+          <tbody id="kpi-feedback-rows"><tr><td colspan="8" class="text-center text-muted">Loading KPI...</td></tr></tbody>
+        </table>
+      </div>
+      <div id="crosscheck-panel" class="card" style="margin-top: 1rem;">
+        <h3 style="margin: 0 0 0.5rem;">Odds Cross-check: 1xbit vs FlashScore</h3>
+        <p class="text-muted small">Sumber harga kedua (FlashScore) — validasi EV 1xbit. Hijau = agree, Merah = disagree, Abu = no FlashScore.</p>
+        <p id="crosscheck-meta" class="text-muted small">Belum di-load.</p>
+        <table class="data-table">
+          <thead><tr><th>Match</th><th>Liga</th><th>FS OU Line</th><th>FS Over</th><th>1xbit Over</th><th>FS AH</th><th>1xbit AH</th><th>Verdict</th></tr></thead>
+          <tbody id="crosscheck-rows"><tr><td colspan="8" class="text-center text-muted">Loading cross-check...</td></tr></tbody>
+        </table>
+      </div>
     </section>
 
     <!-- TAB 2: MATCHES & DIXON-COLES MATRICES -->
@@ -736,6 +753,6 @@ sudo systemctl start fc-betting</code>
     </div>
   </div>
 
-  <script src="/static/app.js?v=25"></script>
+  <script src="/static/app.js?v=26"></script>
 </body>
 </html>
