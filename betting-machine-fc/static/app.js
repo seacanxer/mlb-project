@@ -266,7 +266,7 @@ async function loadPicks() {
     const maxOdds = document.getElementById('filter-max-odds')?.value;
 
     const cfgOdds = currentConfig?.filters?.min_odds ?? 1.64;
-    let url = `/api/picks?min_odds=${cfgOdds}&min_ev=${minEv}&sort_by=${sortBy}&sort_order=desc`;
+    let url = `/api/picks?min_odds=${cfgOdds}&min_ev=${minEv}&sort_by=${sortBy}&sort_order=desc&limit=200`;
     if (maxOdds) url += `&max_odds=${maxOdds}`;
 
     const res = await fetch(url);
@@ -411,9 +411,10 @@ function renderPicks() {
 
     const marketClass = `badge-${p.market || '1x2'}`;
 
-    const signalLabel = p.is_top_pick ? '🔥 TOP PICK' : '✅ OFFICIAL';
-    const signalClass = p.is_top_pick ? 'top-pick-badge' : 'official-badge';
-    card.classList.toggle('top-pick-card', Boolean(p.is_top_pick));
+    const tier = p.tier || (p.is_top_pick ? 'top_pick' : (p.is_watch ? 'watch' : 'official'));
+    const signalLabel = tier === 'top_pick' ? '🔥 TOP PICK' : (tier === 'watch' ? '👁 WATCH' : '✅ OFFICIAL');
+    const signalClass = tier === 'top_pick' ? 'top-pick-badge' : (tier === 'watch' ? 'watch-badge' : 'official-badge');
+    card.classList.toggle('top-pick-card', tier === 'top_pick');
     card.innerHTML = `
       <div>
         <div class="pick-card-header"><span class="market-badge ${marketClass}">${p.market ? p.market.toUpperCase() : 'BET'}</span><span class="${signalClass}">${signalLabel}</span></div>

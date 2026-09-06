@@ -71,7 +71,7 @@ scan_state = {
 
 # Absolute odds floor guard (anti-typo). Config min_odds flows through;
 # anything below this is rejected even if requested via API/UI.
-ODDS_FLOOR_ABS = 1.60
+ODDS_FLOOR_ABS = 1.64
 
 _settle_lock = threading.Lock()
 settle_state: Dict[str, Any] = {
@@ -446,13 +446,13 @@ def health_check():
 def get_picks(
     market: Optional[str] = Query(None, description="Filter by active market: ah, ou"),
     league: Optional[str] = Query(None, description="Filter by league string"),
-    min_odds: float = Query(1.60, ge=1.0, description="Minimum decimal odds floor"),
+    min_odds: float = Query(1.64, ge=1.0, description="Minimum decimal odds floor"),
     max_odds: Optional[float] = Query(None, description="Maximum decimal odds cap"),
     min_ev: float = Query(0.0, description="Minimum expected value threshold"),
     search: Optional[str] = Query(None, description="Search query for team names or league"),
     sort_by: str = Query("rank_score", description="Sort field: rank_score, ev, odds, probability"),
     sort_order: str = Query("desc", description="Sort direction: asc, desc"),
-    limit: int = Query(50, ge=1, le=100, description="Pagination limit"),
+    limit: int = Query(200, ge=1, le=500, description="Pagination limit"),
     offset: int = Query(0, ge=0, description="Pagination offset"),
 ):
     raw_picks = load_picks_file()
@@ -469,6 +469,26 @@ def get_picks(
         max_odds=cfg.get("filters", {}).get("max_odds"),
         top_signal_limit=int(cfg.get("filters", {}).get("top_signal_limit", 5)),
     )
+
+    official_keys = {(p.get("match_id"), p.get("market"), p.get("pick")) for p in raw_picks if isinstance(p, dict)}
+    watch_extra = []
+    for md in load_detailed_matches():
+        for c in (md.get("picks") or []):
+            if not isinstance(c, dict) or not c.get("odds"):
+                continue
+            key = (c.get("match_id"), c.get("market"), c.get("pick"))
+            if key in official_keys:
+                continue
+            o = float(c.get("odds"))
+            if o < 1.64 or o > 2.50:
+                continue
+            item = dict(c)
+            item["tier"] = "watch"
+            item["selection_status"] = "watch"
+            item["is_watch"] = True
+            item["rank_score"] = round(max(0.0, float(item.get("conservative_ev") or item.get("ev") or 0)), 4)
+            watch_extra.append(item)
+    raw_picks = raw_picks + watch_extra
 
     filtered = []
     leagues_set = {
@@ -541,6 +561,8 @@ def get_picks(
             "total_picks": len(raw_picks),
             "qualified_picks": total_filtered,
             "top_pick_count": sum(1 for pick in filtered if pick.get("is_top_pick")),
+            "official_count": sum(1 for pick in filtered if pick.get("tier") == "official"),
+            "watch_count": sum(1 for pick in filtered if pick.get("tier") == "watch"),
             "formula_version": cfg.get("formula", {}).get("version", "ou-ah-v4.0.0"),
             "avg_ev_pct": round(avg_ev * 100, 2),
             "avg_odds": round(avg_odds, 3),

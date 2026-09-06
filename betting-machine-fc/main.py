@@ -164,7 +164,7 @@ def analyze_match(o, lh, la, min_odds=1.66, min_ev=0.0, max_ah_line=2.5,
         if "1x2" not in active_markets:
             continue
         e = ev(p, odds) if odds else -999
-        if e >= min_ev and odds and odds >= min_odds and odds <= 2.20:
+        if e >= min_ev and odds and odds >= min_odds and odds <= 2.50:
             item = pick_entry(o, market, pick, p, odds, e, market_p, projection_meta=projection_meta)
             item["independent_signal"] = False
             item["risk_reason"] = "1X2 λ circular — needs rating model"
@@ -219,7 +219,7 @@ def analyze_match(o, lh, la, min_odds=1.66, min_ev=0.0, max_ah_line=2.5,
         if line < -1.0:
             continue
         e_ah = ah_ev(line, c, lh, la)
-        if c >= min_odds and c <= 2.30 and e_ah >= min_ev:
+        if c >= min_odds and c <= 2.50 and e_ah >= min_ev:
             fair_price = ah_fair_odds(line, "home", lh, la)
             p_approx = 1.0 / fair_price if fair_price > 0 else 0
             counterpart = away_ah.get(round(-float(line), 4))
@@ -238,7 +238,7 @@ def analyze_match(o, lh, la, min_odds=1.66, min_ev=0.0, max_ah_line=2.5,
         if line < -1.0:
             continue
         e_ah = ah_ev_away(line, c, lh, la)
-        if c >= min_odds and c <= 2.30 and e_ah >= min_ev:
+        if c >= min_odds and c <= 2.50 and e_ah >= min_ev:
             fair_price = ah_fair_odds(line, "away", lh, la)
             p_approx = 1.0 / fair_price if fair_price > 0 else 0
             counterpart = home_ah.get(round(-float(line), 4))
@@ -252,8 +252,8 @@ def analyze_match(o, lh, la, min_odds=1.66, min_ev=0.0, max_ah_line=2.5,
     return out
 
 
-def select_top_picks(candidates, limit=40, per_market=20, per_match=1,
-                     min_ev=0.0, min_edge=0.0, min_odds=1.66, max_odds=None,
+def select_top_picks(candidates, limit=50, per_market=25, per_match=2,
+                     min_ev=0.0, min_edge=0.0, min_odds=1.64, max_odds=None,
                      top_signal_limit=5):
     """Publish full-coverage O/U and AH picks, then mark a diversified Top set.
 
@@ -262,7 +262,7 @@ def select_top_picks(candidates, limit=40, per_market=20, per_match=1,
     ``min_edge`` remains in the public signature for API compatibility; Formula
     v4 ranks settlement-aware conservative EV instead of binary probability.
     """
-    odds_ceiling = {"ah": 2.30, "ou": 2.30}
+    odds_ceiling = {"ah": 2.50, "ou": 2.50}
     # Shadow coverage (unrated senior leagues, e.g. USA MLS): allowed through
     # but with strict gates — never promoted silently to official.
     SHADOW_MIN_CONS_EV = 0.06
@@ -327,8 +327,10 @@ def select_top_picks(candidates, limit=40, per_market=20, per_match=1,
         if pick.get("coverage_status") == "shadow":
             # preserve provenance — never silently promote shadow to official
             pick["selection_status"] = "top_pick:shadow" if is_top else "shadow"
+            pick["tier"] = "watch"
         else:
             pick["selection_status"] = "top_pick" if is_top else "official"
+            pick["tier"] = "top_pick" if is_top else "official"
         if is_top:
             top_count += 1
             league_top_counts[league] = league_top_counts.get(league, 0) + 1
@@ -371,7 +373,7 @@ def pick_entry(o, market, pick, p, odds, e, market_probability=None,
     }
 
 
-def backtest_one(r, min_odds=1.66, min_ev=0.0, ledger=None,
+def backtest_one(r, min_odds=1.64, min_ev=0.0, ledger=None,
                  league_code=None, rating_season=None, strength_weight=None):
     o1, od, o2 = r["odds_home"], r["odds_draw"], r["odds_away"]
     oov, oun = r["odds_over"], r["odds_under"]
@@ -447,7 +449,7 @@ def backtest_one(r, min_odds=1.66, min_ev=0.0, ledger=None,
 def summarize(items):
     picks = [p for p in items if p.get("market")]
     print(f"total matches: {len(items)}")
-    print(f"qualified picks (EV>{0}, odds>={1.66}): {len(picks)}")
+    print(f"qualified picks (EV>{0}, odds>={1.64}): {len(picks)}")
     for p in picks[:15]:
         print(f"  {p['match'][:38]:38s} {p['market']:7s} {str(p['pick'])[:24]:24s} odds={p['odds']:.2f} EV={p['ev']:+.3f}")
 

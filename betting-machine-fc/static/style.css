@@ -861,7 +861,8 @@ canvas {
 }
 
 .official-badge,
-.top-pick-badge {
+.top-pick-badge,
+.watch-badge {
   font-size: 10px;
   font-weight: 800;
   letter-spacing: .5px;
@@ -869,6 +870,7 @@ canvas {
 
 .official-badge { color: var(--emerald); }
 .top-pick-badge { color: var(--amber); }
+.watch-badge { color: var(--cyan); }
 
 .top-pick-card {
   border-color: rgba(245, 158, 11, 0.48);

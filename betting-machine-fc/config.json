@@ -9,9 +9,9 @@
     "min_probability": 0.0,
     "max_ah_abs_line": 2.5,
     "max_odds": 2.5,
-    "top_pick_limit": 35,
-    "top_picks_per_market": 12,
-    "top_picks_per_match": 1,
+    "top_pick_limit": 50,
+    "top_picks_per_market": 25,
+    "top_picks_per_match": 2,
     "top_signal_limit": 5
   },
   "markets": [
@@ -57,7 +57,7 @@
       }
     }
   },
-  "last_successful_scan_at": "2026-09-05T20:28:30.951249+00:00",
-  "last_successful_scan_count": 70,
-  "last_successful_scan_picks": 7
+  "last_successful_scan_at": "2026-09-06T06:45:44.552015+00:00",
+  "last_successful_scan_count": 858,
+  "last_successful_scan_picks": 10
 }
