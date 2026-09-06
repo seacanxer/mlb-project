@@ -1179,6 +1179,22 @@ function mvtBadge(pct) {
   return `<span style="color:${color}">${dir} ${Math.abs(pct).toFixed(2)}%</span>`;
 }
 
+function populateIntelDecisionFilter(items) {
+  const sel = document.getElementById('intel-filter-decision');
+  if (!sel) return;
+  const current = sel.value;
+  const counts = {};
+  items.forEach(i => { const d = i.decision || 'NO BET'; counts[d] = (counts[d] || 0) + 1; });
+  const order = ['BET', 'WATCH', 'SHADOW', 'NO BET', 'UNSUPPORTED'];
+  const keys = Object.keys(counts).sort((a, b) => {
+    const ia = order.indexOf(a), ib = order.indexOf(b);
+    return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+  });
+  sel.innerHTML = '<option value="all">All Decisions</option>' + keys.map(k =>
+    `<option value="${k}">${k} (${counts[k]})</option>`).join('');
+  sel.value = current;
+}
+
 async function loadIntel() {
   const decision = document.getElementById('intel-filter-decision')?.value || 'all';
   const league = document.getElementById('intel-filter-league')?.value || 'all';
@@ -1192,12 +1208,15 @@ async function loadIntel() {
     const data = await res.json();
     allIntel = data.board || [];
     if (search) allIntel = allIntel.filter(i => (i.home + ' ' + i.away + ' ' + (i.league||'')).toLowerCase().includes(search));
+    const w = { 'BET': 0, 'WATCH': 1, 'SHADOW': 2, 'NO BET': 3, 'UNSUPPORTED': 4 };
+    allIntel.sort((a, b) => (w[a.decision] ?? 9) - (w[b.decision] ?? 9));
     const meta = document.getElementById('intel-meta');
     if (meta) {
       const gen = data.generated_at ? new Date(data.generated_at).toLocaleString('en-GB', { timeZone: 'Asia/Jakarta' }) : '-';
       meta.textContent = `Board: ${data.count} matches · Generated ${gen} · Single-bookmaker reference (WATCH/SHADOW max)`;
     }
     populateIntelLeagueFilter(allIntel);
+    populateIntelDecisionFilter(allIntel);
     renderIntel();
   } catch (err) {
     console.error('intel error', err);
