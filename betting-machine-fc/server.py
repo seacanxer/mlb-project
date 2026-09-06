@@ -69,6 +69,10 @@ scan_state = {
     "diagnostics": {},
 }
 
+# Absolute odds floor guard (anti-typo). Config min_odds flows through;
+# anything below this is rejected even if requested via API/UI.
+ODDS_FLOOR_ABS = 1.60
+
 _settle_lock = threading.Lock()
 settle_state: Dict[str, Any] = {
     "running": False,
@@ -442,7 +446,7 @@ def health_check():
 def get_picks(
     market: Optional[str] = Query(None, description="Filter by active market: ah, ou"),
     league: Optional[str] = Query(None, description="Filter by league string"),
-    min_odds: float = Query(1.66, ge=1.0, description="Minimum decimal odds floor"),
+    min_odds: float = Query(1.60, ge=1.0, description="Minimum decimal odds floor"),
     max_odds: Optional[float] = Query(None, description="Maximum decimal odds cap"),
     min_ev: float = Query(0.0, description="Minimum expected value threshold"),
     search: Optional[str] = Query(None, description="Search query for team names or league"),
@@ -489,8 +493,8 @@ def get_picks(
         e = p.get("ev", 0.0)
         prob = p.get("probability", 0.0)
 
-        # Enforce minimum odds floor (never below requested or 1.66)
-        if odds < max(min_odds, 1.66):
+        # Enforce minimum odds floor (never below requested or absolute floor)
+        if odds < max(min_odds, ODDS_FLOOR_ABS):
             continue
         if max_odds is not None and odds > max_odds:
             continue
@@ -540,7 +544,7 @@ def get_picks(
             "formula_version": cfg.get("formula", {}).get("version", "ou-ah-v4.0.0"),
             "avg_ev_pct": round(avg_ev * 100, 2),
             "avg_odds": round(avg_odds, 3),
-            "min_odds_floor": 1.66,
+            "min_odds_floor": ODDS_FLOOR_ABS,
             "selection_limit": cfg.get("filters", {}).get("top_pick_limit", 12),
             "max_picks_per_match": cfg.get("filters", {}).get("top_picks_per_match", 1),
             "leagues": sorted(list(leagues_set)),
@@ -1032,8 +1036,8 @@ def update_config(cfg: Dict[str, Any]):
     merged_filters.update(cfg.get("filters", {}))
     merged["filters"] = merged_filters
 
-    # Enforce minimum odds floor constraint of 1.66
-    merged["filters"]["min_odds"] = max(float(merged["filters"].get("min_odds", 1.66)), 1.66)
+    # Enforce absolute minimum odds floor constraint
+    merged["filters"]["min_odds"] = max(float(merged["filters"].get("min_odds", ODDS_FLOOR_ABS)), ODDS_FLOOR_ABS)
     merged["filters"]["min_ev"] = max(float(merged["filters"].get("min_ev", 0.0)), 0.0)
     merged["filters"]["top_picks_per_match"] = 1
     merged["filters"]["top_signal_limit"] = min(

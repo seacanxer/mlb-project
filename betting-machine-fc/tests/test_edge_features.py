@@ -149,7 +149,32 @@ def test_production_selector_rejects_non_ou_ah_markets():
     assert picks == []
 
 
-def test_shadow_candidates_cannot_become_official():
-    candidate = _cand("ou", 0.60, 1.9, 0.12, 0.06)
-    candidate.update({"coverage_status": "shadow", "selection_status": "shadow"})
-    assert select_top_picks([candidate], min_odds=1.6) == []
+def test_shadow_candidates_need_strict_gates_and_stay_shadow():
+    # weak shadow (low cons EV / low prob) is rejected
+    weak = _cand("ou", 0.55, 1.9, 0.05, 0.03)
+    weak.update({"coverage_status": "shadow", "selection_status": "shadow",
+                 "conservative_ev": 0.01})
+    assert select_top_picks([weak], min_odds=1.6) == []
+    # strong shadow passes but is never relabeled official
+    strong = _cand("ou", 0.62, 1.9, 0.12, 0.06)
+    strong.update({"coverage_status": "shadow", "selection_status": "shadow",
+                   "conservative_ev": 0.08})
+    picks = select_top_picks([strong], min_odds=1.6)
+    assert len(picks) == 1
+    assert picks[0]["selection_status"] in {"shadow", "top_pick:shadow"}
+    assert picks[0]["coverage_status"] == "shadow"
+    # suffixed status round-trips through reselection (e.g. /api/picks)
+    again = select_top_picks(picks, min_odds=1.6)
+    assert len(again) == 1
+
+
+def test_unrated_senior_league_is_shadow_not_blocked():
+    from league_profiles import get_league_profile
+    prof = get_league_profile("USA. MLS")
+    assert prof.route == "shadow"
+    assert prof.key == "UNRATED"
+    # youth/cup/reserve stay blocked (any language)
+    assert get_league_profile("England. Premier League U21").route == "blocked"
+    assert get_league_profile("England. FA Cup").route == "blocked"
+    assert get_league_profile("Spain. Copa del Rey").route == "blocked"
+    assert get_league_profile("Italy. Coppa Italia").route == "blocked"

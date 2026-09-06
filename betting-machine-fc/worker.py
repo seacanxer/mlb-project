@@ -16,7 +16,9 @@ def run_worker_loop(interval_minutes: int = 15, once: bool = False):
     print(f"[{now_str}] 🚀 FC Betting Machine worker started.")
     print(f"Interval: {interval_minutes} minutes | Run once: {once}")
 
+    cycle = 0
     while True:
+        cycle += 1
         start_ts = time.time()
         now_str = datetime.now(timezone.utc).isoformat()
         print(f"\n[{now_str}] 📡 Triggering live odds scan...")
@@ -30,6 +32,14 @@ def run_worker_loop(interval_minutes: int = 15, once: bool = False):
                 print(f"[{now_str}] ℹ️ Settlement: {st}", flush=True)
             execute_live_scan_sync()
             cfg = load_config()
+            # Market Intel board: heavy detail fetch — every 6th cycle (~90 min)
+            if cycle % 6 == 0:
+                try:
+                    import intel as intel_mod
+                    board = intel_mod.scan_intel(window_hours=40, max_matches=600)
+                    print(f"[{now_str}] 📡 Intel board refreshed: {board.get('count', 0)} matches", flush=True)
+                except Exception as ie:
+                    print(f"[{now_str}] ⚠️ Intel scan failed: {ie}", flush=True)
             now_str = datetime.now(timezone.utc).isoformat()
             print(f"[{now_str}] ✅ Scan complete. Processed in {time.time() - start_ts:.2f}s")
         except Exception as e:

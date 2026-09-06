@@ -3,7 +3,7 @@
   "flashscore_leagues": [],
   "scan_match_limit": 500,
   "filters": {
-    "min_odds": 1.66,
+    "min_odds": 1.64,
     "min_ev": 0.0,
     "min_edge": 0.02,
     "min_probability": 0.0,

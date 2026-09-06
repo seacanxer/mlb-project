@@ -263,6 +263,10 @@ def select_top_picks(candidates, limit=40, per_market=20, per_match=1,
     v4 ranks settlement-aware conservative EV instead of binary probability.
     """
     odds_ceiling = {"ah": 2.30, "ou": 2.30}
+    # Shadow coverage (unrated senior leagues, e.g. USA MLS): allowed through
+    # but with strict gates — never promoted silently to official.
+    SHADOW_MIN_CONS_EV = 0.06
+    SHADOW_MIN_PROB = 0.56
     eligible = []
     for pick in candidates:
         market = pick.get("market")
@@ -271,13 +275,22 @@ def select_top_picks(candidates, limit=40, per_market=20, per_match=1,
         edge = float(pick.get("ev") or 0)
         if market not in odds_ceiling:
             continue
-        if pick.get("selection_status") not in {"official", "top_pick"} or pick.get("coverage_status") != "full":
+        status = pick.get("selection_status")
+        coverage = pick.get("coverage_status")
+        is_shadow = coverage == "shadow" and status in {"shadow", "top_pick:shadow"}
+        is_official = coverage == "full" and status in {"official", "top_pick"}
+        if not (is_official or is_shadow):
             continue
         eff_odds_cap = max_odds if max_odds is not None else odds_ceiling[market]
         if not min_odds <= odds <= eff_odds_cap:
             continue
         conservative_ev = float(pick.get("conservative_ev", edge - 0.02))
-        if conservative_ev < max(float(min_ev), 0.02) or edge > 0.25:
+        min_cons_ev = max(float(min_ev), 0.02)
+        if is_shadow:
+            min_cons_ev = max(min_cons_ev, SHADOW_MIN_CONS_EV)
+            if probability < SHADOW_MIN_PROB:
+                continue
+        if conservative_ev < min_cons_ev or edge > 0.25:
             continue
         price_quality = max(0.0, 1.0 - abs(odds - 1.95) / 0.65)
         score = min(conservative_ev, 0.15) / 0.15 * 80 + price_quality * 20
@@ -311,7 +324,11 @@ def select_top_picks(candidates, limit=40, per_market=20, per_match=1,
         league = pick.get("league") or "Unknown"
         is_top = top_count < top_signal_limit and league_top_counts.get(league, 0) < 2
         pick["is_top_pick"] = is_top
-        pick["selection_status"] = "top_pick" if is_top else "official"
+        if pick.get("coverage_status") == "shadow":
+            # preserve provenance — never silently promote shadow to official
+            pick["selection_status"] = "top_pick:shadow" if is_top else "shadow"
+        else:
+            pick["selection_status"] = "top_pick" if is_top else "official"
         if is_top:
             top_count += 1
             league_top_counts[league] = league_top_counts.get(league, 0) + 1

@@ -245,6 +245,7 @@ INTEL_ALLOW = {
     "NO1", "NO2",  # Norway: Eliteserien, 1. Division
     "SE1", "SE2",  # Sweden: Allsvenskan, Superettan
     "IS1",         # Iceland: Besta deild
+    "UNRATED",     # unrated senior leagues (e.g. USA MLS) — shadow only
 }
 
 

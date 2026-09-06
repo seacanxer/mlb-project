@@ -245,12 +245,12 @@ async function loadConfig() {
 
     // Populate settings form
     document.getElementById('cfg-data-source').value = currentConfig.data_source || '1xbit';
-    document.getElementById('cfg-min-odds').value = currentConfig.filters?.min_odds ?? 1.66;
+    document.getElementById('cfg-min-odds').value = currentConfig.filters?.min_odds ?? 1.64;
     document.getElementById('cfg-min-ev').value = currentConfig.filters?.min_ev ?? 0.0;
     document.getElementById('cfg-max-ah').value = currentConfig.filters?.max_ah_abs_line ?? 1.5;
 
     // Update odds floor display
-    const minOdds = currentConfig.filters?.min_odds ?? 1.66;
+    const minOdds = currentConfig.filters?.min_odds ?? 1.64;
     const display = document.getElementById('odds-floor-display');
     if (display) display.textContent = `≥ ${minOdds}`;
   } catch (err) {
@@ -265,7 +265,8 @@ async function loadPicks() {
     const sortBy = document.getElementById('filter-sort')?.value || 'rank_score';
     const maxOdds = document.getElementById('filter-max-odds')?.value;
 
-    let url = `/api/picks?min_odds=1.66&min_ev=${minEv}&sort_by=${sortBy}&sort_order=desc`;
+    const cfgOdds = currentConfig?.filters?.min_odds ?? 1.64;
+    let url = `/api/picks?min_odds=${cfgOdds}&min_ev=${minEv}&sort_by=${sortBy}&sort_order=desc`;
     if (maxOdds) url += `&max_odds=${maxOdds}`;
 
     const res = await fetch(url);
@@ -1108,7 +1109,7 @@ function initSettingsForm() {
     const payload = {
       data_source: document.getElementById('cfg-data-source').value,
       filters: {
-        min_odds: Math.max(parseFloat(document.getElementById('cfg-min-odds').value) || 1.66, 1.66),
+        min_odds: Math.max(parseFloat(document.getElementById('cfg-min-odds').value) || 1.64, 1.60),
         min_ev: parseFloat(document.getElementById('cfg-min-ev').value) || 0.0,
         max_ah_abs_line: parseFloat(document.getElementById('cfg-max-ah').value) || 2.0,
       },

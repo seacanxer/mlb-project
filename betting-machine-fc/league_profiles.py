@@ -47,7 +47,8 @@ _RATED_HISTORY_WEIGHTS = {
 
 _BLOCKED_MARKERS = (
     " women", " woman", " u17", " u18", " u19", " u20", " u21", " u23",
-    " youth", " reserve", " reserves", " cup", " friendly", " qualification",
+    " youth", " reserve", " reserves", " cup", " copa", " coppa", " coupe",
+    " pokal", " taca", " friendly", " qualification",
 )
 
 _AMBIGUOUS_OR_UNVALIDATED = (
@@ -78,4 +79,8 @@ def get_league_profile(label):
             code, None, _RATED_HISTORY_WEIGHTS.get(code, 0.25),
             "A", "rated", "team-rating league",
         )
-    return LeagueProfile("UNSUPPORTED", None, 0.0, "D", "blocked", "no validated league model")
+    # Senior league without team ratings (e.g. USA MLS, Mexico, Brazil):
+    # NOT blocked — shadow route with a weak global prior and strict gates
+    # downstream. Only youth/cup/reserve/friendly/unvalidated stay blocked.
+    return LeagueProfile("UNRATED", 2.80, 0.05, "C", "shadow",
+                         "unrated senior league — weak global prior, strict gates")
