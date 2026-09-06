@@ -654,6 +654,21 @@ canvas {
   overflow-x: auto;
 }
 
+.table-container {
+  overflow-x: auto;
+}
+
+.parlay-history-scroll {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.parlay-see-more {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.75rem;
+}
+
 .data-table {
   width: 100%;
   border-collapse: collapse;

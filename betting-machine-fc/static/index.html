@@ -243,9 +243,12 @@
         <div class="kpi-card"><div class="kpi-label">Profit</div><div class="kpi-val" id="parlay-profit">0.00u</div></div>
         <div class="kpi-card"><div class="kpi-label">ROI</div><div class="kpi-val" id="parlay-roi">0.0%</div></div>
       </div>
-      <div class="table-container">
+      <div class="table-container parlay-history-scroll">
         <table><thead><tr><th>Generated (WIB)</th><th>Tier / Source</th><th>Legs</th><th>Combined Odds</th><th>Status</th><th>Profit</th><th></th></tr></thead>
         <tbody id="parlay-history-body"><tr><td colspan="7" class="text-muted">No generated parlays yet.</td></tr></tbody></table>
+      </div>
+      <div class="parlay-see-more">
+        <button id="btn-parlay-see-more" class="btn btn-secondary btn-sm" style="display:none">Lihat semua parlay</button>
       </div>
     </section>
 
@@ -738,6 +741,6 @@ sudo systemctl start fc-betting</code>
     </div>
   </div>
 
-  <script src="/static/app.js?v=23"></script>
+  <script src="/static/app.js?v=24"></script>
 </body>
 </html>

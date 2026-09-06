@@ -132,6 +132,7 @@ function renderParlays(data) {
 
 function renderParlayTracking(tracking) {
   const summary = tracking.summary || {};
+  window._parlayTracking = tracking;
   const set = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
   set('parlay-pending', summary.pending || 0);
   set('parlay-settled', summary.settled || 0);
@@ -142,7 +143,10 @@ function renderParlayTracking(tracking) {
   window._parlaySlips = tracking.slips || [];
   const body = document.getElementById('parlay-history-body');
   if (!body) return;
-  body.innerHTML = (tracking.slips || []).map(slip => `
+  const slips = window._parlaySlips || [];
+  const showAll = window._parlayShowAll === true;
+  const visible = showAll ? slips : slips.slice(0, 5);
+  body.innerHTML = visible.map(slip => `
     <tr>
       <td>${formatWibTimestamp(slip.generated_at)}</td>
       <td><strong>${escapeHtml(slip.label || slip.tier)}</strong><br><small>${slip.source === 'ai_reviewed' ? 'AI + Framework' : 'Framework'}</small></td>
@@ -152,6 +156,12 @@ function renderParlayTracking(tracking) {
       <td>${slip.profit == null ? '—' : `${Number(slip.profit).toFixed(2)}u`}</td>
       <td><button class="btn btn-secondary btn-sm" onclick="openParlayModal(${slip.id})">👁 View</button></td>
     </tr>`).join('') || '<tr><td colspan="7" class="text-muted">No generated parlays yet.</td></tr>';
+  const seeMore = document.getElementById('btn-parlay-see-more');
+  if (seeMore) {
+    const hidden = slips.length - visible.length;
+    seeMore.style.display = slips.length > 5 ? 'inline-block' : 'none';
+    seeMore.textContent = showAll ? 'Tutup' : `Lihat semua parlay (${slips.length})`;
+  }
 }
 
 function openParlayModal(slipId) {
@@ -204,6 +214,10 @@ function initParlay() {
   document.getElementById('btn-generate-parlay')?.addEventListener('click', () => loadParlays('framework'));
   document.getElementById('btn-ai-parlay')?.addEventListener('click', () => loadParlays('ai'));
   document.getElementById('btn-settle-parlay')?.addEventListener('click', settleParlays);
+  document.getElementById('btn-parlay-see-more')?.addEventListener('click', () => {
+    window._parlayShowAll = !(window._parlayShowAll === true);
+    if (window._parlayTracking) renderParlayTracking(window._parlayTracking);
+  });
   loadParlays('refresh');
 }
 

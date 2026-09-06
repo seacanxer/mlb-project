@@ -165,7 +165,10 @@ def settle_parlay_leg(leg_id, result, leg_return, home_score, away_score):
     conn.execute('''UPDATE parlay_legs SET result=?, leg_return=?, home_score=?, away_score=?, settled_at=? WHERE id=?''',
                  (result, leg_return, home_score, away_score, now, leg_id))
     legs = conn.execute('SELECT result, leg_return FROM parlay_legs WHERE parlay_id=?', (parlay_id,)).fetchall()
-    if legs and all(leg['result'] != 'pending' for leg in legs):
+    if legs and any(leg['result'] == 'lost' for leg in legs):
+        conn.execute('UPDATE parlay_slips SET status=?, profit=?, settled_at=? WHERE id=?',
+                     ('lost', -1.0, now, parlay_id))
+    elif legs and all(leg['result'] != 'pending' for leg in legs):
         total_return = 1.0
         for leg in legs:
             total_return *= float(leg['leg_return'])
