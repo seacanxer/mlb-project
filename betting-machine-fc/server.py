@@ -1332,6 +1332,135 @@ def get_crosscheck(limit: int = Query(30, ge=1, le=100)):
     }
 
 
+# ---------------------------------------------------------------------------
+# Match Prediction Insight Card endpoints
+# ---------------------------------------------------------------------------
+
+from match_prediction import compute_prediction_card
+
+
+class PredictionComputeRequest(BaseModel):
+    fixture_key: str = Field(..., description="Match ID or unique fixture key")
+    beta_squad: float = Field(0.0, ge=0.0, le=0.5, description="Squad value weight (0=pure market, 0.4=max)")
+    home_advantage: Optional[float] = Field(None, ge=0.8, le=1.4, description="Home advantage factor override")
+    manual_adj_home: float = Field(1.0, ge=0.5, le=1.5, description="Home manual adjustment multiplier")
+    manual_adj_away: float = Field(1.0, ge=0.5, le=1.5, description="Away manual adjustment multiplier")
+    adj_reason_home: Optional[str] = Field(None, description="Reason for home adjustment")
+    adj_reason_away: Optional[str] = Field(None, description="Reason for away adjustment")
+    rho: float = Field(-0.13, ge=-0.3, le=0.0, description="Dixon-Coles correlation parameter")
+
+
+@app.get("/api/prediction/fixtures")
+def get_prediction_fixtures():
+    """List available fixtures from the last scan for the prediction dropdown."""
+    matches = load_detailed_matches()
+    fixtures = []
+    for m in matches:
+        info = m.get("info", {})
+        fixture_key = str(info.get("match_id", info.get("id", "")))
+        if not fixture_key:
+            continue
+        fixtures.append({
+            "fixture_key": fixture_key,
+            "home": info.get("home", ""),
+            "away": info.get("away", ""),
+            "league": info.get("league", ""),
+            "start_ts": info.get("start_ts", 0),
+            "label": f"{info.get('home', '?')} vs {info.get('away', '?')}",
+            "coverage": m.get("model", {}).get("coverage_status", "unknown"),
+            "data_grade": m.get("model", {}).get("data_grade", "D"),
+            "lambdas": m.get("lambdas", {}),
+        })
+    fixtures.sort(key=lambda x: x.get("start_ts", 0))
+    return {"fixtures": fixtures, "count": len(fixtures)}
+
+
+@app.post("/api/prediction/compute")
+def compute_prediction(req: PredictionComputeRequest):
+    """Compute the full prediction insight card for a fixture."""
+    matches = load_detailed_matches()
+    match_data = None
+    for m in matches:
+        info = m.get("info", {})
+        mk = str(info.get("match_id", info.get("id", "")))
+        if mk == req.fixture_key:
+            match_data = m
+            break
+    if not match_data:
+        raise HTTPException(404, f"Fixture {req.fixture_key} not found in current scan data")
+
+    result = compute_prediction_card(
+        match_data,
+        beta_squad=req.beta_squad,
+        home_advantage_override=req.home_advantage,
+        manual_adj_home=req.manual_adj_home,
+        manual_adj_away=req.manual_adj_away,
+        rho=req.rho,
+    )
+
+    # Cache the result
+    info = match_data.get("info", {})
+    db.save_prediction_cache(req.fixture_key, {
+        "home": info.get("home"),
+        "away": info.get("away"),
+        "league": info.get("league"),
+        "start_ts": info.get("start_ts"),
+        "lambda_home": result["lambdas"]["home"],
+        "lambda_away": result["lambdas"]["away"],
+        "rho": req.rho,
+        "score_matrix": result["score_matrix"],
+        "beta_squad": req.beta_squad,
+        "home_advantage": req.home_advantage or 1.08,
+        "manual_adj_home": req.manual_adj_home,
+        "manual_adj_away": req.manual_adj_away,
+        "result": result,
+    })
+
+    # Save manual adjustments if provided
+    if req.manual_adj_home != 1.0 or req.adj_reason_home:
+        db.save_manual_adjustment(req.fixture_key, "home", req.manual_adj_home, req.adj_reason_home)
+    if req.manual_adj_away != 1.0 or req.adj_reason_away:
+        db.save_manual_adjustment(req.fixture_key, "away", req.manual_adj_away, req.adj_reason_away)
+
+    return result
+
+
+@app.get("/api/prediction/{fixture_key}")
+def get_prediction(fixture_key: str):
+    """Get a cached prediction result."""
+    cached = db.get_prediction_cache(fixture_key)
+    if cached and cached.get("result"):
+        return cached["result"]
+
+    # If no cache, try to compute with defaults
+    matches = load_detailed_matches()
+    for m in matches:
+        info = m.get("info", {})
+        mk = str(info.get("match_id", info.get("id", "")))
+        if mk == fixture_key:
+            return compute_prediction_card(m)
+    raise HTTPException(404, f"Fixture {fixture_key} not found")
+
+
+class AdjustmentRequest(BaseModel):
+    home_multiplier: float = Field(1.0, ge=0.5, le=1.5)
+    away_multiplier: float = Field(1.0, ge=0.5, le=1.5)
+    home_reason: Optional[str] = None
+    away_reason: Optional[str] = None
+
+
+@app.patch("/api/prediction/{fixture_key}/adjustments")
+def save_adjustments(fixture_key: str, req: AdjustmentRequest):
+    """Save manual adjustments for a fixture."""
+    db.save_manual_adjustment(fixture_key, "home", req.home_multiplier, req.home_reason)
+    db.save_manual_adjustment(fixture_key, "away", req.away_multiplier, req.away_reason)
+    return {
+        "status": "saved",
+        "fixture_key": fixture_key,
+        "adjustments": db.get_manual_adjustments(fixture_key),
+    }
+
+
 if __name__ == "__main__":
     import uvicorn
 
@@ -1339,3 +1468,4 @@ if __name__ == "__main__":
     host = os.environ.get("HOST", "0.0.0.0")
     print(f"Starting Football Betting Recommendation Engine on http://{host}:{port}")
     uvicorn.run("server:app", host=host, port=port, reload=False)
+

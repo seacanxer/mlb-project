@@ -108,6 +108,7 @@ def init_db():
         c.execute('CREATE INDEX IF NOT EXISTS idx_parlay_legs_status ON parlay_legs(result, start_ts)')
         conn.commit()
     init_intel_tables()
+    init_prediction_tables()
 
 
 def insert_parlay_batch(payload, source='framework'):
@@ -639,3 +640,132 @@ def get_intel_context(match_id):
     ).fetchall()
     conn.close()
     return [dict(r) for r in rows]
+
+
+# ---------------------------------------------------------------------------
+# Match Prediction Insight Card — cache & manual adjustments
+# ---------------------------------------------------------------------------
+
+_PREDICTION_SCHEMA = '''
+CREATE TABLE IF NOT EXISTS prediction_cache (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    fixture_key TEXT UNIQUE,
+    home TEXT,
+    away TEXT,
+    league TEXT,
+    start_ts INTEGER,
+    lambda_home REAL,
+    lambda_away REAL,
+    rho REAL DEFAULT -0.13,
+    score_matrix_json TEXT,
+    beta_squad REAL DEFAULT 0.0,
+    home_advantage REAL DEFAULT 1.08,
+    manual_adj_home REAL DEFAULT 1.0,
+    manual_adj_away REAL DEFAULT 1.0,
+    result_json TEXT,
+    computed_at TEXT
+);
+CREATE TABLE IF NOT EXISTS manual_adjustments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    fixture_key TEXT,
+    team_side TEXT,
+    multiplier REAL DEFAULT 1.0,
+    reason TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(fixture_key, team_side)
+);
+'''
+
+
+def init_prediction_tables():
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.executescript(_PREDICTION_SCHEMA)
+
+
+def save_prediction_cache(fixture_key, data):
+    """Upsert a computed prediction into the cache."""
+    import json as _json
+    now = datetime.now().isoformat()
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.execute('''
+            INSERT INTO prediction_cache
+                (fixture_key, home, away, league, start_ts,
+                 lambda_home, lambda_away, rho, score_matrix_json,
+                 beta_squad, home_advantage, manual_adj_home, manual_adj_away,
+                 result_json, computed_at)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            ON CONFLICT(fixture_key) DO UPDATE SET
+                lambda_home=excluded.lambda_home,
+                lambda_away=excluded.lambda_away,
+                rho=excluded.rho,
+                score_matrix_json=excluded.score_matrix_json,
+                beta_squad=excluded.beta_squad,
+                home_advantage=excluded.home_advantage,
+                manual_adj_home=excluded.manual_adj_home,
+                manual_adj_away=excluded.manual_adj_away,
+                result_json=excluded.result_json,
+                computed_at=excluded.computed_at
+        ''', (
+            fixture_key,
+            data.get('home'), data.get('away'), data.get('league'),
+            data.get('start_ts'),
+            data.get('lambda_home'), data.get('lambda_away'),
+            data.get('rho', -0.13),
+            _json.dumps(data.get('score_matrix', [])),
+            data.get('beta_squad', 0.0),
+            data.get('home_advantage', 1.08),
+            data.get('manual_adj_home', 1.0),
+            data.get('manual_adj_away', 1.0),
+            _json.dumps(data.get('result', {})),
+            now,
+        ))
+        conn.commit()
+
+
+def get_prediction_cache(fixture_key):
+    """Retrieve cached prediction for a fixture."""
+    import json as _json
+    conn = _connect()
+    row = conn.execute(
+        'SELECT * FROM prediction_cache WHERE fixture_key=?', (fixture_key,)
+    ).fetchone()
+    conn.close()
+    if not row:
+        return None
+    d = dict(row)
+    try:
+        d['score_matrix'] = _json.loads(d.pop('score_matrix_json', '[]'))
+    except Exception:
+        d['score_matrix'] = []
+    try:
+        d['result'] = _json.loads(d.pop('result_json', '{}'))
+    except Exception:
+        d['result'] = {}
+    return d
+
+
+def save_manual_adjustment(fixture_key, team_side, multiplier, reason=None):
+    """Upsert a manual adjustment for a fixture/side."""
+    now = datetime.now().isoformat()
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.execute('''
+            INSERT INTO manual_adjustments (fixture_key, team_side, multiplier, reason, created_at)
+            VALUES (?,?,?,?,?)
+            ON CONFLICT(fixture_key, team_side) DO UPDATE SET
+                multiplier=excluded.multiplier,
+                reason=excluded.reason,
+                created_at=excluded.created_at
+        ''', (fixture_key, team_side, multiplier, reason, now))
+        conn.commit()
+
+
+def get_manual_adjustments(fixture_key):
+    """Get manual adjustments for a fixture."""
+    conn = _connect()
+    rows = conn.execute(
+        'SELECT team_side, multiplier, reason, created_at '
+        'FROM manual_adjustments WHERE fixture_key=? ORDER BY team_side',
+        (fixture_key,),
+    ).fetchall()
+    conn.close()
+    return {r['team_side']: dict(r) for r in rows}

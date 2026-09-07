@@ -1517,4 +1517,447 @@ const _origInitTabs = initTabs;
 initTabs = function () {
   _origInitTabs();
   initIntelTab();
+  initPrediction();
 };
+
+// ============================================================================
+// MATCH PREDICTION INSIGHT CARD
+// ============================================================================
+
+let _predFixtures = [];
+let _predScoreMatrix = null;  // cached for client-side AH/OU recomputation
+let _predData = null;
+
+function initPrediction() {
+  const select = document.getElementById('pred-fixture-select');
+  const computeBtn = document.getElementById('btn-pred-compute');
+  const resetBtn = document.getElementById('btn-pred-reset');
+
+  if (!select || !computeBtn) return;
+
+  // Load fixtures when prediction tab is first opened
+  document.querySelectorAll('.tab-btn[data-tab]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.dataset.tab === 'prediction' && _predFixtures.length === 0) {
+        loadPredictionFixtures();
+      }
+    });
+  });
+
+  // Fixture selection
+  select.addEventListener('change', () => {
+    const key = select.value;
+    computeBtn.disabled = !key;
+    if (key) {
+      const fix = _predFixtures.find(f => f.fixture_key === key);
+      showFixtureInfo(fix);
+      // Auto-compute on selection
+      computePrediction(key);
+    } else {
+      document.getElementById('pred-fixture-info')?.classList.add('hidden');
+      document.getElementById('pred-empty-state')?.classList.remove('hidden');
+      document.getElementById('pred-card-container')?.classList.add('hidden');
+    }
+  });
+
+  // Compute button
+  computeBtn.addEventListener('click', () => {
+    const key = select.value;
+    if (key) computePrediction(key);
+  });
+
+  // Reset button
+  resetBtn?.addEventListener('click', () => {
+    document.getElementById('pred-beta').value = 0;
+    document.getElementById('pred-beta-val').textContent = '0.00';
+    document.getElementById('pred-home-adv').value = 1.08;
+    document.getElementById('pred-home-adv-val').textContent = '1.08';
+    document.getElementById('pred-adj-home').value = 1.00;
+    document.getElementById('pred-adj-home-val').textContent = '1.00';
+    document.getElementById('pred-adj-away').value = 1.00;
+    document.getElementById('pred-adj-away-val').textContent = '1.00';
+    document.getElementById('pred-rho').value = -0.13;
+    document.getElementById('pred-rho-val').textContent = '-0.13';
+    document.getElementById('pred-adj-home-reason').value = '';
+    document.getElementById('pred-adj-away-reason').value = '';
+    const key = select.value;
+    if (key) computePrediction(key);
+  });
+
+  // Wire up slider live value displays
+  const sliders = [
+    ['pred-beta', 'pred-beta-val', v => parseFloat(v).toFixed(2)],
+    ['pred-home-adv', 'pred-home-adv-val', v => parseFloat(v).toFixed(2)],
+    ['pred-adj-home', 'pred-adj-home-val', v => parseFloat(v).toFixed(2)],
+    ['pred-adj-away', 'pred-adj-away-val', v => parseFloat(v).toFixed(2)],
+    ['pred-rho', 'pred-rho-val', v => parseFloat(v).toFixed(2)],
+  ];
+  sliders.forEach(([sliderId, valId, fmt]) => {
+    const slider = document.getElementById(sliderId);
+    const valEl = document.getElementById(valId);
+    if (slider && valEl) {
+      slider.addEventListener('input', () => { valEl.textContent = fmt(slider.value); });
+    }
+  });
+
+  // Wire up AH/OU line dropdowns for client-side recomputation
+  document.getElementById('pred-ah-line')?.addEventListener('change', () => {
+    if (_predScoreMatrix) updateAHFromMatrix();
+  });
+  document.getElementById('pred-ou-line')?.addEventListener('change', () => {
+    if (_predScoreMatrix) updateOUFromMatrix();
+  });
+}
+
+async function loadPredictionFixtures() {
+  try {
+    const res = await fetch('/api/prediction/fixtures');
+    if (!res.ok) throw new Error('Failed to load fixtures');
+    const data = await res.json();
+    _predFixtures = data.fixtures || [];
+    const select = document.getElementById('pred-fixture-select');
+    if (!select) return;
+    select.innerHTML = '<option value="">— Choose a fixture —</option>';
+    _predFixtures.forEach(f => {
+      const opt = document.createElement('option');
+      opt.value = f.fixture_key;
+      const time = f.start_ts ? new Date(f.start_ts * 1000).toLocaleString('en-GB', {
+        month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+      }) : '';
+      const grade = f.data_grade ? ` [${f.data_grade}]` : '';
+      opt.textContent = `${f.home} vs ${f.away} — ${f.league}${grade} · ${time}`;
+      select.appendChild(opt);
+    });
+  } catch (err) {
+    console.error('Failed to load prediction fixtures:', err);
+    showBanner('Failed to load fixtures for prediction: ' + err.message, true);
+  }
+}
+
+function showFixtureInfo(fix) {
+  const info = document.getElementById('pred-fixture-info');
+  if (!info || !fix) return;
+  info.classList.remove('hidden');
+  document.getElementById('pred-league-badge').textContent = fix.league || '';
+  const covBadge = document.getElementById('pred-coverage-badge');
+  covBadge.textContent = fix.coverage || '';
+  covBadge.className = 'badge ' + (fix.coverage === 'full' ? 'badge-emerald' : fix.coverage === 'shadow' ? 'badge-amber' : 'badge-dim');
+  const kickoff = document.getElementById('pred-kickoff');
+  if (fix.start_ts) {
+    kickoff.textContent = new Date(fix.start_ts * 1000).toLocaleString('en-GB', {
+      weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+  }
+}
+
+async function computePrediction(fixtureKey) {
+  const container = document.getElementById('pred-card-container');
+  const empty = document.getElementById('pred-empty-state');
+  const computeBtn = document.getElementById('btn-pred-compute');
+
+  if (computeBtn) {
+    computeBtn.disabled = true;
+    computeBtn.textContent = '⏳ Computing…';
+  }
+  container?.classList.add('pred-loading');
+
+  try {
+    const body = {
+      fixture_key: fixtureKey,
+      beta_squad: parseFloat(document.getElementById('pred-beta')?.value || 0),
+      home_advantage: parseFloat(document.getElementById('pred-home-adv')?.value || 1.08),
+      manual_adj_home: parseFloat(document.getElementById('pred-adj-home')?.value || 1.0),
+      manual_adj_away: parseFloat(document.getElementById('pred-adj-away')?.value || 1.0),
+      adj_reason_home: document.getElementById('pred-adj-home-reason')?.value || null,
+      adj_reason_away: document.getElementById('pred-adj-away-reason')?.value || null,
+      rho: parseFloat(document.getElementById('pred-rho')?.value || -0.13),
+    };
+
+    const res = await fetch('/api/prediction/compute', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || 'Prediction compute failed');
+    }
+
+    const data = await res.json();
+    _predData = data;
+    _predScoreMatrix = data.score_matrix;
+
+    empty?.classList.add('hidden');
+    container?.classList.remove('hidden');
+    renderPredictionCard(data);
+
+  } catch (err) {
+    showBanner('Prediction error: ' + err.message, true);
+  } finally {
+    container?.classList.remove('pred-loading');
+    if (computeBtn) {
+      computeBtn.disabled = !document.getElementById('pred-fixture-select')?.value;
+      computeBtn.textContent = '🔄 Compute Prediction';
+    }
+  }
+}
+
+function renderPredictionCard(data) {
+  // Match header
+  const info = data.match_info || {};
+  document.getElementById('pred-home-name').textContent = info.home || 'Home';
+  document.getElementById('pred-away-name').textContent = info.away || 'Away';
+  document.getElementById('pred-home-lambda').textContent = `λ ${data.lambdas?.home?.toFixed(2) || '—'}`;
+  document.getElementById('pred-away-lambda').textContent = `λ ${data.lambdas?.away?.toFixed(2) || '—'}`;
+
+  // Model badges
+  const meta = data.model_meta || {};
+  const badgesEl = document.getElementById('pred-model-badges');
+  badgesEl.innerHTML = '';
+  const badges = [
+    { text: meta.formula_version || '', cls: 'badge-dim' },
+    { text: meta.lambda_source || '', cls: 'badge-cyan' },
+    { text: `Grade ${meta.data_grade || '?'}`, cls: meta.data_grade === 'A' ? 'badge-emerald' : 'badge-amber' },
+    { text: meta.coverage_status || '', cls: meta.coverage_status === 'full' ? 'badge-emerald' : 'badge-amber' },
+  ];
+  badges.forEach(b => {
+    if (!b.text) return;
+    const span = document.createElement('span');
+    span.className = `badge ${b.cls}`;
+    span.textContent = b.text;
+    badgesEl.appendChild(span);
+  });
+
+  // 1X2 Probability Bar
+  const ox = data.one_x_two || {};
+  const hp = Math.round((ox.home || 0) * 100);
+  const dp = Math.round((ox.draw || 0) * 100);
+  const ap = 100 - hp - dp;
+  const barHome = document.getElementById('pred-bar-home');
+  const barDraw = document.getElementById('pred-bar-draw');
+  const barAway = document.getElementById('pred-bar-away');
+  barHome.style.width = `${Math.max(hp, 8)}%`;
+  barHome.querySelector('.prob-pct').textContent = `${hp}%`;
+  barDraw.style.width = `${Math.max(dp, 8)}%`;
+  barDraw.querySelector('.prob-pct').textContent = `${dp}%`;
+  barAway.style.width = `${Math.max(ap, 8)}%`;
+  barAway.querySelector('.prob-pct').textContent = `${ap}%`;
+
+  // Key Metrics
+  const xgDiff = data.xg_diff || 0;
+  document.getElementById('pred-xg-diff').textContent = (xgDiff > 0 ? '+' : '') + xgDiff.toFixed(2);
+  document.getElementById('pred-xg-diff').style.color = xgDiff > 0 ? 'var(--emerald)' : xgDiff < 0 ? 'var(--blue)' : 'var(--text-muted)';
+  document.getElementById('pred-favorite').textContent = `Favorit: ${data.favorite || '—'}`;
+  document.getElementById('pred-total-goals').textContent = (data.total_goals || 0).toFixed(2);
+  const btts = data.btts || {};
+  document.getElementById('pred-btts-pct').textContent = `${Math.round((btts.yes || 0) * 100)}%`;
+  document.getElementById('pred-btts-rec').textContent = `Rec: ${data.recommended?.btts || '—'}`;
+
+  // Market Recommendations
+  const rec = data.recommended || {};
+
+  // 1X2
+  document.getElementById('pred-rec-1x2').textContent = rec['1x2'] || '—';
+  const rec1x2Prob = ox[rec['1x2']?.toLowerCase()] || 0;
+  document.getElementById('pred-rec-1x2-prob').textContent = `${(rec1x2Prob * 100).toFixed(1)}%`;
+
+  // AH — set dropdown to recommended line and compute
+  if (rec.ah) {
+    const ahSelect = document.getElementById('pred-ah-line');
+    if (ahSelect) {
+      ahSelect.value = String(rec.ah.line || 0);
+    }
+  }
+  updateAHFromMatrix();
+
+  // OU — set dropdown and compute
+  if (rec.ou) {
+    const ouSelect = document.getElementById('pred-ou-line');
+    if (ouSelect) ouSelect.value = String(rec.ou.line || 2.5);
+  }
+  updateOUFromMatrix();
+
+  // BTTS
+  document.getElementById('pred-rec-btts').textContent = rec.btts || '—';
+  document.getElementById('pred-btts-yes').textContent = `${(btts.yes * 100).toFixed(1)}%`;
+  document.getElementById('pred-btts-no').textContent = `${(btts.no * 100).toFixed(1)}%`;
+
+  // Score Matrix Heatmap
+  renderScoreMatrix(data.score_matrix);
+
+  // Top Scores Pills
+  renderTopScores(data.top_scores || []);
+}
+
+function renderScoreMatrix(matrix) {
+  const container = document.getElementById('pred-score-matrix');
+  if (!container || !matrix || !matrix.length) return;
+  container.innerHTML = '';
+  const n = matrix.length;
+
+  // Find max probability for color scaling
+  let maxProb = 0;
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      if (matrix[i][j] > maxProb) maxProb = matrix[i][j];
+    }
+  }
+
+  // Corner cell
+  const corner = document.createElement('div');
+  corner.className = 'pred-matrix-cell corner-cell';
+  corner.textContent = 'H\\A';
+  container.appendChild(corner);
+
+  // Column headers (away goals)
+  for (let j = 0; j < n; j++) {
+    const header = document.createElement('div');
+    header.className = 'pred-matrix-cell header-cell';
+    header.textContent = j;
+    container.appendChild(header);
+  }
+
+  // Rows
+  for (let i = 0; i < n; i++) {
+    // Row header (home goals)
+    const rowHeader = document.createElement('div');
+    rowHeader.className = 'pred-matrix-cell header-cell';
+    rowHeader.textContent = i;
+    container.appendChild(rowHeader);
+
+    for (let j = 0; j < n; j++) {
+      const cell = document.createElement('div');
+      cell.className = 'pred-matrix-cell';
+      const prob = matrix[i][j];
+      const pct = (prob * 100).toFixed(1);
+      cell.textContent = pct;
+      cell.title = `${i}-${j}: ${(prob * 100).toFixed(2)}%`;
+
+      // Heatmap coloring
+      const intensity = maxProb > 0 ? prob / maxProb : 0;
+      if (i > j) {
+        // Home win: green
+        cell.style.background = `rgba(16, 185, 129, ${0.05 + intensity * 0.6})`;
+        cell.style.color = intensity > 0.5 ? '#fff' : 'var(--text-muted)';
+      } else if (i === j) {
+        // Draw: gray
+        cell.style.background = `rgba(107, 114, 128, ${0.1 + intensity * 0.5})`;
+        cell.style.color = intensity > 0.5 ? '#fff' : 'var(--text-muted)';
+      } else {
+        // Away win: blue
+        cell.style.background = `rgba(59, 130, 246, ${0.05 + intensity * 0.6})`;
+        cell.style.color = intensity > 0.5 ? '#fff' : 'var(--text-muted)';
+      }
+
+      container.appendChild(cell);
+    }
+  }
+}
+
+function renderTopScores(topScores) {
+  const container = document.getElementById('pred-top-scores-pills');
+  if (!container) return;
+  container.innerHTML = '';
+  topScores.forEach(s => {
+    const pill = document.createElement('div');
+    pill.className = 'pred-score-pill';
+    pill.innerHTML = `${escapeHtml(s.score)} <span class="pill-pct">${(s.prob * 100).toFixed(1)}%</span>`;
+    container.appendChild(pill);
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Client-side AH/OU recomputation from cached score matrix
+// No backend roundtrip — instant updates when dropdown changes
+// ---------------------------------------------------------------------------
+
+function clientComputeAH(matrix, side, line) {
+  if (!matrix || !matrix.length) return { win: 0, push: 0, lose: 0 };
+  const n = matrix.length;
+  const frac = Math.abs(line) % 0.5;
+
+  // Quarter line: split into two adjacent lines
+  if (frac > 0.01 && frac < 0.49) {
+    const lo = Math.floor(line * 2) / 2.0;
+    const hi = Math.ceil(line * 2) / 2.0;
+    const r1 = _clientAHSingle(matrix, side, lo);
+    const r2 = _clientAHSingle(matrix, side, hi);
+    return {
+      win: (r1.win + r2.win) / 2,
+      push: (r1.push + r2.push) / 2,
+      lose: (r1.lose + r2.lose) / 2,
+    };
+  }
+  return _clientAHSingle(matrix, side, line);
+}
+
+function _clientAHSingle(matrix, side, line) {
+  const n = matrix.length;
+  let win = 0, push = 0, lose = 0;
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      const p = matrix[i][j];
+      const diff = side === 'home' ? (i - j) + line : (j - i) + line;
+      if (diff > 1e-9) win += p;
+      else if (Math.abs(diff) <= 1e-9) push += p;
+      else lose += p;
+    }
+  }
+  return { win, push, lose };
+}
+
+function clientComputeOU(matrix, line) {
+  if (!matrix || !matrix.length) return { over: 0, under: 0 };
+  const n = matrix.length;
+  let over = 0;
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      if (i + j > line) over += matrix[i][j];
+    }
+  }
+  return { over, under: 1.0 - over };
+}
+
+function updateAHFromMatrix() {
+  if (!_predScoreMatrix) return;
+  const lineStr = document.getElementById('pred-ah-line')?.value || '0';
+  const line = parseFloat(lineStr);
+
+  const homeResult = clientComputeAH(_predScoreMatrix, 'home', line);
+  const awayResult = clientComputeAH(_predScoreMatrix, 'away', -line);
+
+  const homePct = (homeResult.win * 100).toFixed(1);
+  const pushPct = (homeResult.push * 100).toFixed(1);
+  const awayPct = (homeResult.lose * 100).toFixed(1);
+
+  document.getElementById('pred-ah-home-win').textContent = `${homePct}%`;
+  document.getElementById('pred-ah-push').textContent = `${pushPct}%`;
+  document.getElementById('pred-ah-away-win').textContent = `${awayPct}%`;
+
+  // Determine recommendation
+  const best = homeResult.win > homeResult.lose ? 'Home' : 'Away';
+  const bestPct = homeResult.win > homeResult.lose ? homePct : awayPct;
+  const recEl = document.getElementById('pred-rec-ah');
+  recEl.textContent = `${best} (${lineStr >= 0 ? '+' : ''}${lineStr})`;
+  recEl.style.color = `var(--${best === 'Home' ? 'emerald' : 'blue'})`;
+}
+
+function updateOUFromMatrix() {
+  if (!_predScoreMatrix) return;
+  const lineStr = document.getElementById('pred-ou-line')?.value || '2.5';
+  const line = parseFloat(lineStr);
+
+  const result = clientComputeOU(_predScoreMatrix, line);
+  const overPct = (result.over * 100).toFixed(1);
+  const underPct = (result.under * 100).toFixed(1);
+
+  document.getElementById('pred-ou-over').textContent = `${overPct}%`;
+  document.getElementById('pred-ou-under').textContent = `${underPct}%`;
+
+  const best = result.over > result.under ? 'Over' : 'Under';
+  const bestPct = best === 'Over' ? overPct : underPct;
+  const recEl = document.getElementById('pred-rec-ou');
+  recEl.textContent = `${best} ${lineStr}`;
+  recEl.style.color = `var(--${best === 'Over' ? 'amber' : 'cyan'})`;
+}

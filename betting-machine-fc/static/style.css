@@ -1060,3 +1060,531 @@ canvas {
   font-size: 44px;
   margin-bottom: 12px;
 }
+
+/* ==========================================================================
+   MATCH PREDICTION INSIGHT CARD
+   ========================================================================== */
+
+.prediction-layout {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .prediction-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.prediction-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: sticky;
+  top: 80px;
+}
+
+.prediction-selector-card,
+.prediction-params-card {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.prediction-section-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  color: var(--text-main);
+}
+
+.pred-fixture-select {
+  width: 100%;
+  font-size: 14px;
+}
+
+.pred-fixture-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+  font-size: 13px;
+}
+
+/* Parameter Controls */
+.param-group {
+  margin-bottom: 16px;
+}
+
+.param-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: 5px;
+}
+
+.param-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.param-slider-row input[type="range"] {
+  flex: 1;
+  -webkit-appearance: none;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  outline: none;
+}
+
+.param-slider-row input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--emerald);
+  cursor: pointer;
+  box-shadow: 0 0 6px var(--emerald-glow);
+}
+
+.param-val {
+  min-width: 42px;
+  text-align: right;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--emerald);
+}
+
+.param-hint {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 3px;
+}
+
+.form-input-sm {
+  width: 100%;
+  padding: 6px 10px;
+  margin-top: 6px;
+  font-size: 12px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
+  outline: none;
+  transition: var(--transition);
+}
+
+.form-input-sm:focus {
+  border-color: var(--border-focus);
+}
+
+.form-select-sm {
+  padding: 5px 8px;
+  font-size: 12px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
+  outline: none;
+}
+
+.btn-block {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 13px;
+  transition: var(--transition);
+}
+
+.btn-outline:hover {
+  border-color: var(--text-muted);
+  color: var(--text-main);
+}
+
+/* Prediction Main Content */
+.prediction-main {
+  min-height: 400px;
+}
+
+/* Match Header */
+.pred-match-header {
+  text-align: center;
+  padding: 28px 20px 20px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(6, 182, 212, 0.08));
+  border: 1px solid rgba(16, 185, 129, 0.15);
+}
+
+.pred-teams {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+}
+
+.pred-team {
+  flex: 1;
+  max-width: 200px;
+}
+
+.pred-team-name {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.pred-team-lambda {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--cyan);
+  margin-top: 4px;
+}
+
+.pred-team-home {
+  text-align: right;
+}
+
+.pred-team-away {
+  text-align: left;
+}
+
+.pred-vs {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-dim);
+  opacity: 0.6;
+  letter-spacing: 2px;
+}
+
+.pred-model-badges {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+/* 1X2 Probability Bar */
+.pred-section {
+  margin-top: 16px;
+}
+
+.pred-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+
+.prob-bar-container {
+  padding: 4px 0;
+}
+
+.prob-bar {
+  display: flex;
+  height: 52px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.prob-segment {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 40px;
+}
+
+.prob-home {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.prob-draw {
+  background: linear-gradient(135deg, #6b7280, #4b5563);
+}
+
+.prob-away {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+.prob-label {
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.85;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.prob-pct {
+  font-size: 16px;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Key Metrics */
+.pred-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.pred-metric-card {
+  text-align: center;
+  padding: 20px 12px;
+}
+
+.pred-metric-icon {
+  font-size: 24px;
+  margin-bottom: 6px;
+}
+
+.pred-metric-label {
+  font-size: 12px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.pred-metric-value {
+  font-size: 28px;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--emerald);
+  margin: 4px 0;
+}
+
+.pred-metric-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Market Recommendations Grid */
+.pred-markets-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .pred-markets-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .pred-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pred-market-card {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  text-align: center;
+  transition: var(--transition);
+}
+
+.pred-market-card:hover {
+  border-color: rgba(16, 185, 129, 0.3);
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.pred-market-header {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.pred-market-controls {
+  margin-bottom: 8px;
+}
+
+.pred-market-pick {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--emerald);
+  margin: 6px 0;
+}
+
+.pred-market-prob {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.pred-ah-detail,
+.pred-ou-detail,
+.pred-btts-detail {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 8px;
+  line-height: 1.7;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-left: 4px;
+}
+
+/* Score Matrix Heatmap */
+.pred-matrix-wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.pred-matrix-label-y {
+  writing-mode: vertical-lr;
+  transform: rotate(180deg);
+  font-size: 11px;
+  color: var(--text-dim);
+  font-weight: 600;
+  padding-top: 30px;
+}
+
+.pred-matrix-inner {
+  flex: 1;
+  overflow-x: auto;
+}
+
+.pred-matrix-label-x {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-dim);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.pred-score-matrix {
+  display: grid;
+  grid-template-columns: 36px repeat(9, 1fr);
+  gap: 2px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.pred-matrix-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  border-radius: 4px;
+  transition: var(--transition);
+  cursor: default;
+  position: relative;
+}
+
+.pred-matrix-cell:hover {
+  transform: scale(1.15);
+  z-index: 2;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+}
+
+.pred-matrix-cell.header-cell {
+  font-weight: 700;
+  color: var(--text-muted);
+  background: transparent;
+  font-size: 12px;
+}
+
+.pred-matrix-cell.corner-cell {
+  background: transparent;
+}
+
+/* Top Scores Pills */
+.pred-top-scores {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.pred-top-scores-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.pred-top-scores-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.pred-score-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  color: var(--emerald);
+}
+
+.pred-score-pill .pill-pct {
+  font-size: 10px;
+  color: var(--text-dim);
+  font-weight: 400;
+}
+
+/* Disclaimer */
+.pred-disclaimer {
+  margin-top: 20px;
+  padding: 12px 16px;
+  font-size: 12px;
+  color: var(--text-dim);
+  background: rgba(245, 158, 11, 0.05);
+  border: 1px solid rgba(245, 158, 11, 0.15);
+  border-radius: var(--radius-sm);
+  line-height: 1.6;
+}
+
+/* Loading overlay for prediction card */
+.pred-loading {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.pred-loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 32px;
+  height: 32px;
+  margin: -16px 0 0 -16px;
+  border: 3px solid rgba(16, 185, 129, 0.3);
+  border-top-color: var(--emerald);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+

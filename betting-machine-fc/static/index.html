@@ -23,6 +23,7 @@
 
       <nav class="nav-tabs" role="tablist">
         <button class="tab-btn" data-tab="picks">🎯 Top Picks</button>
+        <button class="tab-btn" data-tab="prediction">🔮 Match Prediction</button>
         <button class="tab-btn" data-tab="intel">📡 Market Intel</button>
         <button class="tab-btn" data-tab="parlay">🧾 Parlay Picks</button>
         <button class="tab-btn" data-tab="tracker">📊 ROI Tracker</button>
@@ -706,6 +707,243 @@ sudo systemctl start fc-betting</code>
       </div>
     </section>
 
+    <!-- TAB: MATCH PREDICTION INSIGHT CARD -->
+    <section id="tab-prediction" class="tab-pane">
+      <div class="prediction-layout">
+
+        <!-- Left: Fixture Selector + Parameters -->
+        <div class="prediction-sidebar">
+          <div class="card prediction-selector-card">
+            <h3 class="prediction-section-title">🔮 Select Fixture</h3>
+            <div class="form-group">
+              <label for="pred-fixture-select">Match</label>
+              <select id="pred-fixture-select" class="form-select pred-fixture-select">
+                <option value="">— Choose a fixture —</option>
+              </select>
+            </div>
+            <div id="pred-fixture-info" class="pred-fixture-info hidden">
+              <span id="pred-league-badge" class="badge badge-league"></span>
+              <span id="pred-coverage-badge" class="badge"></span>
+              <span id="pred-kickoff" class="text-muted"></span>
+            </div>
+          </div>
+
+          <div class="card prediction-params-card">
+            <h3 class="prediction-section-title">⚙️ Model Parameters</h3>
+            <div class="param-group">
+              <label for="pred-beta">Squad Weight (β)</label>
+              <div class="param-slider-row">
+                <input type="range" id="pred-beta" min="0" max="0.4" step="0.01" value="0">
+                <span id="pred-beta-val" class="param-val">0.00</span>
+              </div>
+              <div class="param-hint">0 = pure market/history · 0.4 = max squad influence</div>
+            </div>
+            <div class="param-group">
+              <label for="pred-home-adv">Home Advantage</label>
+              <div class="param-slider-row">
+                <input type="range" id="pred-home-adv" min="0.90" max="1.30" step="0.01" value="1.08">
+                <span id="pred-home-adv-val" class="param-val">1.08</span>
+              </div>
+              <div class="param-hint">Default calibrated ~1.08 for most leagues</div>
+            </div>
+            <div class="param-group">
+              <label for="pred-adj-home">Home Adjustment</label>
+              <div class="param-slider-row">
+                <input type="range" id="pred-adj-home" min="0.70" max="1.30" step="0.01" value="1.00">
+                <span id="pred-adj-home-val" class="param-val">1.00</span>
+              </div>
+              <input type="text" id="pred-adj-home-reason" class="form-input-sm" placeholder="Reason (e.g. striker injured)">
+            </div>
+            <div class="param-group">
+              <label for="pred-adj-away">Away Adjustment</label>
+              <div class="param-slider-row">
+                <input type="range" id="pred-adj-away" min="0.70" max="1.30" step="0.01" value="1.00">
+                <span id="pred-adj-away-val" class="param-val">1.00</span>
+              </div>
+              <input type="text" id="pred-adj-away-reason" class="form-input-sm" placeholder="Reason (e.g. key defender suspended)">
+            </div>
+            <div class="param-group">
+              <label for="pred-rho">Correlation (ρ)</label>
+              <div class="param-slider-row">
+                <input type="range" id="pred-rho" min="-0.25" max="0" step="0.01" value="-0.13">
+                <span id="pred-rho-val" class="param-val">-0.13</span>
+              </div>
+              <div class="param-hint">Dixon-Coles low-score correlation</div>
+            </div>
+            <button id="btn-pred-compute" class="btn btn-primary btn-block" disabled>
+              🔄 Compute Prediction
+            </button>
+            <button id="btn-pred-reset" class="btn btn-outline btn-block">
+              ↩️ Reset Defaults
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Insight Card -->
+        <div class="prediction-main">
+          <div id="pred-empty-state" class="empty-state">
+            <h3>🔮 Match Prediction Insight Card</h3>
+            <p>Select a fixture from the dropdown to generate a comprehensive prediction analysis.</p>
+            <p class="text-muted">All markets are derived from a single Dixon-Coles bivariate Poisson score matrix for mathematical consistency.</p>
+          </div>
+
+          <div id="pred-card-container" class="hidden">
+            <!-- Match Header -->
+            <div class="pred-match-header card">
+              <div class="pred-teams">
+                <div class="pred-team pred-team-home">
+                  <div class="pred-team-name" id="pred-home-name">Home</div>
+                  <div class="pred-team-lambda" id="pred-home-lambda">λ —</div>
+                </div>
+                <div class="pred-vs">VS</div>
+                <div class="pred-team pred-team-away">
+                  <div class="pred-team-name" id="pred-away-name">Away</div>
+                  <div class="pred-team-lambda" id="pred-away-lambda">λ —</div>
+                </div>
+              </div>
+              <div id="pred-model-badges" class="pred-model-badges"></div>
+            </div>
+
+            <!-- 1X2 Probability Bar -->
+            <div class="pred-section card">
+              <h4 class="pred-card-title">Match Result Probabilities (1X2)</h4>
+              <div class="prob-bar-container">
+                <div class="prob-bar" id="pred-1x2-bar">
+                  <div class="prob-segment prob-home" id="pred-bar-home" style="width:33%">
+                    <span class="prob-label">Home</span>
+                    <span class="prob-pct">33%</span>
+                  </div>
+                  <div class="prob-segment prob-draw" id="pred-bar-draw" style="width:34%">
+                    <span class="prob-label">Draw</span>
+                    <span class="prob-pct">34%</span>
+                  </div>
+                  <div class="prob-segment prob-away" id="pred-bar-away" style="width:33%">
+                    <span class="prob-label">Away</span>
+                    <span class="prob-pct">33%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Key Metrics Row -->
+            <div class="pred-metrics-grid">
+              <div class="pred-metric-card card">
+                <div class="pred-metric-icon">⚡</div>
+                <div class="pred-metric-label">xG Diff</div>
+                <div class="pred-metric-value" id="pred-xg-diff">—</div>
+                <div class="pred-metric-sub" id="pred-favorite">—</div>
+              </div>
+              <div class="pred-metric-card card">
+                <div class="pred-metric-icon">⚽</div>
+                <div class="pred-metric-label">Total Goals</div>
+                <div class="pred-metric-value" id="pred-total-goals">—</div>
+                <div class="pred-metric-sub">Expected total</div>
+              </div>
+              <div class="pred-metric-card card">
+                <div class="pred-metric-icon">🎯</div>
+                <div class="pred-metric-label">BTTS</div>
+                <div class="pred-metric-value" id="pred-btts-pct">—</div>
+                <div class="pred-metric-sub" id="pred-btts-rec">—</div>
+              </div>
+            </div>
+
+            <!-- Market Recommendations -->
+            <div class="pred-section card">
+              <h4 class="pred-card-title">📊 Market Recommendations</h4>
+              <div class="pred-markets-grid">
+                <!-- 1X2 -->
+                <div class="pred-market-card">
+                  <div class="pred-market-header">1X2</div>
+                  <div class="pred-market-pick" id="pred-rec-1x2">—</div>
+                  <div class="pred-market-prob" id="pred-rec-1x2-prob">—</div>
+                </div>
+                <!-- Asian Handicap -->
+                <div class="pred-market-card">
+                  <div class="pred-market-header">Asian Handicap</div>
+                  <div class="pred-market-controls">
+                    <select id="pred-ah-line" class="form-select-sm">
+                      <option value="-2.0">-2.0</option>
+                      <option value="-1.75">-1.75</option>
+                      <option value="-1.5">-1.5</option>
+                      <option value="-1.25">-1.25</option>
+                      <option value="-1.0">-1.0</option>
+                      <option value="-0.75">-0.75</option>
+                      <option value="-0.5">-0.5</option>
+                      <option value="-0.25">-0.25</option>
+                      <option value="0" selected>0</option>
+                      <option value="0.25">+0.25</option>
+                      <option value="0.5">+0.5</option>
+                      <option value="0.75">+0.75</option>
+                      <option value="1.0">+1.0</option>
+                      <option value="1.25">+1.25</option>
+                      <option value="1.5">+1.5</option>
+                      <option value="2.0">+2.0</option>
+                    </select>
+                  </div>
+                  <div class="pred-market-pick" id="pred-rec-ah">—</div>
+                  <div class="pred-ah-detail">
+                    <span class="detail-label">Home Win:</span> <span id="pred-ah-home-win">—</span>
+                    <span class="detail-label">Push:</span> <span id="pred-ah-push">—</span>
+                    <span class="detail-label">Away Win:</span> <span id="pred-ah-away-win">—</span>
+                  </div>
+                </div>
+                <!-- Over/Under -->
+                <div class="pred-market-card">
+                  <div class="pred-market-header">Over / Under</div>
+                  <div class="pred-market-controls">
+                    <select id="pred-ou-line" class="form-select-sm">
+                      <option value="1.5">1.5</option>
+                      <option value="2.0">2.0</option>
+                      <option value="2.25">2.25</option>
+                      <option value="2.5" selected>2.5</option>
+                      <option value="2.75">2.75</option>
+                      <option value="3.0">3.0</option>
+                      <option value="3.5">3.5</option>
+                    </select>
+                  </div>
+                  <div class="pred-market-pick" id="pred-rec-ou">—</div>
+                  <div class="pred-ou-detail">
+                    <span class="detail-label">Over:</span> <span id="pred-ou-over">—</span>
+                    <span class="detail-label">Under:</span> <span id="pred-ou-under">—</span>
+                  </div>
+                </div>
+                <!-- BTTS -->
+                <div class="pred-market-card">
+                  <div class="pred-market-header">BTTS</div>
+                  <div class="pred-market-pick" id="pred-rec-btts">—</div>
+                  <div class="pred-btts-detail">
+                    <span class="detail-label">Yes:</span> <span id="pred-btts-yes">—</span>
+                    <span class="detail-label">No:</span> <span id="pred-btts-no">—</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Score Matrix Heatmap -->
+            <div class="pred-section card">
+              <h4 class="pred-card-title">🔢 Score Matrix (Dixon-Coles Bivariate Poisson)</h4>
+              <div class="pred-matrix-wrapper">
+                <div class="pred-matrix-label-y">Home Goals ↓</div>
+                <div class="pred-matrix-inner">
+                  <div class="pred-matrix-label-x">Away Goals →</div>
+                  <div id="pred-score-matrix" class="pred-score-matrix"></div>
+                </div>
+              </div>
+              <div class="pred-top-scores">
+                <span class="pred-top-scores-label">Most Likely:</span>
+                <div id="pred-top-scores-pills" class="pred-top-scores-pills"></div>
+              </div>
+            </div>
+
+            <!-- Disclaimer -->
+            <div class="pred-disclaimer">
+              ⚠️ Estimasi statistik berdasarkan model Dixon-Coles bivariate Poisson. Bukan nasihat finansial. Semua pasar diturunkan dari satu matriks skor untuk konsistensi matematis.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <!-- MATCH DETAIL MODAL (Dixon-Coles Probabilities & Score Grid) -->
@@ -796,6 +1034,6 @@ sudo systemctl start fc-betting</code>
     </div>
   </div>
 
-  <script src="/static/app.js?v=29"></script>
+  <script src="/static/app.js?v=30"></script>
 </body>
 </html>
