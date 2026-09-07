@@ -216,6 +216,7 @@
           <button id="btn-refresh-parlay" class="btn btn-secondary">↻ Refresh</button>
           <button id="btn-generate-parlay" class="btn btn-secondary">🧾 Generate Parlay</button>
           <button id="btn-ai-parlay" class="btn btn-primary">✨ Generate AI Parlay</button>
+          <button id="btn-lock-parlay" class="btn btn-success">🔒 Lock Parlay</button>
           <button id="btn-settle-parlay" class="btn btn-primary">✅ Settle Parlays</button>
         </div>
       </div>
@@ -277,6 +278,41 @@
       </div>
       <div id="tracker-picks-panel">
       <h3 id="tracker-view-title" style="margin: 0.75rem 0;">All Settlement Statuses</h3>
+      <!-- Daily summary -->
+      <div id="daily-summary" class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); margin-bottom: 16px;">
+        <div class="kpi-card" style="padding:12px 16px;">
+          <div class="kpi-label">Date</div>
+          <div class="kpi-val" style="font-size:18px;" id="daily-summary-date">-</div>
+        </div>
+        <div class="kpi-card" style="padding:12px 16px;">
+          <div class="kpi-label">Settled</div>
+          <div class="kpi-val" style="font-size:18px;" id="daily-summary-settled">0</div>
+        </div>
+        <div class="kpi-card" style="padding:12px 16px;">
+          <div class="kpi-label">Wins</div>
+          <div class="kpi-val text-emerald" style="font-size:18px;" id="daily-summary-wins">0</div>
+        </div>
+        <div class="kpi-card" style="padding:12px 16px;">
+          <div class="kpi-label">Losses</div>
+          <div class="kpi-val text-rose" style="font-size:18px;" id="daily-summary-losses">0</div>
+        </div>
+        <div class="kpi-card" style="padding:12px 16px;">
+          <div class="kpi-label">Pushes</div>
+          <div class="kpi-val text-amber" style="font-size:18px;" id="daily-summary-pushes">0</div>
+        </div>
+        <div class="kpi-card" style="padding:12px 16px;">
+          <div class="kpi-label">Profit</div>
+          <div class="kpi-val" style="font-size:18px;" id="daily-summary-profit">0.00u</div>
+        </div>
+        <div class="kpi-card" style="padding:12px 16px;">
+          <div class="kpi-label">Win Rate</div>
+          <div class="kpi-val text-emerald" style="font-size:18px;" id="daily-summary-winrate">0.0%</div>
+        </div>
+        <div class="kpi-card" style="padding:12px 16px;">
+          <div class="kpi-label">ROI</div>
+          <div class="kpi-val" style="font-size:18px;" id="daily-summary-roi">0.0%</div>
+        </div>
+      </div>
       <div class="filter-row">
         <div class="filter-group">
           <label for="tracker-filter-market">Market Category</label>
@@ -297,6 +333,13 @@
             <option value="odds_desc">Odds (High → Low)</option>
             <option value="odds_asc">Odds (Low → High)</option>
           </select>
+        </div>
+        <div class="filter-group">
+          <label for="tracker-date-filter">Date</label>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <input type="date" id="tracker-date-filter" class="form-input" style="width:160px;">
+            <button id="btn-tracker-today" class="btn btn-secondary btn-sm" style="padding:6px 12px;">Today</button>
+          </div>
         </div>
       </div>
       <div class="card table-responsive">
@@ -753,6 +796,6 @@ sudo systemctl start fc-betting</code>
     </div>
   </div>
 
-  <script src="/static/app.js?v=26"></script>
+  <script src="/static/app.js?v=29"></script>
 </body>
 </html>

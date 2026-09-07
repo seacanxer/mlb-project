@@ -146,11 +146,14 @@ def _summarize_slip(
 def build_parlay_slips(
     picks: Iterable[Dict[str, Any]],
     config: Optional[Dict[str, Any]] = None,
+    seed: Optional[int] = None,
+    exclude_matches: Optional[set] = None,
 ) -> Dict[str, Any]:
     candidates = qualified_candidates(picks)
     tier_config = {**DEFAULT_PARLAY_CONFIG, **(config or {})}
+    exclude_matches = set(exclude_matches or ())
     slips = []
-    used_matches: set = set()
+    used_matches: set = set(exclude_matches)
     for tier in ("safe", "recommended", "aggressive"):
         spec = {**DEFAULT_PARLAY_CONFIG[tier], **tier_config.get(tier, {})}
         eligible = [candidate for candidate in candidates if (
@@ -161,7 +164,11 @@ def build_parlay_slips(
         )]
         legs: List[Dict[str, Any]] = []
         league_counts: Dict[str, int] = {}
-        for candidate in _rank(eligible, tier):
+        ranked = _rank(eligible, tier)
+        if seed:
+            offset = seed % max(1, len(ranked))
+            ranked = ranked[offset:] + ranked[:offset]
+        for candidate in ranked:
             match_key = _match_key(candidate)
             league = str(candidate.get("league") or "Unknown")
             if match_key in used_matches or league_counts.get(league, 0) >= int(spec["max_legs_per_league"]):

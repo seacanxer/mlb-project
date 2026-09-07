@@ -88,6 +88,7 @@ parlay_review_state: Dict[str, Any] = {
     "error": None,
 }
 PARLAY_REVIEW_PATH = os.path.join(BASE_DIR, "data", "parlay_review.json")
+PARLAY_PREVIEW_STATE = {"fingerprint": None, "payload": None, "generated_at": None, "excluded_count": 0}
 
 
 def load_config() -> Dict[str, Any]:
@@ -151,6 +152,34 @@ def load_detailed_matches() -> List[Dict[str, Any]]:
 def _parlay_framework() -> Dict[str, Any]:
     cfg = load_config()
     return build_parlay_slips(load_picks_file(), cfg.get("parlay", {}).get("tiers"))
+
+
+def _pending_used_matches() -> set:
+    used: set = set()
+    for slip in db.get_parlay_slips(limit=1000):
+        if slip.get("status") != "pending":
+            continue
+        for leg in slip.get("legs", []):
+            used.add(str(leg.get("source_match_id") or f"{leg.get('match')}|{leg.get('start_ts')}"))
+    return used
+
+
+def _parlay_preview(seed: Optional[int] = None) -> Dict[str, Any]:
+    cfg = load_config()
+    used = _pending_used_matches()
+    payload = build_parlay_slips(
+        load_picks_file(),
+        cfg.get("parlay", {}).get("tiers"),
+        seed=seed,
+        exclude_matches=used,
+    )
+    PARLAY_PREVIEW_STATE.update({
+        "fingerprint": payload.get("fingerprint"),
+        "payload": payload,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "excluded_count": len(used),
+    })
+    return payload
 
 
 def _load_parlay_review() -> Dict[str, Any]:
@@ -609,9 +638,17 @@ def get_parlay_picks():
 
 @app.post("/api/parlay-picks/generate")
 def generate_parlay_picks():
-    framework = _parlay_framework()
-    saved = db.insert_parlay_batch(framework, "framework")
-    return {**framework, "ai_status": "framework", "saved": saved,
+    payload = _parlay_preview(seed=int(time.time()))
+    return {**payload, "preview": True, "generated_at": PARLAY_PREVIEW_STATE["generated_at"],
+            "excluded_count": PARLAY_PREVIEW_STATE["excluded_count"], "saved": [],
+            "tracking": {"summary": db.get_parlay_roi(), "slips": db.get_parlay_slips()}}
+
+
+@app.post("/api/parlay-picks/lock")
+def lock_parlay_picks():
+    payload = PARLAY_PREVIEW_STATE.get("payload") or _parlay_framework()
+    saved = db.insert_parlay_batch(payload, "framework")
+    return {**payload, "locked": True, "saved": saved,
             "tracking": {"summary": db.get_parlay_roi(), "slips": db.get_parlay_slips()}}
 
 
@@ -688,10 +725,57 @@ def tracker_item(bet, now=None):
 
 
 @app.get("/api/tracker")
-def get_tracker():
+def get_tracker(date: Optional[str] = Query(None, description="Filter by date (YYYY-MM-DD)")):
     now = time.time()
     unsettled = [tracker_item(bet, now) for bet in db.get_unsettled()]
-    settled = [tracker_item(bet, now) for bet in db.get_settled()]
+    all_settled = [tracker_item(bet, now) for bet in db.get_settled()]
+    daily_summary = None
+
+    if date:
+        import datetime as dt
+        try:
+            target = dt.datetime.strptime(date, "%Y-%m-%d").date()
+            # Filter settled bets where settled_at date matches target (handle timezone naive)
+            filtered = []
+            for bet in all_settled:
+                settled_at = bet.get("settled_at")
+                if settled_at:
+                    try:
+                        # parse ISO string, handle possible 'Z' or offset
+                        if 'Z' in settled_at:
+                            settled_at = settled_at.replace('Z', '+00:00')
+                        # if it has offset, parse, else assume local
+                        if '+' in settled_at or '-' in settled_at[10:]:
+                            d = dt.datetime.fromisoformat(settled_at).date()
+                        else:
+                            d = dt.datetime.fromisoformat(settled_at).date()
+                        if d == target:
+                            filtered.append(bet)
+                    except Exception:
+                        pass
+            settled = filtered
+        except Exception:
+            settled = all_settled
+    else:
+        settled = all_settled
+
+    # Build daily summary from filtered settled bets
+    if date and settled:
+        wins = sum(1 for b in settled if b.get("won") == 1)
+        losses = sum(1 for b in settled if b.get("won") == 0)
+        pushes = sum(1 for b in settled if b.get("won") is None)
+        profit = sum(float(b.get("profit") or 0.0) for b in settled)
+        daily_summary = {
+            "date": date,
+            "settled": len(settled),
+            "wins": wins,
+            "losses": losses,
+            "pushes": pushes,
+            "profit_units": round(profit, 2),
+        }
+    elif date:
+        daily_summary = {"date": date, "settled": 0, "wins": 0, "losses": 0, "pushes": 0, "profit_units": 0.0}
+
     buckets = {
         "locked": [bet for bet in unsettled if bet["settlement_status"] == "locked"],
         "live": [bet for bet in unsettled if bet["settlement_status"] == "live"],
@@ -711,6 +795,7 @@ def get_tracker():
         "market_performance": db.get_market_performance(),
         "unit_size": 1.0,
         "last_successful_scan_time": scan_state.get("last_scan_time"),
+        "daily_summary": daily_summary,
     }
 
 

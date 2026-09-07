@@ -313,6 +313,9 @@ body {
   font-weight: 700;
   line-height: 1.2;
 }
+.kpi-val.text-amber {
+  color: var(--amber);
+}
 
 .kpi-sub {
   font-size: 12px;

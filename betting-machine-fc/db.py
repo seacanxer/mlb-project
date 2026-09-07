@@ -1,3 +1,4 @@
+import hashlib
 import os
 import sqlite3
 from datetime import datetime
@@ -10,6 +11,13 @@ def _connect():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
+
+def _parlay_match_signature(legs):
+    keys = sorted(
+        str(leg.get("match_id") or f"{leg.get('match')}|{leg.get('start_ts')}")
+        for leg in legs
+    )
+    return hashlib.sha256("|".join(keys).encode("utf-8")).hexdigest()[:16]
 
 def init_db():
     with sqlite3.connect(DB_PATH) as conn:
@@ -51,6 +59,7 @@ def init_db():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 generation_key TEXT UNIQUE,
                 fingerprint TEXT,
+                match_signature TEXT,
                 tier TEXT,
                 label TEXT,
                 source TEXT,
@@ -62,6 +71,18 @@ def init_db():
                 settled_at TEXT
             )
         ''')
+        columns = {row[1] for row in c.execute('PRAGMA table_info(parlay_slips)').fetchall()}
+        if 'match_signature' not in columns:
+            c.execute('ALTER TABLE parlay_slips ADD COLUMN match_signature TEXT')
+        legacy = c.execute('SELECT id FROM parlay_slips WHERE match_signature IS NULL').fetchall()
+        for (legacy_id,) in legacy:
+            leg_rows = c.execute(
+                'SELECT source_match_id, match, start_ts FROM parlay_legs WHERE parlay_id=?',
+                (legacy_id,),
+            ).fetchall()
+            keys = sorted(str(r[0] or f"{r[1]}|{r[2]}") for r in leg_rows)
+            sig = hashlib.sha256("|".join(keys).encode("utf-8")).hexdigest()[:16]
+            c.execute('UPDATE parlay_slips SET match_signature=? WHERE id=?', (sig, legacy_id))
         c.execute('''
             CREATE TABLE IF NOT EXISTS parlay_legs (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -90,7 +111,8 @@ def init_db():
 
 
 def insert_parlay_batch(payload, source='framework'):
-    """Persist ready slips once per input fingerprint, source, and tier."""
+    """Persist ready slips. Dedupes by the match-set signature, not raw odds,
+    so a tiny odds refresh cannot create duplicate slips."""
     now = datetime.now().isoformat()
     created = []
     conn = _connect()
@@ -101,20 +123,29 @@ def insert_parlay_batch(payload, source='framework'):
                 continue
             tier = slip.get('tier')
             slip_source = slip.get('source') or source
+            legs = slip.get('legs', [])
+            match_signature = _parlay_match_signature(legs)
             generation_key = f"{payload.get('fingerprint')}|{slip_source}|{tier}"
+            existing = conn.execute(
+                'SELECT id FROM parlay_slips WHERE match_signature=? AND tier=? AND status="pending"',
+                (match_signature, tier),
+            ).fetchone()
+            if existing:
+                created.append({'id': existing['id'], 'tier': tier, 'created': False})
+                continue
             cursor = conn.execute('''
                 INSERT OR IGNORE INTO parlay_slips
-                (generation_key, fingerprint, tier, label, source, combined_odds,
+                (generation_key, fingerprint, match_signature, tier, label, source, combined_odds,
                  model_joint_probability, generated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (generation_key, payload.get('fingerprint'), tier, slip.get('label'), slip_source,
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (generation_key, payload.get('fingerprint'), match_signature, tier, slip.get('label'), slip_source,
                   slip.get('combined_odds'), slip.get('model_joint_probability'), now))
             if not cursor.rowcount:
                 row = conn.execute('SELECT id FROM parlay_slips WHERE generation_key=?', (generation_key,)).fetchone()
                 created.append({'id': row['id'], 'tier': tier, 'created': False})
                 continue
             parlay_id = cursor.lastrowid
-            for leg in slip.get('legs', []):
+            for leg in legs:
                 conn.execute('''
                     INSERT INTO parlay_legs
                     (parlay_id, candidate_id, source_match_id, match, home, away, league,

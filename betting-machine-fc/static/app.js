@@ -209,10 +209,28 @@ async function settleParlays() {
   }
 }
 
+async function lockParlay() {
+  const button = document.getElementById('btn-lock-parlay');
+  if (button) { button.disabled = true; button.textContent = '⏳ Locking…'; }
+  try {
+    const res = await fetch('/api/parlay-picks/lock', { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Failed to lock parlay');
+    const created = (data.saved || []).filter(item => item.created).length;
+    showBanner(created ? `${created} parlay slip locked.` : 'Slip already locked (duplicate match-set).');
+    await loadParlays('refresh');
+  } catch (err) {
+    showBanner(`Lock failed: ${err.message}`, true);
+  } finally {
+    if (button) { button.disabled = false; button.textContent = '🔒 Lock Parlay'; }
+  }
+}
+
 function initParlay() {
   document.getElementById('btn-refresh-parlay')?.addEventListener('click', () => loadParlays('refresh'));
   document.getElementById('btn-generate-parlay')?.addEventListener('click', () => loadParlays('framework'));
   document.getElementById('btn-ai-parlay')?.addEventListener('click', () => loadParlays('ai'));
+  document.getElementById('btn-lock-parlay')?.addEventListener('click', lockParlay);
   document.getElementById('btn-settle-parlay')?.addEventListener('click', settleParlays);
   document.getElementById('btn-parlay-see-more')?.addEventListener('click', () => {
     window._parlayShowAll = !(window._parlayShowAll === true);
@@ -454,9 +472,16 @@ function formatKickoff(ts) {
   return `🗓️ ${dateStr} · ${timeStr} WIB`;
 }
 
+let trackerDateFilter = null;
+
 async function loadTracker() {
   try {
-    const res = await fetch('/api/tracker');
+    const dateVal = document.getElementById('tracker-date-filter')?.value;
+    let url = '/api/tracker';
+    if (dateVal) {
+      url += `?date=${dateVal}`;
+    }
+    const res = await fetch(url);
     if (!res.ok) throw new Error('Failed to load ROI tracker');
     const data = await res.json();
     const s = data.summary || {};
@@ -494,11 +519,54 @@ async function loadTracker() {
 
     trackerData = data;
     renderTracker();
+    renderDailySummary(data.daily_summary || null);
     renderMarketPerformance();
     loadKpiFeedback();
     loadCrosscheck();
   } catch (err) {
     showBanner(err.message, true);
+  }
+}
+
+function renderDailySummary(daily) {
+  const dateEl = document.getElementById('daily-summary-date');
+  const settledEl = document.getElementById('daily-summary-settled');
+  const winsEl = document.getElementById('daily-summary-wins');
+  const lossesEl = document.getElementById('daily-summary-losses');
+  const pushesEl = document.getElementById('daily-summary-pushes');
+  const profitEl = document.getElementById('daily-summary-profit');
+  const winrateEl = document.getElementById('daily-summary-winrate');
+  const roiEl = document.getElementById('daily-summary-roi');
+  if (!daily || !daily.date) {
+    dateEl.textContent = 'No filter';
+    settledEl.textContent = '0';
+    winsEl.textContent = '0';
+    lossesEl.textContent = '0';
+    pushesEl.textContent = '0';
+    profitEl.textContent = '0.00u';
+    if (winrateEl) winrateEl.textContent = '0.0%';
+    if (roiEl) roiEl.textContent = '0.0%';
+    return;
+  }
+  dateEl.textContent = daily.date;
+  const settled = daily.settled || 0;
+  const wins = daily.wins || 0;
+  const losses = daily.losses || 0;
+  const pushes = daily.pushes || 0;
+  const profit = daily.profit_units || 0;
+  settledEl.textContent = settled;
+  winsEl.textContent = wins;
+  lossesEl.textContent = losses;
+  pushesEl.textContent = pushes;
+  profitEl.textContent = `${profit >= 0 ? '+' : ''}${profit.toFixed(2)}u`;
+  profitEl.className = `kpi-val ${profit >= 0 ? 'text-emerald' : 'text-rose'}`;
+  const decided = wins + losses;
+  const winRate = decided > 0 ? (wins / decided * 100) : 0;
+  if (winrateEl) winrateEl.textContent = winRate.toFixed(1) + '%';
+  const roi = settled > 0 ? (profit / settled * 100) : 0;
+  if (roiEl) {
+    roiEl.textContent = (roi >= 0 ? '+' : '') + roi.toFixed(1) + '%';
+    roiEl.className = `kpi-val ${roi >= 0 ? 'text-emerald' : 'text-rose'}`;
   }
 }
 
@@ -712,6 +780,25 @@ function initTrackerFilters() {
     if (ind) ind.textContent = marketSortDir === 'asc' ? '▲' : '▼';
     renderTracker();
   });
+
+  // Date filter
+  const dateInput = document.getElementById('tracker-date-filter');
+  if (dateInput) {
+    dateInput.addEventListener('change', () => {
+      loadTracker();
+    });
+  }
+  const todayBtn = document.getElementById('btn-tracker-today');
+  if (todayBtn) {
+    todayBtn.addEventListener('click', () => {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      dateInput.value = `${year}-${month}-${day}`;
+      loadTracker();
+    });
+  }
   console.log('initTrackerFilters done');
 }
 
