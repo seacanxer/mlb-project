@@ -71,7 +71,7 @@ scan_state = {
 
 # Absolute odds floor guard (anti-typo). Config min_odds flows through;
 # anything below this is rejected even if requested via API/UI.
-ODDS_FLOOR_ABS = 1.64
+ODDS_FLOOR_ABS = 1.50
 
 _settle_lock = threading.Lock()
 settle_state: Dict[str, Any] = {
@@ -367,6 +367,8 @@ def execute_live_scan_sync():
                 coverage = projection.get("coverage_status", "market_only")
                 diagnostics[coverage if coverage in diagnostics else "market_only"] += 1
                 lh, la = projection["home"], projection["away"]
+                from model import RHO_DEFAULT as _SCAN_RHO
+                scan_rho = projection.get("rho", _SCAN_RHO)
                 # Rest-days / congestion fatigue
                 try:
                     from fatigue import apply_rest_adjustment, record_fixtures
@@ -376,10 +378,10 @@ def execute_live_scan_sync():
                 except Exception:
                     pass
 
-                ph, pd, pa = match_probs(lh, la)
-                pbt = btts_prob(lh, la)
-                po = over_prob(2.5, lh, la)
-                pu = under_prob(2.5, lh, la)
+                ph, pd, pa = match_probs(lh, la, scan_rho)
+                pbt = btts_prob(lh, la, scan_rho)
+                po = over_prob(2.5, lh, la, scan_rho)
+                pu = under_prob(2.5, lh, la, scan_rho)
 
                 from main import analyze_match
                 m_picks = analyze_match(
@@ -389,7 +391,7 @@ def execute_live_scan_sync():
                 )
                 picks.extend(m_picks)
 
-                matrix, _ = score_matrix(lh, la)
+                matrix, _ = score_matrix(lh, la, scan_rho)
                 top_scores = sorted(
                     [{"score": f"{x}-{y}", "prob": round(p, 4)} for (x, y), p in matrix.items()],
                     key=lambda s: s["prob"],
@@ -427,6 +429,7 @@ def execute_live_scan_sync():
         per_market = int(cfg.get("filters", {}).get("top_picks_per_market", 3))
         per_match = int(cfg.get("filters", {}).get("top_picks_per_match", 1))
         diagnostics["candidates"] = len(picks)
+        formula = cfg.get("formula", {})
         picks = select_top_picks(
             picks,
             limit=top_limit,
@@ -437,6 +440,12 @@ def execute_live_scan_sync():
             min_odds=float(cfg.get("filters", {}).get("min_odds", 1.66)),
             max_odds=cfg.get("filters", {}).get("max_odds"),
             top_signal_limit=int(cfg.get("filters", {}).get("top_signal_limit", 5)),
+            include_shadow=bool(formula.get("shadow_enabled", True)),
+            shadow_min_cons_ev=float(formula.get("shadow_min_cons_ev", 0.01)),
+            shadow_prob_margin=float(formula.get("shadow_prob_margin", 0.03)),
+            min_edge_official=float(cfg.get("filters", {}).get("min_edge_official", 0.015)),
+            min_edge_shadow=float(cfg.get("filters", {}).get("min_edge_shadow", 0.02)),
+            min_edge_watch=float(cfg.get("filters", {}).get("min_edge_watch", 0.05)),
         )
 
         # Every published recommendation is immediately locked for ROI tracking.
@@ -528,6 +537,7 @@ def get_picks(
     raw_picks = [p for p in load_picks_file() if float(p.get("start_ts") or 0) > time.time()]
     cfg = load_config()
     from main import select_top_picks
+    formula_reselect = cfg.get("formula", {})
     raw_picks = select_top_picks(
         raw_picks,
         limit=int(cfg.get("filters", {}).get("top_pick_limit", 12)),
@@ -538,6 +548,12 @@ def get_picks(
         min_odds=float(cfg.get("filters", {}).get("min_odds", 1.66)),
         max_odds=cfg.get("filters", {}).get("max_odds"),
         top_signal_limit=int(cfg.get("filters", {}).get("top_signal_limit", 5)),
+        include_shadow=bool(formula_reselect.get("shadow_enabled", True)),
+        shadow_min_cons_ev=float(formula_reselect.get("shadow_min_cons_ev", 0.01)),
+        shadow_prob_margin=float(formula_reselect.get("shadow_prob_margin", 0.03)),
+        min_edge_official=float(cfg.get("filters", {}).get("min_edge_official", 0.015)),
+        min_edge_shadow=float(cfg.get("filters", {}).get("min_edge_shadow", 0.02)),
+        min_edge_watch=float(cfg.get("filters", {}).get("min_edge_watch", 0.05)),
     )
 
     # Do not resurrect rejected alternates as watch recommendations. Shadow
@@ -995,7 +1011,7 @@ def get_scan_status():
 class BacktestRequest(BaseModel):
     league: str = "E0"
     season: str = "2425"
-    min_odds: float = 1.66
+    min_odds: float = 1.50
     min_ev: float = 0.02
     market_filter: Optional[str] = "all"
 

@@ -3,9 +3,12 @@
   "flashscore_leagues": [],
   "scan_match_limit": 500,
   "filters": {
-    "min_odds": 1.64,
+    "min_odds": 1.50,
     "min_ev": 0.0,
     "min_edge": 0.02,
+    "min_edge_official": 0.015,
+    "min_edge_shadow": 0.02,
+    "min_edge_watch": 0.05,
     "min_probability": 0.0,
     "max_ah_abs_line": 2.5,
     "max_odds": 2.75,
@@ -19,8 +22,11 @@
     "ou"
   ],
   "formula": {
-    "version": "ou-ah-v4.1.0",
-    "strength_weight_override": null
+    "version": "ou-ah-v4.2.0",
+    "strength_weight_override": null,
+    "shadow_enabled": true,
+    "shadow_min_cons_ev": 0.01,
+    "shadow_prob_margin": 0.03
   },
   "output": "picks.json",
   "historical": {

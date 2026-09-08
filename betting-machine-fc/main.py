@@ -83,6 +83,7 @@ def run_pipeline(cfg=None):
             except Exception as e:
                 picks.append({"match": m.get("I"), "error": str(e)})
 
+        formula_cfg = cfg.get("formula", {})
         picks = select_top_picks(
             picks,
             limit=int(cfg.get("filters", {}).get("top_pick_limit", 12)),
@@ -93,6 +94,12 @@ def run_pipeline(cfg=None):
             min_odds=float(cfg.get("filters", {}).get("min_odds", 1.66)),
             max_odds=cfg.get("filters", {}).get("max_odds"),
             top_signal_limit=int(cfg.get("filters", {}).get("top_signal_limit", 5)),
+            include_shadow=bool(formula_cfg.get("shadow_enabled", True)),
+            shadow_min_cons_ev=float(formula_cfg.get("shadow_min_cons_ev", 0.01)),
+            shadow_prob_margin=float(formula_cfg.get("shadow_prob_margin", 0.03)),
+            min_edge_official=float(cfg.get("filters", {}).get("min_edge_official", 0.015)),
+            min_edge_shadow=float(cfg.get("filters", {}).get("min_edge_shadow", 0.02)),
+            min_edge_watch=float(cfg.get("filters", {}).get("min_edge_watch", 0.05)),
         )
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(picks, f, ensure_ascii=False, indent=2)
@@ -141,8 +148,9 @@ def main():
     run_pipeline()
 
 
-def analyze_match(o, lh, la, min_odds=1.66, min_ev=0.0, max_ah_line=2.5,
-                  projection_meta=None, active_markets=None):
+def analyze_match(o, lh, la, min_odds=1.50, min_ev=0.0, max_ah_line=2.5,
+                  projection_meta=None, active_markets=None, rho=None):
+    from model import RHO_DEFAULT
     out = []
     active_markets = set(active_markets or ("ou", "ah"))
     projection_meta = projection_meta or {
@@ -151,10 +159,12 @@ def analyze_match(o, lh, la, min_odds=1.66, min_ev=0.0, max_ah_line=2.5,
         "coverage_status": "full",
         "data_grade": "A",
     }
-    ph, pd, pa = match_probs(lh, la)
-    pbt = btts_prob(lh, la)
-    po = over_prob(2.5, lh, la)
-    pu = under_prob(2.5, lh, la)
+    if rho is None:
+        rho = projection_meta.get("rho", RHO_DEFAULT)
+    ph, pd, pa = match_probs(lh, la, rho)
+    pbt = btts_prob(lh, la, rho)
+    po = over_prob(2.5, lh, la, rho)
+    pu = under_prob(2.5, lh, la, rho)
     def market_value(mapping, key):
         return mapping.get(key, mapping.get(str(key)))
 
@@ -190,9 +200,9 @@ def analyze_match(o, lh, la, min_odds=1.66, min_ev=0.0, max_ah_line=2.5,
             ("over", f"Over {line_value:g}", over_price, market_ou.get("over")),
             ("under", f"Under {line_value:g}", under_price, market_ou.get("under")),
         ]:
-            edge = total_ev(line_value, side, odds, lh, la) if odds else -999
+            edge = total_ev(line_value, side, odds, lh, la, rho) if odds else -999
             if odds and edge >= min_ev and odds >= min_odds:
-                fair_price = total_fair_odds(line_value, side, lh, la)
+                fair_price = total_fair_odds(line_value, side, lh, la, rho)
                 probability = 1.0 / fair_price if fair_price > 0 else 0.0
                 out.append(pick_entry(
                     o, "ou", pick, probability, odds, edge, market_p,
@@ -223,9 +233,9 @@ def analyze_match(o, lh, la, min_odds=1.66, min_ev=0.0, max_ah_line=2.5,
         # prefer receiving goals — laying big handicap = longshot
         if line < -1.0:
             continue
-        e_ah = ah_ev(line, c, lh, la)
+        e_ah = ah_ev(line, c, lh, la, rho)
         if c >= min_odds and c <= 2.75 and e_ah >= min_ev:
-            fair_price = ah_fair_odds(line, "home", lh, la)
+            fair_price = ah_fair_odds(line, "home", lh, la, rho)
             p_approx = 1.0 / fair_price if fair_price > 0 else 0
             counterpart = away_ah.get(round(-float(line), 4))
             market_ah = devig({"home": c, "away": counterpart})
@@ -242,9 +252,9 @@ def analyze_match(o, lh, la, min_odds=1.66, min_ev=0.0, max_ah_line=2.5,
             continue
         if line < -1.0:
             continue
-        e_ah = ah_ev_away(line, c, lh, la)
+        e_ah = ah_ev_away(line, c, lh, la, rho)
         if c >= min_odds and c <= 2.75 and e_ah >= min_ev:
-            fair_price = ah_fair_odds(line, "away", lh, la)
+            fair_price = ah_fair_odds(line, "away", lh, la, rho)
             p_approx = 1.0 / fair_price if fair_price > 0 else 0
             counterpart = home_ah.get(round(-float(line), 4))
             market_ah = devig({"away": c, "home": counterpart})
@@ -261,12 +271,12 @@ def analyze_match(o, lh, la, min_odds=1.66, min_ev=0.0, max_ah_line=2.5,
             continue
         side, raw_line = item["pick"].split()[:2]
         line = float(raw_line)
-        metrics = payout_metrics(item["market"], side.lower(), line, item["odds"], lh, la)
+        metrics = payout_metrics(item["market"], side.lower(), line, item["odds"], lh, la, rho)
         item["payout_probabilities"] = {k: round(v, 6) for k, v in metrics.items() if k not in {"ev", "fair_odds"}}
         item["equivalent_probability"] = item["probability"]
         item["probability"] = round(metrics["profit_probability"], 4)
         # Engineering sensitivity check, NOT a statistical confidence interval.
-        stress = [payout_metrics(item["market"], side.lower(), line, item["odds"], lh * h, la * a)["ev"]
+        stress = [payout_metrics(item["market"], side.lower(), line, item["odds"], lh * h, la * a, rho)["ev"]
                   for h, a in ((.9, .9), (1.1, 1.1), (.9, 1.1), (1.1, .9))]
         item["stress_ev"] = round(min(stress), 4)
         item["conservative_ev"] = round(min(item["conservative_ev"], min(stress)), 4)
@@ -278,20 +288,20 @@ def analyze_match(o, lh, la, min_odds=1.66, min_ev=0.0, max_ah_line=2.5,
 
 
 def select_top_picks(candidates, limit=50, per_market=25, per_match=2,
-                     min_ev=0.0, min_edge=0.0, min_odds=1.64, max_odds=None,
-                     top_signal_limit=5, include_shadow=False):
+                     min_ev=0.0, min_edge=0.0, min_odds=1.50, max_odds=None,
+                     top_signal_limit=5, include_shadow=False,
+                     shadow_min_cons_ev=0.01, shadow_prob_margin=0.03,
+                     min_edge_official=0.015, min_edge_shadow=0.02,
+                     min_edge_watch=0.05):
     """Publish full-coverage O/U and AH picks, then mark a diversified Top set.
 
     Conservative EV absorbs model uncertainty. Fixture and market caps prevent
     a large slate or duplicated alternate lines from flooding the output.
-    ``min_edge`` remains in the public signature for API compatibility; Formula
-    v4 ranks settlement-aware conservative EV instead of binary probability.
+    Shadow picks (unrated/watch leagues) need a breakeven-relative probability
+    edge instead of a static floor, so the gate stays consistent at low odds.
+    Low-tier watch leagues additionally need a higher model/market edge.
     """
     odds_ceiling = {"ah": 2.75, "ou": 2.75}
-    # Shadow coverage (unrated senior leagues, e.g. USA MLS): allowed through
-    # but with strict gates — never promoted silently to official.
-    SHADOW_MIN_CONS_EV = 0.02
-    SHADOW_MIN_PROB = 0.50
     eligible = []
     for pick in candidates:
         market = pick.get("market")
@@ -312,11 +322,23 @@ def select_top_picks(candidates, limit=50, per_market=25, per_match=2,
         conservative_ev = float(pick.get("conservative_ev", edge - 0.02))
         if not all(math.isfinite(value) for value in (probability, odds, edge, conservative_ev)) or not 0 < probability < 1:
             continue
+        edge_pct = pick.get("edge_pct")
+        watch = pick.get("league_model") == "UNVALIDATED"
+        if edge_pct is None or not math.isfinite(float(edge_pct)):
+            continue
+        eff_min_edge = min_edge_watch if (is_shadow and watch) else (
+            min_edge_shadow if is_shadow else max(float(min_edge), float(min_edge_official)))
+        if float(edge_pct) < eff_min_edge:
+            continue
         min_cons_ev = max(float(min_ev), 0.02)
         if is_shadow:
-            min_cons_ev = max(min_cons_ev, SHADOW_MIN_CONS_EV)
-            if probability < SHADOW_MIN_PROB or not pick.get("has_both_markets") or odds > 2.50:
+            # Breakeven-relative: static floors reject fair low-odds value
+            # and accept overpriced longshots. Also honors config cap.
+            if probability < 1.0 / odds + float(shadow_prob_margin):
                 continue
+            if not pick.get("has_both_markets"):
+                continue
+            min_cons_ev = max(min_cons_ev, float(shadow_min_cons_ev))
         if conservative_ev < min_cons_ev or edge > 0.25:
             continue
         price_quality = max(0.0, 1.0 - abs(odds - 1.95) / 0.65)
@@ -364,6 +386,31 @@ def select_top_picks(candidates, limit=50, per_market=25, per_match=2,
     return selected
 
 
+def completeness_score(o, projection_meta):
+    """Share of independent data sources present: complete 1X2, complete
+    two-sided O/U, paired AH, independent team ratings. 0.0-1.0."""
+    o = o or {}
+    projection_meta = projection_meta or {}
+    ou = o.get("odds_ou") or {}
+    ou_ok = any(
+        isinstance(pr, dict) and _num(pr.get(9)) and _num(pr.get(10))
+        for pr in ou.values()
+    )
+    ah = o.get("odds_ah") or {}
+    ah_ok = bool(ah.get("home")) and bool(ah.get("away"))
+    x12 = o.get("odds_1x2") or {}
+    x12_ok = all(_num(x12.get(k, x12.get(str(k)))) for k in (1, 2, 3))
+    rated = projection_meta.get("lambda_source") == "market+strength"
+    return sum((x12_ok, ou_ok, ah_ok, rated)) / 4.0
+
+
+def _num(value):
+    try:
+        return value is not None and float(value) > 1.0
+    except (TypeError, ValueError):
+        return False
+
+
 def pick_entry(o, market, pick, p, odds, e, market_probability=None,
                fair_odds_value=None, projection_meta=None):
     b = odds - 1.0
@@ -372,7 +419,16 @@ def pick_entry(o, market, pick, p, odds, e, market_probability=None,
     market_p = float(market_probability) if market_probability is not None else None
     projection_meta = projection_meta or {}
     status = projection_candidate_status(projection_meta)
-    uncertainty_penalty = 0.02 if status == "official" else (0.04 if status == "shadow" else 1.0)
+    completeness = completeness_score(o, projection_meta)
+    base_penalty = {"official": 0.02, "shadow": 0.04}.get(status, 1.0)
+    uncertainty_penalty = round(base_penalty * (1.0 - 0.5 * completeness), 4)
+    # Fractional-Kelly stake suggestion (§6): 0.3x Kelly capped at 3% of
+    # bankroll, 1.5% for low-tier/watch coverage (liquidity + noise control).
+    low_tier = projection_meta.get("league_model") in {"UNRATED", "UNVALIDATED"} \
+        or projection_meta.get("data_grade") == "D"
+    stake_cap = 0.015 if low_tier else 0.03
+    kelly_f = max((b * p_val - (1.0 - p_val)) / b, 0.0) if (p_val and b > 0) else 0.0
+    suggested_stake = round(min(kelly_f * 0.3, stake_cap), 4)
     return {
         "match_id": o.get("match_id"),
         "match": f"{o['home']} vs {o['away']}",
@@ -387,6 +443,9 @@ def pick_entry(o, market, pick, p, odds, e, market_probability=None,
         "ev": round(e, 4),
         "conservative_ev": round(e - uncertainty_penalty, 4),
         "uncertainty_penalty": uncertainty_penalty,
+        "completeness_score": round(completeness, 2),
+        "suggested_stake": suggested_stake,
+        "stake_cap": stake_cap,
         "fair_odds": round(fair_odds_value, 3) if fair_odds_value and fair_odds_value < 100 else None,
         "market_probability": round(market_p, 4) if market_p is not None else None,
         "edge_pct": round(p_val - market_p, 4) if market_p is not None else None,
@@ -401,7 +460,7 @@ def pick_entry(o, market, pick, p, odds, e, market_probability=None,
     }
 
 
-def backtest_one(r, min_odds=1.64, min_ev=0.0, ledger=None,
+def backtest_one(r, min_odds=1.50, min_ev=0.0, ledger=None,
                  league_code=None, rating_season=None, strength_weight=None):
     o1, od, o2 = r["odds_home"], r["odds_draw"], r["odds_away"]
     oov, oun = r["odds_over"], r["odds_under"]
@@ -423,6 +482,8 @@ def backtest_one(r, min_odds=1.64, min_ev=0.0, ledger=None,
         strength_weight=strength_weight if league_code else None,
     )
     lh, la = projection["home"], projection["away"]
+    from model import RHO_DEFAULT as _BT_RHO
+    bt_rho = projection.get("rho", _BT_RHO)
     if ledger is not None:
         try:
             d = parse_fd_date(r.get("date"))
@@ -431,10 +492,10 @@ def backtest_one(r, min_odds=1.64, min_ev=0.0, ledger=None,
             record_fixtures(ledger, [(r.get("home"), r.get("away"), ts)])
         except Exception:
             pass
-    ph, pd, pa = match_probs(lh, la)
-    pbt = btts_prob(lh, la)
-    po = over_prob(2.5, lh, la)
-    pu = under_prob(2.5, lh, la)
+    ph, pd, pa = match_probs(lh, la, bt_rho)
+    pbt = btts_prob(lh, la, bt_rho)
+    po = over_prob(2.5, lh, la, bt_rho)
+    pu = under_prob(2.5, lh, la, bt_rho)
     res = {
         "date": r["date"],
         "match": f"{r['home']} vs {r['away']}",
@@ -450,6 +511,7 @@ def backtest_one(r, min_odds=1.64, min_ev=0.0, ledger=None,
     official = select_top_picks(
         candidates, limit=1, per_market=1, per_match=1,
         min_ev=min_ev, min_odds=min_odds, top_signal_limit=1,
+        include_shadow=True,
     )
     from settlement import total_payout
     for candidate in official:

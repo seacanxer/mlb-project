@@ -3,6 +3,7 @@ node_modules/
 *.db
 *.db-journal
 team_ledger.json
+team_match_misses.json
 parlay_review.json
 
 # Python

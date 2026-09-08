@@ -7,9 +7,14 @@
 #      E[home goals] = att_h * def_a * league_avg * home_adv
 #      E[away goals] = att_a * def_h * league_avg
 #  - Time decay:  w = exp(-decay * days_ago), decay=0.003 (half-life ~231d).
-#  - league_avg / home_adv estimated per (league, season) from weighted data.
+#  - Scale semantics: league_avg ~= AWAY goals baseline (A), home_adv ~= H/A
+#    ratio — NOT the overall mean. avg=(H+A)/2 is the wrong scale here
+#    (symmetric 2-1 data needs avg=1.0, not 1.5). Intercepts are therefore
+#    re-estimated inside the loop so predicted totals match observed totals
+#    given the current ratings (E1: avg 1.152 ~= away avg 1.205).
 #  - att/def fitted by alternating updates + geometric-mean normalisation
-#    (identifiability: mean att = mean def = 1), max 100 iters, tol 1e-6.
+#    (identifiability), max 100 iters, tol 1e-6. Final clamp [0.6, 1.8] is
+#    monotonic (preserves ordering); post-clamp re-fit keeps totals aligned.
 #  - Unknown teams (promoted / name mismatch) fail full coverage explicitly;
 #    they are never replaced by a neutral rating masquerading as evidence.
 #  - Ratings cached to data/ratings_{CODE}_{SEASON}.json, rebuilt if older
@@ -197,6 +202,55 @@ def mle_rating(rows, time_decay_per_day=0.003, iterations=100, tol=1e-6):
     return teams, league_avg, home_adv
 
 
+def fit_rho(rows, teams, league_avg, home_adv, lo=-0.20, hi=0.05, steps=25):
+    """Grid-search Dixon-Coles rho maximising scoreline log-likelihood with
+    fitted team strengths (documented approximation: strengths are held
+    fixed from mle_rating, not re-fit jointly per rho). (lh,la,rho) pairs
+    rejected by score-matrix validation are skipped. Returns (rho, n)."""
+    from model import score_matrix
+    scored = []
+    for r in rows:
+        try:
+            x, y = int(r["fthg"]), int(r["ftag"])
+        except (TypeError, ValueError):
+            continue
+        h, a = r.get("home"), r.get("away")
+        if h not in teams or a not in teams:
+            continue
+        lh, la = strength_lam(teams[h]["att"], teams[a]["def"],
+                              teams[a]["att"], teams[h]["def"],
+                              league_avg, home_adv)
+        if lh < 0.05 or la < 0.05:
+            continue  # degenerate strengths — rho fit needs sane rates
+        scored.append((min(x, 10), min(y, 10), round(lh, 3), round(la, 3)))
+    if len(scored) < 20:
+        return -0.13, len(scored)
+    best = None
+    for i in range(steps + 1):
+        rho = round(lo + (hi - lo) * i / steps, 4)
+        ll, cache, used = 0.0, {}, 0
+        for x, y, lh, la in scored:
+            key = (lh, la)
+            m = cache.get(key)
+            if m is None:
+                try:
+                    m, _ = score_matrix(lh, la, rho)
+                except ValueError:
+                    m = None
+                cache[key] = m
+            if m is None:
+                continue
+            ll += math.log(max(m.get((x, y), 1e-12), 1e-12))
+            used += 1
+        if used < 20:
+            continue
+        if best is None or ll > best[0]:
+            best = (ll, rho)
+    if best is None:
+        return -0.13, 0
+    return round(best[1], 3), len(scored)
+
+
 def _ratings_path(league_code, season):
     return os.path.join(DATA_DIR, f"ratings_{league_code}_{season}.json")
 
@@ -217,10 +271,12 @@ def build_ratings(league_code, season, force=False):
     rows = [sh.normalize(r) for r in sh.load_rows(csv_path)]
     rows = [r for r in rows if r.get("fthg") is not None]
     teams, league_avg, home_adv = mle_rating(rows)
+    rho, rho_n = fit_rho(rows, teams, league_avg, home_adv)
     payload = {
         "rating_version": RATING_VERSION,
         "league": league_code, "season": season,
         "league_avg": league_avg, "home_adv": home_adv,
+        "rho": rho, "rho_n": rho_n,
         "teams": teams, "n_matches": len(rows),
         "built_at": time.time(),
     }
@@ -267,29 +323,104 @@ def league_code_for(label):
     return LEAGUE_MAP.get(norm(label))
 
 
+TEAM_ALIASES = {
+    "man utd": "manchester united", "manchester utd": "manchester united",
+    "man city": "manchester city", "manchester c": "manchester city",
+    "spurs": "tottenham hotspur", "tottenham": "tottenham hotspur",
+    "wolves": "wolverhampton wanderers", "wolverhampton": "wolverhampton wanderers",
+    "west ham": "west ham united", "brighton": "brighton hove albion",
+    "newcastle": "newcastle united", "leeds": "leeds united",
+    "1 koln": "fc koln", "koln": "fc koln",
+    "borussia monchengladbach": "m gladbach", "gladbach": "m gladbach",
+    "paris saint germain": "paris sg", "psg": "paris sg",
+    "inter": "internazionale milano", "inter milan": "internazionale milano",
+    "milan": "ac milan", "roma": "as roma", "lazio": "ss lazio",
+    "napoli": "ssc napoli", "verona": "hellas verona",
+    "real sociedad": "sociedad", "athletic bilbao": "athletic club",
+    "atletico madrid": "atletico madrid", "real betis": "betis",
+    "bayer leverkusen": "leverkusen", "leipzig": "rb leipzig",
+    "dortmund": "borussia dortmund", "bayern": "bayern munich",
+}
+
+_JUNK_SUFFIXES = (" fc", " cf", " sc", " afc", " ac", " us", " as", " rc",
+                  " (res)", " reserve", " reserves", " ii", " u21", " u23")
+
+
+def normalize_team_name(name):
+    """Alias table + junk-suffix strip + lowercase alnum. League scoping is
+    inherent: ratings files are per-league, so fuzzy matches never cross
+    leagues (this bounds false-match risk, e.g. La Coruna vs Alaves)."""
+    n = norm(name)
+    n = TEAM_ALIASES.get(n, n)
+    for junk in _JUNK_SUFFIXES:
+        if n.endswith(junk):
+            n = n[: -len(junk)].strip()
+    return TEAM_ALIASES.get(n, n)
+
+
 def match_team(name, teams):
-    """Resolve a team name to a ratings key: exact norm, else token Jaccard
-    >= 0.5, else None (caller rejects full coverage)."""
+    """Resolve a team name to a ratings key: exact norm, else difflib ratio
+    >= 0.82, else token Jaccard >= 0.5, else substring, else None (caller
+    rejects full coverage). Order matters: strict first, loose last."""
+    import difflib
     if not name or not teams:
         return None
-    aliases = {
-        "1 koln": "fc koln",
-        "borussia monchengladbach": "m gladbach",
-        "paris saint germain": "paris sg",
-    }
-    n = aliases.get(norm(name), norm(name))
+    n = normalize_team_name(name)
+    canon = {}
     for t in teams:
-        if aliases.get(norm(t), norm(t)) == n:
-            return t
+        canon.setdefault(normalize_team_name(t), t)
+    if n in canon:
+        return canon[n]
+    best, best_r = None, 0.0
+    for cn, t in canon.items():
+        r = difflib.SequenceMatcher(None, n, cn).ratio()
+        if r > best_r:
+            best, best_r = t, r
+    if best_r >= 0.82:
+        return best
     toks = set(n.split())
     best, best_j = None, 0.0
-    for t in teams:
-        ct = set(aliases.get(norm(t), norm(t)).split())
+    for cn, t in canon.items():
+        ct = set(cn.split())
         union = toks | ct
         j = len(toks & ct) / len(union) if union else 0.0
         if j > best_j:
             best, best_j = t, j
-    return best if best_j >= 0.5 else None
+    if best_j >= 0.5:
+        return best
+    for cn, t in canon.items():
+        if n in cn or cn in n:
+            return t
+    return None
+
+
+MISS_LOG_PATH = os.path.join(DATA_DIR, "team_match_misses.json")
+MISS_LOG_CAP = 200
+
+
+def log_match_miss(league_code, name):
+    """Append unresolved provider team names (capped) so the alias table can
+    be grown from real mismatch logs instead of guesses."""
+    if not name:
+        return
+    try:
+        try:
+            with open(MISS_LOG_PATH, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        except Exception:
+            data = []
+        key = f"{league_code}|{norm(name)}"
+        if any(d.get("key") == key for d in data):
+            return
+        data.append({"key": key, "league": league_code, "name": name,
+                     "first_seen": time.time()})
+        data = data[-MISS_LOG_CAP:]
+        tmp = MISS_LOG_PATH + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(data, f)
+        os.replace(tmp, MISS_LOG_PATH)
+    except Exception:
+        pass
 
 
 def strength_lams(home, away, league_label, season=None):
@@ -317,6 +448,10 @@ def strength_lams(home, away, league_label, season=None):
     ak = match_team(away, teams)
     # An unmatched provider team name is not full model coverage.  Falling
     # back to a neutral team here used to masquerade as an independent signal.
+    if not hk:
+        log_match_miss(code, home)
+    if not ak:
+        log_match_miss(code, away)
     if not hk or not ak:
         return None
     hatt = teams[hk]["att"]
@@ -343,6 +478,29 @@ def hybrid_lams(home, away, league_label, market_lh, market_la,
     lh = blend_lams(market_lh, s[0], 1.0 - weight)
     la = blend_lams(market_la, s[1], 1.0 - weight)
     return round(lh, 3), round(la, 3), "market+strength"
+
+
+def get_league_rho(league_label, season=None):
+    """Per-league Dixon-Coles rho from the ratings file; RHO_DEFAULT when
+    the league has no coverage (never raises, never blocks)."""
+    from model import RHO_DEFAULT
+    code = resolve_code(league_label)
+    if not code:
+        return RHO_DEFAULT
+    season = season or resolve_season(code)
+    if (code, season) in _no_coverage:
+        return RHO_DEFAULT
+    payload = load_ratings(code, season)
+    if payload is None:
+        try:
+            payload = build_ratings(code, season)
+        except Exception:
+            return RHO_DEFAULT
+    rho = (payload or {}).get("rho", None)
+    try:
+        return round(float(rho), 3)
+    except (TypeError, ValueError):
+        return RHO_DEFAULT
 
 
 def compute_rating(league="E0", season="2425"):

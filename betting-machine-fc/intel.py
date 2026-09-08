@@ -18,6 +18,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE_DIR)
 
 from model import (
+    RHO_DEFAULT,
     btts_prob,
     match_probs,
     over_prob,
@@ -70,21 +71,26 @@ def analyze_intel(o, snapshots=None):
     }
     try:
         proj = build_projection(o)
-    except Exception as e:
-        item["skip"] = True
-        item["decision"] = "UNSUPPORTED"
-        item["decide_reason"] = f"incomplete market or engine error: {e}"
-        return item
+    except Exception as exc:
+        try:
+            from prediction import build_projection_fallback
+            proj = build_projection_fallback(o, reason=exc)
+        except Exception as e2:
+            item["skip"] = True
+            item["decision"] = "UNSUPPORTED"
+            item["decide_reason"] = f"incomplete market or engine error: {e2}"
+            return item
 
     lh, la = proj["home"], proj["away"]
+    rho = proj.get("rho", RHO_DEFAULT)
     item["coverage"] = proj.get("coverage_status", "market_only")
     item["data_grade"] = proj.get("data_grade")
     item["formula_version"] = proj.get("formula_version")
     item["calibration_status"] = "unvalidated"
     total = lh + la
-    ph, pd, pa = match_probs(lh, la)
-    pbt = btts_prob(lh, la)
-    matrix, _ = score_matrix(lh, la)
+    ph, pd, pa = match_probs(lh, la, rho)
+    pbt = btts_prob(lh, la, rho)
+    matrix, _ = score_matrix(lh, la, rho)
     top_scores = sorted(
         [{"score": f"{x}-{y}", "prob": round(p, 4)} for (x, y), p in matrix.items()],
         key=lambda s: s["prob"], reverse=True,
@@ -94,8 +100,8 @@ def analyze_intel(o, snapshots=None):
         "lambdas": {"home": round(lh, 3), "away": round(la, 3), "total": round(total, 3),
                     "goal_diff": round(lh - la, 3)},
         "probs": {"home": round(ph, 4), "draw": round(pd, 4), "away": round(pa, 4),
-                  "btts": round(pbt, 4), "over25": round(over_prob(2.5, lh, la), 4),
-                  "under25": round(under_prob(2.5, lh, la), 4)},
+                   "btts": round(pbt, 4), "over25": round(over_prob(2.5, lh, la, rho), 4),
+                   "under25": round(under_prob(2.5, lh, la, rho), 4)},
         "top_scores": top_scores,
         "market_total": proj.get("market_total"),
         "market_margin": proj.get("market_margin"),
@@ -143,7 +149,9 @@ def analyze_intel(o, snapshots=None):
 
     # Recommendation: defensive line (higher win prob) with min odds + positive EV
     from main import analyze_match, select_top_picks
-    selected = select_top_picks(analyze_match(o, lh, la, projection_meta=proj), limit=1, per_match=1)
+    selected = select_top_picks(
+        analyze_match(o, lh, la, projection_meta=proj), limit=1, per_match=1,
+        include_shadow=True)
     rec = None
     if selected and float(o.get("start_ts") or 0) > time.time():
         rec = dict(selected[0], prob=selected[0]["probability"], reason="shared quality policy")
@@ -163,7 +171,7 @@ def movement_pct(open_odds, current_odds):
         return None
 
 
-def recommend_defensive(o, lh, la):
+def recommend_defensive(o, lh, la, rho=RHO_DEFAULT):
     """Pick the most defensible over/under line: prob >= MIN_DEFENSIVE_PROB,
     odds >= MIN_REC_ODDS, best EV. Falls back to AH if O/U has no edge."""
     best = None
@@ -178,17 +186,17 @@ def recommend_defensive(o, lh, la):
             continue
         candidates = []
         if over_odds and over_odds >= MIN_REC_ODDS:
-            p_over = over_prob(line, lh, la)
-            ev_over = total_ev(line, "over", over_odds, lh, la)
+            p_over = over_prob(line, lh, la, rho)
+            ev_over = total_ev(line, "over", over_odds, lh, la, rho)
             if p_over >= MIN_DEFENSIVE_PROB:
                 candidates.append(("over", over_odds, p_over, ev_over))
         if under_odds and under_odds >= MIN_REC_ODDS:
-            p_under = under_prob(line, lh, la)
-            ev_under = total_ev(line, "under", under_odds, lh, la)
+            p_under = under_prob(line, lh, la, rho)
+            ev_under = total_ev(line, "under", under_odds, lh, la, rho)
             if p_under >= MIN_DEFENSIVE_PROB:
                 candidates.append(("under", under_odds, p_under, ev_under))
         for side, odds, prob, ev in candidates:
-            fair = total_fair_odds(line, side, lh, la)
+            fair = total_fair_odds(line, side, lh, la, rho)
             score = (ev, prob)
             if best is None or score > best["_score"]:
                 best = {
@@ -255,6 +263,7 @@ INTEL_ALLOW = {
     "SE1", "SE2",  # Sweden: Allsvenskan, Superettan
     "IS1",         # Iceland: Besta deild
     "UNRATED",     # unrated senior leagues (e.g. USA MLS) — shadow only
+    "UNVALIDATED", # unvalidated tiers — watch only, strict edge + small stake
 }
 
 

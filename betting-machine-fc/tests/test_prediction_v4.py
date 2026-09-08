@@ -45,9 +45,10 @@ def test_shadow_league_is_visible_but_never_official():
     assert projection_candidate_status(projection) == "shadow"
 
 
-def test_unvalidated_lower_tier_is_blocked():
+def test_unvalidated_lower_tier_is_watch_not_blocked():
     profile = get_league_profile("Germany. Regionalliga West")
-    assert profile.route == "blocked"
+    assert profile.route == "watch"
+    assert profile.key == "UNVALIDATED"
 
 
 def test_cached_top_pick_survives_api_reselection():
@@ -64,6 +65,7 @@ def test_cached_top_pick_survives_api_reselection():
         "coverage_status": "full",
         "selection_status": "top_pick",
         "policy_version": "quality-v1", "lambda_source": "market+strength", "market_probability": .5,
+        "edge_pct": 0.07,
     }
     selected = select_top_picks([candidate])
     assert len(selected) == 1

@@ -8,10 +8,11 @@ from model import (
     lam_from_1x2,
 )
 from league_profiles import get_league_profile
-from strength_rating import hybrid_lams
+from strength_rating import get_league_rho, hybrid_lams
+from model import RHO_DEFAULT
 
 
-FORMULA_VERSION = "ou-ah-v4.1.0"
+FORMULA_VERSION = "ou-ah-v4.2.0"
 
 
 def _valid_price(value):
@@ -112,6 +113,7 @@ def build_projection(market, *, rating_season=None, strength_weight=None):
     coverage = profile.route
     data_grade = profile.data_grade
     history_weight = 0.0
+    rho = RHO_DEFAULT
 
     if profile.route == "rated":
         weight = profile.prior_weight if strength_weight is None else float(strength_weight)
@@ -121,6 +123,11 @@ def build_projection(market, *, rating_season=None, strength_weight=None):
         )
         history_weight = weight if source == "market+strength" else 0.0
         coverage = "full" if source == "market+strength" else "market_only"
+        if coverage == "full":
+            try:
+                rho = get_league_rho(market.get("league"), season=rating_season)
+            except Exception:
+                rho = RHO_DEFAULT
     elif profile.route == "shadow" and profile.baseline_total:
         # Weak environment prior for visible shadow evaluation only.  It cannot
         # create an Official Pick without team-level ratings.
@@ -129,6 +136,12 @@ def build_projection(market, *, rating_season=None, strength_weight=None):
         ratio = market_lh / max(0.1, market_lh + market_la)
         lh, la = adjusted_total * ratio, adjusted_total * (1.0 - ratio)
         source = "market+league-prior"
+        coverage = "shadow"
+    elif profile.route == "watch":
+        # Unvalidated tier: market lambdas unchanged (no prior invented),
+        # flagged shadow/watch downstream with strict edge + small stake.
+        lh, la = market_lh, market_la
+        source = "market-watch"
         coverage = "shadow"
     else:
         lh, la = market_lh, market_la
@@ -139,6 +152,7 @@ def build_projection(market, *, rating_season=None, strength_weight=None):
         "away": round(la, 3),
         "total": round(lh + la, 3),
         "formula_version": FORMULA_VERSION,
+        "rho": round(float(rho), 3),
         "lambda_source": source,
         "coverage_status": coverage,
         "data_grade": data_grade,
@@ -186,7 +200,8 @@ def build_projection_fallback(market, *, reason=None):
     home, away = (total + margin) / 2, (total - margin) / 2
     return {
         "home": round(home, 3), "away": round(away, 3), "total": round(total, 3),
-        "formula_version": FORMULA_VERSION, "lambda_source": "market-fallback",
+        "formula_version": FORMULA_VERSION, "rho": RHO_DEFAULT,
+        "lambda_source": "market-fallback",
         "coverage_status": "shadow", "data_grade": "C", "history_weight": 0.0,
         "league_model": profile.key, "coverage_reason": "paired O/U + AH fallback; no independent ratings",
         "fallback_reason": str(reason or "primary projection unavailable"),

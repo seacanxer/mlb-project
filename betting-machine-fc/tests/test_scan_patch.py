@@ -21,6 +21,7 @@ def candidate(**overrides):
         "ev": 0.08, "conservative_ev": 0.04, "coverage_status": "shadow",
         "selection_status": "shadow", "has_both_markets": True,
         "policy_version": "quality-v1", "lambda_source": "market+strength", "market_probability": .5,
+        "edge_pct": 0.05,
     }
     result.update(overrides)
     return result
@@ -62,7 +63,7 @@ def test_shadow_reduced_gate_never_takes_official_top_slot():
     assert not selected[0]["locked"]
 
 
-@pytest.mark.parametrize("changes", [{"has_both_markets": False}, {"odds": 2.6}, {"conservative_ev": -0.01}])
+@pytest.mark.parametrize("changes", [{"has_both_markets": False}, {"odds": 2.9}, {"conservative_ev": -0.01}])
 def test_shadow_noise_gates(changes):
     assert select_top_picks([candidate(**changes)], max_odds=2.75) == []
 

@@ -1,7 +1,7 @@
 """Shared payout semantics and quality policy for every football menu."""
 import math
 
-from model import score_matrix, _sub_lines
+from model import RHO_DEFAULT, score_matrix, _sub_lines
 
 POLICY_VERSION = "quality-v1"
 
@@ -28,8 +28,8 @@ def outcome_distribution(matrix, market, side, line):
     return result
 
 
-def payout_metrics(market, side, line, odds, lh, la):
-    matrix, _ = score_matrix(lh, la)
+def payout_metrics(market, side, line, odds, lh, la, rho=RHO_DEFAULT):
+    matrix, _ = score_matrix(lh, la, rho)
     result = outcome_distribution(matrix, market, side, line)
     result["ev"] = result["win_fraction"] * (odds - 1) - result["loss_fraction"]
     result["fair_odds"] = 1 + result["loss_fraction"] / result["win_fraction"] if result["win_fraction"] > 1e-12 else None

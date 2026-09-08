@@ -72,7 +72,10 @@ def get_league_profile(label):
     if normalized in _EXACT:
         return _EXACT[normalized]
     if any(marker in normalized for marker in _AMBIGUOUS_OR_UNVALIDATED):
-        return LeagueProfile("UNVALIDATED", None, 0.0, "D", "blocked", "tier/group data is not validated")
+        # Middle ground (not full exclude): visible as watch coverage with no
+        # baseline prior, strict min_edge + small stakes enforced downstream.
+        return LeagueProfile("UNVALIDATED", None, 0.05, "D", "watch",
+                             "unvalidated tier — watch only, strict edge + small stake")
 
     code = resolve_code(label)
     if code:

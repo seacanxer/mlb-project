@@ -70,25 +70,25 @@ def _pmf_array(lam, max_goals=MAX_GOALS):
     return [pois_pmf(k, lam) for k in range(max_goals + 1)]
 
 
-def over_prob(line, lh, la, max_goals=MAX_GOALS):
+def over_prob(line, lh, la, rho=RHO_DEFAULT, max_goals=MAX_GOALS):
     """Strict probability the total exceeds the line (win side, no push).
     Integer lines exclude the push outcome from the win probability.
     """
-    matrix, _ = score_matrix(lh, la, max_goals=max_goals)
+    matrix, _ = score_matrix(lh, la, rho, max_goals)
     return sum(p for (home, away), p in matrix.items() if home + away > line)
 
 
-def under_prob(line, lh, la, max_goals=MAX_GOALS):
+def under_prob(line, lh, la, rho=RHO_DEFAULT, max_goals=MAX_GOALS):
     """Strict probability the total is below the line (win side, no push)."""
-    matrix, _ = score_matrix(lh, la, max_goals=max_goals)
+    matrix, _ = score_matrix(lh, la, rho, max_goals)
     return sum(p for (home, away), p in matrix.items() if home + away < line)
 
 
-def total_ev(line, side, odds, lh, la, max_goals=MAX_GOALS):
+def total_ev(line, side, odds, lh, la, rho=RHO_DEFAULT, max_goals=MAX_GOALS):
     """Expected value of a total market bet, correctly handling integer
     pushes and quarter-line half-stakes.
     """
-    matrix, _ = score_matrix(lh, la, max_goals=max_goals)
+    matrix, _ = score_matrix(lh, la, rho, max_goals)
     if abs(line % 0.5) < 1e-9:
         legs = [(line, 1.0)]
     else:
@@ -110,10 +110,10 @@ def total_ev(line, side, odds, lh, la, max_goals=MAX_GOALS):
     return exp_ret - 1.0
 
 
-def total_fair_odds(line, side, lh, la, max_goals=MAX_GOALS):
+def total_fair_odds(line, side, lh, la, rho=RHO_DEFAULT, max_goals=MAX_GOALS):
     """Settlement-aware fair decimal odds, including pushes/half outcomes."""
-    base = total_ev(line, side, 0.0, lh, la, max_goals=max_goals) + 1.0
-    unit = total_ev(line, side, 1.0, lh, la, max_goals=max_goals) + 1.0
+    base = total_ev(line, side, 0.0, lh, la, rho, max_goals) + 1.0
+    unit = total_ev(line, side, 1.0, lh, la, rho, max_goals) + 1.0
     win_component = unit - base
     return (1.0 - base) / win_component if win_component > 1e-12 else float("inf")
 

@@ -166,7 +166,7 @@ def test_official_selector_requires_v4_coverage_and_ou_ah_market():
         {"match": "C vs D", "start_ts": 2, "market": "1x2", "pick": "Away", "probability": 0.55, "odds": 2.0, "ev": 0.10, "conservative_ev": 0.08, "coverage_status": "full", "selection_status": "official"},
         {"match": "E vs F", "start_ts": 3, "market": "ah", "pick": "Home -0.25", "probability": 0.54, "odds": 1.90, "ev": 0.10, "conservative_ev": 0.08, "coverage_status": "full", "selection_status": "official", "league": "League A"},
     ]
-    candidates = [dict(p, policy_version="quality-v1", lambda_source="market+strength", market_probability=.5) for p in candidates]
+    candidates = [dict(p, policy_version="quality-v1", lambda_source="market+strength", market_probability=.5, edge_pct=.06) for p in candidates]
     picks = select_top_picks(candidates, min_ev=0.0)
     assert [p["pick"] for p in picks] == ["Home -0.25"]
     assert picks[0]["is_top_pick"] is True

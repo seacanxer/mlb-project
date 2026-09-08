@@ -151,23 +151,81 @@ def test_production_selector_rejects_non_ou_ah_markets():
 
 
 def test_shadow_candidates_need_strict_gates_and_stay_shadow():
-    # weak shadow (low cons EV / low prob) is rejected
+    # weak shadow (below breakeven+margin) is rejected
     weak = _cand("ou", 0.55, 1.9, 0.05, 0.03)
     weak.update({"coverage_status": "shadow", "selection_status": "shadow",
                  "conservative_ev": 0.01})
-    assert select_top_picks([weak], min_odds=1.6) == []
+    assert select_top_picks([weak], min_odds=1.5) == []
     # strong shadow passes but is never relabeled official
     strong = _cand("ou", 0.62, 1.9, 0.12, 0.06)
     strong.update({"coverage_status": "shadow", "selection_status": "shadow",
                    "conservative_ev": 0.08, "has_both_markets": True})
-    assert select_top_picks([strong], min_odds=1.6) == []
-    picks = select_top_picks([strong], min_odds=1.6, include_shadow=True)
+    assert select_top_picks([strong], min_odds=1.5) == []
+    picks = select_top_picks([strong], min_odds=1.5, include_shadow=True)
     assert len(picks) == 1
     assert picks[0]["selection_status"] in {"shadow", "top_pick:shadow"}
     assert picks[0]["coverage_status"] == "shadow"
     # suffixed status round-trips through reselection (e.g. /api/picks)
-    again = select_top_picks(picks, min_odds=1.6, include_shadow=True)
+    again = select_top_picks(picks, min_odds=1.5, include_shadow=True)
     assert len(again) == 1
+
+
+def test_shadow_gate_is_breakeven_relative_not_static():
+    # prob 0.60 @1.50 looks fine under a static 0.50 floor but is below
+    # breakeven (0.667) + margin — must be rejected.
+    fav = _cand("ou", 0.60, 1.50, 0.05, 0.03)
+    fav.update({"coverage_status": "shadow", "selection_status": "shadow",
+                "conservative_ev": 0.02, "has_both_markets": True})
+    assert select_top_picks([fav], min_odds=1.5, include_shadow=True) == []
+    # genuine low-odds value passes: prob 0.72 @1.50 > 0.667 + 0.03
+    val = _cand("ou", 0.72, 1.50, 0.10, 0.05)
+    val.update({"coverage_status": "shadow", "selection_status": "shadow",
+                "conservative_ev": 0.06, "has_both_markets": True})
+    assert len(select_top_picks([val], min_odds=1.5, include_shadow=True)) == 1
+
+
+def test_watch_league_needs_higher_edge():
+    base = {"coverage_status": "shadow", "selection_status": "shadow",
+            "has_both_markets": True, "league_model": "UNVALIDATED"}
+    low = _cand("ou", 0.62, 1.9, 0.10, 0.03)
+    low.update(base, conservative_ev=0.06)
+    assert select_top_picks([low], min_odds=1.5, include_shadow=True) == []
+    high = _cand("ou", 0.62, 1.9, 0.12, 0.06)
+    high.update(base, conservative_ev=0.08)
+    assert len(select_top_picks([high], min_odds=1.5, include_shadow=True)) == 1
+
+
+def test_completeness_scales_penalty_and_kelly_caps_stake():
+    from main import completeness_score, pick_entry
+    o = {"home": "A", "away": "B",
+         "odds_1x2": {1: 2.0, 2: 3.4, 3: 3.6},
+         "odds_ou": {2.5: {9: 1.9, 10: 1.9}},
+         "odds_ah": {"home": [(0.0, 1.9)], "away": [(0.0, 1.9)]}}
+    full = completeness_score(o, {"lambda_source": "market+strength"})
+    thin = completeness_score({"odds_ou": {2.5: {9: 1.9, 10: 1.9}}}, {"lambda_source": "x"})
+    assert full == 1.0 and thin == 0.25
+    entry = pick_entry(o, "ou", "Over 2.5", 0.60, 1.90, 0.14, 0.52,
+                       projection_meta={"coverage_status": "full",
+                                        "lambda_source": "market+strength"})
+    assert entry["uncertainty_penalty"] == 0.01  # 0.02 * (1 - 0.5*1.0)
+    assert entry["completeness_score"] == 1.0
+    assert 0 < entry["suggested_stake"] <= entry["stake_cap"] == 0.03
+    watch = pick_entry(o, "ou", "Over 2.5", 0.60, 1.90, 0.14, 0.52,
+                       projection_meta={"coverage_status": "shadow",
+                                        "lambda_source": "market-watch",
+                                        "league_model": "UNVALIDATED",
+                                        "data_grade": "D"})
+    assert watch["stake_cap"] == 0.015
+    assert watch["suggested_stake"] <= 0.015
+
+
+def test_fit_rho_returns_sane_value():
+    from strength_rating import fit_rho
+    rows = [{"date": f"{(i % 28) + 1:02d}/01/2025", "home": "H", "away": "A",
+             "fthg": 1 + (i % 3), "ftag": i % 2} for i in range(60)]
+    teams = {"H": {"att": 1.2, "def": 0.9}, "A": {"att": 0.9, "def": 1.1}}
+    rho, n = fit_rho(rows, teams, 1.4, 1.2)
+    assert -0.30 <= rho <= 0.10 and n == 60
 
 
 def test_unrated_senior_league_is_shadow_not_blocked():
