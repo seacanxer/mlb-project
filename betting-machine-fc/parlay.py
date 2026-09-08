@@ -7,12 +7,14 @@ by the API, may only select from these validated candidates.
 import hashlib
 import json
 import math
+import time
+from market_quality import recommendation_block
 from typing import Any, Dict, Iterable, List, Optional
 
 
 DEFAULT_PARLAY_CONFIG = {
     "safe": {
-        "label": "Tier 1 Safe",
+        "label": "Tier 1 Lower variance",
         "min_legs": 3,
         "max_legs": 4,
         "min_probability": 0.58,
@@ -30,7 +32,7 @@ DEFAULT_PARLAY_CONFIG = {
         "max_legs_per_league": 2,
     },
     "aggressive": {
-        "label": "Tier 3 Confidence Aggressive",
+        "label": "Tier 3 Higher variance",
         "min_legs": 5,
         "max_legs": 8,
         "min_probability": 0.52,
@@ -71,12 +73,14 @@ def qualified_candidates(picks: Iterable[Dict[str, Any]]) -> List[Dict[str, Any]
             continue
         if source.get("market") not in {"ou", "ah"}:
             continue
+        if recommendation_block(source) is not None or _number(source.get("start_ts")) <= time.time():
+            continue
         odds = _number(source.get("odds"))
         probability = _number(source.get("probability"))
         conservative_ev = _number(source.get("conservative_ev"), _number(source.get("ev")) - 0.02)
         # Keep marginal positive-edge official picks available for the controlled
         # fill pass. Tier thresholds below remain the primary selection gate.
-        if odds <= 1 or not 0 < probability < 1 or conservative_ev < 0:
+        if odds <= 1 or not 0 < probability < 1 or conservative_ev < 0.02:
             continue
         item = dict(source)
         item["id"] = candidate_id(item)
@@ -134,6 +138,7 @@ def _summarize_slip(
         "combined_odds": round(combined_odds, 3) if legs else None,
         "market_implied_probability": round(1.0 / combined_odds, 4) if combined_odds > 1 else None,
         "model_joint_probability": round(model_probability, 4) if legs else None,
+        "probability_semantics": "All legs return positive profit, assuming independence; not the probability of a profitable slip including pushes.",
         "rationale": rationale or (
             (f"Framework-ranked independent fixtures; {fallback_count} controlled-fill leg(s) use a smaller but still non-negative conservative edge."
              if fallback_count else "Framework-ranked independent fixtures using full-coverage official picks.")
@@ -178,26 +183,7 @@ def build_parlay_slips(
             league_counts[league] = league_counts.get(league, 0) + 1
             if len(legs) >= int(spec.get("max_legs", spec.get("min_legs", 1))):
                 break
-        # Fill only to the minimum with full-coverage, official, non-negative
-        # conservative-EV candidates. Absolute tier odds and league caps stay in force.
-        if len(legs) < int(spec["min_legs"]):
-            fallback_pool = [candidate for candidate in candidates if (
-                _number(candidate.get("odds")) <= _number(spec["max_leg_odds"])
-                and _number(candidate.get("probability")) >= 0.50
-                and _match_key(candidate) not in used_matches
-            )]
-            for source_candidate in _rank(fallback_pool, tier):
-                match_key = _match_key(source_candidate)
-                league = str(source_candidate.get("league") or "Unknown")
-                if match_key in used_matches or league_counts.get(league, 0) >= int(spec["max_legs_per_league"]):
-                    continue
-                candidate = dict(source_candidate)
-                candidate["tier_fallback"] = True
-                legs.append(candidate)
-                used_matches.add(match_key)
-                league_counts[league] = league_counts.get(league, 0) + 1
-                if len(legs) >= int(spec["min_legs"]):
-                    break
+        # Insufficient candidates remain insufficient: never relax tier gates.
         slips.append(_summarize_slip(tier, spec, legs))
 
     fingerprint_payload = [{key: candidate.get(key) for key in ("id", "odds", "probability", "rank_score")} for candidate in candidates]

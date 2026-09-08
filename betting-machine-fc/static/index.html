@@ -133,6 +133,7 @@
         </div>
       </div>
 
+      <p class="text-muted">Quality v1: rated fixtures only, maximum one pick per match, no shadow fill. Model probabilities and positive EV are unvalidated estimates, not evidence of profitable ROI.</p>
       <!-- Picks Cards Grid -->
       <div id="picks-container" class="picks-grid">
         <!-- Rendered dynamically -->
@@ -733,18 +734,18 @@ sudo systemctl start fc-betting</code>
             <div class="param-group">
               <label for="pred-beta">Squad Weight (β)</label>
               <div class="param-slider-row">
-                <input type="range" id="pred-beta" min="0" max="0.4" step="0.01" value="0">
+                <input type="range" id="pred-beta" min="0" max="0.4" step="0.01" value="0" disabled title="Verified squad-value data required">
                 <span id="pred-beta-val" class="param-val">0.00</span>
               </div>
-              <div class="param-hint">0 = pure market/history · 0.4 = max squad influence</div>
+              <div class="param-hint">Unavailable: no verified squad-value inputs. No synthetic adjustment applied.</div>
             </div>
             <div class="param-group">
               <label for="pred-home-adv">Home Advantage</label>
               <div class="param-slider-row">
-                <input type="range" id="pred-home-adv" min="0.90" max="1.30" step="0.01" value="1.08">
-                <span id="pred-home-adv-val" class="param-val">1.08</span>
+                <input type="range" id="pred-home-adv" min="0.90" max="1.30" step="0.01" value="1.08" disabled title="Uses model baseline">
+                <span id="pred-home-adv-val" class="param-val">Model</span>
               </div>
-              <div class="param-hint">Default calibrated ~1.08 for most leagues</div>
+              <div class="param-hint">Included in the shared projection; no additional multiplier applied.</div>
             </div>
             <div class="param-group">
               <label for="pred-adj-home">Home Adjustment</label>
@@ -829,7 +830,7 @@ sudo systemctl start fc-betting</code>
             <div class="pred-metrics-grid">
               <div class="pred-metric-card card">
                 <div class="pred-metric-icon">⚡</div>
-                <div class="pred-metric-label">xG Diff</div>
+                <div class="pred-metric-label">Projected goal difference</div>
                 <div class="pred-metric-value" id="pred-xg-diff">—</div>
                 <div class="pred-metric-sub" id="pred-favorite">—</div>
               </div>
@@ -850,6 +851,7 @@ sudo systemctl start fc-betting</code>
             <!-- Market Recommendations -->
             <div class="pred-section card">
               <h4 class="pred-card-title">📊 Market Recommendations</h4>
+              <p class="text-muted">Picks require an offered price passing quality gates. Asian percentages show winning/refunded stake fractions, not full-win probabilities.</p>
               <div class="pred-markets-grid">
                 <!-- 1X2 -->
                 <div class="pred-market-card">
@@ -882,9 +884,9 @@ sudo systemctl start fc-betting</code>
                   </div>
                   <div class="pred-market-pick" id="pred-rec-ah">—</div>
                   <div class="pred-ah-detail">
-                    <span class="detail-label">Home Win:</span> <span id="pred-ah-home-win">—</span>
-                    <span class="detail-label">Push:</span> <span id="pred-ah-push">—</span>
-                    <span class="detail-label">Away Win:</span> <span id="pred-ah-away-win">—</span>
+                    <span class="detail-label">Home winning stake:</span> <span id="pred-ah-home-win">—</span>
+                    <span class="detail-label">Refunded stake:</span> <span id="pred-ah-push">—</span>
+                    <span class="detail-label">Away winning stake:</span> <span id="pred-ah-away-win">—</span>
                   </div>
                 </div>
                 <!-- Over/Under -->
@@ -905,6 +907,7 @@ sudo systemctl start fc-betting</code>
                   <div class="pred-ou-detail">
                     <span class="detail-label">Over:</span> <span id="pred-ou-over">—</span>
                     <span class="detail-label">Under:</span> <span id="pred-ou-under">—</span>
+                    <span class="detail-label">Refunded stake:</span> <span id="pred-ou-push">—</span>
                   </div>
                 </div>
                 <!-- BTTS -->
@@ -953,6 +956,7 @@ sudo systemctl start fc-betting</code>
         <div>
           <h3 id="modal-match-title">Match Analysis</h3>
           <span id="modal-league-badge" class="badge badge-league">League</span>
+          <p id="modal-quality-note" class="text-muted"></p>
         </div>
         <button id="btn-close-modal" class="modal-close-btn">&times;</button>
       </div>

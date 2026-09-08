@@ -11,7 +11,7 @@
     "max_odds": 2.75,
     "top_pick_limit": 50,
     "top_picks_per_market": 25,
-    "top_picks_per_match": 2,
+    "top_picks_per_match": 1,
     "top_signal_limit": 5
   },
   "markets": [
@@ -19,7 +19,7 @@
     "ou"
   ],
   "formula": {
-    "version": "ou-ah-v4.0.0",
+    "version": "ou-ah-v4.1.0",
     "strength_weight_override": null
   },
   "output": "picks.json",

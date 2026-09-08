@@ -77,25 +77,10 @@ def analyze_intel(o, snapshots=None):
         return item
 
     lh, la = proj["home"], proj["away"]
-    cov_status = proj.get("coverage_status", "market_only")
-    if cov_status in ("shadow", "market_only"):
-        try:
-            elh, ela, esrc = elo_rating.elo_hybrid(
-                o.get("home"), o.get("away"), league, lh, la
-            )
-            if esrc == "market+elo":
-                lh, la = elh, ela
-                proj["coverage_status"] = "full"
-                proj["lambda_source"] = "market+elo"
-                proj["data_grade"] = "B"
-                proj["coverage_reason"] = "internal Elo team ratings"
-                proj["league_model"] = "ELO"
-                item["coverage"] = "full"
-                item["data_grade"] = "B"
-                item["league_model"] = "ELO"
-                item["coverage_reason"] = proj["coverage_reason"]
-        except Exception:
-            pass
+    item["coverage"] = proj.get("coverage_status", "market_only")
+    item["data_grade"] = proj.get("data_grade")
+    item["formula_version"] = proj.get("formula_version")
+    item["calibration_status"] = "unvalidated"
     total = lh + la
     ph, pd, pa = match_probs(lh, la)
     pbt = btts_prob(lh, la)
@@ -157,7 +142,11 @@ def analyze_intel(o, snapshots=None):
     item["main_ah"] = ah_movement
 
     # Recommendation: defensive line (higher win prob) with min odds + positive EV
-    rec = recommend_defensive(o, lh, la)
+    from main import analyze_match, select_top_picks
+    selected = select_top_picks(analyze_match(o, lh, la, projection_meta=proj), limit=1, per_match=1)
+    rec = None
+    if selected and float(o.get("start_ts") or 0) > time.time():
+        rec = dict(selected[0], prob=selected[0]["probability"], reason="shared quality policy")
     item["recommendation"] = rec
     proj_coverage = proj.get("coverage_status", "market_only")
     item["decision"], item["decide_reason"] = decide(rec, proj_coverage, o)
@@ -165,7 +154,7 @@ def analyze_intel(o, snapshots=None):
 
 
 def movement_pct(open_odds, current_odds):
-    """Positive = odds lengthen (price moved against); negative = odds shorten."""
+    """Implied probability change in percentage points; positive = odds shorten."""
     if not open_odds or not current_odds:
         return None
     try:

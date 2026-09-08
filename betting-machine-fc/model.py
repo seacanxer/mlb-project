@@ -45,6 +45,10 @@ def _cached_score_matrix(lh_r, la_r, rho, max_goals):
 
 
 def score_matrix(lh, la, rho=RHO_DEFAULT, max_goals=MAX_GOALS):
+    if not all(math.isfinite(x) for x in (lh, la, rho)) or lh <= 0 or la <= 0:
+        raise ValueError("scoring rates must be finite and positive")
+    if not (-1 / max(lh, la) <= rho <= min(1.0, 1 / (lh * la))):
+        raise ValueError("rho would create negative Dixon-Coles probabilities")
     # round to 3 decimals for cache key — lam_from_1x2 steps 0.10 anyway
     return _cached_score_matrix(round(lh, 3), round(la, 3), round(rho, 3), int(max_goals))
 

@@ -23,6 +23,7 @@ from model import (
 from fatigue import apply_rest_adjustment, record_fixtures
 from prediction import build_projection, build_projection_fallback, projection_candidate_status, select_main_ou, select_main_ah
 from strength_rating import parse_fd_date
+from market_quality import POLICY_VERSION, payout_metrics, recommendation_block
 
 
 def run_pipeline(cfg=None):
@@ -60,8 +61,8 @@ def run_pipeline(cfg=None):
                     projection = build_projection_fallback(o, reason=exc)
                 lh, la = projection["home"], projection["away"]
                 try:
-                    lh, la, _f = apply_rest_adjustment(
-                        o.get("home"), o.get("away"), o.get("start_ts"), lh, la, _ledger)
+                    # Fixture ledger is observational. Unvalidated fatigue
+                    # multipliers must not change just one menu's projection.
                     record_fixtures(_ledger, [(o.get("home"), o.get("away"), o.get("start_ts"))])
                 except Exception:
                     pass
@@ -253,12 +254,32 @@ def analyze_match(o, lh, la, min_odds=1.66, min_ev=0.0, max_ah_line=2.5,
             )
             item["experimental"] = True
             out.append(item)
+    # Retain raw candidates for diagnostics, using actual Asian outcome
+    # probabilities rather than reciprocal fair price as a win probability.
+    for item in out:
+        if item["market"] not in {"ou", "ah"}:
+            continue
+        side, raw_line = item["pick"].split()[:2]
+        line = float(raw_line)
+        metrics = payout_metrics(item["market"], side.lower(), line, item["odds"], lh, la)
+        item["payout_probabilities"] = {k: round(v, 6) for k, v in metrics.items() if k not in {"ev", "fair_odds"}}
+        item["equivalent_probability"] = item["probability"]
+        item["probability"] = round(metrics["profit_probability"], 4)
+        # Engineering sensitivity check, NOT a statistical confidence interval.
+        stress = [payout_metrics(item["market"], side.lower(), line, item["odds"], lh * h, la * a)["ev"]
+                  for h, a in ((.9, .9), (1.1, 1.1), (.9, 1.1), (1.1, .9))]
+        item["stress_ev"] = round(min(stress), 4)
+        item["conservative_ev"] = round(min(item["conservative_ev"], min(stress)), 4)
+        item["policy_version"] = POLICY_VERSION
+        item["lambdas"] = {"home": lh, "away": la}
+        item["calibration_status"] = "unvalidated"
+        item["quality_reason"] = recommendation_block(item)
     return out
 
 
 def select_top_picks(candidates, limit=50, per_market=25, per_match=2,
                      min_ev=0.0, min_edge=0.0, min_odds=1.64, max_odds=None,
-                     top_signal_limit=5):
+                     top_signal_limit=5, include_shadow=False):
     """Publish full-coverage O/U and AH picks, then mark a diversified Top set.
 
     Conservative EV absorbs model uncertainty. Fixture and market caps prevent
@@ -281,8 +302,8 @@ def select_top_picks(candidates, limit=50, per_market=25, per_match=2,
             continue
         status = pick.get("selection_status")
         coverage = pick.get("coverage_status")
-        is_shadow = coverage == "shadow" and status in {"shadow", "top_pick:shadow"}
-        is_official = coverage == "full" and status in {"official", "top_pick"}
+        is_shadow = include_shadow and coverage == "shadow" and status in {"shadow", "top_pick:shadow"}
+        is_official = coverage == "full" and status in {"official", "top_pick"} and recommendation_block(pick) is None
         if not (is_official or is_shadow):
             continue
         eff_odds_cap = max_odds if max_odds is not None else odds_ceiling[market]
@@ -310,7 +331,7 @@ def select_top_picks(candidates, limit=50, per_market=25, per_match=2,
     for pick in eligible:
         match_key = (pick.get("match"), pick.get("start_ts"))
         market = pick["market"]
-        if match_counts.get(match_key, 0) >= per_match:
+        if match_counts.get(match_key, 0) >= min(per_match, 1):
             continue
         if market in match_markets.get(match_key, set()):
             continue
@@ -406,8 +427,7 @@ def backtest_one(r, min_odds=1.64, min_ev=0.0, ledger=None,
         try:
             d = parse_fd_date(r.get("date"))
             ts = d.toordinal() * 86400 + 43200 if d else 0  # noon UTC
-            lh, la, _f = apply_rest_adjustment(
-                r.get("home"), r.get("away"), ts, lh, la, ledger)
+            # Match the live projection: record schedule, no ad-hoc multiplier.
             record_fixtures(ledger, [(r.get("home"), r.get("away"), ts)])
         except Exception:
             pass

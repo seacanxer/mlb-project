@@ -33,6 +33,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 RATINGS_TTL_S = 7 * 24 * 3600
 MIN_MATCHES_FOR_SEASON = 50
+RATING_VERSION = "poisson-intercept-v2"
 
 # 1xbit league label (normalised) -> football-data league code.
 LEAGUE_MAP = {
@@ -175,13 +176,25 @@ def mle_rating(rows, time_decay_per_day=0.003, iterations=100, tol=1e-6):
             g = math.exp(sum(math.log(max(1e-9, teams[t][key])) for t in teams) / len(teams))
             for t in teams:
                 teams[t][key] /= g
+        # Normalisation changes fitted intensity. Re-estimate the intercepts
+        # so expected home/away goal sums match weighted observed goals.
+        away_exposure = sum(w * teams[a]["att"] * teams[h]["def"] for w, h, a, _, _ in wrows)
+        home_exposure = sum(w * teams[h]["att"] * teams[a]["def"] for w, h, a, _, _ in wrows)
+        league_avg = max(1e-6, sum_a / max(away_exposure, 1e-9))
+        home_adv = max(1e-6, sum_h / max(league_avg * home_exposure, 1e-9))
         if max_change < tol:
             break
     # clamp only the final output (monotonic — preserves ordering)
     for t in teams:
         teams[t]["att"] = round(min(1.8, max(0.6, teams[t]["att"])), 4)
         teams[t]["def"] = round(min(1.8, max(0.6, teams[t]["def"])), 4)
-    return teams, round(league_avg, 4), round(home_adv, 4)
+    away_exposure = sum(w * teams[a]["att"] * teams[h]["def"] for w, h, a, _, _ in wrows)
+    home_exposure = sum(w * teams[h]["att"] * teams[a]["def"] for w, h, a, _, _ in wrows)
+    league_avg = max(1e-6, sum_a / max(away_exposure, 1e-9))
+    home_adv = max(1e-6, sum_h / max(league_avg * home_exposure, 1e-9))
+    # Keep intercept precision: rounding a small positive intercept to zero
+    # destroys its product with home_adv for low-scoring training samples.
+    return teams, league_avg, home_adv
 
 
 def _ratings_path(league_code, season):
@@ -195,7 +208,7 @@ def build_ratings(league_code, season, force=False):
         try:
             with open(path, "r", encoding="utf-8") as f:
                 payload = json.load(f)
-            if time.time() - payload.get("built_at", 0) < RATINGS_TTL_S:
+            if payload.get("rating_version") == RATING_VERSION and time.time() - payload.get("built_at", 0) < RATINGS_TTL_S:
                 _mem_cache[(league_code, season)] = payload
                 return payload
         except Exception:
@@ -205,6 +218,7 @@ def build_ratings(league_code, season, force=False):
     rows = [r for r in rows if r.get("fthg") is not None]
     teams, league_avg, home_adv = mle_rating(rows)
     payload = {
+        "rating_version": RATING_VERSION,
         "league": league_code, "season": season,
         "league_avg": league_avg, "home_adv": home_adv,
         "teams": teams, "n_matches": len(rows),
@@ -221,13 +235,17 @@ def build_ratings(league_code, season, force=False):
 def load_ratings(league_code, season):
     key = (league_code, season)
     if key in _mem_cache:
-        return _mem_cache[key]
+        payload = _mem_cache[key]
+        if payload.get("rating_version") == RATING_VERSION:
+            return payload
     path = _ratings_path(league_code, season)
     if not os.path.exists(path):
         return None
     try:
         with open(path, "r", encoding="utf-8") as f:
             payload = json.load(f)
+        if payload.get("rating_version") != RATING_VERSION:
+            return None
         _mem_cache[key] = payload
         return payload
     except Exception:

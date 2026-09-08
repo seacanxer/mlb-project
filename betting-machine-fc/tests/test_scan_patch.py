@@ -20,6 +20,7 @@ def candidate(**overrides):
         "market": "ou", "pick": "Over 2.5", "odds": 2.0, "probability": 0.55,
         "ev": 0.08, "conservative_ev": 0.04, "coverage_status": "shadow",
         "selection_status": "shadow", "has_both_markets": True,
+        "policy_version": "quality-v1", "lambda_source": "market+strength", "market_probability": .5,
     }
     result.update(overrides)
     return result
@@ -53,7 +54,7 @@ def test_fallback_never_bypasses_blocked_competition(league):
 def test_shadow_reduced_gate_never_takes_official_top_slot():
     shadow = candidate(conservative_ev=0.08)
     official = candidate(match="C vs D", coverage_status="full", selection_status="official")
-    selected = select_top_picks([shadow, official], top_signal_limit=1)
+    selected = select_top_picks([shadow, official], top_signal_limit=1, include_shadow=True)
     assert len(selected) == 2
     assert selected[0]["selection_status"] == "shadow"
     assert not selected[0]["is_top_pick"]
@@ -76,7 +77,7 @@ def test_official_wider_price_cap_and_idempotent_reselection():
 def test_api_does_not_resurrect_rejected_or_started_candidates(monkeypatch):
     import server
     from fastapi.testclient import TestClient
-    saved = candidate(locked=True)
+    saved = candidate(locked=True, coverage_status="full", selection_status="official")
     expired = candidate(match="Old", start_ts=time.time() - 60)
     rejected = candidate(conservative_ev=-0.1)
     monkeypatch.setattr(server, "load_config", lambda: {"filters": {"top_pick_limit": 50}})
@@ -84,7 +85,7 @@ def test_api_does_not_resurrect_rejected_or_started_candidates(monkeypatch):
     monkeypatch.setattr(server, "load_detailed_matches", lambda: [{"picks": [rejected]}])
     result = TestClient(server.app).get("/api/picks").json()
     assert len(result["picks"]) == 1
-    assert result["summary"]["top_pick_count"] == 0
+    assert result["summary"]["top_pick_count"] == 1
     assert result["picks"][0]["locked"] is True
 
 

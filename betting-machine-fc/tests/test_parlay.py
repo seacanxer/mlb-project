@@ -1,13 +1,15 @@
 from parlay import apply_ai_selection, build_parlay_slips
+import time
 
 
 def pick(i, probability=0.60, odds=1.85, cev=0.05, market="ou"):
     return {
-        "match_id": str(i), "match": f"Home {i} vs Away {i}", "start_ts": 1000 + i,
+        "match_id": str(i), "match": f"Home {i} vs Away {i}", "start_ts": time.time() + 3600 + i,
         "league": f"League {i}", "market": market, "pick": "Over 2.5",
         "probability": probability, "odds": odds, "ev": cev + 0.02,
         "conservative_ev": cev, "rank_score": 90 - i,
         "coverage_status": "full", "selection_status": "top_pick" if i < 2 else "official",
+        "policy_version": "quality-v1", "lambda_source": "market+strength", "market_probability": .5,
     }
 
 
@@ -54,9 +56,8 @@ def test_invalid_ai_legs_fall_back_to_framework():
     assert "failed validation" in result["slips"][0]["rationale"]
 
 
-def test_controlled_fill_uses_only_non_negative_edge_official_candidates():
+def test_no_controlled_fill_below_tier_gates():
     candidates = [pick(i, probability=0.56, cev=0.005) for i in range(12)]
     result = build_parlay_slips(candidates)
-    assert all(slip["status"] == "ready_with_fallback" for slip in result["slips"])
-    assert all(leg["conservative_ev"] >= 0 for slip in result["slips"] for leg in slip["legs"])
-    assert sum(slip["fallback_count"] for slip in result["slips"]) == 12
+    assert all(slip["status"] == "insufficient_candidates" for slip in result["slips"])
+    assert all(not slip["legs"] for slip in result["slips"])

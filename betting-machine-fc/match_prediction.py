@@ -7,7 +7,7 @@
 #   - BTTS Yes/No probability
 #   - Asian Handicap probabilities (integer, half, quarter lines)
 #   - Over/Under probabilities
-#   - Recommended picks (argmax per market)
+#   - Priced recommendations from the shared quality policy
 #
 # All markets are derived from ONE score matrix to ensure mathematical
 # consistency (PRD §4.4).
@@ -33,32 +33,18 @@ from model import (
 )
 
 
-MAX_GOALS = 8  # 0..8 → 9×9 matrix
+from model import MAX_GOALS
+from market_quality import outcome_distribution
 
 
 def build_full_matrix(lh, la, rho=RHO_DEFAULT):
-    """Build a 9×9 score matrix as a 2D list (serializable to JSON).
+    """Build the shared engine's score matrix as a JSON-serializable 2D list.
 
-    Returns (matrix_2d, total_mass) where matrix_2d[i][j] = P(home=i, away=j).
+    Returns matrix_2d where matrix_2d[i][j] = P(home=i, away=j).
     The matrix is normalised so probabilities sum to 1.0.
     """
-    raw = {}
-    total = 0.0
-    for i in range(MAX_GOALS + 1):
-        for j in range(MAX_GOALS + 1):
-            p = pois_pmf(i, lh) * pois_pmf(j, la) * dixon_coles_tau(i, j, lh, la, rho)
-            raw[(i, j)] = p
-            total += p
-    if total <= 0:
-        total = 1.0
-
-    matrix = []
-    for i in range(MAX_GOALS + 1):
-        row = []
-        for j in range(MAX_GOALS + 1):
-            row.append(round(raw[(i, j)] / total, 6))
-        matrix.append(row)
-    return matrix
+    raw, _ = model_score_matrix(lh, la, rho)
+    return [[raw[(i, j)] for j in range(MAX_GOALS + 1)] for i in range(MAX_GOALS + 1)]
 
 
 def matrix_1x2(matrix):
@@ -88,14 +74,11 @@ def matrix_btts(matrix):
 
 
 def matrix_over_under(matrix, line):
-    """Over/Under probabilities from score matrix."""
-    n = len(matrix)
-    over = 0.0
-    for i in range(n):
-        for j in range(n):
-            if i + j > line:
-                over += matrix[i][j]
-    return round(over, 4), round(1.0 - over, 4)
+    """Expected winning stake fractions; excluded mass is refunded stake."""
+    flat = {(i, j): p for i, row in enumerate(matrix) for j, p in enumerate(row)}
+    over = outcome_distribution(flat, "ou", "over", line)
+    under = outcome_distribution(flat, "ou", "under", line)
+    return round(over["win_fraction"], 4), round(under["win_fraction"], 4)
 
 
 def matrix_ah(matrix, side, line):
@@ -179,7 +162,7 @@ def derive_all_markets(matrix, lh, la):
     ou_lines = {}
     for line in [1.5, 2.0, 2.25, 2.5, 2.75, 3.0, 3.5]:
         o, u = matrix_over_under(matrix, line)
-        ou_lines[str(line)] = {'over': o, 'under': u}
+        ou_lines[str(line)] = {'over': o, 'under': u, 'push': round(1 - o - u, 4)}
 
     # Best OU recommendation (pick the line closest to 50/50 and favour the better side)
     best_ou_line = 2.5
@@ -205,7 +188,7 @@ def derive_all_markets(matrix, lh, la):
             prob = probs['home_lose']
         if 0.50 <= prob <= 0.70 and prob > best_ah_prob:
             best_ah_prob = prob
-            best_ah_line = line_val
+            best_ah_line = line_val if best_ah_side == 'home' else -line_val
 
     # BTTS recommendation
     best_btts = 'Yes' if btts_yes > 0.5 else 'No'
@@ -265,24 +248,24 @@ def compute_prediction_card(match_data, beta_squad=0.0, home_advantage_override=
     """
     # Extract base lambdas from the existing model output
     lambdas = match_data.get('lambdas', {})
-    lh = float(lambdas.get('home', 1.3))
-    la = float(lambdas.get('away', 1.2))
+    lh = float(lambdas.get('home') or 0)
+    la = float(lambdas.get('away') or 0)
+    if not all(math.isfinite(v) and v > 0 for v in (lh, la)):
+        raise ValueError("valid model lambdas required; no default prediction")
 
     # Layer 2: Squad value adjustment (β modifier)
     # In phase 1, β adjusts the home/away strength ratio without actual squad values
     # A positive β slightly amplifies the existing strength differential
-    if beta_squad > 0.001:
-        strength_ratio = lh / max(0.1, lh + la)
-        squad_adj_home = 1.0 + beta_squad * (strength_ratio - 0.5)
-        squad_adj_away = 1.0 + beta_squad * (0.5 - strength_ratio)
-        lh *= squad_adj_home
-        la *= squad_adj_away
+    if beta_squad != 0:
+        raise ValueError("squad adjustment unavailable: no verified squad-value input")
 
     # Home advantage override
     if home_advantage_override is not None:
         # The model already includes home_adv (~1.08). If user overrides to 1.15,
         # we apply the ratio: new_adv / default_adv
-        default_adv = 1.08
+        default_adv = match_data.get('model', {}).get('home_advantage')
+        if not default_adv:
+            raise ValueError("home advantage override requires the actual model baseline")
         adv_ratio = float(home_advantage_override) / default_adv
         lh *= adv_ratio
 
@@ -299,6 +282,23 @@ def compute_prediction_card(match_data, beta_squad=0.0, home_advantage_override=
 
     # Derive all markets
     result = derive_all_markets(matrix, lh, la)
+    result['model_lean'] = result.pop('recommended')
+    result['recommended'] = {'1x2': 'NO BET', 'ah': None, 'ou': None, 'btts': 'NO BET'}
+    from main import analyze_match, select_top_picks
+    from model import RHO_DEFAULT
+    from prediction import FORMULA_VERSION
+    import time
+    scenario = manual_adj_home != 1 or manual_adj_away != 1 or rho != RHO_DEFAULT or home_advantage_override is not None
+    stale = (match_data.get('model', {}).get('formula_version') != FORMULA_VERSION
+             or float(match_data.get('info', {}).get('start_ts') or 0) <= time.time())
+    eligible = [] if scenario or stale else select_top_picks(analyze_match(
+        match_data.get('info', {}), lh, la, projection_meta=match_data.get('model', {})), limit=1, per_match=1)
+    result['qualified_picks'] = eligible
+    result['decision'] = 'CANDIDATE' if eligible else 'NO BET'
+    result['decision_reason'] = 'Manual scenario only' if scenario else ('Refresh required or fixture already started' if stale else ('Quality gates passed; estimates not calibrated' if eligible else 'No offered price passes the shared quality gates'))
+    for pick in eligible:
+        side, line = pick['pick'].split()[:2]
+        result['recommended'][pick['market']] = {'side': side.lower(), 'line': float(line), 'prob': pick['probability'], 'odds': pick['odds']}
 
     # Attach match info
     info = match_data.get('info', {})
@@ -320,12 +320,14 @@ def compute_prediction_card(match_data, beta_squad=0.0, home_advantage_override=
         'coverage_status': model_meta.get('coverage_status', 'unknown'),
         'data_grade': model_meta.get('data_grade', 'D'),
         'formula_version': model_meta.get('formula_version', ''),
+        'calibration_status': 'unvalidated',
+        'scenario_only': scenario,
     }
 
     # Attach parameters used
     result['parameters'] = {
         'beta_squad': round(beta_squad, 3),
-        'home_advantage': round(float(home_advantage_override) if home_advantage_override else 1.08, 3),
+        'home_advantage': home_advantage_override if home_advantage_override is not None else model_meta.get('home_advantage'),
         'manual_adj_home': round(float(manual_adj_home), 3),
         'manual_adj_away': round(float(manual_adj_away), 3),
         'rho': round(rho, 3),

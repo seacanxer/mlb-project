@@ -1,4 +1,5 @@
 import hashlib
+import json
 import os
 import sqlite3
 from datetime import datetime
@@ -44,6 +45,7 @@ def init_db():
             )
         ''')
         columns = {row['name'] for row in c.execute('PRAGMA table_info(bets)').fetchall()}
+        c.execute('CREATE TABLE IF NOT EXISTS bet_audit (bet_id INTEGER PRIMARY KEY, formula_version TEXT, policy_version TEXT, selection_status TEXT, snapshot_json TEXT NOT NULL)')
         if 'source_match_id' not in columns:
             c.execute('ALTER TABLE bets ADD COLUMN source_match_id TEXT')
         if 'home_score' not in columns:
@@ -232,9 +234,8 @@ def get_parlay_roi():
             'roi_pct': round(profit / settled * 100, 2) if settled else 0.0}
 
 def insert_bet(bet):
-    """Lock one recommendation per fixture. If an unsettled lock already exists
-    for the same match+start_ts, keep the higher EV. If it is already settled,
-    skip entirely so scans never stack duplicates."""
+    """Lock one immutable recommendation per fixture; never rewrite its price
+    or selection when a later scan finds a different candidate."""
     conn = _connect()
     c = conn.cursor()
     existing = c.execute('''
@@ -258,23 +259,7 @@ def insert_bet(bet):
         if existing['settled']:
             conn.close()
             return existing['id'], False
-        new_ev = bet.get('ev') or -999
-        if new_ev > (existing['ev'] or -999):
-            c.execute('''
-                UPDATE bets
-                SET market=?, pick=?, odds=?, ev=?, probability=?, placed_at=?,
-                    source_match_id=COALESCE(?, source_match_id)
-                WHERE id=?
-            ''', (
-                bet.get('market'), bet.get('pick'), bet.get('odds'),
-                bet.get('ev'), bet.get('probability'),
-                datetime.now().isoformat(),
-                str(bet.get('match_id')) if bet.get('match_id') is not None else None,
-                existing['id']
-            ))
-            conn.commit()
-            conn.close()
-            return existing['id'], False
+        # A later scan must not rewrite the selection/price used to measure ROI.
         conn.close()
         return existing['id'], False
     c.execute('''
@@ -295,6 +280,8 @@ def insert_bet(bet):
         str(bet.get('match_id')) if bet.get('match_id') is not None else None
     ))
     bet_id = c.lastrowid
+    c.execute('INSERT INTO bet_audit (bet_id, formula_version, policy_version, selection_status, snapshot_json) VALUES (?, ?, ?, ?, ?)',
+              (bet_id, bet.get('formula_version'), bet.get('policy_version'), bet.get('selection_status'), json.dumps(bet, allow_nan=False)))
     conn.commit()
     conn.close()
     return bet_id, True

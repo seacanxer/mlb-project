@@ -63,6 +63,7 @@ def test_cached_top_pick_survives_api_reselection():
         "conservative_ev": 0.063,
         "coverage_status": "full",
         "selection_status": "top_pick",
+        "policy_version": "quality-v1", "lambda_source": "market+strength", "market_probability": .5,
     }
     selected = select_top_picks([candidate])
     assert len(selected) == 1

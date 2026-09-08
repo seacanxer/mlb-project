@@ -370,8 +370,8 @@ def execute_live_scan_sync():
                 # Rest-days / congestion fatigue
                 try:
                     from fatigue import apply_rest_adjustment, record_fixtures
-                    lh, la, _fat = apply_rest_adjustment(
-                        o.get("home"), o.get("away"), o.get("start_ts"), lh, la, _ledger)
+                    # Record fixtures without introducing a menu-specific
+                    # unvalidated fatigue multiplier.
                     record_fixtures(_ledger, [(o.get("home"), o.get("away"), o.get("start_ts"))])
                 except Exception:
                     pass
@@ -441,9 +441,14 @@ def execute_live_scan_sync():
 
         # Every published recommendation is immediately locked for ROI tracking.
         for pick in picks:
-            _, created = db.insert_bet(pick)
+            bet_id, created = db.insert_bet(pick)
             pick["newly_locked"] = created
-            pick["locked"] = True
+            existing = None if created else db.get_bet_by_id(bet_id)
+            pick["locked"] = created or bool(existing and not existing.get("settled")
+                and existing.get("market") == pick.get("market")
+                and existing.get("pick") == pick.get("pick")
+                and existing.get("odds") == pick.get("odds"))
+            pick["lock_note"] = None if pick["locked"] else "A different immutable fixture lock already exists"
         diagnostics["selected"] = len(picks)
         diagnostics["official_selected"] = sum(p.get("coverage_status") == "full" for p in picks)
         diagnostics["shadow_selected"] = len(picks) - diagnostics["official_selected"]
@@ -520,7 +525,7 @@ def get_picks(
     limit: int = Query(200, ge=1, le=500, description="Pagination limit"),
     offset: int = Query(0, ge=0, description="Pagination offset"),
 ):
-    raw_picks = load_picks_file()
+    raw_picks = [p for p in load_picks_file() if float(p.get("start_ts") or 0) > time.time()]
     cfg = load_config()
     from main import select_top_picks
     raw_picks = select_top_picks(
@@ -631,6 +636,9 @@ def get_picks(
 @app.get("/api/matches")
 def get_matches(limit: int = Query(50, ge=1, le=200), offset: int = Query(0, ge=0)):
     matches = load_detailed_matches()
+    from main import select_top_picks
+    matches = [dict(m, qualified_picks=(select_top_picks(m.get("picks", []), limit=1, per_match=1)
+        if float(m.get("info", {}).get("start_ts") or 0) > time.time() else [])) for m in matches]
     total = len(matches)
     return {"count": total, "matches": matches[offset: offset + limit], "pagination": {"limit": limit, "offset": offset, "total": total}}
 
@@ -1167,7 +1175,7 @@ def update_config(cfg: Dict[str, Any]):
     # Enforce absolute minimum odds floor constraint
     merged["filters"]["min_odds"] = max(float(merged["filters"].get("min_odds", ODDS_FLOOR_ABS)), ODDS_FLOOR_ABS)
     merged["filters"]["min_ev"] = max(float(merged["filters"].get("min_ev", 0.0)), 0.0)
-    merged["filters"]["top_picks_per_match"] = min(2, max(1, int(merged["filters"].get("top_picks_per_match", 1))))
+    merged["filters"]["top_picks_per_match"] = 1
     merged["filters"]["top_signal_limit"] = min(
         8, max(1, int(merged["filters"].get("top_signal_limit", 5)))
     )
@@ -1188,7 +1196,7 @@ def _run_intel_scan():
     intel_state["running"] = True
     intel_state["error"] = None
     try:
-        last = intel_mod.scan_intel(window_hours=40, max_matches=600,
+        last = intel_mod.scan_intel(window_hours=24, max_matches=600,
                                     progress=lambda msg: intel_state.update(progress=msg))
         intel_state["last"] = {
             "generated_at": last.get("generated_at"),
@@ -1210,6 +1218,12 @@ def get_intel(market: Optional[str] = Query(None), league: Optional[str] = Query
     import intel as intel_mod
     board = intel_mod.load_board()
     items = board.get("board", [])
+    items = [i for i in items if float(i.get("start_ts") or 0) > time.time()]
+    from market_quality import recommendation_block
+    items = [dict(i, recommendation=None, decision="NO BET", quality_reason="refresh_required")
+             if recommendation_block(i.get("recommendation") or {}) else i for i in items]
+    if not decision:
+        items = [i for i in items if i.get("coverage") == "full" and (i.get("recommendation") or {}).get("policy_version") == "quality-v1"]
     if market:
         items = [i for i in items if (i.get("main_ou") and market.lower() in ("ou", "total", "over/under"))
                  or (i.get("main_ah") and market.lower() in ("ah", "handicap", "asian handicap"))]
@@ -1381,6 +1395,8 @@ def get_prediction_fixtures():
         fixture_key = str(info.get("match_id", info.get("id", "")))
         if not fixture_key:
             continue
+        if float(info.get("start_ts") or 0) <= time.time():
+            continue
         fixtures.append({
             "fixture_key": fixture_key,
             "home": info.get("home", ""),
@@ -1410,14 +1426,15 @@ def compute_prediction(req: PredictionComputeRequest):
     if not match_data:
         raise HTTPException(404, f"Fixture {req.fixture_key} not found in current scan data")
 
-    result = compute_prediction_card(
-        match_data,
-        beta_squad=req.beta_squad,
-        home_advantage_override=req.home_advantage,
-        manual_adj_home=req.manual_adj_home,
-        manual_adj_away=req.manual_adj_away,
-        rho=req.rho,
-    )
+    try:
+        result = compute_prediction_card(
+            match_data, beta_squad=req.beta_squad,
+            home_advantage_override=req.home_advantage,
+            manual_adj_home=req.manual_adj_home,
+            manual_adj_away=req.manual_adj_away, rho=req.rho,
+        )
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
 
     # Cache the result
     info = match_data.get("info", {})
@@ -1431,7 +1448,7 @@ def compute_prediction(req: PredictionComputeRequest):
         "rho": req.rho,
         "score_matrix": result["score_matrix"],
         "beta_squad": req.beta_squad,
-        "home_advantage": req.home_advantage or 1.08,
+        "home_advantage": result["parameters"]["home_advantage"],
         "manual_adj_home": req.manual_adj_home,
         "manual_adj_away": req.manual_adj_away,
         "result": result,
@@ -1448,10 +1465,9 @@ def compute_prediction(req: PredictionComputeRequest):
 
 @app.get("/api/prediction/{fixture_key}")
 def get_prediction(fixture_key: str):
-    """Get a cached prediction result."""
-    cached = db.get_prediction_cache(fixture_key)
-    if cached and cached.get("result"):
-        return cached["result"]
+    """Compute from the current scan, not an obsolete cached formula."""
+    # Recompute from the current scan so older matrices/adjustments cannot
+    # masquerade as a current recommendation after a formula update.
 
     # If no cache, try to compute with defaults
     matches = load_detailed_matches()
@@ -1459,7 +1475,10 @@ def get_prediction(fixture_key: str):
         info = m.get("info", {})
         mk = str(info.get("match_id", info.get("id", "")))
         if mk == fixture_key:
-            return compute_prediction_card(m)
+            try:
+                return compute_prediction_card(m)
+            except ValueError as exc:
+                raise HTTPException(422, str(exc)) from exc
     raise HTTPException(404, f"Fixture {fixture_key} not found")
 
 

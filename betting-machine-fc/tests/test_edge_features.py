@@ -36,7 +36,7 @@ def test_mle_rating_orders_teams():
     teams, avg, hadv = sr.mle_rating(_synth_rows())
     assert teams["S"]["att"] > 1.0 > teams["W"]["att"]
     assert teams["W"]["def"] > 1.0 > teams["S"]["def"]
-    assert 0.5 < avg < 2.5
+    assert 0 < avg < 2.5  # fitted away intercept, not the raw all-team goal mean
     assert hadv > 1.0
     # final output stays inside documented clamp bounds
     for t in teams.values():
@@ -131,7 +131,8 @@ def _cand(market, prob, odds, ev_val, edge, indep=True):
             "probability": prob, "odds": odds, "ev": ev_val,
             "market_probability": prob - edge, "edge_pct": edge,
             "independent_signal": indep, "conservative_ev": ev_val - 0.02,
-            "coverage_status": "full", "selection_status": "official"}
+            "coverage_status": "full", "selection_status": "official",
+            "policy_version": "quality-v1", "lambda_source": "market+strength"}
 
 
 def test_ou_selection_uses_conservative_ev_not_raw_probability_floor():
@@ -159,12 +160,13 @@ def test_shadow_candidates_need_strict_gates_and_stay_shadow():
     strong = _cand("ou", 0.62, 1.9, 0.12, 0.06)
     strong.update({"coverage_status": "shadow", "selection_status": "shadow",
                    "conservative_ev": 0.08, "has_both_markets": True})
-    picks = select_top_picks([strong], min_odds=1.6)
+    assert select_top_picks([strong], min_odds=1.6) == []
+    picks = select_top_picks([strong], min_odds=1.6, include_shadow=True)
     assert len(picks) == 1
     assert picks[0]["selection_status"] in {"shadow", "top_pick:shadow"}
     assert picks[0]["coverage_status"] == "shadow"
     # suffixed status round-trips through reselection (e.g. /api/picks)
-    again = select_top_picks(picks, min_odds=1.6)
+    again = select_top_picks(picks, min_odds=1.6, include_shadow=True)
     assert len(again) == 1
 
 

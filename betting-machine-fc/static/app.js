@@ -122,9 +122,10 @@ function renderParlays(data) {
         <div class="parlay-summary">
           <div><span>Combined Odds</span><strong>${slip.combined_odds ? Number(slip.combined_odds).toFixed(2) : '—'}</strong></div>
           <div><span>Market Implied</span><strong>${slip.market_implied_probability ? `${(Number(slip.market_implied_probability) * 100).toFixed(1)}%` : '—'}</strong></div>
-          <div><span>Model Joint*</span><strong>${slip.model_joint_probability ? `${(Number(slip.model_joint_probability) * 100).toFixed(1)}%` : '—'}</strong></div>
+          <div><span>All legs profit*</span><strong>${slip.model_joint_probability ? `${(Number(slip.model_joint_probability) * 100).toFixed(1)}%` : '—'}</strong></div>
         </div>
         <p class="parlay-rationale">${escapeHtml(slip.rationale)}</p>
+        <p class="text-muted">*Uncalibrated estimate assuming independence. Pushes and half outcomes mean this is not the chance of a profitable slip. No fill below tier thresholds.</p>
       </article>
     `;
   }).join('') || '<div class="empty-state"><h3>No parlay slips available</h3><p>Run a live scan to populate qualified O/U and AH candidates.</p></div>';
@@ -987,6 +988,8 @@ window.openMatchModal = function(idx) {
 
   const info = m.info || {};
   document.getElementById('modal-match-title').textContent = `${info.home} vs ${info.away}`;
+  const auditEl = document.getElementById('modal-quality-note');
+  if (auditEl) auditEl.textContent = `${m.model?.formula_version || 'Unknown version'} · ${m.model?.lambda_source || 'Unknown source'} · ${m.model?.coverage_status || 'Unknown coverage'} · Uncalibrated estimate. EV stress uses ±10% scoring-rate scenarios, not a confidence interval.`;
   document.getElementById('modal-league-badge').textContent = info.league || 'Football';
 
   document.getElementById('modal-lh').textContent = m.lambdas?.home || '-';
@@ -1002,20 +1005,20 @@ window.openMatchModal = function(idx) {
   const tbody = document.getElementById('modal-markets-tbody');
   tbody.innerHTML = '';
 
-  const picks = m.picks || [];
+    const picks = m.qualified_picks || [];
   if (picks.length === 0) {
     tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No picks meeting positive EV threshold for this match</td></tr>';
   } else {
     picks.forEach(p => {
       const tr = document.createElement('tr');
-      const fairOdds = p.fair_odds ? Number(p.fair_odds).toFixed(3) : (p.probability > 0 ? (1.0 / p.probability).toFixed(3) : '-');
+      const fairOdds = p.fair_odds ? Number(p.fair_odds).toFixed(3) : '—';
       const status = (p.selection_status || 'shadow').replace('_', ' ').toUpperCase();
       tr.innerHTML = `
         <td><strong>${p.pick}</strong> (${p.market.toUpperCase()})<br><small class="text-muted">${status} · ${p.lambda_source || 'unknown source'}</small></td>
         <td>${(p.probability * 100).toFixed(1)}%</td>
         <td>${fairOdds}</td>
         <td><strong>${p.odds.toFixed(3)}</strong></td>
-        <td class="text-emerald font-bold">+${(p.ev * 100).toFixed(1)}%</td>
+        <td class="text-emerald font-bold">${(p.ev * 100).toFixed(1)}%<br><small>Stress: ${(p.stress_ev * 100).toFixed(1)}%</small></td>
       `;
       tbody.appendChild(tr);
     });
@@ -1665,7 +1668,7 @@ async function computePrediction(fixtureKey) {
     const body = {
       fixture_key: fixtureKey,
       beta_squad: parseFloat(document.getElementById('pred-beta')?.value || 0),
-      home_advantage: parseFloat(document.getElementById('pred-home-adv')?.value || 1.08),
+      home_advantage: null,
       manual_adj_home: parseFloat(document.getElementById('pred-adj-home')?.value || 1.0),
       manual_adj_away: parseFloat(document.getElementById('pred-adj-away')?.value || 1.0),
       adj_reason_home: document.getElementById('pred-adj-home-reason')?.value || null,
@@ -1716,6 +1719,7 @@ function renderPredictionCard(data) {
   const badgesEl = document.getElementById('pred-model-badges');
   badgesEl.innerHTML = '';
   const badges = [
+    { text: data.decision_reason || 'Uncalibrated model estimate', cls: 'badge-amber' },
     { text: meta.formula_version || '', cls: 'badge-dim' },
     { text: meta.lambda_source || '', cls: 'badge-cyan' },
     { text: `Grade ${meta.data_grade || '?'}`, cls: meta.data_grade === 'A' ? 'badge-emerald' : 'badge-amber' },
@@ -1737,11 +1741,11 @@ function renderPredictionCard(data) {
   const barHome = document.getElementById('pred-bar-home');
   const barDraw = document.getElementById('pred-bar-draw');
   const barAway = document.getElementById('pred-bar-away');
-  barHome.style.width = `${Math.max(hp, 8)}%`;
+  barHome.style.width = `${hp}%`;
   barHome.querySelector('.prob-pct').textContent = `${hp}%`;
-  barDraw.style.width = `${Math.max(dp, 8)}%`;
+  barDraw.style.width = `${dp}%`;
   barDraw.querySelector('.prob-pct').textContent = `${dp}%`;
-  barAway.style.width = `${Math.max(ap, 8)}%`;
+  barAway.style.width = `${ap}%`;
   barAway.querySelector('.prob-pct').textContent = `${ap}%`;
 
   // Key Metrics
@@ -1795,6 +1799,7 @@ function renderScoreMatrix(matrix) {
   if (!container || !matrix || !matrix.length) return;
   container.innerHTML = '';
   const n = matrix.length;
+  container.style.gridTemplateColumns = `36px repeat(${n}, minmax(28px, 1fr))`;
 
   // Find max probability for color scaling
   let maxProb = 0;
@@ -1910,13 +1915,19 @@ function _clientAHSingle(matrix, side, line) {
 function clientComputeOU(matrix, line) {
   if (!matrix || !matrix.length) return { over: 0, under: 0 };
   const n = matrix.length;
-  let over = 0;
+  let over = 0, under = 0, push = 0;
+  const lines = Math.abs(line * 2 - Math.round(line * 2)) < 1e-9 ? [line] : [line - 0.25, line + 0.25];
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
-      if (i + j > line) over += matrix[i][j];
+      for (const leg of lines) {
+        const p = matrix[i][j] / lines.length;
+        if (i + j > leg) over += p;
+        else if (i + j < leg) under += p;
+        else push += p;
+      }
     }
   }
-  return { over, under: 1.0 - over };
+  return { over, under, push };
 }
 
 function updateAHFromMatrix() {
@@ -1939,7 +1950,8 @@ function updateAHFromMatrix() {
   const best = homeResult.win > homeResult.lose ? 'Home' : 'Away';
   const bestPct = homeResult.win > homeResult.lose ? homePct : awayPct;
   const recEl = document.getElementById('pred-rec-ah');
-  recEl.textContent = `${best} (${lineStr >= 0 ? '+' : ''}${lineStr})`;
+  const approved = (_predData?.qualified_picks || []).find(p => p.market === 'ah');
+  recEl.textContent = approved ? `${approved.pick} @ ${approved.odds}` : 'NO BET';
   recEl.style.color = `var(--${best === 'Home' ? 'emerald' : 'blue'})`;
 }
 
@@ -1958,6 +1970,9 @@ function updateOUFromMatrix() {
   const best = result.over > result.under ? 'Over' : 'Under';
   const bestPct = best === 'Over' ? overPct : underPct;
   const recEl = document.getElementById('pred-rec-ou');
-  recEl.textContent = `${best} ${lineStr}`;
+  const approved = (_predData?.qualified_picks || []).find(p => p.market === 'ou');
+  recEl.textContent = approved ? `${approved.pick} @ ${approved.odds}` : 'NO BET';
+  const pushEl = document.getElementById('pred-ou-push');
+  if (pushEl) pushEl.textContent = `${(result.push * 100).toFixed(1)}%`;
   recEl.style.color = `var(--${best === 'Over' ? 'amber' : 'cyan'})`;
 }

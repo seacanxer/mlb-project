@@ -35,7 +35,7 @@ def test_picks_endpoint():
     assert "summary" in data
     assert "picks" in data
     assert data["summary"]["min_odds_floor"] == 1.64
-    assert data["summary"]["max_picks_per_match"] == 2
+    assert data["summary"]["max_picks_per_match"] == 1
     assert "top_pick_count" in data["summary"]
     for pick in data["picks"]:
         assert pick["odds"] >= 1.66
@@ -106,7 +106,7 @@ def test_config_endpoints():
     assert res_post.status_code == 200
     saved_cfg = res_post.json()["config"]
     assert saved_cfg["filters"]["min_odds"] >= 1.60
-    assert saved_cfg["filters"]["top_picks_per_match"] == 2
+    assert saved_cfg["filters"]["top_picks_per_match"] == 1
     assert saved_cfg["scan_match_limit"] == 500
 
 

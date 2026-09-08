@@ -138,11 +138,15 @@ def test_top_picks_are_capped_diversified_and_two_markets_per_match():
             "probability": 0.58,
             "odds": 1.9,
             "ev": 0.10,
+            "conservative_ev": 0.08,
             "market_probability": 0.52,
             "edge_pct": 0.06,
             "independent_signal": True,
+            "coverage_status": "full", "selection_status": "official",
+            "policy_version": "quality-v1", "lambda_source": "market+strength",
         })
     picks = select_top_picks(candidates, limit=8, per_market=2, per_match=2)
+    assert picks
     assert len(picks) <= 8
     match_keys = {(p["match"], p["start_ts"]) for p in picks}
     assert all(sum(1 for p in picks if (p["match"], p["start_ts"]) == key) <= 2 for key in match_keys)
@@ -152,7 +156,8 @@ def test_top_picks_are_capped_diversified_and_two_markets_per_match():
         for key in match_keys
     )
     assert all(sum(1 for p in picks if p["market"] == market) <= 2 for market in markets)
-    assert all(p["locked"] for p in picks)
+    assert all(not p["locked"] for p in picks)
+    assert len(match_keys) == len(picks)
 
 
 def test_official_selector_requires_v4_coverage_and_ou_ah_market():
@@ -161,6 +166,7 @@ def test_official_selector_requires_v4_coverage_and_ou_ah_market():
         {"match": "C vs D", "start_ts": 2, "market": "1x2", "pick": "Away", "probability": 0.55, "odds": 2.0, "ev": 0.10, "conservative_ev": 0.08, "coverage_status": "full", "selection_status": "official"},
         {"match": "E vs F", "start_ts": 3, "market": "ah", "pick": "Home -0.25", "probability": 0.54, "odds": 1.90, "ev": 0.10, "conservative_ev": 0.08, "coverage_status": "full", "selection_status": "official", "league": "League A"},
     ]
+    candidates = [dict(p, policy_version="quality-v1", lambda_source="market+strength", market_probability=.5) for p in candidates]
     picks = select_top_picks(candidates, min_ev=0.0)
     assert [p["pick"] for p in picks] == ["Home -0.25"]
     assert picks[0]["is_top_pick"] is True

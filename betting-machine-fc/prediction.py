@@ -11,7 +11,7 @@ from league_profiles import get_league_profile
 from strength_rating import hybrid_lams
 
 
-FORMULA_VERSION = "ou-ah-v4.0.0"
+FORMULA_VERSION = "ou-ah-v4.1.0"
 
 
 def _valid_price(value):
