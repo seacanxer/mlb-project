@@ -30,7 +30,7 @@ import db
 import settlement
 import scraper_1xbit as sc
 import scraper_historical as sh
-from prediction import build_projection
+from prediction import build_projection, build_projection_fallback
 from parlay import apply_ai_selection, build_parlay_slips
 try:
     import scraper_flashscore as fs
@@ -267,7 +267,9 @@ def execute_live_scan_sync():
         min_odds = cfg.get("filters", {}).get("min_odds", 1.66)
         min_ev = cfg.get("filters", {}).get("min_ev", 0.0)
         max_ah_line = cfg.get("filters", {}).get("max_ah_abs_line", 2.5)
-        window_hours = float(cfg.get("scan_window_hours", 16))
+        window_hours = float(cfg.get("scan_window_hours", 24))
+        source = cfg.get("data_source")
+        discovered = blocked_leagues = 0
 
         if cfg.get("data_source") == "flashscore":
             if fs is None:
@@ -276,9 +278,10 @@ def execute_live_scan_sync():
             auto_discover = len(leagues) == 0
             raw_matches = asyncio.run(fs.list_matches(leagues, auto_discover))
             if len(raw_matches) == 0:
+                source = "1xbit"
                 scan_state["progress"] = "FlashScore returned no matches, falling back to 1xbit..."
                 print("[LOG] FlashScore empty, falling back to 1xbit")
-                raw_matches = sc.list_matches(count=int(cfg.get("scan_match_limit", 500)))
+                raw_matches = sc.list_matches_paginated(count=int(cfg.get("scan_match_limit", 500)), window_hours=window_hours)
                 scan_state["progress"] = f"Processing {len(raw_matches)} matches from 1xbit (fallback)..."
             else:
                 scan_state["progress"] = f"Processing {len(raw_matches)} matches from FlashScore..."
@@ -295,13 +298,19 @@ def execute_live_scan_sync():
             # fetch for the rated/shadow/market_only slate that can produce picks.
             from league_profiles import get_league_profile
             before = len(raw_matches)
+            discovered = before
             raw_matches = [m for m in raw_matches if (get_league_profile(m.get("L") or "")).route != "blocked"]
+            blocked_leagues = before - len(raw_matches)
             if len(raw_matches) != before:
                 print(f"[LOG] league routing: kept {len(raw_matches)}/{before} matches (blocked dropped)")
                 scan_state["progress"] = f"Processing {len(raw_matches)} eligible matches ({before} found, blocked dropped)..."
         scan_state["progress"] = f"Processing markets for {len(raw_matches)} matches..."
         diagnostics = {
-            "discovered": len(raw_matches),
+            "discovered": discovered or len(raw_matches),
+            "blocked_leagues": blocked_leagues,
+            "eligible_fixtures": len(raw_matches),
+            "fallback": 0,
+            "fetch_failures": 0,
             "processed": 0,
             "full": 0,
             "shadow": 0,
@@ -319,7 +328,7 @@ def execute_live_scan_sync():
                 return None
 
         prefetched = []
-        if cfg.get("data_source") != "flashscore" and len(raw_matches) > 30:
+        if source != "flashscore" and len(raw_matches) > 30:
             workers = min(8, max(4, max(1, len(raw_matches)) // 40))
             with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as ex:
                 prefetched = list(ex.map(_fetch_one, raw_matches))
@@ -330,19 +339,31 @@ def execute_live_scan_sync():
         _ledger = load_ledger()
         for i, m in enumerate(raw_matches):
             try:
-                if cfg.get("data_source") == "flashscore":
+                if source == "flashscore":
                     odds = asyncio.run(fs.get_match_odds(m["I"]))
                     combined = {**m, "odds": odds}
                     o = fs.extract_markets(combined)
                 else:
                     o = prefetched[i] if prefetched else _fetch_one(m)
                     if not o:
-                        diagnostics["missing_markets"] += 1
+                        diagnostics["fetch_failures"] += 1
                         continue
-                projection = build_projection(
-                    o,
-                    strength_weight=cfg.get("formula", {}).get("strength_weight_override"),
-                )
+                # Recheck authoritative detail identity for every provider path.
+                from league_profiles import get_league_profile
+                if get_league_profile(o.get("league")).route == "blocked":
+                    diagnostics["blocked"] += 1
+                    continue
+                try:
+                    projection = build_projection(
+                        o, strength_weight=cfg.get("formula", {}).get("strength_weight_override"),
+                    )
+                except ValueError as exc:
+                    try:
+                        projection = build_projection_fallback(o, reason=exc)
+                        diagnostics["fallback"] += 1
+                    except ValueError:
+                        diagnostics["missing_markets"] += 1
+                        raise
                 coverage = projection.get("coverage_status", "market_only")
                 diagnostics[coverage if coverage in diagnostics else "market_only"] += 1
                 lh, la = projection["home"], projection["away"]
@@ -405,6 +426,7 @@ def execute_live_scan_sync():
         top_limit = int(cfg.get("filters", {}).get("top_pick_limit", 12))
         per_market = int(cfg.get("filters", {}).get("top_picks_per_market", 3))
         per_match = int(cfg.get("filters", {}).get("top_picks_per_match", 1))
+        diagnostics["candidates"] = len(picks)
         picks = select_top_picks(
             picks,
             limit=top_limit,
@@ -421,6 +443,10 @@ def execute_live_scan_sync():
         for pick in picks:
             _, created = db.insert_bet(pick)
             pick["newly_locked"] = created
+            pick["locked"] = True
+        diagnostics["selected"] = len(picks)
+        diagnostics["official_selected"] = sum(p.get("coverage_status") == "full" for p in picks)
+        diagnostics["shadow_selected"] = len(picks) - diagnostics["official_selected"]
 
         picks_path = os.path.join(BASE_DIR, "picks.json")
         with open(picks_path, "w", encoding="utf-8") as f:
@@ -439,6 +465,7 @@ def execute_live_scan_sync():
         cfg["last_successful_scan_at"] = successful_at
         cfg["last_successful_scan_count"] = len(detailed_matches)
         cfg["last_successful_scan_picks"] = len(picks)
+        cfg["last_scan_diagnostics"] = diagnostics
         save_config(cfg)
         try:
             save_ledger(_ledger)
@@ -461,13 +488,22 @@ def serve_index():
 
 @app.get("/api/health")
 def health_check():
+    cfg = load_config()
+    persisted = dict(scan_state)
+    if not scan_state.get("is_running"):
+        persisted.update({
+            "last_scan_time": cfg.get("last_successful_scan_at", scan_state.get("last_scan_time")),
+            "last_scan_count": cfg.get("last_successful_scan_count", scan_state.get("last_scan_count")),
+            "last_scan_picks": cfg.get("last_successful_scan_picks", scan_state.get("last_scan_picks")),
+            "diagnostics": cfg.get("last_scan_diagnostics", scan_state.get("diagnostics", {})),
+        })
     return {
         "status": "healthy",
         "service": "Football Betting Recommendation Engine (FC)",
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "uptime": time.time(),
-        "scan_state": scan_state,
-        "config": load_config(),
+        "scan_state": persisted,
+        "config": cfg,
     }
 
 
@@ -499,25 +535,10 @@ def get_picks(
         top_signal_limit=int(cfg.get("filters", {}).get("top_signal_limit", 5)),
     )
 
-    official_keys = {(p.get("match_id"), p.get("market"), p.get("pick")) for p in raw_picks if isinstance(p, dict)}
-    watch_extra = []
-    for md in load_detailed_matches():
-        for c in (md.get("picks") or []):
-            if not isinstance(c, dict) or not c.get("odds"):
-                continue
-            key = (c.get("match_id"), c.get("market"), c.get("pick"))
-            if key in official_keys:
-                continue
-            o = float(c.get("odds"))
-            if o < 1.64 or o > 2.50:
-                continue
-            item = dict(c)
-            item["tier"] = "watch"
-            item["selection_status"] = "watch"
-            item["is_watch"] = True
-            item["rank_score"] = round(max(0.0, float(item.get("conservative_ev") or item.get("ev") or 0)), 4)
-            watch_extra.append(item)
-    raw_picks = raw_picks + watch_extra
+    # Do not resurrect rejected alternates as watch recommendations. Shadow
+    # candidates already pass the same bounded selector used during ingestion.
+    now = time.time()
+    raw_picks = [p for p in raw_picks if float(p.get("start_ts") or 0) > now]
 
     filtered = []
     leagues_set = {
@@ -565,7 +586,7 @@ def get_picks(
 
         item = dict(p)
         item["probability"] = round(p_val, 4)
-        item["locked"] = True
+        item["locked"] = bool(p.get("locked", False))
         filtered.append(item)
 
     reverse = sort_order.lower() == "desc"
@@ -590,7 +611,7 @@ def get_picks(
             "total_picks": len(raw_picks),
             "qualified_picks": total_filtered,
             "top_pick_count": sum(1 for pick in filtered if pick.get("is_top_pick")),
-            "official_count": sum(1 for pick in filtered if pick.get("tier") == "official"),
+            "official_count": sum(1 for pick in filtered if pick.get("coverage_status") == "full"),
             "watch_count": sum(1 for pick in filtered if pick.get("tier") == "watch"),
             "formula_version": cfg.get("formula", {}).get("version", "ou-ah-v4.0.0"),
             "avg_ev_pct": round(avg_ev * 100, 2),
@@ -600,7 +621,7 @@ def get_picks(
             "max_picks_per_match": cfg.get("filters", {}).get("top_picks_per_match", 1),
             "leagues": sorted(list(leagues_set)),
             "markets": sorted(list(markets_set)),
-            "last_scan_time": scan_state.get("last_scan_time"),
+            "last_scan_time": cfg.get("last_successful_scan_at") or scan_state.get("last_scan_time"),
         },
         "picks": paged,
         "pagination": {"limit": limit, "offset": offset, "total": total_filtered},
@@ -1146,7 +1167,7 @@ def update_config(cfg: Dict[str, Any]):
     # Enforce absolute minimum odds floor constraint
     merged["filters"]["min_odds"] = max(float(merged["filters"].get("min_odds", ODDS_FLOOR_ABS)), ODDS_FLOOR_ABS)
     merged["filters"]["min_ev"] = max(float(merged["filters"].get("min_ev", 0.0)), 0.0)
-    merged["filters"]["top_picks_per_match"] = 1
+    merged["filters"]["top_picks_per_match"] = min(2, max(1, int(merged["filters"].get("top_picks_per_match", 1))))
     merged["filters"]["top_signal_limit"] = min(
         8, max(1, int(merged["filters"].get("top_signal_limit", 5)))
     )

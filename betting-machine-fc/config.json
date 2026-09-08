@@ -8,7 +8,7 @@
     "min_edge": 0.02,
     "min_probability": 0.0,
     "max_ah_abs_line": 2.5,
-    "max_odds": 2.5,
+    "max_odds": 2.75,
     "top_pick_limit": 50,
     "top_picks_per_market": 25,
     "top_picks_per_match": 2,
@@ -28,7 +28,7 @@
     "season": "2526"
   },
   "tracking_unit": 1,
-  "scan_window_hours": 40,
+  "scan_window_hours": 24,
   "parlay": {
     "tiers": {
       "safe": {

@@ -48,7 +48,8 @@ _RATED_HISTORY_WEIGHTS = {
 _BLOCKED_MARKERS = (
     " women", " woman", " u17", " u18", " u19", " u20", " u21", " u23",
     " youth", " reserve", " reserves", " cup", " copa", " coppa", " coupe",
-    " pokal", " taca", " friendly", " qualification",
+    " pokal", " taca", " friendly", " friendlies", " qualification",
+    " team vs player", " primavera", " next pro", " trophy",
 )
 
 _AMBIGUOUS_OR_UNVALIDATED = (

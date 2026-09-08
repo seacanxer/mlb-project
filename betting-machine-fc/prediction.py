@@ -1,4 +1,5 @@
 """Shared live/backtest projection path for Formula v4."""
+import math
 from model import (
     ah_ev,
     ah_ev_away,
@@ -15,7 +16,7 @@ FORMULA_VERSION = "ou-ah-v4.0.0"
 
 def _valid_price(value):
     try:
-        return value is not None and float(value) > 1.0
+        return value is not None and math.isfinite(float(value)) and float(value) > 1.0
     except (TypeError, ValueError):
         return False
 
@@ -161,3 +162,35 @@ def projection_candidate_status(projection):
     if coverage == "shadow":
         return "shadow"
     return "unsupported"
+
+
+def build_projection_fallback(market, *, reason=None):
+    """Recover missing 1X2 from paired O/U + AH; never claim rated coverage.
+
+    No fabricated draw price or league-average score direction is introduced.
+    Missing either paired market remains an explicit data failure.
+    """
+    profile = get_league_profile(market.get("league"))
+    if profile.route == "blocked":
+        raise ValueError("blocked league cannot use projection fallback")
+    ou = select_main_ou(market.get("odds_ou"))
+    ah = select_main_ah(market.get("odds_ah"))
+    if ou is None or ah is None:
+        raise ValueError("fallback requires complete paired O/U and AH markets")
+    line, over, under = ou
+    total, fair_over = fit_total_from_ou(over, under, line)
+    margin, _ = fit_margin_from_ah(total, *ah, prior_margin=0.0)
+    bound = max(0.0, total - 0.20)
+    margin = max(-bound, min(bound, margin))
+    from model import match_probs
+    home, away = (total + margin) / 2, (total - margin) / 2
+    return {
+        "home": round(home, 3), "away": round(away, 3), "total": round(total, 3),
+        "formula_version": FORMULA_VERSION, "lambda_source": "market-fallback",
+        "coverage_status": "shadow", "data_grade": "C", "history_weight": 0.0,
+        "league_model": profile.key, "coverage_reason": "paired O/U + AH fallback; no independent ratings",
+        "fallback_reason": str(reason or "primary projection unavailable"),
+        "market_total": total, "market_margin": margin, "market_total_line": line,
+        "market_margin_source": "ah", "market_ah_line": ah[0],
+        "fair_1x2": match_probs(home, away), "fair_over": fair_over,
+    }

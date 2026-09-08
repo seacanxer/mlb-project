@@ -158,7 +158,7 @@ def test_shadow_candidates_need_strict_gates_and_stay_shadow():
     # strong shadow passes but is never relabeled official
     strong = _cand("ou", 0.62, 1.9, 0.12, 0.06)
     strong.update({"coverage_status": "shadow", "selection_status": "shadow",
-                   "conservative_ev": 0.08})
+                   "conservative_ev": 0.08, "has_both_markets": True})
     picks = select_top_picks([strong], min_odds=1.6)
     assert len(picks) == 1
     assert picks[0]["selection_status"] in {"shadow", "top_pick:shadow"}

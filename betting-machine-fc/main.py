@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import math
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -20,7 +21,7 @@ from model import (
     under_prob,
 )
 from fatigue import apply_rest_adjustment, record_fixtures
-from prediction import build_projection, projection_candidate_status
+from prediction import build_projection, build_projection_fallback, projection_candidate_status, select_main_ou, select_main_ah
 from strength_rating import parse_fd_date
 
 
@@ -42,7 +43,8 @@ def run_pipeline(cfg=None):
         import scraper_1xbit as sc
         from fatigue import load_ledger, save_ledger
 
-        matches = sc.list_matches()
+        matches = sc.list_matches_paginated(count=int(cfg.get("scan_match_limit", 500)),
+                                            window_hours=float(cfg.get("scan_window_hours", 24)))
         picks = []
         detailed_matches = []
         _ledger = load_ledger()
@@ -50,10 +52,12 @@ def run_pipeline(cfg=None):
             try:
                 v = sc.get_match(m["I"])
                 o = sc.extract_markets(v)
-                projection = build_projection(
-                    o,
-                    strength_weight=cfg.get("formula", {}).get("strength_weight_override"),
-                )
+                try:
+                    projection = build_projection(
+                        o, strength_weight=cfg.get("formula", {}).get("strength_weight_override"),
+                    )
+                except ValueError as exc:
+                    projection = build_projection_fallback(o, reason=exc)
                 lh, la = projection["home"], projection["away"]
                 try:
                     lh, la, _f = apply_rest_adjustment(
@@ -153,7 +157,7 @@ def analyze_match(o, lh, la, min_odds=1.66, min_ev=0.0, max_ah_line=2.5,
     def market_value(mapping, key):
         return mapping.get(key, mapping.get(str(key)))
 
-    o1, od, o2 = (market_value(o["odds_1x2"], key) for key in (1, 2, 3))
+    o1, od, o2 = (market_value(o.get("odds_1x2") or {}, key) for key in (1, 2, 3))
     market_1x2 = devig({"home": o1, "draw": od, "away": o2})
     # 1X2 — circular (experimental), gate lebih ketat di select_top_picks
     for market, pick, p, odds, market_p in [
@@ -219,7 +223,7 @@ def analyze_match(o, lh, la, min_odds=1.66, min_ev=0.0, max_ah_line=2.5,
         if line < -1.0:
             continue
         e_ah = ah_ev(line, c, lh, la)
-        if c >= min_odds and c <= 2.50 and e_ah >= min_ev:
+        if c >= min_odds and c <= 2.75 and e_ah >= min_ev:
             fair_price = ah_fair_odds(line, "home", lh, la)
             p_approx = 1.0 / fair_price if fair_price > 0 else 0
             counterpart = away_ah.get(round(-float(line), 4))
@@ -238,7 +242,7 @@ def analyze_match(o, lh, la, min_odds=1.66, min_ev=0.0, max_ah_line=2.5,
         if line < -1.0:
             continue
         e_ah = ah_ev_away(line, c, lh, la)
-        if c >= min_odds and c <= 2.50 and e_ah >= min_ev:
+        if c >= min_odds and c <= 2.75 and e_ah >= min_ev:
             fair_price = ah_fair_odds(line, "away", lh, la)
             p_approx = 1.0 / fair_price if fair_price > 0 else 0
             counterpart = home_ah.get(round(-float(line), 4))
@@ -262,11 +266,11 @@ def select_top_picks(candidates, limit=50, per_market=25, per_match=2,
     ``min_edge`` remains in the public signature for API compatibility; Formula
     v4 ranks settlement-aware conservative EV instead of binary probability.
     """
-    odds_ceiling = {"ah": 2.50, "ou": 2.50}
+    odds_ceiling = {"ah": 2.75, "ou": 2.75}
     # Shadow coverage (unrated senior leagues, e.g. USA MLS): allowed through
     # but with strict gates — never promoted silently to official.
-    SHADOW_MIN_CONS_EV = 0.06
-    SHADOW_MIN_PROB = 0.56
+    SHADOW_MIN_CONS_EV = 0.02
+    SHADOW_MIN_PROB = 0.50
     eligible = []
     for pick in candidates:
         market = pick.get("market")
@@ -285,10 +289,12 @@ def select_top_picks(candidates, limit=50, per_market=25, per_match=2,
         if not min_odds <= odds <= eff_odds_cap:
             continue
         conservative_ev = float(pick.get("conservative_ev", edge - 0.02))
+        if not all(math.isfinite(value) for value in (probability, odds, edge, conservative_ev)) or not 0 < probability < 1:
+            continue
         min_cons_ev = max(float(min_ev), 0.02)
         if is_shadow:
             min_cons_ev = max(min_cons_ev, SHADOW_MIN_CONS_EV)
-            if probability < SHADOW_MIN_PROB:
+            if probability < SHADOW_MIN_PROB or not pick.get("has_both_markets") or odds > 2.50:
                 continue
         if conservative_ev < min_cons_ev or edge > 0.25:
             continue
@@ -296,7 +302,7 @@ def select_top_picks(candidates, limit=50, per_market=25, per_match=2,
         score = min(conservative_ev, 0.15) / 0.15 * 80 + price_quality * 20
         item = dict(pick)
         item["rank_score"] = round(score, 2)
-        item["locked"] = True
+        item["locked"] = bool(pick.get("locked", False))
         eligible.append(item)
 
     eligible.sort(key=lambda p: (p["rank_score"], p["probability"]), reverse=True)
@@ -322,11 +328,11 @@ def select_top_picks(candidates, limit=50, per_market=25, per_match=2,
     top_count = 0
     for pick in selected:
         league = pick.get("league") or "Unknown"
-        is_top = top_count < top_signal_limit and league_top_counts.get(league, 0) < 2
+        is_top = pick.get("coverage_status") == "full" and top_count < top_signal_limit and league_top_counts.get(league, 0) < 2
         pick["is_top_pick"] = is_top
         if pick.get("coverage_status") == "shadow":
             # preserve provenance — never silently promote shadow to official
-            pick["selection_status"] = "top_pick:shadow" if is_top else "shadow"
+            pick["selection_status"] = "shadow"
             pick["tier"] = "watch"
         else:
             pick["selection_status"] = "top_pick" if is_top else "official"
@@ -370,6 +376,7 @@ def pick_entry(o, market, pick, p, odds, e, market_probability=None,
         "data_grade": projection_meta.get("data_grade"),
         "league_model": projection_meta.get("league_model"),
         "selection_status": status,
+        "has_both_markets": select_main_ou(o.get("odds_ou")) is not None and select_main_ah(o.get("odds_ah")) is not None,
     }
 
 
