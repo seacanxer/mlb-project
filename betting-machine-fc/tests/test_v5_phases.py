@@ -157,6 +157,23 @@ def test_calibration_fit_apply_identity_fallback():
     assert apply_platt(0.65, {}) is None
 
 
+def test_prediction_card_follows_league_rho():
+    from match_prediction import compute_prediction_card
+    import time as _t
+    base = {"lambdas": {"home": 1.5, "away": 1.2},
+            "info": {"home": "A", "away": "B", "league": "L",
+                     "start_ts": _t.time() + 3600, "match_id": "1"},
+            "model": {"coverage_status": "full", "formula_version": "ou-ah-v4.2.0",
+                      "lambda_source": "market+strength", "rho": -0.04}}
+    auto = compute_prediction_card(base)
+    assert auto["parameters"]["rho"] == -0.04
+    assert auto["model_meta"]["scenario_only"] is False
+    manual = compute_prediction_card(base, rho=-0.13)
+    assert manual["parameters"]["rho"] == -0.13
+    assert manual["model_meta"]["scenario_only"] is True
+    assert auto["score_matrix"] != manual["score_matrix"]
+
+
 def test_decision_mapping_explicit():
     picks = select_top_picks([_shadow()], min_odds=1.5, include_shadow=True)
     assert picks and picks[0]["decision"] == "watch"

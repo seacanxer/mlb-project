@@ -1506,11 +1506,14 @@ def compute_prediction(req: PredictionComputeRequest):
         raise HTTPException(404, f"Fixture {req.fixture_key} not found in current scan data")
 
     try:
+        # Untouched rho slider (-0.13) means "follow the league": pass None
+        # so the card uses the same league rho Top Picks was evaluated with.
         result = compute_prediction_card(
             match_data, beta_squad=req.beta_squad,
             home_advantage_override=req.home_advantage,
             manual_adj_home=req.manual_adj_home,
-            manual_adj_away=req.manual_adj_away, rho=req.rho,
+            manual_adj_away=req.manual_adj_away,
+            rho=None if req.rho == -0.13 else req.rho,
         )
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from exc
@@ -1522,9 +1525,9 @@ def compute_prediction(req: PredictionComputeRequest):
         "away": info.get("away"),
         "league": info.get("league"),
         "start_ts": info.get("start_ts"),
-        "lambda_home": result["lambdas"]["home"],
-        "lambda_away": result["lambdas"]["away"],
-        "rho": req.rho,
+            "lambda_home": result["lambdas"]["home"],
+            "lambda_away": result["lambdas"]["away"],
+            "rho": result["parameters"]["rho"],
         "score_matrix": result["score_matrix"],
         "beta_squad": req.beta_squad,
         "home_advantage": result["parameters"]["home_advantage"],

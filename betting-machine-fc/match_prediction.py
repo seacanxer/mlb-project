@@ -235,17 +235,24 @@ def derive_all_markets(matrix, lh, la):
 
 def compute_prediction_card(match_data, beta_squad=0.0, home_advantage_override=None,
                             manual_adj_home=1.0, manual_adj_away=1.0,
-                            rho=RHO_DEFAULT):
+                            rho=None):
     """Compute the full prediction card for a match.
 
     match_data: a dict from matches_detailed.json (has 'info', 'lambdas', 'model', etc.)
     beta_squad: weight of squad-value modifier (0.0 = pure history/market, 0.4 = max)
     home_advantage_override: override home advantage factor (None = use model default)
     manual_adj_home/away: multiplier for manual adjustments (1.0 = no change)
-    rho: Dixon-Coles correlation parameter
+    rho: Dixon-Coles correlation parameter, or None to follow the match's
+    league rho from the projection (same assumption Top Picks used).
 
     Returns the full card dict ready for the API response.
     """
+    model_rho_in = (match_data.get('model') or {}).get('rho')
+    try:
+        model_rho = float(model_rho_in)
+    except (TypeError, ValueError):
+        model_rho = RHO_DEFAULT
+    eff_rho = float(rho) if rho is not None else model_rho
     # Extract base lambdas from the existing model output
     lambdas = match_data.get('lambdas', {})
     lh = float(lambdas.get('home') or 0)
@@ -278,17 +285,16 @@ def compute_prediction_card(match_data, beta_squad=0.0, home_advantage_override=
     la = max(0.15, min(5.0, la))
 
     # Build the full score matrix
-    matrix = build_full_matrix(lh, la, rho)
+    matrix = build_full_matrix(lh, la, eff_rho)
 
     # Derive all markets
     result = derive_all_markets(matrix, lh, la)
     result['model_lean'] = result.pop('recommended')
     result['recommended'] = {'1x2': 'NO BET', 'ah': None, 'ou': None, 'btts': 'NO BET'}
     from main import analyze_match, select_top_picks
-    from model import RHO_DEFAULT
     from prediction import FORMULA_VERSION
     import time
-    scenario = manual_adj_home != 1 or manual_adj_away != 1 or rho != RHO_DEFAULT or home_advantage_override is not None
+    scenario = manual_adj_home != 1 or manual_adj_away != 1 or (rho is not None and float(rho) != model_rho) or home_advantage_override is not None
     stale = (match_data.get('model', {}).get('formula_version') != FORMULA_VERSION
              or float(match_data.get('info', {}).get('start_ts') or 0) <= time.time())
     eligible = [] if scenario or stale else select_top_picks(analyze_match(
@@ -330,7 +336,7 @@ def compute_prediction_card(match_data, beta_squad=0.0, home_advantage_override=
         'home_advantage': home_advantage_override if home_advantage_override is not None else model_meta.get('home_advantage'),
         'manual_adj_home': round(float(manual_adj_home), 3),
         'manual_adj_away': round(float(manual_adj_away), 3),
-        'rho': round(rho, 3),
+        'rho': round(eff_rho, 3),
     }
 
     return result
