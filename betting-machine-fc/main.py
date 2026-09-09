@@ -525,6 +525,7 @@ def pick_entry(o, market, pick, p, odds, e, market_probability=None,
         "has_both_markets": select_main_ou(o.get("odds_ou")) is not None and select_main_ah(o.get("odds_ah")) is not None,
         "partial_ou": bool(projection_meta.get("split_assumed")),
         "total_disagreement": projection_meta.get("total_disagreement"),
+        "ratings_files": projection_meta.get("ratings_files"),
     }
 
 

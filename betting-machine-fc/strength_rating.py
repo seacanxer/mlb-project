@@ -516,6 +516,80 @@ def log_match_miss(league_code, name):
         pass
 
 
+def diagnose_match_coverage(home, away, league_label, season=None):
+    """Why a rated-league fixture is not full coverage. Returns one of:
+    no-league-code | no-ratings-file | ratings-build-failed |
+    team-miss:home:<name> | team-miss:away:<name> |
+    team-miss:both | stale-rating | ok-full | ok-full:cross:<codes>.
+    Never raises; used for funnel diagnostics (review: separate failure
+    categories instead of blaming everything on alias matching)."""
+    try:
+        code = resolve_code(league_label)
+        if not code:
+            return "no-league-code"
+        season = season or resolve_season(code)
+        if _coverage_blocked(code, season):
+            return "ratings-build-failed"
+        payload = load_ratings(code, season)
+        if payload is None:
+            try:
+                payload = build_ratings(code, season)
+            except Exception:
+                return "ratings-build-failed"
+        if not payload or not payload.get("teams"):
+            return "no-ratings-file"
+        try:
+            age = time.time() - float(payload.get("built_at", 0))
+            if age > RATINGS_TTL_S:
+                return "stale-rating"
+        except (TypeError, ValueError):
+            pass
+        hb = find_team_rating(home, season, prefer_code=code)
+        ab = find_team_rating(away, season, prefer_code=code)
+        if hb and ab:
+            crossed = [c for _, c, _, _, _, _ in (hb, ab) if c != code]
+            if crossed:
+                return f"ok-full:cross:{'+'.join(sorted(set(crossed)))}"
+            return "ok-full"
+        if not hb and not ab:
+            return f"team-miss:both:{home}|{away}"
+        if not hb:
+            return f"team-miss:home:{home}"
+        return f"team-miss:away:{away}"
+    except Exception:
+        return "provider-error"
+
+
+def find_team_rating(name, season, prefer_code=None):
+    """(key, code, att, def, league_avg, home_adv) or None. Prefers the
+    fixture league file; falls back to any same-season file. This handles
+    promotion/relegation across seasons: a team new to a division keeps
+    its history from the sibling league file instead of losing coverage.
+    Cross-league fuzzy is safe: prefer-code is tried first and every file
+    is single-league scoped."""
+    codes = ([prefer_code] if prefer_code else []) + [c for c in sorted(KNOWN_CODES) if c != prefer_code]
+    for code in codes:
+        payload = load_ratings(code, season)
+        if not payload or not payload.get("teams"):
+            continue
+        key = match_team(name, payload["teams"])
+        if key:
+            t = payload["teams"][key]
+            return (key, code, t["att"], t["def"],
+                    payload.get("league_avg", 1.35), payload.get("home_adv", 1.25))
+    return None
+
+
+def rating_file_for(name, league_label, season=None):
+    """'CODE:season' provenance for one side, or None. Mem-cached; cheap."""
+    code = resolve_code(league_label)
+    if not code:
+        return None
+    season = season or resolve_season(code)
+    found = find_team_rating(name, season, prefer_code=code)
+    return f"{found[1]}:{season}" if found else None
+
+
 def strength_lams(home, away, league_label, season=None):
     """Independent (non-market) lambdas. Returns (lh, la) or None if the
     league has no ratings coverage — caller must fall back to market λ."""
@@ -536,21 +610,20 @@ def strength_lams(home, away, league_label, season=None):
         if not payload.get("teams"):
             _remember_no_coverage(code, season)
             return None
-    teams = payload["teams"]
-    hk = match_team(home, teams)
-    ak = match_team(away, teams)
+    hb = find_team_rating(home, season, prefer_code=code)
+    ab = find_team_rating(away, season, prefer_code=code)
     # An unmatched provider team name is not full model coverage.  Falling
     # back to a neutral team here used to masquerade as an independent signal.
-    if not hk:
+    if not hb:
         log_match_miss(code, home)
-    if not ak:
+    if not ab:
         log_match_miss(code, away)
-    if not hk or not ak:
+    if not hb or not ab:
         return None
-    hatt = teams[hk]["att"]
-    adef = teams[ak]["def"]
-    aatt = teams[ak]["att"]
-    hdef = teams[hk]["def"]
+    # Each side keeps its own (att, def); fixture context (avg/adv) comes
+    # from the fixture league file so home/away scaling stays comparable.
+    hatt, adef = hb[2], ab[3]
+    aatt, hdef = ab[2], hb[3]
     lh, la = strength_lam(hatt, adef, aatt, hdef,
                           payload.get("league_avg", 1.35),
                           payload.get("home_adv", 1.25))

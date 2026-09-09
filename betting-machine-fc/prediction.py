@@ -8,7 +8,7 @@ from model import (
     lam_from_1x2,
 )
 from league_profiles import get_league_profile
-from strength_rating import get_league_rho, hybrid_lams
+from strength_rating import get_league_rho, hybrid_lams, resolve_season
 from model import RHO_DEFAULT
 
 
@@ -115,6 +115,7 @@ def build_projection(market, *, rating_season=None, strength_weight=None):
     history_weight = 0.0
     rho = RHO_DEFAULT
     total_disagreement = None  # |history-blended total - market total|
+    ratings_files = {"home": None, "away": None}
 
     if profile.route == "rated":
         weight = profile.prior_weight if strength_weight is None else float(strength_weight)
@@ -124,6 +125,20 @@ def build_projection(market, *, rating_season=None, strength_weight=None):
         )
         history_weight = weight if source == "market+strength" else 0.0
         coverage = "full" if source == "market+strength" else "market_only"
+        if coverage == "full":
+            try:
+                from strength_rating import rating_file_for
+                # Same season hybrid_lams used (explicit override or resolved),
+                # so provenance labels match the blended ratings.
+                _season = rating_season or resolve_season(profile.key)
+                ratings_files = {
+                    "home": rating_file_for(market.get("home"), market.get("league"), season=_season),
+                    "away": rating_file_for(market.get("away"), market.get("league"), season=_season),
+                }
+            except Exception:
+                ratings_files = {"home": None, "away": None}
+        else:
+            ratings_files = {"home": None, "away": None}
         if coverage == "full":
             try:
                 rho = get_league_rho(market.get("league"), season=rating_season)
@@ -159,6 +174,7 @@ def build_projection(market, *, rating_season=None, strength_weight=None):
         "formula_version": FORMULA_VERSION,
         "rho": round(float(rho), 3),
         "total_disagreement": total_disagreement,
+        "ratings_files": ratings_files,
         "lambda_source": source,
         "coverage_status": coverage,
         "data_grade": data_grade,
@@ -201,6 +217,7 @@ def build_projection_ou_only(market, *, reason=None):
     return {
         "home": round(home, 3), "away": round(away, 3), "total": round(total, 3),
         "formula_version": FORMULA_VERSION, "rho": RHO_DEFAULT,
+        "ratings_files": {"home": None, "away": None},
         "lambda_source": "market-partial-ou",
         "coverage_status": "shadow", "data_grade": "D", "history_weight": 0.0,
         "league_model": profile.key, "coverage_reason": "OU-only partial; neutral split assumed",
@@ -255,6 +272,7 @@ def build_projection_fallback(market, *, reason=None):
     return {
         "home": round(home, 3), "away": round(away, 3), "total": round(total, 3),
         "formula_version": FORMULA_VERSION, "rho": RHO_DEFAULT,
+        "ratings_files": {"home": None, "away": None},
         "lambda_source": "market-fallback",
         "coverage_status": "shadow", "data_grade": "C", "history_weight": 0.0,
         "league_model": profile.key, "coverage_reason": "paired O/U + AH fallback; no independent ratings",

@@ -61,6 +61,48 @@ def test_alias_provenance_table_exists():
     assert sr.match_team("Man City", {"Manchester City": {"att": 1, "def": 1}}) == "Manchester City"
 
 
+def test_diagnose_match_coverage_categories(tmp_path, monkeypatch):
+    csv = tmp_path / "E0_2425.csv"
+    csv.write_text("Date,HomeTeam,AwayTeam,FTHG,FTAG\n" + "\n".join(
+        f"{i:02d}/01/2025,Alpha,Beta,2,1" for i in range(1, 21)))
+    monkeypatch.setattr(sr.sh, "download", lambda *a, **k: str(csv))
+    monkeypatch.setattr(sr, "DATA_DIR", str(tmp_path))
+    sr._mem_cache.clear()
+    sr._no_coverage.clear()
+    assert sr.diagnose_match_coverage("Alpha", "Beta", "E0", season="2425") == "ok-full"
+    assert sr.diagnose_match_coverage("Gamma", "Beta", "E0", season="2425").startswith("team-miss:home")
+    assert sr.diagnose_match_coverage("Alpha", "Gamma", "E0", season="2425").startswith("team-miss:away")
+    assert sr.diagnose_match_coverage("A", "B", "Atlantis. Premier") == "no-league-code"
+    # cross-league history is still full coverage (provenance tracked):
+    # PromotedFC missing from E1 file but present in E0 sibling file.
+    import time as _t
+    now = _t.time()
+    def fake_load(code, season):
+        if code == "E1":
+            return {"teams": {"Local": {"att": 1.0, "def": 1.0}},
+                    "league_avg": 1.3, "home_adv": 1.2, "built_at": now}
+        if code == "E0":
+            return {"teams": {"PromotedFC": {"att": 1.3, "def": 0.9}},
+                    "league_avg": 1.4, "home_adv": 1.1, "built_at": now}
+        return None
+    monkeypatch.setattr(sr, "load_ratings", fake_load)
+    got = sr.diagnose_match_coverage("PromotedFC", "Local", "England. Championship")
+    assert got.startswith("ok-full:cross"), got
+    lh, la = sr.strength_lams("PromotedFC", "Local", "England. Championship",
+                              season="2425")
+    assert lh > la > 0
+    sr._no_coverage.clear()
+
+
+def test_coverage_misses_endpoint():
+    from fastapi.testclient import TestClient
+    import server
+    res = TestClient(server.app).get("/api/coverage-misses")
+    assert res.status_code == 200
+    data = res.json()
+    assert "misses" in data and "coverage_reasons" in data
+
+
 def test_no_coverage_ttl_and_retry():
     sr._no_coverage.clear()
     sr._remember_no_coverage("E0", "9999")

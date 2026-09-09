@@ -371,6 +371,26 @@ def execute_live_scan_sync():
                     raise
                 coverage = projection.get("coverage_status", "market_only")
                 diagnostics[coverage if coverage in diagnostics else "market_only"] += 1
+                if coverage != "full" and get_league_profile(
+                        o.get("league") or "").route == "rated":
+                    # Only rated leagues can reach full: anything else here
+                    # is a real, fixable coverage failure (not by design).
+                    try:
+                        from strength_rating import diagnose_match_coverage
+                        reason = diagnose_match_coverage(
+                            o.get("home"), o.get("away"), o.get("league"))
+                        bucket = reason.split(":")[0]
+                        diagnostics.setdefault("coverage_reasons", {})
+                        diagnostics["coverage_reasons"][bucket] = \
+                            diagnostics["coverage_reasons"].get(bucket, 0) + 1
+                        if len(diagnostics.get("coverage_examples", [])) < 12:
+                            diagnostics.setdefault("coverage_examples", []).append({
+                                "match": f"{o.get('home')} vs {o.get('away')}",
+                                "league": o.get("league"),
+                                "reason": reason,
+                            })
+                    except Exception:
+                        pass
                 lh, la = projection["home"], projection["away"]
                 from model import RHO_DEFAULT as _SCAN_RHO
                 scan_rho = projection.get("rho", _SCAN_RHO)
@@ -667,6 +687,27 @@ def get_picks(
         },
         "picks": paged,
         "pagination": {"limit": limit, "offset": offset, "total": total_filtered},
+    }
+
+
+@app.get("/api/coverage-misses")
+def get_coverage_misses():
+    """Unresolved provider team names (capped log) + last scan's coverage
+    failure breakdown, so alias gaps are grown from real data."""
+    misses = []
+    try:
+        miss_path = os.path.join(BASE_DIR, "data", "team_match_misses.json")
+        if os.path.exists(miss_path):
+            with open(miss_path, "r", encoding="utf-8") as f:
+                misses = json.load(f)
+    except Exception:
+        misses = []
+    diag = (scan_state.get("diagnostics") or {})
+    return {
+        "misses": misses[-50:],
+        "miss_count": len(misses),
+        "coverage_reasons": diag.get("coverage_reasons", {}),
+        "coverage_examples": diag.get("coverage_examples", []),
     }
 
 
