@@ -114,6 +114,7 @@ def build_projection(market, *, rating_season=None, strength_weight=None):
     data_grade = profile.data_grade
     history_weight = 0.0
     rho = RHO_DEFAULT
+    total_disagreement = None  # |history-blended total - market total|
 
     if profile.route == "rated":
         weight = profile.prior_weight if strength_weight is None else float(strength_weight)
@@ -128,6 +129,9 @@ def build_projection(market, *, rating_season=None, strength_weight=None):
                 rho = get_league_rho(market.get("league"), season=rating_season)
             except Exception:
                 rho = RHO_DEFAULT
+            # Model-vs-market tension (instability signal). Model-vs-market
+            # EDGE lives in edge_pct — the two must not share one penalty.
+            total_disagreement = round(abs((lh + la) - market_total), 3)
     elif profile.route == "shadow" and profile.baseline_total:
         # Weak environment prior for visible shadow evaluation only.  It cannot
         # create an Official Pick without team-level ratings.
@@ -137,6 +141,7 @@ def build_projection(market, *, rating_season=None, strength_weight=None):
         lh, la = adjusted_total * ratio, adjusted_total * (1.0 - ratio)
         source = "market+league-prior"
         coverage = "shadow"
+        total_disagreement = round(abs((lh + la) - market_total), 3)
     elif profile.route == "watch":
         # Unvalidated tier: market lambdas unchanged (no prior invented),
         # flagged shadow/watch downstream with strict edge + small stake.
@@ -153,6 +158,7 @@ def build_projection(market, *, rating_season=None, strength_weight=None):
         "total": round(lh + la, 3),
         "formula_version": FORMULA_VERSION,
         "rho": round(float(rho), 3),
+        "total_disagreement": total_disagreement,
         "lambda_source": source,
         "coverage_status": coverage,
         "data_grade": data_grade,
@@ -176,6 +182,54 @@ def projection_candidate_status(projection):
     if coverage == "shadow":
         return "shadow"
     return "unsupported"
+
+
+def build_projection_ou_only(market, *, reason=None):
+    """OU-only partial projection: total comes from the complete O/U market,
+    the home/away split is ASSUMED neutral and flagged. AH/1X2 picks must
+    not use this path (margin unknown); OU picks may, under shadow gates.
+    Blocked leagues stay blocked."""
+    profile = get_league_profile(market.get("league"))
+    if profile.route == "blocked":
+        raise ValueError("blocked league cannot use OU-only projection")
+    ou = select_main_ou(market.get("odds_ou"))
+    if ou is None:
+        raise ValueError("OU-only projection requires a complete two-sided O/U market")
+    line, over, under = ou
+    total, fair_over = fit_total_from_ou(over, under, line)
+    home = away = max(0.10, total / 2.0)
+    return {
+        "home": round(home, 3), "away": round(away, 3), "total": round(total, 3),
+        "formula_version": FORMULA_VERSION, "rho": RHO_DEFAULT,
+        "lambda_source": "market-partial-ou",
+        "coverage_status": "shadow", "data_grade": "D", "history_weight": 0.0,
+        "league_model": profile.key, "coverage_reason": "OU-only partial; neutral split assumed",
+        "fallback_reason": str(reason or "paired markets unavailable"),
+        "split_assumed": True,
+        "market_total": total, "market_margin": 0.0, "market_total_line": line,
+        "market_margin_source": "assumed-neutral", "market_ah_line": None,
+        "fair_1x2": (1.0 / 3, 1.0 / 3, 1.0 / 3), "fair_over": fair_over,
+    }
+
+
+def project_match(market, *, strength_weight=None):
+    """Single entry point: primary -> paired fallback -> OU-only partial.
+    Returns (projection, path) with path in {"primary", "fallback", "ou_only"}.
+    Raises the last ValueError when nothing is projectable."""
+    err1 = err2 = None
+    try:
+        return build_projection(market, strength_weight=strength_weight), "primary"
+    except ValueError as e:
+        err1 = e
+    try:
+        return build_projection_fallback(market, reason=err1), "fallback"
+    except ValueError as e:
+        err2 = e
+    try:
+        return build_projection_ou_only(market, reason=err2), "ou_only"
+    except ValueError:
+        pass
+    raise err1 if err1 is not None else ValueError("no projectable market")
 
 
 def build_projection_fallback(market, *, reason=None):

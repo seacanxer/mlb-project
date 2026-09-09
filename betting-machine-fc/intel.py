@@ -27,7 +27,7 @@ from model import (
     total_fair_odds,
     under_prob,
 )
-from prediction import build_projection, select_main_ah, select_main_ou
+from prediction import build_projection, project_match, select_main_ah, select_main_ou
 from league_profiles import get_league_profile
 import elo_rating
 import db
@@ -70,16 +70,12 @@ def analyze_intel(o, snapshots=None):
         "context": [],
     }
     try:
-        proj = build_projection(o)
-    except Exception as exc:
-        try:
-            from prediction import build_projection_fallback
-            proj = build_projection_fallback(o, reason=exc)
-        except Exception as e2:
-            item["skip"] = True
-            item["decision"] = "UNSUPPORTED"
-            item["decide_reason"] = f"incomplete market or engine error: {e2}"
-            return item
+        proj, _proj_path = project_match(o)
+    except Exception as e2:
+        item["skip"] = True
+        item["decision"] = "UNSUPPORTED"
+        item["decide_reason"] = f"incomplete market or engine error: {e2}"
+        return item
 
     lh, la = proj["home"], proj["away"]
     rho = proj.get("rho", RHO_DEFAULT)

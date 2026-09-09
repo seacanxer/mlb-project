@@ -73,24 +73,25 @@ def main():
             continue
     settled = load_settled(args.db)
     print(f"matches={len(det)} candidates={len(cands)} settled_lookup={len(settled)}")
-    print(f"{'cons_ev':>8} {'margin':>7} {'min_odds':>9} {'n':>5} {'matched':>8} {'roi%':>8}")
+    print(f"{'cons_ev':>8} {'margin':>7} {'min_odds':>9} {'max_odds':>9} {'n':>5} {'matched':>8} {'roi%':>8}")
     for cons_ev in (0.005, 0.01, 0.02):
         for margin in (0.0, 0.03, 0.05):
             for min_odds in (1.50, 1.64):
-                sel = select_top_picks(
-                    cands, limit=args.limit, per_market=25, per_match=1,
-                    min_ev=0.0, min_edge=0.02, min_odds=min_odds, max_odds=2.75,
-                    top_signal_limit=5, include_shadow=True,
-                    shadow_min_cons_ev=cons_ev, shadow_prob_margin=margin,
-                    min_edge_official=0.015, min_edge_shadow=0.02,
-                    min_edge_watch=0.05)
+                for max_odds in (2.40, 2.75):
+                    sel = select_top_picks(
+                        cands, limit=args.limit, per_market=25, per_match=1,
+                        min_ev=0.0, min_edge=0.02, min_odds=min_odds, max_odds=max_odds,
+                        top_signal_limit=5, include_shadow=True,
+                        shadow_min_cons_ev=cons_ev, shadow_prob_margin=margin,
+                        min_edge_official=0.015, min_edge_shadow=0.02,
+                        min_edge_watch=0.05)
                 hits = []
                 for p in sel:
                     key = (str(p.get("match", "")).lower(), p.get("market"), p.get("pick"))
                     hits.extend(settled.get(key, []))
                 roi = (sum(hits) / len(hits) * 100) if hits else None
                 roi_s = f"{roi:+.1f}" if roi is not None else "n/a"
-                print(f"{cons_ev:>8.3f} {margin:>7.2f} {min_odds:>9.2f} {len(sel):>5} {len(hits):>8} {roi_s:>8}")
+                print(f"{cons_ev:>8.3f} {margin:>7.2f} {min_odds:>9.2f} {max_odds:>9.2f} {len(sel):>5} {len(hits):>8} {roi_s:>8}")
 
 
 if __name__ == "__main__":

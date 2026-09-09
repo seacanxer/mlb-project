@@ -21,7 +21,7 @@ from model import (
     under_prob,
 )
 from fatigue import apply_rest_adjustment, record_fixtures
-from prediction import build_projection, build_projection_fallback, projection_candidate_status, select_main_ou, select_main_ah
+from prediction import build_projection, build_projection_fallback, project_match, projection_candidate_status, select_main_ou, select_main_ah
 from strength_rating import parse_fd_date
 from market_quality import POLICY_VERSION, payout_metrics, recommendation_block
 
@@ -49,16 +49,16 @@ def run_pipeline(cfg=None):
         picks = []
         detailed_matches = []
         _ledger = load_ledger()
+        import time as _time
         for m in matches:
             try:
                 v = sc.get_match(m["I"])
                 o = sc.extract_markets(v)
-                try:
-                    projection = build_projection(
-                        o, strength_weight=cfg.get("formula", {}).get("strength_weight_override"),
-                    )
-                except ValueError as exc:
-                    projection = build_projection_fallback(o, reason=exc)
+                if float(o.get("start_ts") or 0) <= _time.time():
+                    continue  # never lock already-started fixtures
+                projection, _proj_path = project_match(
+                    o, strength_weight=cfg.get("formula", {}).get("strength_weight_override"),
+                )
                 lh, la = projection["home"], projection["away"]
                 try:
                     # Fixture ledger is observational. Unvalidated fatigue
@@ -161,6 +161,9 @@ def analyze_match(o, lh, la, min_odds=1.50, min_ev=0.0, max_ah_line=2.5,
     }
     if rho is None:
         rho = projection_meta.get("rho", RHO_DEFAULT)
+    # OU-only partial projection: neutral split is assumed, so only OU
+    # candidates are valid (1X2/BTTS/AH all need the home/away split).
+    ou_only = bool(projection_meta.get("split_assumed"))
     ph, pd, pa = match_probs(lh, la, rho)
     pbt = btts_prob(lh, la, rho)
     po = over_prob(2.5, lh, la, rho)
@@ -176,7 +179,7 @@ def analyze_match(o, lh, la, min_odds=1.50, min_ev=0.0, max_ah_line=2.5,
         ("1x2", "Draw", pd, od, market_1x2.get("draw")),
         ("1x2", f"Away ({o['away']})", pa, o2, market_1x2.get("away")),
     ]:
-        if "1x2" not in active_markets:
+        if "1x2" not in active_markets or ou_only:
             continue
         e = ev(p, odds) if odds else -999
         if e >= min_ev and odds and odds >= min_odds and odds <= 2.50:
@@ -217,7 +220,7 @@ def analyze_match(o, lh, la, min_odds=1.50, min_ev=0.0, max_ah_line=2.5,
         ("BTTS Yes", pbt, btts_market.get("yes"), market_btts.get("yes")),
         ("BTTS No", 1.0 - pbt, btts_market.get("no"), market_btts.get("no")),
     ]:
-        if "btts" not in active_markets:
+        if "btts" not in active_markets or ou_only:
             continue
         e = ev(p, odds) if odds else -999
         if odds and e >= min_ev and odds >= min_odds:
@@ -226,7 +229,7 @@ def analyze_match(o, lh, la, min_odds=1.50, min_ev=0.0, max_ah_line=2.5,
     home_ah = {round(float(line), 4): odds for line, odds in (o.get("odds_ah", {}).get("home", []) or [])}
     away_ah = {round(float(line), 4): odds for line, odds in (o.get("odds_ah", {}).get("away", []) or [])}
     for line, c in o.get("odds_ah", {}).get("home", []) or []:
-        if "ah" not in active_markets:
+        if "ah" not in active_markets or ou_only:
             break
         if abs(line) > max_ah_line:
             continue
@@ -246,7 +249,7 @@ def analyze_match(o, lh, la, min_odds=1.50, min_ev=0.0, max_ah_line=2.5,
             item["experimental"] = True
             out.append(item)
     for line, c in o.get("odds_ah", {}).get("away", []) or []:
-        if "ah" not in active_markets:
+        if "ah" not in active_markets or ou_only:
             break
         if abs(line) > max_ah_line:
             continue
@@ -287,12 +290,86 @@ def analyze_match(o, lh, la, min_odds=1.50, min_ev=0.0, max_ah_line=2.5,
     return out
 
 
+def _gate_context(*, min_ev, min_edge, min_odds, max_odds, odds_ceiling,
+                  include_shadow, shadow_min_cons_ev, shadow_prob_margin,
+                  min_edge_official, min_edge_shadow, min_edge_watch,
+                  cons_ev_base=0.02):
+    """Single source of truth for gate thresholds. Funnel/ablation tooling
+    copies and relaxes one key at a time — never a parallel gate copy."""
+    return {
+        "min_ev": float(min_ev), "min_edge": float(min_edge),
+        "min_odds": float(min_odds), "max_odds": max_odds,
+        "odds_ceiling": dict(odds_ceiling),
+        "include_shadow": bool(include_shadow),
+        "shadow_min_cons_ev": float(shadow_min_cons_ev),
+        "shadow_prob_margin": float(shadow_prob_margin),
+        "min_edge_official": float(min_edge_official),
+        "min_edge_shadow": float(min_edge_shadow),
+        "min_edge_watch": float(min_edge_watch),
+        "cons_ev_base": float(cons_ev_base),
+    }
+
+
+def default_gate_context():
+    """Production defaults — mirrors select_top_picks signature defaults."""
+    return _gate_context(
+        min_ev=0.0, min_edge=0.0, min_odds=1.50, max_odds=None,
+        odds_ceiling={"ah": 2.75, "ou": 2.75}, include_shadow=False,
+        shadow_min_cons_ev=0.01, shadow_prob_margin=0.03,
+        min_edge_official=0.015, min_edge_shadow=0.02, min_edge_watch=0.05,
+    )
+
+
+def gate_reason(pick, ctx):
+    """First failing gate name, or '' when the candidate passes everything.
+    Order = funnel reporting order (coverage first, price last)."""
+    market = pick.get("market")
+    if market not in ctx["odds_ceiling"]:
+        return "market"
+    probability = float(pick.get("probability") or 0)
+    odds = float(pick.get("odds") or 0)
+    edge = float(pick.get("ev") or 0)
+    status = pick.get("selection_status")
+    coverage = pick.get("coverage_status")
+    is_shadow = ctx["include_shadow"] and coverage == "shadow" and status in {"shadow", "top_pick:shadow"}
+    from market_quality import recommendation_block as _block
+    is_official = coverage == "full" and status in {"official", "top_pick"} and _block(pick) is None
+    if not (is_official or is_shadow):
+        return "coverage"
+    eff_odds_cap = ctx["max_odds"] if ctx["max_odds"] is not None else ctx["odds_ceiling"][market]
+    if not ctx["min_odds"] <= odds <= eff_odds_cap:
+        return "odds_range"
+    conservative_ev = float(pick.get("conservative_ev", edge - 0.02))
+    if not all(math.isfinite(v) for v in (probability, odds, edge, conservative_ev)) or not 0 < probability < 1:
+        return "finite"
+    edge_pct = pick.get("edge_pct")
+    watch = pick.get("league_model") == "UNVALIDATED"
+    if edge_pct is None or not math.isfinite(float(edge_pct)):
+        return "edge"
+    eff_min_edge = ctx["min_edge_watch"] if (is_shadow and watch) else (
+        ctx["min_edge_shadow"] if is_shadow else max(ctx["min_edge"], ctx["min_edge_official"]))
+    if float(edge_pct) < eff_min_edge:
+        return "edge"
+    min_cons_ev = max(ctx["min_ev"], ctx["cons_ev_base"])
+    if is_shadow:
+        # Breakeven-relative: static floors reject fair low-odds value
+        # and accept overpriced longshots. Also honors config cap.
+        if probability < 1.0 / odds + ctx["shadow_prob_margin"]:
+            return "breakeven"
+        if not pick.get("has_both_markets") and not pick.get("partial_ou"):
+            return "both_markets"
+        min_cons_ev = max(min_cons_ev, ctx["shadow_min_cons_ev"])
+    if conservative_ev < min_cons_ev or edge > 0.25:
+        return "cons_ev"
+    return ""
+
+
 def select_top_picks(candidates, limit=50, per_market=25, per_match=2,
                      min_ev=0.0, min_edge=0.0, min_odds=1.50, max_odds=None,
                      top_signal_limit=5, include_shadow=False,
                      shadow_min_cons_ev=0.01, shadow_prob_margin=0.03,
                      min_edge_official=0.015, min_edge_shadow=0.02,
-                     min_edge_watch=0.05):
+                     min_edge_watch=0.05, cons_ev_base=0.02):
     """Publish full-coverage O/U and AH picks, then mark a diversified Top set.
 
     Conservative EV absorbs model uncertainty. Fixture and market caps prevent
@@ -302,6 +379,17 @@ def select_top_picks(candidates, limit=50, per_market=25, per_match=2,
     Low-tier watch leagues additionally need a higher model/market edge.
     """
     odds_ceiling = {"ah": 2.75, "ou": 2.75}
+    ctx = _gate_context(
+        min_ev=min_ev, min_edge=min_edge, min_odds=min_odds,
+        max_odds=max_odds, odds_ceiling=odds_ceiling,
+        include_shadow=include_shadow,
+        shadow_min_cons_ev=shadow_min_cons_ev,
+        shadow_prob_margin=shadow_prob_margin,
+        min_edge_official=min_edge_official,
+        min_edge_shadow=min_edge_shadow,
+        min_edge_watch=min_edge_watch,
+        cons_ev_base=cons_ev_base,
+    )
     eligible = []
     for pick in candidates:
         market = pick.get("market")
@@ -310,37 +398,9 @@ def select_top_picks(candidates, limit=50, per_market=25, per_match=2,
         edge = float(pick.get("ev") or 0)
         if market not in odds_ceiling:
             continue
-        status = pick.get("selection_status")
-        coverage = pick.get("coverage_status")
-        is_shadow = include_shadow and coverage == "shadow" and status in {"shadow", "top_pick:shadow"}
-        is_official = coverage == "full" and status in {"official", "top_pick"} and recommendation_block(pick) is None
-        if not (is_official or is_shadow):
-            continue
-        eff_odds_cap = max_odds if max_odds is not None else odds_ceiling[market]
-        if not min_odds <= odds <= eff_odds_cap:
+        if gate_reason(pick, ctx):
             continue
         conservative_ev = float(pick.get("conservative_ev", edge - 0.02))
-        if not all(math.isfinite(value) for value in (probability, odds, edge, conservative_ev)) or not 0 < probability < 1:
-            continue
-        edge_pct = pick.get("edge_pct")
-        watch = pick.get("league_model") == "UNVALIDATED"
-        if edge_pct is None or not math.isfinite(float(edge_pct)):
-            continue
-        eff_min_edge = min_edge_watch if (is_shadow and watch) else (
-            min_edge_shadow if is_shadow else max(float(min_edge), float(min_edge_official)))
-        if float(edge_pct) < eff_min_edge:
-            continue
-        min_cons_ev = max(float(min_ev), 0.02)
-        if is_shadow:
-            # Breakeven-relative: static floors reject fair low-odds value
-            # and accept overpriced longshots. Also honors config cap.
-            if probability < 1.0 / odds + float(shadow_prob_margin):
-                continue
-            if not pick.get("has_both_markets"):
-                continue
-            min_cons_ev = max(min_cons_ev, float(shadow_min_cons_ev))
-        if conservative_ev < min_cons_ev or edge > 0.25:
-            continue
         price_quality = max(0.0, 1.0 - abs(odds - 1.95) / 0.65)
         score = min(conservative_ev, 0.15) / 0.15 * 80 + price_quality * 20
         item = dict(pick)
@@ -380,6 +440,12 @@ def select_top_picks(candidates, limit=50, per_market=25, per_match=2,
         else:
             pick["selection_status"] = "top_pick" if is_top else "official"
             pick["tier"] = "top_pick" if is_top else "official"
+        # Explicit publication decision (review §13/Status):
+        # qualified = passed model+price gates (in selected list);
+        # official/top_pick = published + locked; watch = research only.
+        # NO BET is the absence of a pick (explicit in intel decide()).
+        pick["decision"] = ("top_pick" if is_top else "official") \
+            if pick.get("coverage_status") == "full" else "watch"
         if is_top:
             top_count += 1
             league_top_counts[league] = league_top_counts.get(league, 0) + 1
@@ -457,6 +523,8 @@ def pick_entry(o, market, pick, p, odds, e, market_probability=None,
         "league_model": projection_meta.get("league_model"),
         "selection_status": status,
         "has_both_markets": select_main_ou(o.get("odds_ou")) is not None and select_main_ah(o.get("odds_ah")) is not None,
+        "partial_ou": bool(projection_meta.get("split_assumed")),
+        "total_disagreement": projection_meta.get("total_disagreement"),
     }
 
 

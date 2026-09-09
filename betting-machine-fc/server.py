@@ -30,7 +30,7 @@ import db
 import settlement
 import scraper_1xbit as sc
 import scraper_historical as sh
-from prediction import build_projection, build_projection_fallback
+from prediction import build_projection, build_projection_fallback, project_match
 from parlay import apply_ai_selection, build_parlay_slips
 try:
     import scraper_flashscore as fs
@@ -353,17 +353,20 @@ def execute_live_scan_sync():
                 if get_league_profile(o.get("league")).route == "blocked":
                     diagnostics["blocked"] += 1
                     continue
+                if float(o.get("start_ts") or 0) <= time.time():
+                    diagnostics["started"] += 1
+                    continue
                 try:
-                    projection = build_projection(
+                    projection, proj_path = project_match(
                         o, strength_weight=cfg.get("formula", {}).get("strength_weight_override"),
                     )
-                except ValueError as exc:
-                    try:
-                        projection = build_projection_fallback(o, reason=exc)
+                    if proj_path in ("fallback", "ou_only"):
                         diagnostics["fallback"] += 1
-                    except ValueError:
-                        diagnostics["missing_markets"] += 1
-                        raise
+                    if proj_path == "ou_only":
+                        diagnostics["ou_only"] += 1
+                except ValueError:
+                    diagnostics["missing_markets"] += 1
+                    raise
                 coverage = projection.get("coverage_status", "market_only")
                 diagnostics[coverage if coverage in diagnostics else "market_only"] += 1
                 lh, la = projection["home"], projection["away"]
@@ -448,8 +451,24 @@ def execute_live_scan_sync():
             min_edge_watch=float(cfg.get("filters", {}).get("min_edge_watch", 0.05)),
         )
 
+        # Attach-only calibration: calibrated_prob is recorded for later
+        # validation and NEVER gates selection (see calibration.py).
+        calibrators = None
+        if cfg.get("formula", {}).get("calibration_enabled", False):
+            try:
+                from calibration import apply_platt, load_calibrators
+                calibrators = load_calibrators()
+            except Exception:
+                calibrators = None
         # Every published recommendation is immediately locked for ROI tracking.
         for pick in picks:
+            if calibrators:
+                from calibration import apply_platt as _apply
+                pick["calibrated_prob"] = _apply(
+                    pick.get("probability"), calibrators.get(pick.get("market")))
+            else:
+                pick["calibrated_prob"] = None
+            pick["calibrated_ev"] = None
             bet_id, created = db.insert_bet(pick)
             pick["newly_locked"] = created
             existing = None if created else db.get_bet_by_id(bet_id)

@@ -72,7 +72,31 @@ LEAGUE_MAP = {
 }
 
 _mem_cache = {}
-_no_coverage = set()
+# Negative cache with timestamps: transient failures (network, partial
+# season) must not become permanent coverage loss for the process lifetime.
+# Entries expire after RATINGS_TTL_S so a later retry can succeed once the
+# dataset is available.
+_no_coverage = {}
+
+
+def _coverage_blocked(code, season):
+    ts = _no_coverage.get((code, season))
+    if ts is None:
+        return False
+    if time.time() - ts > RATINGS_TTL_S:
+        _no_coverage.pop((code, season), None)
+        _mem_cache.pop((code, season), None)
+        return False
+    return True
+
+
+def _remember_no_coverage(code, season):
+    _no_coverage[(code, season)] = time.time()
+
+
+def clear_no_coverage():
+    """Force retry of every failed league (operator/debug use)."""
+    _no_coverage.clear()
 
 KNOWN_CODES = {"E0", "E1", "E2", "E3", "EC", "SC0", "SC1", "SC2", "SC3",
                "D1", "D2", "SP1", "SP2", "I1", "I2", "F1", "F2",
@@ -342,8 +366,57 @@ TEAM_ALIASES = {
     "dortmund": "borussia dortmund", "bayern": "bayern munich",
 }
 
-_JUNK_SUFFIXES = (" fc", " cf", " sc", " afc", " ac", " us", " as", " rc",
-                  " (res)", " reserve", " reserves", " ii", " u21", " u23")
+# Club-type suffixes only. Team-CATEGORY markers (II, III, U19/U21/U23,
+# B/C sides, reserves, women) must NEVER be stripped: senior, reserve and
+# junior sides sharing a league label would otherwise cross-match.
+_JUNK_SUFFIXES = (" fc", " cf", " sc", " afc", " ac", " us", " as", " rc")
+
+# Tokens that force exact-only matching for that pair (senior vs reserve
+# vs junior must not fuzzy-match each other).
+CATEGORY_TOKENS = frozenset({
+    "ii", "iii", "iv", "u17", "u18", "u19", "u20", "u21", "u23",
+    "b", "c", "res", "reserves", "reserve", "youth", "women", "woman",
+    "wfc", "ladies",
+})
+
+# Alias provenance: value -> "verified:<source>" or "heuristic".
+# Verified = confirmed against football-data names; heuristic = best guess,
+# safe only because matching stays inside one league file.
+_ALIAS_SOURCE = {
+    "man utd": "verified:football-data",
+    "manchester utd": "verified:football-data",
+    "man city": "verified:football-data",
+    "manchester c": "verified:football-data",
+    "spurs": "verified:football-data",
+    "tottenham": "verified:football-data",
+    "wolves": "verified:football-data",
+    "wolverhampton": "verified:football-data",
+    "west ham": "verified:football-data",
+    "brighton": "verified:football-data",
+    "newcastle": "verified:football-data",
+    "leeds": "verified:football-data",
+    "1 koln": "verified:football-data",
+    "koln": "verified:football-data",
+    "borussia monchengladbach": "verified:football-data",
+    "gladbach": "verified:football-data",
+    "paris saint germain": "verified:football-data",
+    "psg": "verified:football-data",
+    "inter": "heuristic",
+    "inter milan": "heuristic",
+    "milan": "heuristic",
+    "roma": "heuristic",
+    "lazio": "heuristic",
+    "napoli": "heuristic",
+    "verona": "heuristic",
+    "real sociedad": "heuristic",
+    "athletic bilbao": "heuristic",
+    "atletico madrid": "heuristic",
+    "real betis": "heuristic",
+    "bayer leverkusen": "heuristic",
+    "leipzig": "heuristic",
+    "dortmund": "heuristic",
+    "bayern": "heuristic",
+}
 
 
 def normalize_team_name(name):
@@ -361,7 +434,9 @@ def normalize_team_name(name):
 def match_team(name, teams):
     """Resolve a team name to a ratings key: exact norm, else difflib ratio
     >= 0.82, else token Jaccard >= 0.5, else substring, else None (caller
-    rejects full coverage). Order matters: strict first, loose last."""
+    rejects full coverage). Order matters: strict first, loose last.
+    Pairs involving a team-CATEGORY token (II, U21, women, ...) match by
+    exact normalized name only — fuzzy must never merge senior/reserve."""
     import difflib
     if not name or not teams:
         return None
@@ -371,8 +446,15 @@ def match_team(name, teams):
         canon.setdefault(normalize_team_name(t), t)
     if n in canon:
         return canon[n]
+
+    def _category_locked(a, b):
+        toks = set(a.split()) | set(b.split())
+        return bool(toks & CATEGORY_TOKENS)
+
     best, best_r = None, 0.0
     for cn, t in canon.items():
+        if _category_locked(n, cn):
+            continue
         r = difflib.SequenceMatcher(None, n, cn).ratio()
         if r > best_r:
             best, best_r = t, r
@@ -381,6 +463,8 @@ def match_team(name, teams):
     toks = set(n.split())
     best, best_j = None, 0.0
     for cn, t in canon.items():
+        if _category_locked(n, cn):
+            continue
         ct = set(cn.split())
         union = toks | ct
         j = len(toks & ct) / len(union) if union else 0.0
@@ -389,6 +473,8 @@ def match_team(name, teams):
     if best_j >= 0.5:
         return best
     for cn, t in canon.items():
+        if _category_locked(n, cn):
+            continue
         if n in cn or cn in n:
             return t
     return None
@@ -430,7 +516,7 @@ def strength_lams(home, away, league_label, season=None):
     if not code:
         return None
     season = season or resolve_season(code)
-    if (code, season) in _no_coverage:
+    if _coverage_blocked(code, season):
         return None
     payload = load_ratings(code, season)
     if not payload or not payload.get("teams"):
@@ -438,10 +524,10 @@ def strength_lams(home, away, league_label, season=None):
         try:
             payload = build_ratings(code, season)
         except Exception:
-            _no_coverage.add((code, season))
+            _remember_no_coverage(code, season)
             return None
         if not payload.get("teams"):
-            _no_coverage.add((code, season))
+            _remember_no_coverage(code, season)
             return None
     teams = payload["teams"]
     hk = match_team(home, teams)
@@ -488,13 +574,14 @@ def get_league_rho(league_label, season=None):
     if not code:
         return RHO_DEFAULT
     season = season or resolve_season(code)
-    if (code, season) in _no_coverage:
+    if _coverage_blocked(code, season):
         return RHO_DEFAULT
     payload = load_ratings(code, season)
     if payload is None:
         try:
             payload = build_ratings(code, season)
         except Exception:
+            _remember_no_coverage(code, season)
             return RHO_DEFAULT
     rho = (payload or {}).get("rho", None)
     try:
