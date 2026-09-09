@@ -10,6 +10,18 @@ APP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 echo "🚀 [Deploy] Deploying Football Betting Recommendation Engine to $DOMAIN..."
 echo "📂 [Deploy] Application directory: $APP_DIR"
 
+# 0. Update code first — fail loudly instead of deploying stale code.
+# Scan-generated files (picks/matches/config scan-state) always dirty the
+# tree and would otherwise make `git pull` fail silently-ignored.
+REPO_DIR="$(dirname "$APP_DIR")"
+if [ -d "$REPO_DIR/.git" ]; then
+    echo "📥 [Deploy] Stashing scan-generated files and pulling latest code..."
+    git -C "$REPO_DIR" stash push -m "deploy-autostash" -- betting-machine-fc/picks.json betting-machine-fc/matches_detailed.json betting-machine-fc/config.json 2>/dev/null || true
+    git -C "$REPO_DIR" pull --ff-only
+    echo "📌 [Deploy] Now on: $(git -C "$REPO_DIR" log --oneline -1)"
+    echo "🔍 [Deploy] Formula: $(grep -m1 FORMULA_VERSION "$APP_DIR/prediction.py")"
+fi
+
 # 1. Check Python installation
 if ! command -v python3 &> /dev/null; then
     echo "❌ [Deploy] Python 3 is required but not installed."
