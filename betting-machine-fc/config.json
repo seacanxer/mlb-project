@@ -28,6 +28,8 @@
     "shadow_enabled": true,
     "shadow_min_cons_ev": 0.01,
     "shadow_prob_margin": 0.025,
+    "big_cons_ev": 0.01,
+    "big_edge": 0.01,
     "calibration_enabled": false
   },
   "output": "picks.json",

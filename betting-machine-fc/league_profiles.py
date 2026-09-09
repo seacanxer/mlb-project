@@ -36,6 +36,19 @@ _EXACT = {
     "sweden ettan sodra": LeagueProfile("SE3S", 2.800, 0.06, "C", "shadow", "group-specific prior"),
 }
 
+# Big leagues: full team-rating coverage AND deep efficient markets.
+# Picks here get slightly looser gates (still positive, still measured)
+# because inputs are best-quality. Cross-league (UCL etc.) qualifies via
+# real domestic ratings, not the weak global prior.
+BIG_LEAGUE_CODES = frozenset({"E0", "SP1", "D1", "I1", "F1"})
+
+
+def is_big_league_pick(league_model, lambda_source):
+    """True for rated big-league picks and cross-league (continental)
+    picks backed by real domestic team ratings."""
+    return lambda_source == "market+strength-cross" or (league_model in BIG_LEAGUE_CODES)
+
+
 _RATED_HISTORY_WEIGHTS = {
     "E0": 0.35, "E1": 0.30, "E2": 0.28, "E3": 0.25, "EC": 0.20,
     "D1": 0.40, "D2": 0.35,

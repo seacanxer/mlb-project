@@ -412,7 +412,8 @@ def execute_live_scan_sync():
                 m_picks = analyze_match(
                     o, lh, la, min_odds, min_ev, max_ah_line,
                     projection_meta=projection,
-                    active_markets=cfg.get("markets", ["ou", "ah"]),
+                    active_markets=cfg.get("markets", ["ou", "ah", "1x2"]),
+                    big_cons_ev=float(cfg.get("formula", {}).get("big_cons_ev", 0.01)),
                 )
                 picks.extend(m_picks)
 
@@ -467,10 +468,12 @@ def execute_live_scan_sync():
             top_signal_limit=int(cfg.get("filters", {}).get("top_signal_limit", 5)),
             include_shadow=bool(formula.get("shadow_enabled", True)),
             shadow_min_cons_ev=float(formula.get("shadow_min_cons_ev", 0.01)),
-            shadow_prob_margin=float(formula.get("shadow_prob_margin", 0.03)),
+            shadow_prob_margin=float(formula.get("shadow_prob_margin", 0.025)),
             min_edge_official=float(cfg.get("filters", {}).get("min_edge_official", 0.015)),
             min_edge_shadow=float(cfg.get("filters", {}).get("min_edge_shadow", 0.02)),
             min_edge_watch=float(cfg.get("filters", {}).get("min_edge_watch", 0.05)),
+            big_cons_ev=float(formula.get("big_cons_ev", 0.01)),
+            big_edge=float(formula.get("big_edge", 0.01)),
         )
 
         # Attach-only calibration: calibrated_prob is recorded for later
@@ -591,10 +594,12 @@ def get_picks(
         top_signal_limit=int(cfg.get("filters", {}).get("top_signal_limit", 5)),
         include_shadow=bool(formula_reselect.get("shadow_enabled", True)),
         shadow_min_cons_ev=float(formula_reselect.get("shadow_min_cons_ev", 0.01)),
-        shadow_prob_margin=float(formula_reselect.get("shadow_prob_margin", 0.03)),
+        shadow_prob_margin=float(formula_reselect.get("shadow_prob_margin", 0.025)),
         min_edge_official=float(cfg.get("filters", {}).get("min_edge_official", 0.015)),
         min_edge_shadow=float(cfg.get("filters", {}).get("min_edge_shadow", 0.02)),
         min_edge_watch=float(cfg.get("filters", {}).get("min_edge_watch", 0.05)),
+        big_cons_ev=float(formula_reselect.get("big_cons_ev", 0.01)),
+        big_edge=float(formula_reselect.get("big_edge", 0.01)),
     )
 
     # Do not resurrect rejected alternates as watch recommendations. Shadow

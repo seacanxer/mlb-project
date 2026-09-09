@@ -23,6 +23,7 @@ from model import (
 from fatigue import apply_rest_adjustment, record_fixtures
 from prediction import build_projection, build_projection_fallback, project_match, projection_candidate_status, select_main_ou, select_main_ah
 from strength_rating import parse_fd_date
+from league_profiles import is_big_league_pick
 from market_quality import POLICY_VERSION, payout_metrics, recommendation_block
 
 
@@ -69,7 +70,8 @@ def run_pipeline(cfg=None):
                 m_picks = analyze_match(
                     o, lh, la, min_odds, min_ev, max_ah_line=max_ah_line,
                     projection_meta=projection,
-                    active_markets=cfg.get("markets", ["ou", "ah"]),
+                    active_markets=cfg.get("markets", ["ou", "ah", "1x2"]),
+                    big_cons_ev=float(cfg.get("formula", {}).get("big_cons_ev", 0.01)),
                 )
                 picks.extend(m_picks)
                 detailed_matches.append({
@@ -96,10 +98,12 @@ def run_pipeline(cfg=None):
             top_signal_limit=int(cfg.get("filters", {}).get("top_signal_limit", 5)),
             include_shadow=bool(formula_cfg.get("shadow_enabled", True)),
             shadow_min_cons_ev=float(formula_cfg.get("shadow_min_cons_ev", 0.01)),
-            shadow_prob_margin=float(formula_cfg.get("shadow_prob_margin", 0.03)),
+            shadow_prob_margin=float(formula_cfg.get("shadow_prob_margin", 0.025)),
             min_edge_official=float(cfg.get("filters", {}).get("min_edge_official", 0.015)),
             min_edge_shadow=float(cfg.get("filters", {}).get("min_edge_shadow", 0.02)),
             min_edge_watch=float(cfg.get("filters", {}).get("min_edge_watch", 0.05)),
+            big_cons_ev=float(formula_cfg.get("big_cons_ev", 0.01)),
+            big_edge=float(formula_cfg.get("big_edge", 0.01)),
         )
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(picks, f, ensure_ascii=False, indent=2)
@@ -149,7 +153,8 @@ def main():
 
 
 def analyze_match(o, lh, la, min_odds=1.50, min_ev=0.0, max_ah_line=2.5,
-                  projection_meta=None, active_markets=None, rho=None):
+                  projection_meta=None, active_markets=None, rho=None,
+                  big_cons_ev=0.01):
     from model import RHO_DEFAULT
     out = []
     active_markets = set(active_markets or ("ou", "ah"))
@@ -283,7 +288,10 @@ def analyze_match(o, lh, la, min_odds=1.50, min_ev=0.0, max_ah_line=2.5,
         item["policy_version"] = POLICY_VERSION
         item["lambdas"] = {"home": lh, "away": la}
         item["calibration_status"] = "unvalidated"
-        item["quality_reason"] = recommendation_block(item)
+        item["quality_reason"] = recommendation_block(
+            item, min_cons_ev=big_cons_ev
+            if is_big_league_pick(item.get("league_model"), item.get("lambda_source"))
+            else 0.02)
     return out
 
 
@@ -296,7 +304,7 @@ X12_ODDS_CAP = 2.20
 def _gate_context(*, min_ev, min_edge, min_odds, max_odds, odds_ceiling,
                   include_shadow, shadow_min_cons_ev, shadow_prob_margin,
                   min_edge_official, min_edge_shadow, min_edge_watch,
-                  cons_ev_base=0.02):
+                  cons_ev_base=0.02, big_cons_ev=0.01, big_edge=0.01):
     """Single source of truth for gate thresholds. Funnel/ablation tooling
     copies and relaxes one key at a time — never a parallel gate copy."""
     return {
@@ -310,6 +318,8 @@ def _gate_context(*, min_ev, min_edge, min_odds, max_odds, odds_ceiling,
         "min_edge_shadow": float(min_edge_shadow),
         "min_edge_watch": float(min_edge_watch),
         "cons_ev_base": float(cons_ev_base),
+        "big_cons_ev": float(big_cons_ev),
+        "big_edge": float(big_edge),
     }
 
 
@@ -321,6 +331,7 @@ def default_gate_context():
         include_shadow=False,
         shadow_min_cons_ev=0.01, shadow_prob_margin=0.025,
         min_edge_official=0.015, min_edge_shadow=0.02, min_edge_watch=0.05,
+        big_cons_ev=0.01, big_edge=0.01,
     )
 
 
@@ -342,7 +353,9 @@ def gate_reason(pick, ctx):
     coverage = pick.get("coverage_status")
     is_shadow = ctx["include_shadow"] and coverage == "shadow" and status in {"shadow", "top_pick:shadow"}
     from market_quality import recommendation_block as _block
-    is_official = coverage == "full" and status in {"official", "top_pick"} and _block(pick) is None
+    big = is_big_league_pick(pick.get("league_model"), pick.get("lambda_source"))
+    is_official = coverage == "full" and status in {"official", "top_pick"} and _block(
+        pick, min_cons_ev=ctx["big_cons_ev"] if big else 0.02) is None
     if not (is_official or is_shadow):
         return "coverage"
     eff_odds_cap = ctx["max_odds"] if ctx["max_odds"] is not None else ctx["odds_ceiling"][market]
@@ -357,11 +370,16 @@ def gate_reason(pick, ctx):
         return "edge"
     eff_min_edge = ctx["min_edge_watch"] if (is_shadow and watch) else (
         ctx["min_edge_shadow"] if is_shadow else max(ctx["min_edge"], ctx["min_edge_official"]))
+    if big and coverage == "full" and status in {"official", "top_pick"}:
+        eff_min_edge = min(eff_min_edge, ctx["big_edge"])
     if float(edge_pct) < eff_min_edge:
         return "edge"
     min_cons_ev = max(ctx["min_ev"], ctx["cons_ev_base"])
     if market == "1x2":
         min_cons_ev = max(min_cons_ev, X12_MIN_CONS_EV)
+    elif big and is_official:
+        # Big-league relief applies to the floor too (block already used it).
+        min_cons_ev = min(min_cons_ev, ctx["big_cons_ev"])
     if is_shadow:
         # Breakeven-relative: static floors reject fair low-odds value
         # and accept overpriced longshots. Also honors config cap.
@@ -380,7 +398,8 @@ def select_top_picks(candidates, limit=50, per_market=25, per_match=2,
                      top_signal_limit=5, include_shadow=False,
                      shadow_min_cons_ev=0.01, shadow_prob_margin=0.025,
                      min_edge_official=0.015, min_edge_shadow=0.02,
-                     min_edge_watch=0.05, cons_ev_base=0.02):
+                     min_edge_watch=0.05, cons_ev_base=0.02,
+                     big_cons_ev=0.01, big_edge=0.01):
     """Publish full-coverage O/U and AH picks, then mark a diversified Top set.
 
     Conservative EV absorbs model uncertainty. Fixture and market caps prevent
@@ -400,6 +419,8 @@ def select_top_picks(candidates, limit=50, per_market=25, per_match=2,
         min_edge_shadow=min_edge_shadow,
         min_edge_watch=min_edge_watch,
         cons_ev_base=cons_ev_base,
+        big_cons_ev=big_cons_ev,
+        big_edge=big_edge,
     )
     eligible = []
     for pick in candidates:

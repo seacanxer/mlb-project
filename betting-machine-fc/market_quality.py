@@ -36,7 +36,7 @@ def payout_metrics(market, side, line, odds, lh, la, rho=RHO_DEFAULT):
     return result
 
 
-def recommendation_block(pick):
+def recommendation_block(pick, min_cons_ev=0.02):
     """A full-coverage label alone is not sufficient evidence for publication."""
     if pick.get("policy_version") != POLICY_VERSION:
         return "refresh_required"
@@ -44,6 +44,6 @@ def recommendation_block(pick):
         return "no_independent_team_ratings"
     if not pick.get("market_probability"):
         return "incomplete_two_sided_price"
-    if not math.isfinite(float(pick.get("conservative_ev") or 0)) or float(pick.get("conservative_ev") or 0) < 0.02:
+    if not math.isfinite(float(pick.get("conservative_ev") or 0)) or float(pick.get("conservative_ev") or 0) < min_cons_ev:
         return "edge_not_robust"
     return None

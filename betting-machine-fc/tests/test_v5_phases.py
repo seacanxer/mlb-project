@@ -205,6 +205,26 @@ def test_cross_source_passes_recommendation_block():
     assert recommendation_block(pick) is None
 
 
+def test_big_league_gets_measured_relief():
+    from league_profiles import is_big_league_pick
+    assert is_big_league_pick("E0", "market+strength") is True
+    assert is_big_league_pick("UNRATED", "market+strength-cross") is True
+    assert is_big_league_pick("UNRATED", "market+league-prior") is False
+    assert is_big_league_pick("EC", "market+strength") is False
+    # marginal big-league official (cons 0.015, edge 0.012) passes,
+    # identical small-league pick does not
+    def mk(model):
+        return {"match": "X vs Y", "start_ts": 1, "market": "ou",
+                "pick": "Over 2.5", "probability": 0.60, "odds": 1.90,
+                "ev": 0.14, "market_probability": 0.588, "edge_pct": 0.012,
+                "conservative_ev": 0.015, "coverage_status": "full",
+                "selection_status": "official", "league_model": model,
+                "lambda_source": "market+strength",
+                "policy_version": "quality-v1", "has_both_markets": True}
+    assert len(select_top_picks([mk("E0")], min_odds=1.5)) == 1
+    assert select_top_picks([mk("EC")], min_odds=1.5) == []
+
+
 def test_decision_mapping_explicit():
     picks = select_top_picks([_shadow()], min_odds=1.5, include_shadow=True)
     assert picks and picks[0]["decision"] == "watch"
