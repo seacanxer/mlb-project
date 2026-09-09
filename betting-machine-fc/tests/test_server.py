@@ -66,6 +66,8 @@ def test_tracker_endpoint():
     assert "roi_pct" in data["summary"]
     assert "duplicates_hidden" in data["summary"]
     assert "market_performance" in data
+    assert "by_version" in data
+    assert isinstance(data["by_version"], list)
     assert "last_successful_scan_time" in data
     buckets = ["locked", "live", "overdue", "settled"]
     assert set(data["status_counts"]) == set(buckets)

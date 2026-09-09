@@ -859,6 +859,7 @@ def get_tracker(date: Optional[str] = Query(None, description="Filter by date (Y
         **buckets,
         "status_counts": {status: len(rows) for status, rows in buckets.items()},
         "market_performance": db.get_market_performance(),
+        "by_version": db.get_roi_by_version(),
         "unit_size": 1.0,
         "last_successful_scan_time": scan_state.get("last_scan_time"),
         "daily_summary": daily_summary,

@@ -51,6 +51,10 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--db", default=os.path.join(BASE_DIR, "bets.db"))
     ap.add_argument("--limit", type=int, default=200)
+    ap.add_argument("--no-stress", action="store_true",
+                    help="recompute conservative_ev as ev - penalty (undo the "
+                         "±10%% lambda stress-min) to compare policy with/without "
+                         "stress as a hard gate")
     args = ap.parse_args()
     det = json.load(open(os.path.join(BASE_DIR, "matches_detailed.json"), encoding="utf-8"))
     # Re-run CURRENT analyze on stored odds (stored picks are stale artifacts
@@ -66,9 +70,14 @@ def main():
             except Exception:
                 continue
         try:
-            cands.extend(analyze_match(
+            fresh = analyze_match(
                 o, proj["home"], proj["away"], min_odds=1.50, min_ev=0.0,
-                projection_meta=proj, active_markets=("ou", "ah")))
+                projection_meta=proj, active_markets=("ou", "ah"))
+            if args.no_stress:
+                for c in fresh:
+                    if c.get("ev") is not None and c.get("uncertainty_penalty") is not None:
+                        c["conservative_ev"] = round(c["ev"] - c["uncertainty_penalty"], 4)
+            cands.extend(fresh)
         except Exception:
             continue
     settled = load_settled(args.db)

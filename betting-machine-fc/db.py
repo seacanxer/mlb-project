@@ -398,6 +398,47 @@ def get_roi():
     }
 
 
+def get_roi_by_version():
+    """Prospective paper-evaluation split: ROI per (formula_version,
+    selection_status) from immutable locks + audit trail. A new formula
+    starts at n=0 here — past versions are never rewritten, so promotion
+    decisions compare untouched cohorts, not re-labeled history."""
+    import math
+    conn = _connect()
+    rows = conn.execute(_CANONICAL_BETS_CTE + '''
+        SELECT COALESCE(a.formula_version, 'unknown') AS formula_version,
+               COALESCE(a.selection_status, 'unknown') AS selection_status,
+               COUNT(*) AS bets,
+               COALESCE(SUM(CASE WHEN b.won=1 THEN 1 ELSE 0 END), 0) AS wins,
+               COALESCE(SUM(CASE WHEN b.won=0 THEN 1 ELSE 0 END), 0) AS losses,
+               COALESCE(SUM(b.profit), 0) AS profit,
+               COALESCE(AVG(b.profit * b.profit), 0) AS mean_sq
+        FROM ranked_bets b LEFT JOIN bet_audit a ON a.bet_id = b.id
+        WHERE b.duplicate_rank=1 AND b.settled=1
+        GROUP BY formula_version, selection_status
+        ORDER BY formula_version, selection_status
+    ''').fetchall()
+    conn.close()
+    result = []
+    for row in rows:
+        n = row['bets'] or 0
+        profit = float(row['profit'] or 0.0)
+        mean = profit / n if n else 0.0
+        var = max(float(row['mean_sq'] or 0.0) - mean * mean, 0.0)
+        hw = 1.96 * math.sqrt(var / n) * 100 if n > 1 else None
+        result.append({
+            'formula_version': row['formula_version'],
+            'selection_status': row['selection_status'],
+            'bets': n,
+            'wins': row['wins'] or 0,
+            'losses': row['losses'] or 0,
+            'profit_units': round(profit, 2),
+            'roi_pct': round(profit / n * 100, 2) if n else 0.0,
+            'ci95_hw_pct': round(hw, 2) if hw is not None else None,
+        })
+    return result
+
+
 def get_duplicate_count():
     conn = _connect()
     count = conn.execute(_CANONICAL_BETS_CTE + '''
