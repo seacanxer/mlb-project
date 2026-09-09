@@ -40,7 +40,7 @@ def recommendation_block(pick):
     """A full-coverage label alone is not sufficient evidence for publication."""
     if pick.get("policy_version") != POLICY_VERSION:
         return "refresh_required"
-    if pick.get("coverage_status") != "full" or pick.get("lambda_source") != "market+strength":
+    if pick.get("coverage_status") != "full" or pick.get("lambda_source") not in {"market+strength", "market+strength-cross"}:
         return "no_independent_team_ratings"
     if not pick.get("market_probability"):
         return "incomplete_two_sided_price"

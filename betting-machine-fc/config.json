@@ -23,7 +23,7 @@
     "1x2"
   ],
   "formula": {
-    "version": "ou-ah-v4.3.0",
+    "version": "ou-ah-v4.4.0",
     "strength_weight_override": null,
     "shadow_enabled": true,
     "shadow_min_cons_ev": 0.01,

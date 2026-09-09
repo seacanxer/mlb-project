@@ -176,6 +176,35 @@ def test_prediction_card_follows_league_rho():
     assert auto["score_matrix"] != manual["score_matrix"]
 
 
+def test_cross_league_ratings_upgrade_unrated_to_full():
+    from prediction import build_projection
+    m = {"home": "Manchester City", "away": "Real Madrid",
+         "league": "UEFA Champions League", "start_ts": 9999999999,
+         "odds_1x2": {1: 2.10, 2: 3.60, 3: 3.20},
+         "odds_ou": {2.5: {9: 1.80, 10: 2.05}},
+         "odds_ah": {"home": [(-0.5, 1.95)], "away": [(0.5, 1.85)]},
+         "odds_btts": {"yes": 1.70, "no": 2.10}}
+    proj = build_projection(m)
+    assert proj["coverage_status"] == "full"
+    assert proj["lambda_source"] == "market+strength-cross"
+    assert proj["data_grade"] == "B"
+    assert proj["ratings_files"]["home"].startswith("E0:")
+    assert proj["ratings_files"]["away"].startswith("SP1:")
+    # unresolvable teams stay shadow, never forced
+    m2 = dict(m, home="No Such Team FC", away="Also Madeup United")
+    proj2 = build_projection(m2)
+    assert proj2["coverage_status"] == "shadow"
+    assert proj2["lambda_source"] == "market+league-prior"
+
+
+def test_cross_source_passes_recommendation_block():
+    from market_quality import recommendation_block
+    pick = {"policy_version": "quality-v1", "coverage_status": "full",
+            "lambda_source": "market+strength-cross",
+            "market_probability": 0.55, "conservative_ev": 0.05}
+    assert recommendation_block(pick) is None
+
+
 def test_decision_mapping_explicit():
     picks = select_top_picks([_shadow()], min_odds=1.5, include_shadow=True)
     assert picks and picks[0]["decision"] == "watch"

@@ -8,11 +8,22 @@ from model import (
     lam_from_1x2,
 )
 from league_profiles import get_league_profile
-from strength_rating import get_league_rho, hybrid_lams, resolve_season
-from model import RHO_DEFAULT
+from strength_rating import (
+    current_season_code,
+    find_team_rating,
+    get_league_rho,
+    hybrid_lams,
+    prev_season_code,
+    resolve_season,
+)
+from model import RHO_DEFAULT, blend_lams, strength_lam
 
 
-FORMULA_VERSION = "ou-ah-v4.3.0"
+FORMULA_VERSION = "ou-ah-v4.4.0"
+
+# Blend weight for cross-league (continental competition) team ratings.
+# Same order as domestic rated leagues: independent evidence, bounded say.
+CROSS_LEAGUE_WEIGHT = 0.35
 
 
 def _valid_price(value):
@@ -75,6 +86,38 @@ def select_main_ah(odds_ah):
         return None
     _, _, home_line, home_odds, away_line, away_odds = min(candidates)
     return home_line, home_odds, away_line, away_odds
+
+
+def _cross_league_lambdas(home, away, rating_season=None):
+    """Independent lambdas for teams playing outside their domestic league
+    (UCL etc.): resolve each side in same-season domestic files. Context
+    (avg/adv) is the mean of both files — neutral between the two leagues.
+    Returns ((lh, la), home_file, away_file) or None if either side is
+    unrated anywhere. Tries current season first, then previous."""
+    seasons = []
+    if rating_season:
+        seasons.append(rating_season)
+    cur = current_season_code()
+    if cur not in seasons:
+        seasons.append(cur)
+    prev = prev_season_code(cur)
+    if prev not in seasons:
+        seasons.append(prev)
+    for season in seasons:
+        hb = find_team_rating(home, season)
+        if not hb:
+            continue
+        ab = find_team_rating(away, season)
+        if not ab:
+            continue
+        (_hk, hcode, hatt, hdef, havg, hadv) = hb
+        (_ak, acode, aatt, adef, aavg, aadv) = ab
+        avg = (havg + aavg) / 2.0
+        adv = (hadv + aadv) / 2.0
+        lh, la = strength_lam(hatt, adef, aatt, hdef, avg, adv)
+        lh, la = max(0.30, min(4.0, lh)), max(0.30, min(4.0, la))
+        return (round(lh, 3), round(la, 3)), f"{hcode}:{season}", f"{acode}:{season}"
+    return None
 
 
 def build_projection(market, *, rating_season=None, strength_weight=None):
@@ -146,6 +189,33 @@ def build_projection(market, *, rating_season=None, strength_weight=None):
                 rho = RHO_DEFAULT
             # Model-vs-market tension (instability signal). Model-vs-market
             # EDGE lives in edge_pct — the two must not share one penalty.
+            total_disagreement = round(abs((lh + la) - market_total), 3)
+    elif profile.route == "shadow" and profile.key == "UNRATED":
+        # Continental/friendly competitions without their own ratings file:
+        # resolve BOTH teams in domestic same-season files (promotion-aware).
+        # Only real team history upgrades to full; anything less stays shadow.
+        # _EXACT leagues keep their audited baseline path below (no double
+        # counting: prior + cross ratings must never stack).
+        cross = _cross_league_lambdas(
+            market.get("home"), market.get("away"), rating_season)
+        if cross is None:
+            history_weight = profile.prior_weight
+            adjusted_total = market_total * (1.0 - history_weight) + profile.baseline_total * history_weight
+            ratio = market_lh / max(0.1, market_lh + market_la)
+            lh, la = adjusted_total * ratio, adjusted_total * (1.0 - ratio)
+            source = "market+league-prior"
+            coverage = "shadow"
+            total_disagreement = round(abs((lh + la) - market_total), 3)
+        else:
+            (slh, sla), home_file, away_file = cross
+            lh = blend_lams(market_lh, slh, 1.0 - CROSS_LEAGUE_WEIGHT)
+            la = blend_lams(market_la, sla, 1.0 - CROSS_LEAGUE_WEIGHT)
+            lh, la = round(max(0.10, lh), 3), round(max(0.10, la), 3)
+            source = "market+strength-cross"
+            coverage = "full"
+            data_grade = "B"
+            history_weight = CROSS_LEAGUE_WEIGHT
+            ratings_files = {"home": home_file, "away": away_file}
             total_disagreement = round(abs((lh + la) - market_total), 3)
     elif profile.route == "shadow" and profile.baseline_total:
         # Weak environment prior for visible shadow evaluation only.  It cannot
