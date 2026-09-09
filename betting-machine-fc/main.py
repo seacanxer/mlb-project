@@ -233,9 +233,6 @@ def analyze_match(o, lh, la, min_odds=1.50, min_ev=0.0, max_ah_line=2.5,
             break
         if abs(line) > max_ah_line:
             continue
-        # prefer receiving goals — laying big handicap = longshot
-        if line < -1.0:
-            continue
         e_ah = ah_ev(line, c, lh, la, rho)
         if c >= min_odds and c <= 2.75 and e_ah >= min_ev:
             fair_price = ah_fair_odds(line, "home", lh, la, rho)
@@ -252,8 +249,6 @@ def analyze_match(o, lh, la, min_odds=1.50, min_ev=0.0, max_ah_line=2.5,
         if "ah" not in active_markets or ou_only:
             break
         if abs(line) > max_ah_line:
-            continue
-        if line < -1.0:
             continue
         e_ah = ah_ev_away(line, c, lh, la, rho)
         if c >= min_odds and c <= 2.75 and e_ah >= min_ev:
@@ -282,12 +277,20 @@ def analyze_match(o, lh, la, min_odds=1.50, min_ev=0.0, max_ah_line=2.5,
         stress = [payout_metrics(item["market"], side.lower(), line, item["odds"], lh * h, la * a, rho)["ev"]
                   for h, a in ((.9, .9), (1.1, 1.1), (.9, 1.1), (1.1, .9))]
         item["stress_ev"] = round(min(stress), 4)
-        item["conservative_ev"] = round(min(item["conservative_ev"], min(stress)), 4)
+        # Stress is diagnostic only (review: compare policies, don't hard-gate).
+        # conservative_ev stays ev-penalty; fragility is flagged, not baked in.
+        item["stress_fragile"] = bool(min(stress) < 0.02)
         item["policy_version"] = POLICY_VERSION
         item["lambdas"] = {"home": lh, "away": la}
         item["calibration_status"] = "unvalidated"
         item["quality_reason"] = recommendation_block(item)
     return out
+
+
+# 1X2 circularity surcharge (lambdas fitted from the same 1X2 prices).
+X12_MIN_PROB = 0.48
+X12_MIN_CONS_EV = 0.07
+X12_ODDS_CAP = 2.20
 
 
 def _gate_context(*, min_ev, min_edge, min_odds, max_odds, odds_ceiling,
@@ -314,8 +317,9 @@ def default_gate_context():
     """Production defaults — mirrors select_top_picks signature defaults."""
     return _gate_context(
         min_ev=0.0, min_edge=0.0, min_odds=1.50, max_odds=None,
-        odds_ceiling={"ah": 2.75, "ou": 2.75}, include_shadow=False,
-        shadow_min_cons_ev=0.01, shadow_prob_margin=0.03,
+        odds_ceiling={"ah": 2.75, "ou": 2.75, "1x2": X12_ODDS_CAP},
+        include_shadow=False,
+        shadow_min_cons_ev=0.01, shadow_prob_margin=0.025,
         min_edge_official=0.015, min_edge_shadow=0.02, min_edge_watch=0.05,
     )
 
@@ -329,6 +333,11 @@ def gate_reason(pick, ctx):
     probability = float(pick.get("probability") or 0)
     odds = float(pick.get("odds") or 0)
     edge = float(pick.get("ev") or 0)
+    if market == "1x2":
+        # Circularity surcharge: 1X2 lambdas are fitted from the same 1X2
+        # prices, so demand higher probability (cons EV checked below).
+        if probability < X12_MIN_PROB:
+            return "1x2_strict"
     status = pick.get("selection_status")
     coverage = pick.get("coverage_status")
     is_shadow = ctx["include_shadow"] and coverage == "shadow" and status in {"shadow", "top_pick:shadow"}
@@ -351,6 +360,8 @@ def gate_reason(pick, ctx):
     if float(edge_pct) < eff_min_edge:
         return "edge"
     min_cons_ev = max(ctx["min_ev"], ctx["cons_ev_base"])
+    if market == "1x2":
+        min_cons_ev = max(min_cons_ev, X12_MIN_CONS_EV)
     if is_shadow:
         # Breakeven-relative: static floors reject fair low-odds value
         # and accept overpriced longshots. Also honors config cap.
@@ -367,7 +378,7 @@ def gate_reason(pick, ctx):
 def select_top_picks(candidates, limit=50, per_market=25, per_match=2,
                      min_ev=0.0, min_edge=0.0, min_odds=1.50, max_odds=None,
                      top_signal_limit=5, include_shadow=False,
-                     shadow_min_cons_ev=0.01, shadow_prob_margin=0.03,
+                     shadow_min_cons_ev=0.01, shadow_prob_margin=0.025,
                      min_edge_official=0.015, min_edge_shadow=0.02,
                      min_edge_watch=0.05, cons_ev_base=0.02):
     """Publish full-coverage O/U and AH picks, then mark a diversified Top set.
@@ -378,7 +389,7 @@ def select_top_picks(candidates, limit=50, per_market=25, per_match=2,
     edge instead of a static floor, so the gate stays consistent at low odds.
     Low-tier watch leagues additionally need a higher model/market edge.
     """
-    odds_ceiling = {"ah": 2.75, "ou": 2.75}
+    odds_ceiling = {"ah": 2.75, "ou": 2.75, "1x2": X12_ODDS_CAP}
     ctx = _gate_context(
         min_ev=min_ev, min_edge=min_edge, min_odds=min_odds,
         max_odds=max_odds, odds_ceiling=odds_ceiling,

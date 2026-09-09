@@ -168,7 +168,8 @@ def test_official_selector_requires_v4_coverage_and_ou_ah_market():
     ]
     candidates = [dict(p, policy_version="quality-v1", lambda_source="market+strength", market_probability=.5, edge_pct=.06) for p in candidates]
     picks = select_top_picks(candidates, min_ev=0.0)
-    assert [p["pick"] for p in picks] == ["Home -0.25"]
+    # 1X2 is allowed with strict gates (prob>=0.48, cons>=0.07, odds<=2.20)
+    assert [p["pick"] for p in picks] == ["Away", "Home -0.25"]
     assert picks[0]["is_top_pick"] is True
 
 

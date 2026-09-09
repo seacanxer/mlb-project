@@ -89,7 +89,7 @@ def main():
         try:
             cands.extend(analyze_match(
                 o, proj["home"], proj["away"], min_odds=1.50, min_ev=0.0,
-                projection_meta=proj, active_markets=("ou", "ah")))
+                projection_meta=proj, active_markets=("ou", "ah", "1x2")))
         except Exception:
             continue
     print(f"matches={len(det)} coverage={dict(coverages)} candidates={len(cands)}")

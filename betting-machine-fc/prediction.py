@@ -12,7 +12,7 @@ from strength_rating import get_league_rho, hybrid_lams, resolve_season
 from model import RHO_DEFAULT
 
 
-FORMULA_VERSION = "ou-ah-v4.2.0"
+FORMULA_VERSION = "ou-ah-v4.3.0"
 
 
 def _valid_price(value):

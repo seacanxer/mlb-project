@@ -564,7 +564,7 @@ def health_check():
 
 @app.get("/api/picks")
 def get_picks(
-    market: Optional[str] = Query(None, description="Filter by active market: ah, ou"),
+    market: Optional[str] = Query(None, description="Filter by active market: 1x2, ah, ou"),
     league: Optional[str] = Query(None, description="Filter by league string"),
     min_odds: float = Query(1.64, ge=1.0, description="Minimum decimal odds floor"),
     max_odds: Optional[float] = Query(None, description="Maximum decimal odds cap"),

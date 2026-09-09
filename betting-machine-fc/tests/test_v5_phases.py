@@ -29,7 +29,9 @@ def test_gate_reason_names_first_rejection():
     bad_edge = _shadow(edge=0.001)
     assert gate_reason(bad_edge, ctx) == "edge"
     bad_one = dict(_shadow(), market="1x2")
-    assert gate_reason(bad_one, ctx) == "market"
+    assert gate_reason(bad_one, ctx) == ""
+    weak_one = dict(_shadow(), market="1x2", probability=0.40)
+    assert gate_reason(weak_one, ctx) == "1x2_strict"
 
 
 def test_watch_route_and_edge():

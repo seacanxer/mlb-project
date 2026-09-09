@@ -19,14 +19,15 @@
   },
   "markets": [
     "ah",
-    "ou"
+    "ou",
+    "1x2"
   ],
   "formula": {
-    "version": "ou-ah-v4.2.0",
+    "version": "ou-ah-v4.3.0",
     "strength_weight_override": null,
     "shadow_enabled": true,
     "shadow_min_cons_ev": 0.01,
-    "shadow_prob_margin": 0.03,
+    "shadow_prob_margin": 0.025,
     "calibration_enabled": false
   },
   "output": "picks.json",

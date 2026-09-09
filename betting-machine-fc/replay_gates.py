@@ -72,7 +72,7 @@ def main():
         try:
             fresh = analyze_match(
                 o, proj["home"], proj["away"], min_odds=1.50, min_ev=0.0,
-                projection_meta=proj, active_markets=("ou", "ah"))
+                projection_meta=proj, active_markets=("ou", "ah", "1x2"))
             if args.no_stress:
                 for c in fresh:
                     if c.get("ev") is not None and c.get("uncertainty_penalty") is not None:
