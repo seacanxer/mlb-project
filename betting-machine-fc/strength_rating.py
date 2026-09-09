@@ -364,6 +364,9 @@ TEAM_ALIASES = {
     "atletico madrid": "atletico madrid", "real betis": "betis",
     "bayer leverkusen": "leverkusen", "leipzig": "rb leipzig",
     "dortmund": "borussia dortmund", "bayern": "bayern munich",
+    "n e c": "nijmegen", "nec": "nijmegen",
+    "inverness ct": "inverness c",
+    "inverness caledonian thistle": "inverness c",
 }
 
 # Club-type suffixes only. Team-CATEGORY markers (II, III, U19/U21/U23,
@@ -416,6 +419,10 @@ _ALIAS_SOURCE = {
     "leipzig": "heuristic",
     "dortmund": "heuristic",
     "bayern": "heuristic",
+    "n e c": "verified:ratings-file",
+    "nec": "verified:ratings-file",
+    "inverness ct": "verified:ratings-file",
+    "inverness caledonian thistle": "verified:ratings-file",
 }
 
 

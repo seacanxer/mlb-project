@@ -112,3 +112,34 @@ def test_scanner_recovers_missing_1x2_and_records_diagnostics(tmp_path, monkeypa
     assert diag["blocked_leagues"] == 1
     assert diag["fallback"] == diag["processed"] == 1
     assert diag["full"] == 0
+
+
+def test_scan_skips_started_matches_and_inits_diagnostics(tmp_path, monkeypatch):
+    import server
+    import fatigue
+    future = market()
+    started = dict(market(), start_ts=time.time() - 3600)
+    monkeypatch.setattr(server, "BASE_DIR", str(tmp_path))
+    monkeypatch.setattr(server, "load_config", lambda: {"data_source": "1xbit", "scan_window_hours": 24})
+    saved = {}
+    monkeypatch.setattr(server, "save_config", lambda cfg: saved.update(cfg))
+    monkeypatch.setattr(server.sc, "list_matches_paginated",
+                         lambda **kw: [{"I": 1, "L": "USA. MLS"}, {"I": 2, "L": "USA. MLS"}])
+    calls = {"n": 0}
+
+    def fake_get(match_id):
+        calls["n"] += 1
+        return future if match_id == 1 else started
+
+    monkeypatch.setattr(server.sc, "get_match", fake_get)
+    monkeypatch.setattr(server.sc, "extract_markets", lambda value: value)
+    monkeypatch.setattr(server.db, "insert_bet", lambda pick: (1, True))
+    monkeypatch.setattr(fatigue, "load_ledger", lambda: {})
+    monkeypatch.setattr(fatigue, "save_ledger", lambda ledger: None)
+    monkeypatch.setattr(server, "scan_state", dict(server.scan_state))
+    server.execute_live_scan_sync()
+    assert server.scan_state["error"] is None
+    diag = saved["last_scan_diagnostics"]
+    assert diag["started"] == 1
+    assert diag["ou_only"] == 0
+    assert diag["processed"] == 1

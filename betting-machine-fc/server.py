@@ -310,6 +310,8 @@ def execute_live_scan_sync():
             "blocked_leagues": blocked_leagues,
             "eligible_fixtures": len(raw_matches),
             "fallback": 0,
+            "ou_only": 0,
+            "started": 0,
             "fetch_failures": 0,
             "processed": 0,
             "full": 0,
