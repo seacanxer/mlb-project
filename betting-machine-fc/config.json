@@ -3,7 +3,7 @@
   "flashscore_leagues": [],
   "scan_match_limit": 500,
   "filters": {
-    "min_odds": 1.50,
+    "min_odds": 1.5,
     "min_ev": 0.0,
     "min_edge": 0.02,
     "min_edge_official": 0.015,
@@ -67,7 +67,141 @@
       }
     }
   },
-  "last_successful_scan_at": "2026-09-07T12:38:36.882809+00:00",
-  "last_successful_scan_count": 267,
-  "last_successful_scan_picks": 5
+  "last_successful_scan_at": "2026-09-12T02:59:23.660819+00:00",
+  "last_successful_scan_count": 1465,
+  "last_successful_scan_picks": 28,
+  "last_scan_diagnostics": {
+    "discovered": 1499,
+    "blocked_leagues": 367,
+    "eligible_fixtures": 1499,
+    "fallback": 3,
+    "ou_only": 0,
+    "started": 0,
+    "fetch_failures": 0,
+    "processed": 1465,
+    "full": 96,
+    "shadow": 987,
+    "market_only": 25,
+    "blocked": 724,
+    "missing_markets": 34,
+    "errors": [
+      {
+        "match_id": "752037251",
+        "reason": "complete two-sided O/U market is required"
+      },
+      {
+        "match_id": "751888504",
+        "reason": "complete two-sided O/U market is required"
+      },
+      {
+        "match_id": "751865884",
+        "reason": "complete two-sided O/U market is required"
+      },
+      {
+        "match_id": "752062141",
+        "reason": "complete two-sided O/U market is required"
+      },
+      {
+        "match_id": "752059970",
+        "reason": "complete two-sided O/U market is required"
+      },
+      {
+        "match_id": "751930733",
+        "reason": "complete two-sided O/U market is required"
+      },
+      {
+        "match_id": "752020775",
+        "reason": "complete two-sided O/U market is required"
+      },
+      {
+        "match_id": "750834227",
+        "reason": "complete two-sided O/U market is required"
+      },
+      {
+        "match_id": "752053398",
+        "reason": "complete 1X2 prices are required to identify score direction"
+      },
+      {
+        "match_id": "751615606",
+        "reason": "complete two-sided O/U market is required"
+      },
+      {
+        "match_id": "752086717",
+        "reason": "complete two-sided O/U market is required"
+      },
+      {
+        "match_id": "752059977",
+        "reason": "complete two-sided O/U market is required"
+      }
+    ],
+    "coverage_reasons": {
+      "team-miss": 25
+    },
+    "coverage_examples": [
+      {
+        "match": "Aston Villa vs Nottingham Forest",
+        "league": "England. Premier League",
+        "reason": "team-miss:away:Nottingham Forest"
+      },
+      {
+        "match": "1. FSV Mainz 05 vs Eintracht Frankfurt",
+        "league": "Germany. Bundesliga",
+        "reason": "team-miss:away:Eintracht Frankfurt"
+      },
+      {
+        "match": "Athletic Bilbao vs Elche",
+        "league": "Spain. La Liga",
+        "reason": "team-miss:home:Athletic Bilbao"
+      },
+      {
+        "match": "Twente vs ADO Den Haag",
+        "league": "Netherlands. Eredivisie",
+        "reason": "team-miss:away:ADO Den Haag"
+      },
+      {
+        "match": "Andorra Andorra la Vella vs Real Sociedad II",
+        "league": "Spain. Segunda Division",
+        "reason": "team-miss:away:Real Sociedad II"
+      },
+      {
+        "match": "Calcio Padova vs Ascoli Calcio 1898",
+        "league": "Italy. Serie B",
+        "reason": "team-miss:away:Ascoli Calcio 1898"
+      },
+      {
+        "match": "Vicenza Calcio vs Juve Stabia",
+        "league": "Italy. Serie B",
+        "reason": "team-miss:home:Vicenza Calcio"
+      },
+      {
+        "match": "Sochaux-Montbeliard vs Nantes",
+        "league": "France. Ligue 2",
+        "reason": "team-miss:home:Sochaux-Montbeliard"
+      },
+      {
+        "match": "Samsunspor vs Arca Corum",
+        "league": "Turkey. SuperLiga",
+        "reason": "team-miss:away:Arca Corum"
+      },
+      {
+        "match": "Ayr United vs Inverness",
+        "league": "Scotland. Championship",
+        "reason": "team-miss:away:Inverness"
+      },
+      {
+        "match": "Worthing vs Barrow",
+        "league": "England. National League",
+        "reason": "team-miss:home:Worthing"
+      },
+      {
+        "match": "Halifax Town vs Hornchurch",
+        "league": "England. National League",
+        "reason": "team-miss:away:Hornchurch"
+      }
+    ],
+    "candidates": 224,
+    "selected": 28,
+    "official_selected": 26,
+    "shadow_selected": 2
+  }
 }
