@@ -2,8 +2,8 @@
  * app/fc/page.tsx — FR-1 Today's Pick.
  *
  * Server filters run in /api/fc/picks; the decision filter (top/official/
- * watch) is client-side over the returned page. Scan trigger stays honestly
- * disabled while engine_offline (user decision).
+ * watch) is client-side over the returned page. The scan button triggers the
+ * live engine scan (POST /api/fc/scan → scripts/fc-scan-live.py).
  */
 'use client';
 import { useMemo, useState } from 'react';
@@ -20,6 +20,8 @@ const DEFAULT_FILTERS: PickFilters = {
 export default function FcTodayPick() {
   const [filters, setFilters] = useState<PickFilters>(DEFAULT_FILTERS);
   const [page, setPage] = useState(0);
+  const [scanning, setScanning] = useState(false);
+  const [scanMsg, setScanMsg] = useState('');
   const LIMIT = 50;
 
   const query = useMemo(
@@ -50,6 +52,21 @@ export default function FcTodayPick() {
   const total = data?.pagination.total ?? 0;
   const pages = Math.max(1, Math.ceil(total / LIMIT));
 
+  const runScan = async () => {
+    setScanning(true);
+    setScanMsg('Scan fixture + odds + model… (±2 menit)');
+    try {
+      const res = await fetch('/api/fc/scan', { method: 'POST' });
+      const body = await res.json();
+      setScanMsg(body.message ?? (res.ok ? 'Scan selesai.' : 'Scan gagal.'));
+      if (res.ok) refresh();
+    } catch {
+      setScanMsg('Scan gagal: koneksi error.');
+    } finally {
+      setScanning(false);
+    }
+  };
+
   return (
     <div>
       <div className="page-header">
@@ -62,11 +79,13 @@ export default function FcTodayPick() {
         <div className="fc-scanrow">
           <button
             className="btn btn-primary"
-            disabled
-            title="Engine offline — trigger scan aktif lagi setelah engine direstore di VPS."
+            disabled={scanning}
+            onClick={runScan}
+            title="Scan fixture + odds live, lalu jalankan model DC dan gate pick."
           >
-            ▶ Run Live Scan (offline)
+            {scanning ? '⏳ Scanning…' : '▶ Run Live Scan'}
           </button>
+          {scanMsg && <span className="muted">{scanMsg}</span>}
         </div>
       </div>
 

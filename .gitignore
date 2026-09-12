@@ -31,3 +31,6 @@ start_web.sh
 start_worker.sh
 build.sh
 db_check.ts
+
+# FC engine daily model-fit cache (regenerable by scripts/fc-scan-live.py)
+betting-machine-fc/models_cache/
