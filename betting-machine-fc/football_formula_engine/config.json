@@ -1,0 +1,8 @@
+{
+  "schema_version": "fc-contract-v2",
+  "mode": "offline_smoke",
+  "engine_enabled": false,
+  "official_enabled": false,
+  "staking_enabled": false,
+  "storage_backend": "unconfigured"
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": "fc-phase5-registry-v1",
+  "evaluation_id": "evaluation-61c14ceaa9f16466",
+  "uncertainty_id": "uncertainty-218e8b1a6786cbee",
+  "validation_id": "validation-57cebeb53aecbdab",
+  "selected_half_life_days": 365,
+  "selected_calibration": "identity",
+  "overall_status": "not_approved",
+  "segment_status": {
+    "1x2": "paper_only_not_approved",
+    "btts": "not_approved",
+    "ou_2_5": "not_approved",
+    "ah": "not_evaluated"
+  },
+  "roi_status": "NOT_EVALUABLE_NO_TIMED_ENTRY_QUOTES",
+  "clv_status": "NOT_EVALUABLE_NO_TIMED_MATCHED_QUOTES",
+  "uncertainty_status": "UNCERTAINTY_UNAVAILABLE_INSUFFICIENT_REPLICATES",
+  "runtime_activation": "disabled",
+  "official_enabled": false
+}

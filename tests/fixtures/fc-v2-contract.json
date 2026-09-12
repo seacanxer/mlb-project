@@ -1,0 +1,29 @@
+{
+  "schema_version": "fc-contract-v2",
+  "run_id": "synthetic-contract-test-not-a-real-pick",
+  "decision_at": 1800000000,
+  "fixture": {
+    "fixture_id": "synthetic-match", "competition_id": "test-league", "season": "test-season",
+    "home_team_id": "test-home", "away_team_id": "test-away", "kickoff_utc": 1800003600
+  },
+  "contract": {
+    "contract_id": "synthetic-ah-home", "fixture_id": "synthetic-match", "market": "ah",
+    "side": "home", "line_quarters": -3, "period": "regulation"
+  },
+  "quote": {
+    "quote_id": "synthetic-quote", "contract_id": "synthetic-ah-home", "provider": "test-only",
+    "bookmaker": "test-only", "captured_at": 1799999990, "available_at": 1799999980,
+    "decimal_odds": 1.95, "freshness": "fresh", "is_closing": false
+  },
+  "prediction": {
+    "prediction_id": "synthetic-prediction", "contract_id": "synthetic-ah-home",
+    "formula_version": "synthetic-not-fitted", "calibration_version": "identity-test",
+    "data_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "training_cutoff": 1799900000,
+    "payout": {"full_win": 0.55, "half_win": 0.10, "push": 0.05, "half_loss": 0.05, "full_loss": 0.25},
+    "ev_net": 0.295, "ev_lower": null, "uncertainty_status": "unavailable", "validation_status": "unvalidated"
+  },
+  "decision": {"status": "projection_only", "policy_version": "test-off", "is_top_pick": false, "reason_codes": ["MODEL_UNVALIDATED"]},
+  "capabilities": {"schedule_available": true, "prediction_available": true, "model_validated": false, "official_enabled": false},
+  "diagnostics": [{"code": "unavailable", "message": "Synthetic contract fixture; not a model forecast."}]
+}

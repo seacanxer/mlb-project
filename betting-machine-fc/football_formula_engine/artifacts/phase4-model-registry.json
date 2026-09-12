@@ -1,0 +1,24 @@
+{
+  "schema_version": "fc-model-registry-v1",
+  "runtime_activation": "disabled",
+  "official_enabled": false,
+  "phase4_candidate_id": "dixon_coles_regularized-2f1078c1bb97c70b",
+  "baseline_id": "ratio_baseline-a69a6bc3897beb28",
+  "entries": [
+    {
+      "artifact_id": "dixon_coles_regularized-2f1078c1bb97c70b",
+      "status": "pending_phase5_validation",
+      "reason": "Engineering fit gate passed; chronological quality, calibration, and ROI evaluation not run"
+    },
+    {
+      "artifact_id": "ratio_baseline-a69a6bc3897beb28",
+      "status": "benchmark_only",
+      "reason": "Retained as rollback comparator and never approved by Phase 4"
+    },
+    {
+      "artifact_id": "dixon_coles_regularized-bfb3bc06a3f4672a",
+      "status": "rejected_engineering",
+      "reason": "Superseded diagnostic artifact: reference-team L-BFGS fit stalled after one iteration with zero team effects"
+    }
+  ]
+}
