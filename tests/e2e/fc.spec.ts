@@ -26,8 +26,8 @@ test.describe('FC Picks navigation', () => {
     await page.goto('/fc/schedule');
     await expect(page.getByRole('heading', { name: "Today's Schedule" })).toBeVisible();
     const empty = page.getByText('Belum ada fixture');
-    const table = page.getByRole('table', { name: 'Jadwal 24 jam' });
-    await expect(empty.or(table)).toBeVisible({ timeout: 8000 });
+    const league = page.getByRole('button', { name: /display matches/ }).first();
+    await expect(empty.or(league)).toBeVisible({ timeout: 8000 });
   });
 
   test('disclaimer is permanent on all FC pages', async ({ page }) => {

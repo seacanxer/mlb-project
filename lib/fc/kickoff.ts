@@ -22,11 +22,11 @@ function toDate(ts: number | string | null | undefined): Date | null {
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
-/** "09 Sep 2026 · 22:30 WIB" or "—" for null/invalid (never crashes). */
-export function formatKickoffWIB(ts: number | string | null | undefined): string {
+/** Full kickoff stamp or "—" for null/invalid (never crashes). fmt override stays in this single helper. */
+export function formatKickoffWIB(ts: number | string | null | undefined, fmt: string = KICKOFF_FORMAT): string {
   const d = toDate(ts);
   if (!d) return '—';
-  return formatWIB(d, KICKOFF_FORMAT);
+  return formatWIB(d, fmt);
 }
 
 /** Countdown "starts in Xh Ym" / "live-ish" / "started". Pure helper (testable). */
