@@ -26,10 +26,10 @@ export function middleware(request: NextRequest) {
   }
 
   if (pathname === '/') {
-    return NextResponse.redirect(new URL('/fc', request.url));
+    return NextResponse.redirect(new URL('/fc/schedule', request.url));
   }
 
-  return NextResponse.redirect(new URL('/fc', request.url));
+  return NextResponse.redirect(new URL('/fc/schedule', request.url));
 }
 
 export const config = {

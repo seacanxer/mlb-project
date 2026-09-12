@@ -3,8 +3,8 @@ import { chromium } from 'playwright';
 const url = process.argv[2] || 'https://fc.texasdrill.me/fc/schedule';
 const b = await chromium.launch();
 const p = await b.newPage({ viewport: { width: 1280, height: 2000 } });
-await p.goto(url, { waitUntil: 'networkidle', timeout: 60000 });
-await p.waitForTimeout(4000);
+await p.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+await p.waitForTimeout(6000);
 
 const heads = await p.$$eval('[class*="country-head"], [class*="league-head"], button', (els) =>
   els
