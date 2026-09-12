@@ -26,9 +26,39 @@ function hasPick(m: DetailedMatch): boolean {
   return (m.qualified_picks?.length ?? 0) > 0 || (m.picks?.length ?? 0) > 0;
 }
 
+function MatchRow({ m, showLeague = false }: { m: DetailedMatch; showLeague?: boolean }) {
+  const info = m.info ?? {};
+  const pick = hasPick(m);
+  return (
+    <li className={`fc-match${pick ? ' fc-match-pick' : ''}`}>
+      <span className="mono-val fc-match-time">
+        {formatKickoffWIB(info['start_ts'] as number, 'HH:mm')}
+      </span>
+      <span className="fc-match-teams">
+        <span className="fc-match-title">{fixtureTitle(m)}</span>
+        <span className="muted fc-match-sub">
+          {showLeague && typeof info['league'] === 'string' ? `${info['league']} · ` : ''}
+          {formatKickoffWIB(info['start_ts'] as number)} · {kickoffCountdown(info['start_ts'] as number)}
+        </span>
+      </span>
+      <span className="fc-match-side">
+        <CoverageBadge coverage={info['coverage_status'] as string | undefined} />
+        {pick ? (
+          <Link href="/fc" className="chip chip-fc-official">ada pick →</Link>
+        ) : (
+          <span className="muted">{NULL_GLYPH}</span>
+        )}
+      </span>
+    </li>
+  );
+}
+
+type SortMode = 'league' | 'time';
+
 export function ScheduleTable({ matches }: { matches: DetailedMatch[] }) {
   const groups = useMemo(() => groupByCountryLeague(matches), [matches]);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const [sort, setSort] = useState<SortMode>('league');
 
   const flat = useMemo(
     () => [...matches].sort((a, b) => Number(a.info?.['start_ts'] ?? 0) - Number(b.info?.['start_ts'] ?? 0)),
@@ -52,10 +82,39 @@ export function ScheduleTable({ matches }: { matches: DetailedMatch[] }) {
           Laga terdekat: <strong>{fixtureTitle(next)}</strong> · {kickoffCountdown(next.info?.['start_ts'] as number)}
         </p>
       )}
-      {groups.map((country) => (
+      <div className="fc-scanrow" role="group" aria-label="Urutkan jadwal">
+        <button
+          type="button"
+          className={`btn btn-ghost btn-sm${sort === 'league' ? ' fc-sort-active' : ''}`}
+          onClick={() => setSort('league')}
+          aria-pressed={sort === 'league'}
+        >
+          🏆 Sort by Liga
+        </button>
+        <button
+          type="button"
+          className={`btn btn-ghost btn-sm${sort === 'time' ? ' fc-sort-active' : ''}`}
+          onClick={() => setSort('time')}
+          aria-pressed={sort === 'time'}
+        >
+          🕒 Sort by Time
+        </button>
+      </div>
+      {sort === 'time' ? (
+        <ul className="fc-matchlist fc-matchlist-flat" aria-label="Jadwal urut waktu">
+          {flat.map((m, i) => (
+            <MatchRow
+              key={`${(m.info?.['match_id'] as string) ?? i}-${m.info?.['start_ts']}`}
+              m={m}
+              showLeague
+            />
+          ))}
+        </ul>
+      ) : (
+      groups.map((country) => (
         <section key={country.country} aria-label={country.country} className="fc-country">
           <h2 className="fc-country-head">
-            {country.country.toUpperCase()}
+            {country.featured ? '⭐ ' : ''}{country.country.toUpperCase()}
             <span className="muted"> · {country.total} match</span>
           </h2>
           {country.leagues.map((lg) => {
@@ -75,41 +134,20 @@ export function ScheduleTable({ matches }: { matches: DetailedMatch[] }) {
                 </button>
                 {open && (
                   <ul className="fc-matchlist">
-                    {lg.matches.map((m, i) => {
-                      const info = m.info ?? {};
-                      const pick = hasPick(m);
-                      return (
-                        <li
-                          key={`${info['match_id'] ?? i}-${info['start_ts']}`}
-                          className={`fc-match${pick ? ' fc-match-pick' : ''}`}
-                        >
-                          <span className="mono-val fc-match-time">
-                            {formatKickoffWIB(info['start_ts'] as number, 'HH:mm')}
-                          </span>
-                          <span className="fc-match-teams">
-                            <span className="fc-match-title">{fixtureTitle(m)}</span>
-                            <span className="muted fc-match-sub">
-                              {formatKickoffWIB(info['start_ts'] as number)} · {kickoffCountdown(info['start_ts'] as number)}
-                            </span>
-                          </span>
-                          <span className="fc-match-side">
-                            <CoverageBadge coverage={info['coverage_status'] as string | undefined} />
-                            {pick ? (
-                              <Link href="/fc" className="chip chip-fc-official">ada pick →</Link>
-                            ) : (
-                              <span className="muted">{NULL_GLYPH}</span>
-                            )}
-                          </span>
-                        </li>
-                      );
-                    })}
+                    {lg.matches.map((m, i) => (
+                      <MatchRow
+                        key={`${(m.info?.['match_id'] as string) ?? i}-${m.info?.['start_ts']}`}
+                        m={m}
+                      />
+                    ))}
                   </ul>
                 )}
               </div>
             );
           })}
         </section>
-      ))}
+      ))
+      )}
     </div>
   );
 }
