@@ -1,0 +1,30 @@
+{
+  "summary": {
+    "locked_picks": 0,
+    "settled_picks": 0,
+    "wins": 0,
+    "losses": 0,
+    "pushes": 0,
+    "profit_units": 0,
+    "roi_pct": 0.0,
+    "hit_rate_pct": 0.0,
+    "duplicates_hidden": 0,
+    "pending_picks": 0,
+    "live_picks": 0,
+    "overdue_picks": 0
+  },
+  "locked": [],
+  "live": [],
+  "overdue": [],
+  "settled": [],
+  "status_counts": {
+    "locked": 0,
+    "live": 0,
+    "overdue": 0,
+    "settled": 0
+  },
+  "market_performance": [],
+  "by_version": [],
+  "unit_size": 1.0,
+  "built_at": "2026-09-12T03:26:44.236416+00:00"
+}

@@ -13,6 +13,12 @@ const NAV_LINKS = [
   { href: '/settings',          label: 'Settings' },
 ];
 
+const FC_LINKS = [
+  { href: '/fc',          label: "Today's Pick" },
+  { href: '/fc/results',  label: 'Result & ROI' },
+  { href: '/fc/schedule', label: 'Schedule' },
+];
+
 export function NavBar() {
   const pathname = usePathname();
   return (
@@ -31,6 +37,18 @@ export function NavBar() {
           {l.label}
         </Link>
       ))}
+      <span className="fc-nav-section" role="group" aria-label="FC picks">
+        <span className="muted" style={{ fontSize: '0.75rem', alignSelf: 'center' }}>⚽ FC</span>
+        {FC_LINKS.map((l) => (
+          <Link
+            key={l.href}
+            href={l.href}
+            className={`nav-link ${pathname === l.href || pathname.startsWith(l.href + '/') ? 'active' : ''}`}
+          >
+            {l.label}
+          </Link>
+        ))}
+      </span>
     </nav>
   );
 }
