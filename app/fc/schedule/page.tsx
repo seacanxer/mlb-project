@@ -14,6 +14,8 @@ const LIMIT = 50;
 
 export default function FcSchedule() {
   const [page, setPage] = useState(0);
+  const [scanning, setScanning] = useState(false);
+  const [scanMsg, setScanMsg] = useState('');
   const { data, loading, error, refresh } = useFcPoll<MatchesResponse>(
     `/api/fc/matches${buildQuery({ limit: LIMIT, offset: page * LIMIT })}`,
     60000,
@@ -23,6 +25,23 @@ export default function FcSchedule() {
   const pages = Math.max(1, Math.ceil(total / LIMIT));
   const matches = data?.matches ?? [];
 
+  const scrapeNow = async () => {
+    setScanning(true);
+    setScanMsg('');
+    try {
+      const res = await fetch('/api/fc/scan', { method: 'POST' });
+      const body = (await res.json()) as { status: string; fixtures?: number; message?: string };
+      if (!res.ok) throw new Error(body.message ?? `Scrape gagal (${res.status})`);
+      setScanMsg(`✓ ${body.message ?? 'Jadwal terupdate.'} (jadwal saja — tanpa analisa model)`);
+      setPage(0);
+      refresh();
+    } catch (err) {
+      setScanMsg(`⚠ ${err instanceof Error ? err.message : 'Scrape gagal.'}`);
+    } finally {
+      setScanning(false);
+    }
+  };
+
   return (
     <div>
       <div className="page-header">
@@ -30,7 +49,18 @@ export default function FcSchedule() {
           <h1 className="page-title">Today&apos;s Schedule</h1>
           <p className="page-subtitle">{data ? `${total} fixture 24 jam ke depan` : 'Memuat…'}</p>
         </div>
+        <div className="fc-scanrow">
+          <button className="btn btn-primary" onClick={scrapeNow} disabled={scanning} aria-busy={scanning}>
+            {scanning ? '⏳ Scraping…' : '↻ Scrape jadwal'}
+          </button>
+        </div>
       </div>
+
+      {scanMsg && (
+        <div role="status" className="muted" style={{ marginBottom: '1rem' }}>
+          {scanMsg}
+        </div>
+      )}
 
       {error && <ErrorBanner message={error} onRetry={refresh} />}
 
@@ -39,7 +69,7 @@ export default function FcSchedule() {
       ) : matches.length === 0 ? (
         <EmptyState
           title="Belum ada fixture 24 jam ke depan"
-          body="Jadwal muncul setelah engine scan berikutnya. Data lama tidak dihapus — halaman ini hanya kosong karena belum ada data."
+          body="Klik “Scrape jadwal” untuk mengambil fixture 24 jam dari 1xbit. Hasil scrape adalah jadwal saja (badge “Jadwal saja”) — pick/analisa muncul setelah engine direstore."
         />
       ) : (
         <>

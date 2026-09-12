@@ -32,6 +32,7 @@
 .chip-fc-top { background: rgba(22,163,74,0.18); color: #4ade80; border: 1px solid rgba(22,163,74,0.45); font-weight: 700; }
 .chip-fc-official { background: rgba(37,99,235,0.15); color: #60a5fa; border: 1px solid rgba(37,99,235,0.35); }
 .chip-fc-watch { background: rgba(148,163,184,0.1); color: var(--muted); border: 1px solid rgba(148,163,184,0.25); }
+.chip-fc-na { background: transparent; color: var(--muted); border: 1px dashed rgba(148,163,184,0.35); }
 .chip-fc-market { background: rgba(139,92,246,0.12); color: #a78bfa; border: 1px solid rgba(139,92,246,0.3); }
 .chip-fc-win { background: rgba(22,163,74,0.15); color: #4ade80; border: 1px solid rgba(22,163,74,0.3); }
 .chip-fc-loss { background: rgba(220,38,38,0.12); color: #f87171; border: 1px solid rgba(220,38,38,0.3); }
@@ -80,14 +81,6 @@
   margin-bottom: 0.5rem;
 }
 @keyframes fc-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
-
-.fc-subnav {
-  display: flex;
-  gap: 0.25rem;
-  margin-bottom: 0.75rem;
-  border-bottom: 1px solid #1e293b;
-  padding-bottom: 0.5rem;
-}
 
 .fc-table-wrap { overflow-x: auto; }
 .fc-cards { display: none; }

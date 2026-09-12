@@ -44,6 +44,11 @@ test.describe('FC Picks navigation', () => {
     await expect(page.getByRole('button', { name: /Refresh settlement/ })).toBeDisabled();
   });
 
+  test('schedule has an enabled fixture-scrape button', async ({ page }) => {
+    await page.goto('/fc/schedule');
+    await expect(page.getByRole('button', { name: /Scrape jadwal/ })).toBeEnabled();
+  });
+
   test('FC API routes return valid shapes (never HTML/500)', async ({ request }) => {
     for (const url of ['/api/fc/health', '/api/fc/picks', '/api/fc/tracker', '/api/fc/matches']) {
       const res = await request.get(url);

@@ -47,6 +47,7 @@ export function StatusBadge({ decision, isTop }: { decision: string; isTop?: boo
 export function CoverageBadge({ coverage }: { coverage: string | undefined }) {
   if (coverage === 'full') return <span className="chip chip-fc-official">Rating lengkap</span>;
   if (coverage === 'shadow') return <span className="chip chip-fc-watch">Data terbatas</span>;
+  if (coverage === 'market_only') return <span className="chip chip-fc-na">Jadwal saja</span>;
   return <span className="muted">—</span>;
 }
 
