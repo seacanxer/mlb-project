@@ -1,29 +1,44 @@
-/**
- * app/fc/schedule/page.tsx — FR-3 Today's Schedule (future fixtures only,
- * enforced server-side in readMatches).
- */
 'use client';
-import { useState } from 'react';
-import { useFcPoll } from '@/lib/fc/hooks';
-import { buildQuery } from '@/lib/fc/client';
-import type { MatchesResponse } from '@/lib/fc/types';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { fetchAllMatches } from '@/lib/fc/allMatches';
+import type { DetailedMatch } from '@/lib/fc/types';
 import { ScheduleTable } from '@/components/fc/Schedule';
 import { EmptyState, ErrorBanner, SkeletonRows } from '@/components/fc/shared';
 
-const LIMIT = 50;
+const POLL_MS = 60000;
 
 export default function FcSchedule() {
-  const [page, setPage] = useState(0);
+  const [matches, setMatches] = useState<DetailedMatch[] | null>(null);
+  const [error, setError] = useState('');
   const [scanning, setScanning] = useState(false);
   const [scanMsg, setScanMsg] = useState('');
-  const { data, loading, error, refresh } = useFcPoll<MatchesResponse>(
-    `/api/fc/matches${buildQuery({ limit: LIMIT, offset: page * LIMIT })}`,
-    60000,
-  );
+  const abortRef = useRef<AbortController | null>(null);
 
-  const total = data?.pagination.total ?? 0;
-  const pages = Math.max(1, Math.ceil(total / LIMIT));
-  const matches = data?.matches ?? [];
+  const load = useCallback(async () => {
+    try {
+      const all = await fetchAllMatches();
+      setMatches(all);
+      setError('');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Gagal memuat jadwal.');
+    }
+  }, []);
+
+  useEffect(() => {
+    void load();
+    const id = window.setInterval(() => {
+      if (!document.hidden) void load();
+    }, POLL_MS);
+    const onVisible = () => {
+      if (!document.hidden) void load();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      window.clearInterval(id);
+      document.removeEventListener('visibilitychange', onVisible);
+      abortRef.current?.abort();
+    };
+  }, [load]);
 
   const scrapeNow = async () => {
     setScanning(true);
@@ -33,8 +48,7 @@ export default function FcSchedule() {
       const body = (await res.json()) as { status: string; fixtures?: number; message?: string };
       if (!res.ok) throw new Error(body.message ?? `Scrape gagal (${res.status})`);
       setScanMsg(`✓ ${body.message ?? 'Jadwal terupdate.'} (jadwal saja — tanpa analisa model)`);
-      setPage(0);
-      refresh();
+      await load();
     } catch (err) {
       setScanMsg(`⚠ ${err instanceof Error ? err.message : 'Scrape gagal.'}`);
     } finally {
@@ -42,12 +56,14 @@ export default function FcSchedule() {
     }
   };
 
+  const total = matches?.length ?? 0;
+
   return (
     <div>
       <div className="page-header">
         <div>
           <h1 className="page-title">Today&apos;s Schedule</h1>
-          <p className="page-subtitle">{data ? `${total} fixture 24 jam ke depan` : 'Memuat…'}</p>
+          <p className="page-subtitle">{matches ? `${total} fixture 24 jam ke depan` : 'Memuat…'}</p>
         </div>
         <div className="fc-scanrow">
           <button className="btn btn-primary" onClick={scrapeNow} disabled={scanning} aria-busy={scanning}>
@@ -62,30 +78,17 @@ export default function FcSchedule() {
         </div>
       )}
 
-      {error && <ErrorBanner message={error} onRetry={refresh} />}
+      {error && <ErrorBanner message={error} onRetry={load} />}
 
-      {loading && !data ? (
+      {matches === null ? (
         <SkeletonRows rows={6} label="Memuat jadwal…" />
       ) : matches.length === 0 ? (
         <EmptyState
           title="Belum ada fixture 24 jam ke depan"
-          body="Klik “Scrape jadwal” untuk mengambil fixture 24 jam dari 1xbit. Hasil scrape adalah jadwal saja (badge “Jadwal saja”) — pick/analisa muncul setelah engine direstore."
+          body="Klik “Scrape jadwal” untuk mengambil fixture 24 jam dari 1xbit. Hasil scrape adalah jadwal saja — pick/analisa muncul setelah engine direstore."
         />
       ) : (
-        <>
-          <ScheduleTable matches={matches} />
-          {pages > 1 && (
-            <div className="fc-scanrow" role="navigation" aria-label="Pagination">
-              <button className="btn btn-ghost btn-sm" disabled={page === 0} onClick={() => setPage((p) => p - 1)}>
-                ← Prev
-              </button>
-              <span className="muted">Hal {page + 1} / {pages}</span>
-              <button className="btn btn-ghost btn-sm" disabled={page + 1 >= pages} onClick={() => setPage((p) => p + 1)}>
-                Next →
-              </button>
-            </div>
-          )}
-        </>
+        <ScheduleTable matches={matches} />
       )}
     </div>
   );

@@ -57,7 +57,9 @@ type SortMode = 'league' | 'time';
 
 export function ScheduleTable({ matches }: { matches: DetailedMatch[] }) {
   const groups = useMemo(() => groupByCountryLeague(matches), [matches]);
-  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  // Track user toggles only. Default state:
+  //   featured (Top 5 Europe) = expanded, other leagues = collapsed
+  const [overrides, setOverrides] = useState<Set<string>>(new Set());
   const [sort, setSort] = useState<SortMode>('league');
 
   const flat = useMemo(
@@ -67,7 +69,7 @@ export function ScheduleTable({ matches }: { matches: DetailedMatch[] }) {
   const next = flat.find((m) => Number(m.info?.['start_ts'] ?? 0) * 1000 > Date.now());
 
   const toggle = (key: string) => {
-    setCollapsed((prev) => {
+    setOverrides((prev) => {
       const nextSet = new Set(prev);
       if (nextSet.has(key)) nextSet.delete(key);
       else nextSet.add(key);
@@ -119,7 +121,8 @@ export function ScheduleTable({ matches }: { matches: DetailedMatch[] }) {
           </h2>
           {country.leagues.map((lg) => {
             const key = `${country.country}|${lg.league}`;
-            const open = !collapsed.has(key);
+            const defaultOpen = country.featured === true;
+            const open = overrides.has(key) ? !defaultOpen : defaultOpen;
             return (
               <div key={key} className="fc-league">
                 <button
