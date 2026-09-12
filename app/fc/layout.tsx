@@ -14,9 +14,9 @@ export default function FcLayout({ children }: { children: React.ReactNode }) {
   return (
     <div>
       <nav className="fc-subnav" aria-label="FC picks">
-        <Link href="/fc" className="nav-link">Today&apos;s Pick</Link>
-        <Link href="/fc/results" className="nav-link">Result &amp; ROI</Link>
-        <Link href="/fc/schedule" className="nav-link">Schedule</Link>
+        <Link href="/fc/schedule" className="nav-link">📅 Schedule</Link>
+        <Link href="/fc" className="nav-link">⚡ Today&apos;s Pick</Link>
+        <Link href="/fc/results" className="nav-link">📊 Result &amp; ROI</Link>
       </nav>
       <HealthSlot />
       {children}
