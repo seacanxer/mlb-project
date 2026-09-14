@@ -680,6 +680,9 @@ def main():
             'secondary_provider': 'flashscore',
             'secondary_status': secondary.get('status', 'unavailable'),
             'secondary_match_verified': secondary.get('match_verified', False),
+            'comparison_status': 'verified' if secondary.get('status') == 'available' and secondary.get('match_verified') else 'unavailable',
+            'official_comparison_eligible': secondary.get('status') == 'available' and secondary.get('match_verified') and bool(secondary.get('bookmakers')),
+            'primary_source': '1xbit',
         })
         m['picks'] = [picks[-1]]
         m['qualified_picks'] = [picks[-1]]
