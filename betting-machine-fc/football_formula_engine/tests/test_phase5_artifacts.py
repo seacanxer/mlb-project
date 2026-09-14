@@ -33,7 +33,7 @@ def load_matches(spec):
 
 
 def test_frozen_phase5_report_matches_spec_and_strict_chronology():
-    spec = read_json(PACKAGE / 'evaluation_spec.json')
+    spec = read_json(PACKAGE / 'evaluation_spec_phase5_original.json')
     registry = read_json(ARTIFACTS / 'phase5-validation-registry.json')
     report = read_json(ARTIFACTS / 'evaluations' / f"{registry['evaluation_id']}.json")
     assert report['evaluation_spec_sha256'] == hashlib.sha256(canonical_bytes(spec)).hexdigest()

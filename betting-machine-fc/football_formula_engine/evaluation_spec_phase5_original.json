@@ -1,0 +1,41 @@
+{
+  "schema_version": "fc-evaluation-spec-v1",
+  "competition_id": "E0",
+  "timezone": "Europe/London",
+  "dataset": [
+    {"path": "betting-machine-fc/data/E0_2425.csv", "season": "2425"},
+    {"path": "betting-machine-fc/data/E0_2526.csv", "season": "2526"}
+  ],
+  "coverage_status": "PARTIAL_TARGET_TWO_OF_THREE_SEASONS",
+  "coverage_note": "E0 2023/24 was confirmed available upstream but could not be fetched because the source TLS handshake failed; it is not substituted or fabricated",
+  "splits": {
+    "calibration": {"season": "2425", "warmup_matches": 100, "start_index": 100, "end_index": 199},
+    "policy_validation": {"season": "2425", "warmup_matches": 199, "start_index": 199, "end_index": 380},
+    "untouched_test": {"season": "2526", "warmup_matches": 80, "start_index": 80, "end_index": 380}
+  },
+  "candidate_half_life_days": [90, 180, 365],
+  "candidate_tilt_l2": [1.0, 5.0, 20.0],
+  "primary_selection_metric": "score_log_loss",
+  "secondary_metrics": ["1x2_log_loss", "1x2_brier", "btts_log_loss", "btts_brier", "ou25_log_loss", "ou25_brier"],
+  "reliability_bins": 10,
+  "bootstrap": {
+    "method": "moving_block_refit_smoke",
+    "replicates": 8,
+    "minimum_reliable_replicates": 30,
+    "block_length_matches": 20,
+    "seed": 20260912,
+    "quantiles": [0.1, 0.5, 0.9]
+  },
+  "quality_gate": {
+    "minimum_test_matches": 250,
+    "require_primary_improvement_vs_ratio_baseline": true,
+    "require_multiple_outer_periods": true,
+    "require_reliable_uncertainty": true,
+    "require_timed_executable_quotes_for_roi": true
+  },
+  "market_evaluation_scope": ["1x2", "btts", "ou_2_5"],
+  "ah_status": "NOT_EVALUATED_NO_BINARY_PROBABILITY_SHORTCUT",
+  "roi_status": "NOT_EVALUABLE_NO_TIMED_ENTRY_QUOTES",
+  "clv_status": "NOT_EVALUABLE_NO_TIMED_MATCHED_QUOTES",
+  "official_enabled": false
+}

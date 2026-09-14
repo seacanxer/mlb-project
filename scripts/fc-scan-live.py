@@ -32,6 +32,8 @@ from football_formula_engine.data import load_football_data_csv, stable_id  # no
 from football_formula_engine.markets import asian_handicap, btts, match_odds, over_under  # noqa: E402
 from football_formula_engine.model import FitConfig, fit_dixon_coles, project_fixture  # noqa: E402
 from football_formula_engine.value import expected_value, fair_odds, proportional_no_vig  # noqa: E402
+from football_formula_engine.live_quotes import QuoteJournal  # noqa: E402
+from football_formula_engine.second_source import collect as collect_second_source  # noqa: E402
 
 FORMULA_VERSION = 'dc-loglink-time-decay-v1'
 UNCERTAINTY_PENALTY = 0.02
@@ -300,6 +302,7 @@ def price_fixture(dist, mk):
         for t, side, label in ((1, 'home', 'Home'), (2, 'draw', 'Draw'), (3, 'away', 'Away')):
             o = opp(payouts[side], float(one_x_two[t]), nv[{1: 0, 2: 1, 3: 2}[t]])
             if o:
+                o.update(side=side, line_quarters=None)
                 out.append(('1x2', label, o))
     b = mk.get('odds_btts') or {}
     if 'yes' in b and 'no' in b:
@@ -311,8 +314,10 @@ def price_fixture(dist, mk):
         for side, label, idx in (('yes', 'BTTS Yes', 0), ('no', 'BTTS No', 1)):
             o = opp(payouts[side], float(b[side]), nv[idx])
             if o:
+                o.update(side=side, line_quarters=None)
                 out.append(('btts', label, o))
     for line, sides in (mk.get('odds_ou') or {}).items():
+        sides = {str(key): value for key, value in sides.items()}
         try:
             lv = float(line)
         except (TypeError, ValueError):
@@ -332,6 +337,7 @@ def price_fixture(dist, mk):
                 continue
             o = opp(payout, float(sides[t]), nv[0 if side == 'over' else 1])
             if o:
+                o.update(side=side, line_quarters=q)
                 out.append(('ou', label, o))
     ah = mk.get('odds_ah') or {}
     # 1xbit mirrors lines: home entry p=L pairs with away entry p=-L (same
@@ -364,6 +370,7 @@ def price_fixture(dist, mk):
                 continue
             o = opp(payout, sides[side], nv[idx])
             if o:
+                o.update(side=side, line_quarters=q if side == 'home' else -q)
                 out.append(('ah', label, o))
     return out
 
@@ -435,12 +442,51 @@ def main():
 
     # 3. odds + projection + gate
     picks, scanned, skipped = [], 0, {}
+    journal = QuoteJournal(os.environ.get('FC_QUOTES_DB', os.path.join(FC_DIR, 'live_quotes.db')))
+    second_mappings = {}
+    mapping_path = os.environ.get('FC_SECOND_MAPPING_PATH')
+    second_key = os.environ.get('FC_SECOND_ODDS_API_KEY')
+    second_book = os.environ.get('FC_SECOND_BOOKMAKER')
+    second_status = 'NOT_CONFIGURED'
+    second_captured, second_matched = 0, 0
+    if mapping_path and second_key and second_book:
+        with open(mapping_path, encoding='utf-8') as handle:
+            second_mappings = {str(row['fixture']['match_id']): row for row in json.load(handle)}
+        second_status = 'CONFIGURED_NOT_YET_VALIDATED'
     for m in sorted(future, key=lambda x: float(x['info']['start_ts'])):
         info = m['info']
         code = LEAGUE_BY_NAME.get((info.get('league') or '').lower())
-        if not code or code not in models:
+        if not code:
             continue
         scanned += 1
+        # Capture every supported-league fixture before model/team/value filtering.
+        try:
+            v = sc.get_match(info['match_id'])
+            captured_at = time.time()
+            if str(v.get('I')) != str(info['match_id']):
+                raise ValueError('Provider fixture mismatch')
+            if abs(float(v.get('S') or 0) - float(info['start_ts'])) > 60:
+                raise ValueError('Provider kickoff changed; refresh fixture')
+            mk = sc.extract_markets(v)
+            observation = journal.record(info, mk, v, captured_at=captured_at)
+            time.sleep(0.25)
+        except Exception:
+            skipped['QUOTE_CAPTURE_FAILED'] = skipped.get('QUOTE_CAPTURE_FAILED', 0) + 1
+            continue
+        mapping = second_mappings.get(str(info['match_id']))
+        if mapping:
+            try:
+                if abs(float(mapping['fixture']['start_ts']) - float(info['start_ts'])) > 60:
+                    raise ValueError('Mapping kickoff is obsolete')
+                collect_second_source(mapping, journal, second_key, second_book)
+                second_captured += 1
+                if journal.compare_sources(info['match_id'], time.time())['status'] == 'MATCHED':
+                    second_matched += 1
+            except Exception:
+                skipped['SECOND_SOURCE_FAILED'] = skipped.get('SECOND_SOURCE_FAILED', 0) + 1
+        if code not in models:
+            skipped['MODEL_UNAVAILABLE'] = skipped.get('MODEL_UNAVAILABLE', 0) + 1
+            continue
         home_csv = match_team(info.get('home') or '', teams_by_code[code])
         away_csv = match_team(info.get('away') or '', teams_by_code[code])
         if not home_csv or not away_csv:
@@ -456,24 +502,30 @@ def main():
             key = ','.join(proj.reason_codes) or 'PROJECTION_BLOCKED'
             skipped[key] = skipped.get(key, 0) + 1
             continue
-        try:
-            v = sc.get_match(info['match_id'])
-            mk = sc.extract_markets(v)
-            time.sleep(0.25)
-        except Exception:
-            skipped['ODDS_FETCH_FAILED'] = skipped.get('ODDS_FETCH_FAILED', 0) + 1
+        decision_at = time.time()
+        if decision_at >= float(info['start_ts']) or decision_at - captured_at > 300:
+            skipped['QUOTE_EXPIRED'] = skipped.get('QUOTE_EXPIRED', 0) + 1
             continue
         opps = price_fixture(proj.distribution, mk)
         if not opps:
             skipped['NO_VALUE'] = skipped.get('NO_VALUE', 0) + 1
             continue
         market, label, o = max(opps, key=lambda t: t[2]['ev'])
+        research = journal.record_research_decision(
+            observation['artifact_id'], {'market': market, 'side': o['side'],
+                'line_quarters': o['line_quarters'], 'decimal_odds': o['odds']},
+            decision_at=decision_at, policy_id=FORMULA_VERSION + '-watch-policy-v1', model=artifact)
         picks.append({
             'match_id': int(info['match_id']),
             'match': f"{info.get('home')} vs {info.get('away')}",
             'home': info.get('home'), 'away': info.get('away'),
             'league': info.get('league'),
             'start_ts': int(float(info['start_ts'])),
+            'quote_observation_id': observation['artifact_id'],
+            'quote_captured_at': captured_at,
+            'decision_at': decision_at,
+            'research_decision_id': research['artifact_id'],
+            'uncertainty_status': 'UNAVAILABLE_HEURISTIC_PENALTY_ONLY',
             'market': market, 'pick': label,
             'probability': round(o['probability'], 4),
             'odds': o['odds'],
@@ -523,7 +575,10 @@ def main():
     cfg['last_successful_scan_at'] = datetime.fromtimestamp(now, tz=timezone.utc).isoformat()
     cfg['last_successful_scan_count'] = scanned
     cfg['last_successful_scan_picks'] = len(picks)
-    cfg['last_scan_diagnostics'] = {'skipped': skipped, 'leagues': codes_needed}
+    cfg['last_scan_diagnostics'] = {'skipped': skipped, 'leagues': codes_needed,
+                                    'second_source': second_status,
+                                    'second_source_fixtures_captured': second_captured,
+                                    'second_source_fixtures_matched': second_matched}
     atomic_write(config_path, cfg)
 
     print(json.dumps({

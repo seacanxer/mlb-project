@@ -53,8 +53,10 @@ def run_bootstrap_replicate(matches, spec, evaluation_report, replicate_index):
             calibration_training, block_length=min(bootstrap['block_length_matches'],
                                                      len(calibration_training)),
             seed=seed + 1_000_000)
+        calibration_sample = (sampled_calibration if bootstrap['method'] == 'moving_block_refit_v2'
+                              else tuple(calibration_training) + tuple(sampled_calibration))
         calibration_model = fit_dixon_coles(
-            tuple(calibration_training) + tuple(sampled_calibration), cutoff_utc=calibration_cutoff,
+            calibration_sample, cutoff_utc=calibration_cutoff,
             config=FitConfig(half_life_days=half_life))
         _, distributions, outcomes, blocked, _ = _artifact_distributions(
             calibration_model, calibration_target)
@@ -63,8 +65,10 @@ def run_bootstrap_replicate(matches, spec, evaluation_report, replicate_index):
         calibration = fit_coherent_tilt(
             distributions, outcomes, l2=selected['tilt_l2'])
 
+    test_sample = (sampled_test if bootstrap['method'] == 'moving_block_refit_v2'
+                   else tuple(test_training) + tuple(sampled_test))
     model = fit_dixon_coles(
-        tuple(test_training) + tuple(sampled_test), cutoff_utc=test_cutoff,
+        test_sample, cutoff_utc=test_cutoff,
         config=FitConfig(half_life_days=half_life))
     rows, _, _, blocked, ood = _artifact_distributions(
         model, test_target, calibration=calibration)
@@ -150,7 +154,16 @@ def build_validation_registry(spec, evaluation_report, uncertainty_report):
     test = evaluation_report['test_metrics']
     selected = test['selected_candidate']
     league = test['league_average_poisson']
-    shared_reasons = ['SINGLE_OUTER_PERIOD', 'UNCERTAINTY_UNAVAILABLE', 'ROI_NOT_EVALUABLE']
+    shared_reasons = []
+    if not evaluation_report['quality_gate'].get('multiple_outer_periods'):
+        shared_reasons.append('SINGLE_OUTER_PERIOD')
+    if uncertainty_report['status'] != 'AVAILABLE':
+        shared_reasons.append('UNCERTAINTY_UNAVAILABLE')
+    if evaluation_report.get('roi_status') != 'EVALUATED':
+        shared_reasons.append('ROI_NOT_EVALUABLE')
+    if evaluation_report.get('clv_status') != 'EVALUATED':
+        shared_reasons.append('CLV_NOT_EVALUABLE')
+    shared_reasons.append('PROSPECTIVE_APPROVAL_NOT_IMPLEMENTED')
     btts_reasons = list(shared_reasons)
     ou_reasons = list(shared_reasons)
     if selected['btts_brier'] >= league['btts_brier']:
