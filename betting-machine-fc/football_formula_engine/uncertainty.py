@@ -54,7 +54,7 @@ def run_bootstrap_replicate(matches, spec, evaluation_report, replicate_index):
                                                      len(calibration_training)),
             seed=seed + 1_000_000)
         calibration_model = fit_dixon_coles(
-            sampled_calibration, cutoff_utc=calibration_cutoff,
+            tuple(calibration_training) + tuple(sampled_calibration), cutoff_utc=calibration_cutoff,
             config=FitConfig(half_life_days=half_life))
         _, distributions, outcomes, blocked, _ = _artifact_distributions(
             calibration_model, calibration_target)
@@ -64,7 +64,8 @@ def run_bootstrap_replicate(matches, spec, evaluation_report, replicate_index):
             distributions, outcomes, l2=selected['tilt_l2'])
 
     model = fit_dixon_coles(
-        sampled_test, cutoff_utc=test_cutoff, config=FitConfig(half_life_days=half_life))
+        tuple(test_training) + tuple(sampled_test), cutoff_utc=test_cutoff,
+        config=FitConfig(half_life_days=half_life))
     rows, _, _, blocked, ood = _artifact_distributions(
         model, test_target, calibration=calibration)
     require(not blocked and len(rows) == len(test_target),

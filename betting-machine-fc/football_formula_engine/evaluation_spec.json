@@ -3,11 +3,12 @@
   "competition_id": "E0",
   "timezone": "Europe/London",
   "dataset": [
+    {"path": "betting-machine-fc/data/E0_2324.csv", "season": "2324"},
     {"path": "betting-machine-fc/data/E0_2425.csv", "season": "2425"},
     {"path": "betting-machine-fc/data/E0_2526.csv", "season": "2526"}
   ],
-  "coverage_status": "PARTIAL_TARGET_TWO_OF_THREE_SEASONS",
-  "coverage_note": "E0 2023/24 was confirmed available upstream but could not be fetched because the source TLS handshake failed; it is not substituted or fabricated",
+  "coverage_status": "THREE_SEASONS",
+  "coverage_note": "E0 2023/24 was fetched from football-data.co.uk and included as a separate chronological outer period",
   "splits": {
     "calibration": {"season": "2425", "warmup_matches": 100, "start_index": 100, "end_index": 199},
     "policy_validation": {"season": "2425", "warmup_matches": 199, "start_index": 199, "end_index": 380},
@@ -20,7 +21,7 @@
   "reliability_bins": 10,
   "bootstrap": {
     "method": "moving_block_refit_smoke",
-    "replicates": 8,
+    "replicates": 30,
     "minimum_reliable_replicates": 30,
     "block_length_matches": 20,
     "seed": 20260912,
