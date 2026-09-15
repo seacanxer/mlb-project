@@ -2,8 +2,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 
-type Pick = { match?: string; home?: string; away?: string; league?: string; start_ts?: number; market?: string; pick?: string; odds?: number; probability?: number; ev?: number; };
-type Match = { info?: { home?: string; away?: string; league?: string; start_ts?: number }; picks?: Pick[] };
+type Pick = { match?: string; home?: string; away?: string; league?: string; start_ts?: number; market?: string; pick?: string; odds?: number | null; probability?: number; ev?: number; };
+type Match = { info?: { home?: string; away?: string; league?: string; start_ts?: number }; picks?: Pick[]; analyzer?: { confidence?: number; consensus?: boolean; data_status?: string; model_goals?: { home?: number; away?: number } } };
 
 function pct(v?: number) { return typeof v === 'number' ? `${(v * 100).toFixed(1)}%` : '—'; }
 function kickoff(v?: number) { return v ? new Date(v * 1000).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'short', timeStyle: 'short' }) : '—'; }
@@ -31,13 +31,13 @@ export default function AiMatchAnalyzer() {
     const ou = find(picks, 'ou');
     const btts = find(picks, 'btts');
     const available = [ah, ou, btts].filter(Boolean) as Pick[];
-    const avg = available.length ? available.reduce((s, p) => s + (p.probability ?? 0), 0) / available.length : 0;
-    return { m, ah, ou, btts, avg, consensus: available.length >= 2 && avg >= 0.56 };
+    const avg = m.analyzer?.confidence ?? (available.length ? available.reduce((s, p) => s + (p.probability ?? 0), 0) / available.length : 0);
+    return { m, ah, ou, btts, avg, consensus: Boolean(m.analyzer?.consensus) };
   }).filter((r) => !onlyConsensus || r.consensus), [matches, onlyConsensus]);
 
   return <main className="fc-page">
     <div className="page-header"><div><h1 className="page-title">🤖 AI Match Analyzer</h1><p className="page-subtitle">AH · Over/Under · BTTS — analisa standalone untuk match mendatang</p></div><Link className="btn btn-ghost" href="/fc">← Today&apos;s Pick</Link></div>
-    <div className="card" style={{ marginBottom: '1rem' }}><strong>Model preview</strong><p className="muted">Mesin menggabungkan proyeksi gol, handicap, total gol, BTTS, dan odds 1xbit. Output ini terpisah dari official/watch gate dan belum mengubah database.</p><label><input type="checkbox" checked={onlyConsensus} onChange={(e) => setOnlyConsensus(e.target.checked)} /> Tampilkan consensus saja</label></div>
+    <div className="card" style={{ marginBottom: '1rem' }}><strong>Machine Analyzer</strong><p className="muted">Pick dihasilkan oleh mesin standalone: expected goals → distribusi skor → satu pilihan AH, satu pilihan O/U, dan satu pilihan BTTS. Odds ditampilkan hanya jika tersedia dari source primary.</p><label><input type="checkbox" checked={onlyConsensus} onChange={(e) => setOnlyConsensus(e.target.checked)} /> Tampilkan consensus saja</label></div>
     {loading && <div className="card">Memuat fixture dan market…</div>}
     {error && <div className="card">Gagal memuat: {error}</div>}
     {!loading && !error && rows.length === 0 && <div className="card">Belum ada fixture dengan data analyzer.</div>}
