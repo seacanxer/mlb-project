@@ -8,6 +8,8 @@ type Match = { info?: { home?: string; away?: string; league?: string; start_ts?
 function pct(v?: number) { return typeof v === 'number' ? `${(v * 100).toFixed(1)}%` : '—'; }
 function kickoff(v?: number) { return v ? new Date(v * 1000).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'short', timeStyle: 'short' }) : '—'; }
 function find(picks: Pick[] | undefined, market: string) { return (picks ?? []).find((p) => p.market === market); }
+const TOP_LEAGUES = [/^England\. Premier League$/i, /^Spain\. La Liga$/i, /^Germany\. Bundesliga$/i, /^Italy\. Serie A$/i, /^France\. Ligue 1$/i, /^Japan\. J1 League$/i, /^South Korea\. K-League 1$/i, /^Saudi Arabia\. Professional League$/i, /^China\. Super League$/i, /^Australia\. A-League$/i];
+function isTopLeague(league?: string) { return Boolean(league && TOP_LEAGUES.some((pattern) => pattern.test(league.trim()))); }
 
 export default function AiMatchAnalyzer() {
   const [matches, setMatches] = useState<Match[]>([]);
@@ -23,7 +25,7 @@ export default function AiMatchAnalyzer() {
       .finally(() => setLoading(false));
   }, []);
 
-  const rows = useMemo(() => matches.map((m) => {
+  const rows = useMemo(() => matches.filter((m) => isTopLeague(m.info?.league)).map((m) => {
     const picks = m.picks ?? [];
     const ah = find(picks, 'ah');
     const ou = find(picks, 'ou');
