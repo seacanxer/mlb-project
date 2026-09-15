@@ -17,7 +17,8 @@ const NAV_LINKS = [
 const FC_LINKS = [
   { href: '/fc/schedule', label: '📅 Schedule' },
   { href: '/fc',          label: "⚡ Today's Pick" },
-  { href: '/fc/results',  label: '📊 Result & ROI' },
+  { href: '/fc/analyzer', label: '🤖 AI Analyzer' },
+  { href: '/fc/results',  label: '📊 Result & ROI' }
 ];
 
 function useFcInstance() {

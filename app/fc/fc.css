@@ -98,6 +98,16 @@
 .fc-card-grid dt { font-size: 0.68rem; color: var(--muted); }
 .fc-card-grid dd { margin: 0; font-weight: 600; font-size: 0.85rem; }
 .fc-card-foot { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
+.fc-analyzer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 0.85rem; }
+.fc-analyzer-card { border: 1px solid #1e293b; }
+.fc-analyzer-card.is-consensus { border-color: rgba(34, 197, 94, 0.7); }
+.fc-analyzer-card h2 { font-size: 1rem; margin: 0.35rem 0; }
+.fc-analyzer-lines { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.45rem; margin: 0.8rem 0; }
+.fc-analyzer-lines div { display: grid; gap: 0.18rem; padding: 0.55rem; background: rgba(15, 23, 42, 0.7); border-radius: 0.35rem; }
+.fc-analyzer-lines b { font-size: 0.7rem; color: var(--muted); }
+.fc-analyzer-lines span { font-weight: 700; font-size: 0.82rem; }
+.fc-analyzer-lines small { color: var(--muted); font-size: 0.68rem; }
+@media (max-width: 600px) { .fc-analyzer-lines { grid-template-columns: 1fr; } }
 
 .fc-kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.75rem; margin-bottom: 1.25rem; }
 @media (max-width: 760px) { .fc-kpis { grid-template-columns: repeat(2, 1fr); } }
