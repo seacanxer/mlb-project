@@ -20,6 +20,11 @@ export class ForecastError extends Error {
 /** Only evidence tiers approved for official flat-unit tracking. */
 export const OFFICIAL_FORECAST_STATES = new Set([
   'T1',
+  'T2',
+  'OVER_LEAN',
+  'UNDER_LEAN',
+  'OVER_RISKY',
+  'UNDER_RISKY',
   'OVER_STRONG_GAP',
   'UNDER_STRONG_GAP',
 ]);
