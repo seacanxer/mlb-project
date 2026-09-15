@@ -18,7 +18,7 @@ export default function AiMatchAnalyzer() {
   const [onlyConsensus, setOnlyConsensus] = useState(false);
 
   useEffect(() => {
-    fetch('/api/fc/matches?limit=500')
+    fetch('/api/fc/analyzer')
       .then((r) => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
       .then((d) => setMatches(d.matches ?? []))
       .catch((e) => setError(e.message))
