@@ -24,10 +24,10 @@ test.describe('FC Picks navigation', () => {
 
   test('Schedule page loads with honest empty state (engine offline)', async ({ page }) => {
     await page.goto('/fc/schedule');
-    await expect(page.getByRole('heading', { name: "Today's Schedule" })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Prediksi Pertandingan', exact: true })).toBeVisible();
     const empty = page.getByText('Belum ada fixture');
-    const league = page.getByRole('button', { name: /display matches/ }).first();
-    await expect(empty.or(league)).toBeVisible({ timeout: 8000 });
+    const list = page.getByRole('heading', { name: 'Daftar Prediksi Pertandingan' });
+    await expect(empty.or(list)).toBeVisible({ timeout: 8000 });
   });
 
   test('disclaimer is permanent on all FC pages', async ({ page }) => {

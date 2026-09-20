@@ -147,3 +147,36 @@
 .fc-match-title { font-weight: 600; font-size: 0.9rem; }
 .fc-match-sub { font-size: 0.72rem; }
 .fc-match-side { display: flex; gap: 0.4rem; align-items: center; flex-shrink: 0; }
+
+/* Fixture predictions use the reference's match card and four market columns. */
+.fc-predictions-head { display:flex; justify-content:space-between; align-items:center; gap:1rem; padding:1rem 1.2rem; margin-bottom:1rem; background:#0e1e19; border:1px solid #1b382f; border-radius:16px; }
+.fc-predictions-head h2 { font-size:1.05rem; font-weight:700; margin:0; color:#f1f5f9; }
+.fc-predictions-head p { color:#91a99f; font-size:.8rem; margin:.2rem 0 0; }
+.fc-predictions-head > span { color:#2dd4bf; font-size:.82rem; white-space:nowrap; }
+.fc-predictions-toolbar { display:flex; gap:.75rem; flex-wrap:wrap; margin-bottom:1rem; }
+.fc-predictions-toolbar label { display:grid; gap:.25rem; color:#91a99f; font-size:.75rem; min-width:190px; flex:1 1 190px; }
+.fc-predictions-toolbar input,.fc-predictions-toolbar select { background:#132620; border:1px solid #1b382f; border-radius:10px; padding:.55rem .7rem; color:#e2e8f0; }
+.fc-predictions-empty { color:#91a99f; padding:2rem; text-align:center; border:1px solid #1b382f; border-radius:14px; }
+.fc-matchlist-flat { border:0; display:grid; gap:.85rem; }
+.fc-matchlist { display:grid; gap:.85rem; padding:.85rem; }
+.fc-prediction-card { list-style:none; background:#132620; border:1px solid #1b382f; border-radius:16px; padding:1rem 1.2rem; color:#e2e8f0; }
+.fc-prediction-card-ready { border-color:#255a49; }
+.fc-prediction-meta,.fc-prediction-foot { display:flex; align-items:center; justify-content:space-between; gap:.75rem; color:#91a99f; font-size:.76rem; }
+.fc-prediction-meta { border-bottom:1px solid #1b382f; padding-bottom:.7rem; }
+.fc-prediction-badges { display:flex; gap:.4rem; flex-wrap:wrap; justify-content:flex-end; }
+.fc-prediction-body { display:grid; grid-template-columns:minmax(180px, 1fr) minmax(0, 2fr); gap:1rem; align-items:center; padding:1rem 0; }
+.fc-prediction-teams { display:grid; gap:.3rem; font-size:.9rem; }
+.fc-prediction-teams strong { overflow-wrap:anywhere; }
+.fc-prediction-teams small { color:#91a99f; }
+.fc-prediction-vs { color:#729388; font-size:.66rem; font-weight:700; letter-spacing:.1em; }
+.fc-prediction-markets { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:.45rem; background:#0e1e19; border:1px solid #1b382f; border-radius:12px; padding:.65rem; }
+.fc-prediction-market { display:grid; align-content:start; gap:.3rem; min-width:0; border-right:1px solid #1b382f; padding:.2rem .45rem; }
+.fc-prediction-market:last-child { border-right:0; }
+.fc-prediction-market > span { color:#8da49c; font-size:.72rem; font-weight:700; }
+.fc-prediction-market strong { font-size:.8rem; overflow-wrap:anywhere; color:#a9bbb3; }
+.fc-prediction-market.has-pick strong { color:#4ade80; }
+.fc-prediction-market small { color:#729388; font-size:.67rem; overflow-wrap:anywhere; }
+.fc-prediction-foot { border-top:1px solid #1b382f; padding-top:.7rem; }
+.fc-prediction-foot a { color:#2dd4bf; white-space:nowrap; }
+@media (max-width:800px) { .fc-prediction-body { grid-template-columns:1fr; } }
+@media (max-width:560px) { .fc-predictions-head,.fc-prediction-meta,.fc-prediction-foot { align-items:flex-start; flex-direction:column; } .fc-prediction-markets { grid-template-columns:repeat(2,minmax(0,1fr)); } .fc-prediction-market:nth-child(2) { border-right:0; } .fc-prediction-market:nth-child(-n+2) { border-bottom:1px solid #1b382f; padding-bottom:.6rem; } }

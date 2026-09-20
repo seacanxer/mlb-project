@@ -62,8 +62,8 @@ export default function FcSchedule() {
     <div>
       <div className="page-header">
         <div>
-          <h1 className="page-title">Today&apos;s Schedule</h1>
-          <p className="page-subtitle">{matches ? `${total} fixture 24 jam ke depan` : 'Memuat…'}</p>
+          <h1 className="page-title">Prediksi Pertandingan</h1>
+          <p className="page-subtitle">{matches ? `${total} fixture mendatang · hanya pick yang lolos gate ditampilkan` : 'Memuat…'}</p>
         </div>
         <div className="fc-scanrow">
           <button className="btn btn-primary" onClick={scrapeNow} disabled={scanning} aria-busy={scanning}>
@@ -85,7 +85,7 @@ export default function FcSchedule() {
       ) : matches.length === 0 ? (
         <EmptyState
           title="Belum ada fixture 24 jam ke depan"
-          body="Klik “Scrape jadwal” untuk mengambil fixture 24 jam dari 1xbit. Hasil scrape adalah jadwal saja — pick/analisa muncul setelah engine direstore."
+          body="Klik “Scrape jadwal” untuk mengambil fixture terbaru. Prediksi hanya muncul setelah analisis model tersedia dan lolos gate."
         />
       ) : (
         <ScheduleTable matches={matches} />

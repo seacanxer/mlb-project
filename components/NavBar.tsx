@@ -15,9 +15,9 @@ const NAV_LINKS = [
 ];
 
 const FC_LINKS = [
-  { href: '/fc/schedule', label: '📅 Schedule' },
-  { href: '/fc',          label: "⚡ Today's Pick" },
-  { href: '/fc/results',  label: '📊 Result & ROI' },
+  { href: '/fc/schedule', label: '📅 Prediksi Pertandingan' },
+  { href: '/fc',          label: '⚡ Pick Terkurasi' },
+  { href: '/fc/results',  label: '📊 Hasil & ROI' },
 ];
 
 function useFcInstance() {
