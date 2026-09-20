@@ -28,6 +28,7 @@ FC_DIR = os.path.join(BASE_DIR, 'betting-machine-fc')
 sys.path.insert(0, FC_DIR)
 
 import scraper_1xbit as sc  # noqa: E402
+import odds_flashscore  # noqa: E402
 from football_formula_engine.data import load_football_data_csv, stable_id  # noqa: E402
 from football_formula_engine.markets import asian_handicap, btts, match_odds, over_under  # noqa: E402
 from football_formula_engine.model import FitConfig, fit_dixon_coles, project_fixture  # noqa: E402
@@ -75,6 +76,7 @@ for code, (_csvs, _tz, names) in LEAGUES.items():
         LEAGUE_BY_NAME[name.lower()] = code
 
 TEAM_ALIASES = {
+    # 1xbit -> football-data
     'man utd': 'manchester united', 'manchester utd': 'manchester united',
     'man city': 'manchester city', 'manchester c': 'manchester city',
     'spurs': 'tottenham hotspur', 'tottenham': 'tottenham hotspur',
@@ -84,19 +86,179 @@ TEAM_ALIASES = {
     '1 koln': 'fc koln', 'koln': 'fc koln',
     'borussia monchengladbach': 'm gladbach', 'gladbach': 'm gladbach',
     'paris saint germain': 'paris sg', 'psg': 'paris sg',
+    'paris saint germain fc': 'paris sg',
     'inter': 'internazionale milano', 'inter milan': 'internazionale milano',
     'milan': 'ac milan', 'roma': 'as roma', 'lazio': 'ss lazio',
     'napoli': 'ssc napoli', 'verona': 'hellas verona',
     'real sociedad': 'sociedad', 'athletic bilbao': 'athletic club',
     'atletico madrid': 'atletico madrid', 'real betis': 'betis',
-    'bayer leverkusen': 'leverkusen', 'leipzig': 'rb leipzig',
+    'bayer leverkusen': 'leverkusen', 'bayer 04 leverkusen': 'leverkusen',
+    'leipzig': 'rb leipzig', 'rasenballsport leipzig': 'rb leipzig',
     'dortmund': 'borussia dortmund', 'bayern': 'bayern munich',
     'n e c': 'nijmegen', 'nec': 'nijmegen',
+    'inverness ct': 'inverness c', 'inverness caledonian thistle': 'inverness c',
+    # extra 1xbit -> football-data (found via TEAM_UNMATCHED)
     'cagliari calcio': 'cagliari', 'angers sco': 'angers',
     'as saint etienne': 'st etienne', 'saint etienne': 'st etienne',
     'usl dunkerque': 'dunkerque', 'ud almeria': 'almeria',
     'fortuna sittard': 'for sittard',
     'vitoria guimaraes': 'v guimaraes',
+    'stade brestois 29': 'brest', 'stade brestois': 'brest',
+    'stade rennais': 'rennes', 'rc lens': 'lens', 'racing club de lens': 'lens',
+    'rc strasbourg': 'strasbourg', 'fc lorient': 'lorient',
+    'olympique lyonnais': 'lyon', 'fc nantes': 'nantes',
+    'ogc nice': 'nice', 'losc': 'lille', 'lille osc': 'lille',
+    'le havre ac': 'le havre', 'havre ac': 'le havre',
+    'aj auxerre': 'auxerre', 'psv eindhoven': 'psv',
+    'sc heerenveen': 'heerenveen', 'sparta rotterdam': 'sparta',
+    'pec zwolle': 'zwolle', 'fc utrecht': 'utrecht',
+    'excelsior': 'excelsior', 'telstar': 'telstar',
+    'avellino 1912': 'avellino', 'us avellino': 'avellino',
+    'citta di palermo': 'palermo', 'calcio padova': 'padova',
+    'mantova 1911': 'mantova', 'sampdoria': 'sampdoria',
+    'levante ud': 'levante', 'ud las palmas': 'las palmas',
+    'rcd espanyol': 'espanyol', 'rayo vallecano': 'rayo vallecano',
+    'rayo vallecano de madrid': 'rayo vallecano',
+    'fc barcelona': 'barcelona', 'atletico de madrid': 'atletico madrid',
+    'real madrid cf': 'real madrid', 'sevilla fc': 'sevilla',
+    'gil vicente': 'gil vicente', 'gil vicente fc': 'gil vicente',
+    'santa clara': 'santa clara', 'cd santa clara': 'santa clara',
+    'fc porto': 'porto', 'sl benfica': 'benfica',
+    'sporting cp': 'sporting', 'sc braga': 'braga',
+    'vitoria de guimaraes': 'v guimaraes',
+    'casa pia ac': 'casa pia', 'estoril praia': 'estoril',
+    'fc arouca': 'arouca', 'rio ave': 'rio ave',
+    'boavista': 'boavista', 'estrela amadora': 'estrela',
+    'farense': 'farense', 'nacional': 'nacional',
+    'moreirense': 'moreirense', 'alverca': 'alverca',
+    'psv': 'psv', 'ajax amsterdam': 'ajax', 'feyenoord rotterdam': 'feyenoord',
+    'az alkmaar': 'az alkmaar', 'fc twente': 'twente',
+    'go ahead eagles': 'go ahead', 'nec nijmegen': 'nijmegen',
+    'willem ii': 'willem ii', 'heracles almelo': 'heracles',
+    'nac breda': 'nac breda', 'fortuna sittard': 'for sittard',
+    'hellas verona fc': 'hellas verona', 'atalanta bc': 'atalanta',
+    'bologna fc': 'bologna', 'ac monza': 'monza', 'como 1907': 'como',
+    'us lecce': 'lecce', 'empoli fc': 'empoli', 'parma calcio': 'parma',
+    'torino fc': 'torino', 'udinese calcio': 'udinese',
+    'genoa cfc': 'genoa', 'venezia fc': 'venezia',
+    'hellas verona': 'hellas verona',
+    'fc internazionale milano': 'internazionale milano',
+    'juventus fc': 'juventus', 'ss lazio': 'ss lazio',
+    'as roma': 'as roma', 'acf fiorentina': 'fiorentina',
+    'ssc napoli': 'ssc napoli', 'us sassuolo': 'sassuolo',
+    'us salernitana': 'salernitana', 'frosinone calcio': 'frosinone',
+    'cagliari calcio': 'cagliari', 'cremonese': 'cremonese',
+    'real betis balompie': 'betis', 'real betis sevilla': 'betis',
+    'real sociedad de futbol': 'sociedad', 'athletic club bilbao': 'athletic club',
+    'athletic bilbao': 'athletic club', 'valencia cf': 'valencia',
+    'villarreal cf': 'villarreal', 'getafe cf': 'getafe',
+    'ca osasuna': 'osasuna', 'rc celta': 'celta', 'rc celta de vigo': 'celta',
+    'deportivo alaves': 'alaves', 'cadiz cf': 'cadiz',
+    'real valladolid': 'valladolid', 'girona fc': 'girona',
+    'rcd mallorca': 'mallorca', 'rcd espanyol': 'espanyol',
+    'leganes': 'leganes', 'cd leganes': 'leganes',
+    'real sociedad': 'sociedad', 'real madrid': 'real madrid',
+    'rayo vallecano': 'rayo vallecano', 'las palmas': 'las palmas',
+    'osasuna': 'osasuna', 'getafe': 'getafe', 'villarreal': 'villarreal',
+    'valencia': 'valencia', 'sevilla': 'sevilla', 'betis': 'betis',
+    'celta': 'celta', 'alaves': 'alaves', 'mallorca': 'mallorca',
+    'girona': 'girona', 'espanyol': 'espanyol', 'valladolid': 'valladolid',
+    'levante': 'levante', 'barcelona': 'barcelona',
+    'cadiz': 'cadiz', 'athletic club': 'athletic club',
+    'sociedad': 'sociedad',
+    'st etienne': 'st etienne', 'saint etienne': 'st etienne',
+    'as monaco': 'monaco', 'asm monaco': 'monaco',
+    'olympique marseille': 'marseille', 'om': 'marseille',
+    'olympique lyonnais': 'lyon', 'olympique lyon': 'lyon',
+    'fc metz': 'metz', 'rc strasbourg alsace': 'strasbourg',
+    'clermont foot': 'clermont', 'toulouse fc': 'toulouse',
+    'nimes olympique': 'nimes', 'sc bastia': 'bastia',
+    'es troyes ac': 'troyes', 'estac troyes': 'troyes',
+    'angers sco': 'angers', 'sco angers': 'angers',
+    'borussia monchengladbach': 'm gladbach', 'vfl wolfsburg': 'wolfsburg',
+    'eintracht frankfurt': 'eintracht frankfurt', 'vfb stuttgart': 'stuttgart',
+    'sc freiburg': 'freiburg', 'tsg hoffenheim': 'hoffenheim',
+    'fsv mainz 05': 'mainz', '1 fsv mainz 05': 'mainz',
+    'fc augsburg': 'augsburg', 'vfl bochum': 'bochum',
+    'borussia dortmund': 'borussia dortmund', 'bayer 04 leverkusen': 'leverkusen',
+    'vfl wolfsburg': 'wolfsburg', '1 fc union berlin': 'union berlin',
+    'hertha bsc': 'hertha bsc', 'fc koln': 'fc koln',
+    'werder bremen': 'werder bremen', 'sv werder bremen': 'werder bremen',
+    'hamburger sv': 'hamburg', 'hamburger sv': 'hamburg',
+    'st pauli': 'st pauli', 'fc st pauli': 'st pauli',
+    'fc heidenheim': 'heidenheim', '1 fc heidenheim': 'heidenheim',
+    'holstein kiel': 'holstein kiel', 'sv darmstadt 98': 'darmstadt',
+    '1 fc kaiserslautern': 'kaiserslautern', 'hannover 96': 'hannover 96',
+    'fc schalke 04': 'schalke', 'fortuna dusseldorf': 'dusseldorf',
+    'fortuna dusseldorf': 'dusseldorf', 'sc paderborn 07': 'paderborn',
+    '1 fc nurnberg': 'nurnberg', 'eintracht braunschweig': 'braunschweig',
+    'sv elversberg': 'elversberg', 'ssv ulm 1846': 'ulm',
+    'preussen munster': 'munster', 'karlsruher sc': 'karlsruhe',
+    'greuther furth': 'greuther furth', 'spvgg greuther furth': 'greuther furth',
+    'fc magdeburg': 'magdeburg', '1 fc magdeburg': 'magdeburg',
+    'hertha bsc': 'hertha bsc', 'vfl osnabruck': 'osnabruck',
+    'hansa rostock': 'hansa rostock', 'fc hansa rostock': 'hansa rostock',
+    'fc st pauli': 'st pauli', 'fc st pauli 1910': 'st pauli',
+    'fortuna dusseldorf': 'dusseldorf', 'fortuna dusseldorf 1895': 'dusseldorf',
+    'karlsruher sc': 'karlsruhe', 'sc freiburg': 'freiburg',
+    'mainz': 'mainz', 'hoffenheim': 'hoffenheim', 'stuttgart': 'stuttgart',
+    'wolfsburg': 'wolfsburg', 'augsburg': 'augsburg', 'bochum': 'bochum',
+    'union berlin': 'union berlin', 'hertha bsc': 'hertha bsc',
+    'freiburg': 'freiburg', 'leverkusen': 'leverkusen',
+    'eintracht frankfurt': 'eintracht frankfurt',
+    'werder bremen': 'werder bremen', 'st pauli': 'st pauli',
+    'heidenheim': 'heidenheim', 'holstein kiel': 'holstein kiel',
+    'darmstadt': 'darmstadt', 'kaiserslautern': 'kaiserslautern',
+    'hannover 96': 'hannover 96', 'schalke': 'schalke',
+    'dusseldorf': 'dusseldorf', 'paderborn': 'paderborn',
+    'nurnberg': 'nurnberg', 'braunschweig': 'braunschweig',
+    'elversberg': 'elversberg', 'ulm': 'ulm', 'munster': 'munster',
+    'greuther furth': 'greuther furth', 'magdeburg': 'magdeburg',
+    'osnabruck': 'osnabruck', 'hansa rostock': 'hansa rostock',
+    'hamburg': 'hamburg',
+    # extra unmatched (1xbit full name -> football-data short)
+    '1 heidenheim': 'heidenheim', 'holstein kiel': 'holstein kiel',
+    'energie cottbus': 'cottbus', 'vfl osnabruck': 'osnabruck',
+    'coventry city': 'coventry', 'manchester united': 'manchester united',
+    'sheffield united': 'sheffield united', 'wolverhampton wanderers': 'wolverhampton wanderers',
+    'lille osc': 'lille', 'troyes ac': 'troyes',
+    'le mans': 'le mans', 'rc lens': 'lens',
+    'monza 1912': 'monza', 'sporting clube de portugal': 'sporting',
+    'celta vigo': 'celta', 'malaga': 'malaga',
+    'getafe cf': 'getafe', 'deportivo de a coruna': 'deportivo',
+    'atletico madrid': 'atletico madrid', 'real sociedad': 'sociedad',
+    'sporting de gijon': 'gijon', 'eldense': 'eldense',
+    'real valladolid': 'valladolid', 'real oviedo': 'oviedo',
+    'mallorca': 'mallorca', 'sabadell': 'sabadell',
+    'tenerife': 'tenerife', 'leganes': 'leganes',
+    'st pauli': 'st pauli', 'fc st pauli': 'st pauli',
+    'fc heidenheim': 'heidenheim', '1 fc heidenheim': 'heidenheim',
+    'holstein kiel': 'holstein kiel', 'sv darmstadt 98': 'darmstadt',
+    '1 fc kaiserslautern': 'kaiserslautern', 'hannover 96': 'hannover 96',
+    'fc schalke 04': 'schalke', 'fortuna dusseldorf': 'dusseldorf',
+    'sc paderborn 07': 'paderborn', '1 fc nurnberg': 'nurnberg',
+    'eintracht braunschweig': 'braunschweig', 'sv elversberg': 'elversberg',
+    'ssv ulm 1846': 'ulm', 'preussen munster': 'munster',
+    'karlsruher sc': 'karlsruhe', 'greuther furth': 'greuther furth',
+    'spvgg greuther furth': 'greuther furth', 'fc magdeburg': 'magdeburg',
+    '1 fc magdeburg': 'magdeburg', 'hertha bsc': 'hertha bsc',
+    'vfl osnabruck': 'osnabruck', 'hansa rostock': 'hansa rostock',
+    'fc hansa rostock': 'hansa rostock', 'fc st pauli 1910': 'st pauli',
+    'fortuna dusseldorf 1895': 'dusseldorf', 'karlsruher sc': 'karlsruhe',
+    'sc freiburg': 'freiburg', 'mainz': 'mainz', 'hoffenheim': 'hoffenheim',
+    'stuttgart': 'stuttgart', 'wolfsburg': 'wolfsburg', 'augsburg': 'augsburg',
+    'bochum': 'bochum', 'union berlin': 'union berlin', 'hertha bsc': 'hertha bsc',
+    'freiburg': 'freiburg', 'leverkusen': 'leverkusen',
+    'eintracht frankfurt': 'eintracht frankfurt', 'werder bremen': 'werder bremen',
+    'st pauli': 'st pauli', 'heidenheim': 'heidenheim',
+    'holstein kiel': 'holstein kiel', 'darmstadt': 'darmstadt',
+    'kaiserslautern': 'kaiserslautern', 'hannover 96': 'hannover 96',
+    'schalke': 'schalke', 'dusseldorf': 'dusseldorf', 'paderborn': 'paderborn',
+    'nurnberg': 'nurnberg', 'braunschweig': 'braunschweig',
+    'elversberg': 'elversberg', 'ulm': 'ulm', 'munster': 'munster',
+    'greuther furth': 'greuther furth', 'magdeburg': 'magdeburg',
+    'osnabruck': 'osnabruck', 'hansa rostock': 'hansa rostock',
+    'hamburg': 'hamburg',
 }
 _JUNK_SUFFIXES = (' fc', ' cf', ' sc', ' afc', ' ac', ' us', ' as', ' rc')
 CATEGORY_TOKENS = frozenset({
@@ -473,6 +635,21 @@ def main():
         except Exception:
             skipped['QUOTE_CAPTURE_FAILED'] = skipped.get('QUOTE_CAPTURE_FAILED', 0) + 1
             continue
+        # Keep the deployed optional comparison non-blocking; primary prices
+        # and the immutable journal remain authoritative for decisions.
+        try:
+            secondary = odds_flashscore.crosscheck(info.get('home'), info.get('away'), info['start_ts'], mk)
+            with open(os.path.join(FC_DIR, 'odds_quotes.jsonl'), 'a', encoding='utf-8') as handle:
+                handle.write(json.dumps({
+                    'captured_at': datetime.fromtimestamp(captured_at, timezone.utc).isoformat(),
+                    'provider': '1xbit', 'bookmaker': '1xbit',
+                    'match_id': str(info['match_id']), 'home': info.get('home'),
+                    'away': info.get('away'), 'league': info.get('league'),
+                    'start_ts': int(float(info['start_ts'])), 'markets': mk,
+                    'secondary': secondary,
+                }, ensure_ascii=False, allow_nan=False) + '\n')
+        except Exception:
+            skipped['OPTIONAL_CROSSCHECK_FAILED'] = skipped.get('OPTIONAL_CROSSCHECK_FAILED', 0) + 1
         mapping = second_mappings.get(str(info['match_id']))
         if mapping:
             try:
@@ -548,6 +725,15 @@ def main():
             'calibrated_prob': None,
             'rank_score': round(o['ev'] * 100, 2),
             'locked': False,
+            'quote_provider': '1xbit',
+            'quote_captured_at': datetime.now(timezone.utc).isoformat(),
+            'quote_is_closing': False,
+            'secondary_provider': 'flashscore',
+            'secondary_status': secondary.get('status', 'unavailable'),
+            'secondary_match_verified': secondary.get('match_verified', False),
+            'comparison_status': 'verified' if secondary.get('status') == 'available' and secondary.get('match_verified') else 'unavailable',
+            'official_comparison_eligible': secondary.get('status') == 'available' and secondary.get('match_verified') and bool(secondary.get('bookmakers')),
+            'primary_source': '1xbit',
         })
         m['picks'] = [picks[-1]]
         m['qualified_picks'] = [picks[-1]]
@@ -563,6 +749,33 @@ def main():
     ordered = sorted(merged.values(), key=lambda m: float(m['info'].get('start_ts') or 0))
     atomic_write(matches_path, ordered)
     atomic_write(os.path.join(FC_DIR, 'picks.json'), picks)
+
+    # Lock picks into bets.db so settlement can track them.
+    # Dedup by source_match_id + market + pick to avoid re-locking same pick.
+    import sqlite3
+    conn = sqlite3.connect(os.path.join(FC_DIR, 'bets.db'))
+    existing = set()
+    for r in conn.execute('SELECT source_match_id, market, pick FROM bets'):
+        existing.add((r[0], r[1], r[2]))
+    locked_now = 0
+    for pick in picks:
+        key = (str(pick['match_id']), pick['market'], pick['pick'])
+        if key in existing:
+            continue
+        conn.execute(
+            'INSERT INTO bets (match, home, away, league, start_ts, market, pick, odds, ev, probability, placed_at, settled, won, profit, settled_at, source_match_id, home_score, away_score, score_status, score_updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+            (
+                pick['match'], pick['home'], pick['away'], pick['league'],
+                int(pick['start_ts']), pick['market'], pick['pick'],
+                pick['odds'], pick['ev'], pick['probability'],
+                datetime.fromtimestamp(now, tz=timezone.utc).isoformat(),
+                0, None, None, None, str(pick['match_id']),
+                None, None, None, None,
+            ),
+        )
+        locked_now += 1
+    conn.commit()
+    conn.close()
 
     config_path = os.path.join(FC_DIR, 'config.json')
     cfg = {}
@@ -583,7 +796,7 @@ def main():
 
     print(json.dumps({
         'status': 'ok', 'fixtures_future': len(future), 'scanned': scanned,
-        'picks': len(picks), 'skipped': skipped,
+        'picks': len(picks), 'locked': locked_now, 'skipped': skipped,
         'markets': sorted({p['market'] for p in picks}),
         'seconds': round(time.time() - started, 1),
     }, sort_keys=True))

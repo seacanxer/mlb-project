@@ -17,6 +17,7 @@ const NAV_LINKS = [
 const FC_LINKS = [
   { href: '/fc/schedule', label: '📅 Prediksi Pertandingan' },
   { href: '/fc',          label: '⚡ Pick Terkurasi' },
+  { href: '/fc/analyzer', label: 'Analisis Pasar' },
   { href: '/fc/results',  label: '📊 Hasil & ROI' },
 ];
 
