@@ -122,6 +122,19 @@ body:has(.fc-shell) .main-content { max-width: 1460px; padding: 1.5rem 2rem 3rem
 .prediction-guide b { color: #c6ddcf; font-weight: 600; }
 .prediction-guide-foot { padding-top: .75rem; border-top: 1px solid #244237; }
 .prediction-empty { text-align: center; padding: 2.5rem 1rem; background: #0e1e19; border: 1px dashed #30533e; border-radius: 12px; }
+.fc-schedule-list { display: grid; gap: 1.25rem; }
+.fc-schedule-country { background: #0e1e19; border: 1px solid #244237; border-radius: 14px; overflow: hidden; }
+.fc-schedule-country > header { display:flex; justify-content:space-between; align-items:center; padding: .9rem 1.1rem; background:#12271e; border-bottom:1px solid #244237; }
+.fc-schedule-country h2 { margin:0; font-size:1rem; }
+.fc-schedule-country > header span { color:#91a99f; font-size:.7rem; }
+.fc-schedule-league { padding: .75rem 1.1rem; }
+.fc-schedule-league + .fc-schedule-league { border-top:1px solid #1d382b; }
+.fc-schedule-league h3 { margin:0 0 .45rem; color:#70b9a2; font-size:.75rem; font-weight:600; }
+.fc-schedule-rows { display:grid; gap:.3rem; }
+.fc-schedule-row { display:grid; grid-template-columns: 115px minmax(0,1fr) 28px minmax(0,1fr); align-items:center; gap:.55rem; padding:.65rem .7rem; border:1px solid #1d382b; border-radius:8px; background:#10231c; font-size:.78rem; }
+.fc-schedule-row time { color:#91a99f; font-family:'JetBrains Mono',monospace; font-size:.68rem; }
+.fc-schedule-row span { color:#5f8775; text-align:center; font-size:.68rem; }
+@media (max-width: 560px) { .fc-schedule-row { grid-template-columns: 1fr 24px 1fr; } .fc-schedule-row time { grid-column:1/-1; } }
 .prediction-empty > span { font-size: 2rem; color: #5eead4; }
 .prediction-empty h3 { font-size: 1rem; margin: .5rem 0; }
 .prediction-empty p { color: #91a99f; font-size: .8rem; }

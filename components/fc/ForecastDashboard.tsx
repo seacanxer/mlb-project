@@ -4,9 +4,10 @@ import { fetchAllMatches } from '@/lib/fc/allMatches';
 import { FC_UI_VERSION } from '@/lib/fc/predictions';
 import type { DetailedMatch } from '@/lib/fc/types';
 import { PredictionBoard, type BoardView } from './PredictionBoard';
+import { ScheduleList } from './ScheduleList';
 import { ErrorBanner, SkeletonRows } from './shared';
 
-export function ForecastDashboard({ view = 'all', title = 'Prediksi Pertandingan' }: { view?: BoardView; title?: string }) {
+export function ForecastDashboard({ view = 'all', title = 'Prediksi Pertandingan', mode = 'board' }: { view?: BoardView; title?: string; mode?: 'board' | 'schedule' | 'value' | 'market' }) {
   const [matches, setMatches] = useState<DetailedMatch[] | null>(null);
   const [error, setError] = useState('');
   const [scanning, setScanning] = useState(false);
@@ -42,6 +43,6 @@ export function ForecastDashboard({ view = 'all', title = 'Prediksi Pertandingan
     <header className="prediction-page-header"><div><span className="prediction-eyebrow">FOOTBALL MARKET INTELLIGENCE</span><h1>{title}</h1><p>Temukan pertandingan. Bandingkan pasar. Susun pilihan Anda.</p></div><button type="button" className="prediction-scan" onClick={scan} disabled={scanning} aria-busy={scanning}>{scanning ? 'Memproses analisis…' : '↻ Perbarui analisis'}</button></header>
     {message && <p className="prediction-scan-message" role="status">{message}</p>}
     {error && <ErrorBanner message={error} onRetry={() => setRefresh((n) => n + 1)} />}
-    {matches === null ? <SkeletonRows rows={5} label="Memuat pertandingan…" /> : <PredictionBoard matches={matches} initialView={view} />}
+    {matches === null ? <SkeletonRows rows={5} label="Memuat pertandingan…" /> : mode === 'schedule' ? <ScheduleList matches={matches} /> : <PredictionBoard matches={matches} initialView={view} marketScope={mode === 'market' ? 'top' : 'all'} valueOnly={mode === 'value'} />}
   </div>;
 }

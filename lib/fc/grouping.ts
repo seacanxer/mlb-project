@@ -87,22 +87,5 @@ export function groupByCountryLeague(matches: DetailedMatch[]): CountryGroup[] {
     return { country, leagues: leagueGroups, total: leagueGroups.reduce((n, g) => n + g.matches.length, 0) };
   });
 
-  // Pin Top 5 Europe di seksi tersendiri paling atas (hanya liga yang ada
-  // datanya). Grup country asal tidak lagi memuat liga tersebut (no duplikat).
-  const featured: LeagueGroup[] = [];
-  for (const top of TOP_LEAGUES) {
-    const g = groups.find((gr) => gr.country.toLowerCase() === top.country.toLowerCase());
-    const lg = g?.leagues.find((l) => l.league.toLowerCase() === top.league.toLowerCase());
-    if (lg) featured.push(lg);
-  }
-  if (featured.length === 0) return groups;
-  const featuredKeys = new Set(featured.map((l) => `${l.country}|${l.league}`));
-  const rest = groups
-    .map((gr) => ({
-      ...gr,
-      leagues: gr.leagues.filter((l) => !featuredKeys.has(`${l.country}|${l.league}`)),
-      total: gr.leagues.filter((l) => !featuredKeys.has(`${l.country}|${l.league}`)).reduce((n, l) => n + l.matches.length, 0),
-    }))
-    .filter((gr) => gr.leagues.length > 0);
-  return [{ country: TOP_SECTION, leagues: featured, total: featured.reduce((n, l) => n + l.matches.length, 0), featured: true }, ...rest];
+  return groups;
 }

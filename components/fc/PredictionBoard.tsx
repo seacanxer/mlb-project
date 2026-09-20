@@ -4,6 +4,7 @@ import type { DetailedMatch, ForecastPick, Market } from '@/lib/fc/types';
 import { forecastPicks, isValue, matchKey, pickLabel, PREDICTION_MARKETS, reasonLabel } from '@/lib/fc/predictions';
 import { formatEv, formatOdds, formatProb } from '@/lib/fc/format';
 import { formatKickoffWIB } from '@/lib/fc/kickoff';
+import { splitLeague } from '@/lib/fc/grouping';
 
 export type BoardView = 'all' | 'ready' | 'value' | 'unavailable' | 'saved';
 type Choice = { match: DetailedMatch; pick: ForecastPick; id: string };
@@ -75,7 +76,14 @@ function PredictionCard({ match, market, valueOnly, saved, onToggle }: {
   </article>;
 }
 
-export function PredictionBoard({ matches, initialView = 'all' }: { matches: DetailedMatch[]; initialView?: BoardView }) {
+const TOP_MARKET_TERMS = ['premier league', 'la liga', 'bundesliga', 'serie a', 'ligue 1', 'champions league', 'europa league', 'conference league', 'uefa champions', 'uefa europa', 'uefa conference', 'j1 league', 'j league', 'k league', 'liga 1', 'indonesia', 'afc champions'];
+function isTopMarketLeague(match: DetailedMatch): boolean {
+  const { country, league } = splitLeague(match.info.league);
+  const text = `${country} ${league}`.toLowerCase();
+  return TOP_MARKET_TERMS.some((term) => text.includes(term));
+}
+
+export function PredictionBoard({ matches, initialView = 'all', marketScope = 'all', valueOnly = false }: { matches: DetailedMatch[]; initialView?: BoardView; marketScope?: 'all' | 'top'; valueOnly?: boolean }) {
   const [view, setView] = useState<BoardView>(initialView);
   const [search, setSearch] = useState('');
   const [league, setLeague] = useState('all');
@@ -93,19 +101,20 @@ export function PredictionBoard({ matches, initialView = 'all' }: { matches: Det
     const prefix = `${matchKey(m)}|${p.market}|`;
     updateSaved(saved.includes(id) ? saved.filter((v) => v !== id) : [...saved.filter((v) => !v.startsWith(prefix)), id]);
   };
+  const scopedMatches = marketScope === 'top' ? matches.filter(isTopMarketLeague) : matches;
   const savedChoices = useMemo(() => {
     const unique = new Map<string, Choice>();
-    matches.forEach((match) => [...forecastPicks(match), ...(match.qualified_picks ?? []), ...(match.market_options ?? [])].forEach((pick) => {
+    scopedMatches.forEach((match) => [...forecastPicks(match), ...(match.qualified_picks ?? []), ...(match.market_options ?? [])].forEach((pick) => {
       const id = choiceId(match, pick); if (saved.includes(id)) unique.set(id, { match, pick, id });
     }));
     return [...unique.values()];
-  }, [matches, saved]);
+  }, [scopedMatches, saved]);
   const leagues = useMemo(() => [...new Set(matches.map((m) => m.info.league).filter((v): v is string => Boolean(v)))].sort(), [matches]);
   const ready = matches.filter((m) => forecastPicks(m).length > 0).length;
   const values = matches.reduce((n, m) => n + (m.qualified_picks ?? []).filter(isValue).length, 0);
   const selectedKeys = new Set(savedChoices.map(({ match }) => matchKey(match)));
-  const filtered = matches.filter((m) => {
-    const picks = choicesFor(m, view === 'value');
+  const filtered = scopedMatches.filter((m) => {
+    const picks = choicesFor(m, valueOnly || view === 'value');
     if (view === 'ready' && !picks.length) return false;
     if (view === 'value' && !picks.length) return false;
     if (view === 'unavailable' && forecastPicks(m).length) return false;
