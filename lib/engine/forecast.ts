@@ -49,7 +49,7 @@ export async function lockForecast(
   if (run.isLocked) throw new ForecastError('This model run is already locked');
   if (run.isInvalidated) throw new ForecastError('Cannot lock an invalidated model run');
   if (!isOfficialForecastState(run.finalState)) {
-    throw new ForecastError('Only official T1 or O/U STRONG signals can be locked; T2/RISKY remain watchlist-only');
+    throw new ForecastError('This forecast state is not eligible for locking');
   }
 
   const existingGameModelForecast = await prisma.forecast.findFirst({

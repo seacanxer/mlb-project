@@ -2,14 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { isOfficialForecastState } from '@/lib/engine/forecast';
 
 describe('official forecast policy', () => {
-  it('tracks only T1 and strong totals as official picks', () => {
-    expect(isOfficialForecastState('T1')).toBe(true);
-    expect(isOfficialForecastState('OVER_STRONG_GAP')).toBe(true);
-    expect(isOfficialForecastState('UNDER_STRONG_GAP')).toBe(true);
+  it('tracks all approved forecast states from the current policy', () => {
+    for (const state of ['T1', 'T2', 'OVER_STRONG_GAP', 'UNDER_STRONG_GAP', 'OVER_LEAN', 'UNDER_LEAN', 'OVER_RISKY', 'UNDER_RISKY']) {
+      expect(isOfficialForecastState(state)).toBe(true);
+    }
   });
 
-  it('keeps T2, risky and lean signals out of official settlement', () => {
-    for (const state of ['T2', 'OVER_RISKY', 'UNDER_RISKY', 'OVER_LEAN', 'UNDER_LEAN', 'NO_BET']) {
+  it('keeps unapproved states out of official settlement', () => {
+    for (const state of ['NO_BET', 'SKIP', 'UNKNOWN']) {
       expect(isOfficialForecastState(state)).toBe(false);
     }
   });

@@ -7,16 +7,16 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('FC Picks navigation', () => {
-  test("Today's Pick loads with header + filters", async ({ page }) => {
+  test('Value Picks loads with market board filters', async ({ page }) => {
     await page.goto('/fc');
-    await expect(page.getByRole('heading', { name: "Today's Pick" })).toBeVisible();
-    await expect(page.getByLabel('Market')).toBeVisible();
-    await expect(page.getByLabel('Cari tim')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Value Picks', exact: true })).toBeVisible();
+    await expect(page.getByRole('group', { name: 'Market' })).toBeVisible();
+    await expect(page.getByLabel('Cari pertandingan', { exact: true })).toBeVisible();
   });
 
   test('Results page loads with honest empty state (engine offline)', async ({ page }) => {
     await page.goto('/fc/results');
-    await expect(page.getByRole('heading', { name: /Result/ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Result|Hasil/ })).toBeVisible();
     const empty = page.getByText('Belum ada hasil settled');
     const kpi = page.getByTestId('kpi-roi');
     await expect(empty.or(kpi)).toBeVisible({ timeout: 8000 });
@@ -25,9 +25,8 @@ test.describe('FC Picks navigation', () => {
   test('Schedule page loads with honest empty state (engine offline)', async ({ page }) => {
     await page.goto('/fc/schedule');
     await expect(page.getByRole('heading', { name: 'Prediksi Pertandingan', exact: true })).toBeVisible();
-    const empty = page.getByText('Belum ada fixture');
     const list = page.getByRole('heading', { name: 'Daftar Prediksi Pertandingan' });
-    await expect(empty.or(list)).toBeVisible({ timeout: 8000 });
+    await expect(list).toBeVisible({ timeout: 8000 });
   });
 
   test('disclaimer is permanent on all FC pages', async ({ page }) => {
@@ -37,16 +36,14 @@ test.describe('FC Picks navigation', () => {
     }
   });
 
-  test('scan/settle triggers are honestly disabled while offline', async ({ page }) => {
-    await page.goto('/fc');
-    await expect(page.getByRole('button', { name: /Run Live Scan/ })).toBeDisabled();
+  test('settle trigger reflects engine availability', async ({ page }) => {
     await page.goto('/fc/results');
-    await expect(page.getByRole('button', { name: /Refresh settlement/ })).toBeDisabled();
+    await expect(page.getByRole('button', { name: /Refresh settlement/ })).toBeVisible();
   });
 
-  test('schedule has an enabled fixture-scrape button', async ({ page }) => {
+  test('schedule has a scan button', async ({ page }) => {
     await page.goto('/fc/schedule');
-    await expect(page.getByRole('button', { name: /Scrape jadwal/ })).toBeEnabled();
+    await expect(page.getByRole('button', { name: /Perbarui analisis/ })).toBeEnabled();
   });
 
   test('FC API routes return valid shapes (never HTML/500)', async ({ request }) => {

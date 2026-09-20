@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './fc.css';
 import { HealthSlot } from '@/components/fc/HealthSlot';
 import { Disclaimer } from '@/components/fc/shared';
+import { FC_UI_VERSION } from '@/lib/fc/predictions';
 
 export const metadata: Metadata = {
   title: 'FC Picks — Rekomendasi Betting Berbasis Data',
@@ -11,11 +12,12 @@ export const metadata: Metadata = {
 
 export default function FcLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div>
+    <div className="fc-shell">
       <HealthSlot />
       {children}
       <footer>
         <Disclaimer />
+        <p className="fc-build-label">FC Market Intelligence · UI {FC_UI_VERSION} · build {process.env.NEXT_PUBLIC_BUILD_COMMIT || 'unknown'}</p>
       </footer>
     </div>
   );

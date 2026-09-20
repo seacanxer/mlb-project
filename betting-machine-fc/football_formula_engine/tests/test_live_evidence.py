@@ -96,6 +96,8 @@ def test_scan_persists_quotes_before_missing_model(tmp_path, monkeypatch):
     monkeypatch.setattr(scan.sc, 'list_matches_paginated', lambda **kwargs: [row])
     monkeypatch.setattr(scan.sc, 'get_match', lambda _: row)
     monkeypatch.setattr(scan, 'load_model', lambda *args: None)
+    monkeypatch.setattr(scan, 'refresh_scores', lambda *args: {'status': 'unavailable'})
+    monkeypatch.setattr(scan.odds_flashscore, 'crosscheck', lambda *args: {'status': 'unavailable'})
     assert scan.main() == 0
     journal = QuoteJournal(tmp_path / 'quotes.db')
     assert len(journal.as_of('1', 1000)[0]['quotes']) == 1

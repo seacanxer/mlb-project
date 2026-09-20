@@ -15,10 +15,10 @@ const NAV_LINKS = [
 ];
 
 const FC_LINKS = [
-  { href: '/fc/schedule', label: '📅 Prediksi Pertandingan' },
-  { href: '/fc',          label: '⚡ Pick Terkurasi' },
+  { href: '/fc/schedule', label: 'Pertandingan' },
+  { href: '/fc',          label: 'Value Picks' },
   { href: '/fc/analyzer', label: 'Analisis Pasar' },
-  { href: '/fc/results',  label: '📊 Hasil & ROI' },
+  { href: '/fc/results',  label: 'Hasil & ROI' },
 ];
 
 function useFcInstance() {
@@ -31,20 +31,21 @@ function useFcInstance() {
 
 export function NavBar() {
   const pathname = usePathname();
-  const isFc = useFcInstance();
+  const fcHost = useFcInstance();
+  const isFc = fcHost || pathname === '/fc' || pathname.startsWith('/fc/');
 
   if (isFc) {
     return (
-      <nav className="nav" role="navigation" aria-label="Main navigation">
+      <nav className="nav fc-navigation" role="navigation" aria-label="Main navigation">
         <div className="nav-brand">
-          <span aria-hidden="true">⚽</span>
-          FC Picks
+          <span className="fc-brand-symbol" aria-hidden="true">↗</span>
+          <span>FC<span className="fc-brand-accent">Predict</span><small>Football Market Intelligence</small></span>
         </div>
         {FC_LINKS.map((l) => (
           <Link
             key={l.href}
             href={l.href}
-            className={`nav-link ${pathname === l.href || pathname.startsWith(l.href + '/') ? 'active' : ''}`}
+            className={`nav-link ${pathname === l.href ? 'active' : ''}`}
             aria-current={pathname === l.href ? 'page' : undefined}
           >
             {l.label}
@@ -76,7 +77,7 @@ export function NavBar() {
           <Link
             key={l.href}
             href={l.href}
-            className={`nav-link ${pathname === l.href || pathname.startsWith(l.href + '/') ? 'active' : ''}`}
+            className={`nav-link ${pathname === l.href ? 'active' : ''}`}
           >
             {l.label}
           </Link>

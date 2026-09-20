@@ -42,22 +42,21 @@ export async function POST() {
     const { readMatches } = await import('@/lib/fc/store');
     const total = readMatches(1, 0).pagination.total;
     let picks: number | undefined;
+    let forecasts: number | undefined;
     if (full) {
       const line = stdout.trim().split('\n').pop() ?? '';
-      try {
-        const summary = JSON.parse(line) as { picks?: number; status?: string };
+        const summary = JSON.parse(line) as { picks?: number; forecasts?: number; status?: string };
         if (summary.status !== 'ok') throw new Error(summary.status ?? 'scan failed');
         picks = summary.picks;
-      } catch {
-        picks = undefined;
-      }
+        forecasts = summary.forecasts;
     }
     last = { at: new Date().toISOString(), status: 'done', fixtures: total, picks };
     return NextResponse.json({
       status: 'done',
       fixtures: total,
       picks,
-      message: full ? `${total} fixture · ${picks ?? '?'} pick lolos gate.` : `${total} fixture 24 jam ke depan.`,
+      forecasts,
+      message: full ? `${total} fixture · ${forecasts ?? 0} proyeksi pasar · ${picks ?? 0} pilihan value (Watch).` : `${total} fixture 24 jam ke depan.`,
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Scan gagal.';

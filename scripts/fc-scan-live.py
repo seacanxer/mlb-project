@@ -8,8 +8,8 @@ Pipeline (Phase 7 adapter):
      Dixon-Coles artifact (betting-machine-fc/models_cache/{CODE}.json)
   3. fetch live odds per fixture from 1xbit, price 1X2/O-U/AH/BTTS with the
      engine payout math, compute EV against the live price
-  4. gate (odds >= 1.5, ev >= EV_GATE, conservative_ev >= 0.01), best pick
-     per fixture, tier=watch (model is unvalidated -> never official)
+  4. gate (odds >= 1.5, ev >= EV_GATE, conservative_ev >= 0.01), one value pick
+     per market, with ungated forecasts, tier=watch (model is unvalidated -> never official)
   5. atomic writes: picks.json, matches_detailed.json picks merge,
      config.json scan metadata
 
@@ -17,10 +17,13 @@ Run: betting-machine-fc/venv/bin/python scripts/fc-scan-live.py
 """
 import difflib
 import json
+import math
+import hashlib
 import os
 import sys
 import time
 import unicodedata
+from pathlib import Path
 from datetime import datetime, timezone
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -35,6 +38,8 @@ from football_formula_engine.model import FitConfig, fit_dixon_coles, project_fi
 from football_formula_engine.value import expected_value, fair_odds, proportional_no_vig  # noqa: E402
 from football_formula_engine.live_quotes import QuoteJournal  # noqa: E402
 from football_formula_engine.second_source import collect as collect_second_source  # noqa: E402
+from football_formula_engine.catalog import POLICY_VERSION, select_markets, direction_counts  # noqa: E402
+from football_formula_engine.live_training import current_season, refresh_scores  # noqa: E402
 
 FORMULA_VERSION = 'dc-loglink-time-decay-v1'
 UNCERTAINTY_PENALTY = 0.02
@@ -43,6 +48,7 @@ ODDS_FLOOR = 1.5
 ODDS_CAP = 4.0
 WINDOW_HOURS = 24
 MODELS_CACHE = os.path.join(FC_DIR, 'models_cache')
+MODEL_DATA_INFO = {}
 
 # football-data code -> (csvs [(file, season)], timezone, 1xbit league names)
 LEAGUES = {
@@ -297,31 +303,21 @@ def match_team(name, teams):
         toks = set(a.split()) | set(b.split())
         return bool(toks & CATEGORY_TOKENS)
 
-    best, best_r = None, 0.0
+    ranked = []
     for cn, t in canon.items():
         if category_locked(n, cn):
             continue
         r = difflib.SequenceMatcher(None, n, cn).ratio()
-        if r > best_r:
-            best, best_r = t, r
-    if best_r >= 0.82:
-        return best
-    toks = set(n.split())
-    for cn, t in canon.items():
-        if category_locked(n, cn):
-            continue
-        ctoks = set(cn.split())
-        if toks and ctoks and len(toks & ctoks) / len(toks | ctoks) >= 0.5:
-            return t
-    for cn, t in canon.items():
-        if category_locked(n, cn):
-            continue
-        if len(n) >= 4 and (n in cn or cn in n):
-            return t
+        ranked.append((r, t))
+    ranked.sort(reverse=True)
+    if ranked and ranked[0][0] >= 0.86 and (len(ranked) == 1 or ranked[0][0] - ranked[1][0] >= 0.08):
+        return ranked[0][1]
     return None
 
 
 def quarter(value):
+    if not math.isfinite(float(value)):
+        return None
     q = round(float(value) * 4)
     if abs(float(value) * 4 - q) > 1e-8:
         return None
@@ -373,15 +369,21 @@ def load_model(code, now):
     os.makedirs(MODELS_CACHE, exist_ok=True)
     path = os.path.join(MODELS_CACHE, f'{code}.json')
     today = datetime.fromtimestamp(now, tz=timezone.utc).strftime('%Y-%m-%d')
+    csvs = training_files(code, now)
+    fingerprint = hashlib.sha256(b''.join(
+        Path(FC_DIR, 'data', name).read_bytes()
+        for name, _season in csvs if os.path.exists(os.path.join(FC_DIR, 'data', name))
+    )).hexdigest()
     if os.path.exists(path):
         try:
             with open(path) as f:
                 cached = json.load(f)
-            if cached.get('fitted_for_date') == today:
+            if cached.get('fitted_for_date') == today and cached.get('source_fingerprint') == fingerprint:
+                MODEL_DATA_INFO[code] = cached.get('data_info', {})
                 return cached['artifact']
         except (OSError, ValueError, KeyError):
             pass
-    csvs, tz, _names = LEAGUES[code]
+    _configured, tz, _names = LEAGUES[code]
     matches = []
     temps = []
     for fname, season in csvs:
@@ -401,6 +403,10 @@ def load_model(code, now):
             pass
     if not matches:
         return None
+    available_results = [m.result_available_at_utc for m in matches
+                         if m.result_available_at_utc is not None and m.result_available_at_utc <= now]
+    MODEL_DATA_INFO[code] = {'last_result_at': max(available_results, default=0),
+                             'source_files': [name for name, _season in csvs]}
     cutoff = int(now)
     try:
         artifact = fit_dixon_coles(matches, cutoff_utc=cutoff, config=FitConfig())
@@ -409,7 +415,8 @@ def load_model(code, now):
         return None
     tmp = path + '.tmp'
     with open(tmp, 'w') as f:
-        json.dump({'fitted_for_date': today, 'artifact': artifact}, f)
+        json.dump({'fitted_for_date': today, 'artifact': artifact,
+                   'source_fingerprint': fingerprint, 'data_info': MODEL_DATA_INFO[code]}, f)
     os.replace(tmp, path)
     return artifact
 
@@ -418,8 +425,18 @@ def team_id(code, csv_name):
     return 'fd-team-' + stable_id(code, csv_name)
 
 
+def training_files(code, now=None):
+    files = list(LEAGUES[code][0])
+    season = current_season(time.time() if now is None else now)
+    for name in (f'{code}_{season}_live_scores.csv', f'{code}_{season}.csv'):
+        if os.path.exists(os.path.join(FC_DIR, 'data', name)):
+            files = [(file, yr) for file, yr in files if yr != season] + [(name, season)]
+            break
+    return files
+
+
 def csv_teams(code):
-    csvs, tz, _ = LEAGUES[code]
+    csvs = training_files(code)
     names = set()
     for fname, _season in csvs:
         fpath = os.path.join(FC_DIR, 'data', fname)
@@ -435,26 +452,40 @@ def csv_teams(code):
     return names
 
 
-def opp(payout, odds, no_vig_probs):
-    """One priced opportunity; None when gated out."""
+def opp(payout, odds, no_vig_probs, *, gated=True):
+    """Price a valid offer; value thresholds affect eligibility, not visibility."""
+    try:
+        odds = float(odds)
+    except (TypeError, ValueError):
+        return None
+    if not math.isfinite(odds) or odds <= 1 or no_vig_probs is None:
+        return None
     fo = fair_odds(payout)
     if fo is None:
         return None
     ev = expected_value(payout, odds)
-    if not (ODDS_FLOOR <= odds <= ODDS_CAP) or ev < EV_GATE:
-        return None
     cev = ev - UNCERTAINTY_PENALTY
+    reasons = []
+    if not (ODDS_FLOOR <= odds <= ODDS_CAP):
+        reasons.append('ODDS_OUTSIDE_VALUE_RANGE')
+    if ev < EV_GATE:
+        reasons.append('EV_BELOW_VALUE_THRESHOLD')
     if cev < 0.01:
+        reasons.append('CONSERVATIVE_EV_BELOW_THRESHOLD')
+    if gated and reasons:
         return None
     return {'odds': odds, 'fair_odds': fo, 'ev': ev, 'conservative_ev': cev,
-            'probability': payout.full_win + 0.5 * payout.half_win,
-            'market_probability': no_vig_probs}
+            'probability': payout.full_win + payout.half_win,
+            'effective_win_probability': payout.full_win + 0.5 * payout.half_win,
+            'payout': {key: getattr(payout, key) for key in ('full_win', 'half_win', 'push', 'half_loss', 'full_loss')},
+            'market_probability': no_vig_probs, 'gate_reasons': reasons}
 
 
-def price_fixture(dist, mk):
-    """All gated opportunities for one fixture's markets dict."""
+def price_fixture(dist, mk, *, gated=True):
+    """Evaluate both sides of every complete market from the same distribution."""
     out = []
-    one_x_two = mk.get('odds_1x2') or {}
+    offer = lambda payout, odds, nv: opp(payout, odds, nv, gated=gated)
+    one_x_two = {int(key): value for key, value in (mk.get('odds_1x2') or {}).items() if str(key) in ('1', '2', '3')}
     if all(t in one_x_two for t in (1, 2, 3)):
         try:
             nv = proportional_no_vig([one_x_two[1], one_x_two[2], one_x_two[3]])
@@ -462,7 +493,7 @@ def price_fixture(dist, mk):
             nv = (None, None, None)
         payouts = match_odds(dist)
         for t, side, label in ((1, 'home', 'Home'), (2, 'draw', 'Draw'), (3, 'away', 'Away')):
-            o = opp(payouts[side], float(one_x_two[t]), nv[{1: 0, 2: 1, 3: 2}[t]])
+            o = offer(payouts[side], one_x_two[t], nv[{1: 0, 2: 1, 3: 2}[t]])
             if o:
                 o.update(side=side, line_quarters=None)
                 out.append(('1x2', label, o))
@@ -474,7 +505,7 @@ def price_fixture(dist, mk):
             nv = (None, None)
         payouts = btts(dist)
         for side, label, idx in (('yes', 'BTTS Yes', 0), ('no', 'BTTS No', 1)):
-            o = opp(payouts[side], float(b[side]), nv[idx])
+            o = offer(payouts[side], b[side], nv[idx])
             if o:
                 o.update(side=side, line_quarters=None)
                 out.append(('btts', label, o))
@@ -497,7 +528,7 @@ def price_fixture(dist, mk):
                 payout = over_under(dist, side, q)
             except Exception:
                 continue
-            o = opp(payout, float(sides[t]), nv[0 if side == 'over' else 1])
+            o = offer(payout, sides[t], nv[0 if side == 'over' else 1])
             if o:
                 o.update(side=side, line_quarters=q)
                 out.append(('ou', label, o))
@@ -530,7 +561,7 @@ def price_fixture(dist, mk):
                 payout = asian_handicap(dist, side, q if side == 'home' else -q)
             except Exception:
                 continue
-            o = opp(payout, sides[side], nv[idx])
+            o = offer(payout, sides[side], nv[idx])
             if o:
                 o.update(side=side, line_quarters=q if side == 'home' else -q)
                 out.append(('ah', label, o))
@@ -597,7 +628,11 @@ def main():
                            if code is not None})
     for code in codes_needed:
         print(f'  model {code}...', file=sys.stderr)
+        # Current-season refresh is bounded and failures are visible; never
+        # synthesize new-team ratings from another league's averages.
+        refresh_result = refresh_scores(code, os.path.join(FC_DIR, 'data'), now)
         art = load_model(code, now)
+        MODEL_DATA_INFO.setdefault(code, {})['refresh'] = refresh_result
         if art:
             models[code] = art
             teams_by_code[code] = csv_teams(code)
@@ -617,8 +652,14 @@ def main():
         second_status = 'CONFIGURED_NOT_YET_VALIDATED'
     for m in sorted(future, key=lambda x: float(x['info']['start_ts'])):
         info = m['info']
+        m.update(picks=[], qualified_picks=[], projections=[], market_options=[])
+        m['analysis'] = {'status': 'unavailable', 'reason_codes': [],
+                         'official_enabled': False, 'official_reason': 'MODEL_NOT_VALIDATED',
+                         'policy_version': POLICY_VERSION, 'generated_at': now}
+        info['coverage_status'] = 'market_only'
         code = LEAGUE_BY_NAME.get((info.get('league') or '').lower())
         if not code:
+            m['analysis']['reason_codes'] = ['LEAGUE_MODEL_UNAVAILABLE']
             continue
         scanned += 1
         # Capture every supported-league fixture before model/team/value filtering.
@@ -629,12 +670,16 @@ def main():
                 raise ValueError('Provider fixture mismatch')
             if abs(float(v.get('S') or 0) - float(info['start_ts'])) > 60:
                 raise ValueError('Provider kickoff changed; refresh fixture')
+            if normalize_team_name(v.get('O1')) != normalize_team_name(info.get('home')) or normalize_team_name(v.get('O2')) != normalize_team_name(info.get('away')):
+                raise ValueError('Provider team identity changed; refresh fixture')
             mk = sc.extract_markets(v)
             observation = journal.record(info, mk, v, captured_at=captured_at)
             time.sleep(0.25)
         except Exception:
             skipped['QUOTE_CAPTURE_FAILED'] = skipped.get('QUOTE_CAPTURE_FAILED', 0) + 1
+            m['analysis']['reason_codes'] = ['QUOTE_CAPTURE_FAILED']
             continue
+        secondary = {'status': 'unavailable', 'match_verified': False}
         # Keep the deployed optional comparison non-blocking; primary prices
         # and the immutable journal remain authoritative for decisions.
         try:
@@ -663,11 +708,13 @@ def main():
                 skipped['SECOND_SOURCE_FAILED'] = skipped.get('SECOND_SOURCE_FAILED', 0) + 1
         if code not in models:
             skipped['MODEL_UNAVAILABLE'] = skipped.get('MODEL_UNAVAILABLE', 0) + 1
+            m['analysis']['reason_codes'] = ['MODEL_UNAVAILABLE']
             continue
         home_csv = match_team(info.get('home') or '', teams_by_code[code])
         away_csv = match_team(info.get('away') or '', teams_by_code[code])
         if not home_csv or not away_csv:
             skipped['TEAM_UNMATCHED'] = skipped.get('TEAM_UNMATCHED', 0) + 1
+            m['analysis']['reason_codes'] = ['TEAM_UNMATCHED']
             continue
         artifact = models[code]
         season = sorted(artifact['parameters']['season_effects'])[-1]
@@ -678,104 +725,126 @@ def main():
         if proj.distribution is None:
             key = ','.join(proj.reason_codes) or 'PROJECTION_BLOCKED'
             skipped[key] = skipped.get(key, 0) + 1
+            m['analysis']['reason_codes'] = list(proj.reason_codes) or ['PROJECTION_BLOCKED']
             continue
         decision_at = time.time()
         if decision_at >= float(info['start_ts']) or decision_at - captured_at > 300:
             skipped['QUOTE_EXPIRED'] = skipped.get('QUOTE_EXPIRED', 0) + 1
+            m['analysis']['reason_codes'] = ['QUOTE_EXPIRED']
             continue
-        opps = price_fixture(proj.distribution, mk)
-        if not opps:
+        opportunities = price_fixture(proj.distribution, mk, gated=False)
+        model_reasons = list(proj.reason_codes)
+        last_result = MODEL_DATA_INFO.get(code, {}).get('last_result_at')
+        if last_result and now - last_result > 90 * 86400:
+            model_reasons.append('STALE_TRAINING_DATA')
+        if model_reasons:
+            for _market, _label, offer in opportunities:
+                offer['gate_reasons'].extend(model_reasons)
+        forecasts, value_rows = select_markets(opportunities)
+        info['coverage_status'] = 'shadow' if model_reasons else 'full'
+        m['analysis'].update(
+            status='ready' if forecasts else 'unavailable',
+            reason_codes=model_reasons if forecasts else ['COMPLETE_MARKET_UNAVAILABLE'],
+            model_data_as_of=last_result,
+            model_goals={'home': proj.lambda_home, 'away': proj.lambda_away},
+            model_artifact_id=artifact.get('artifact_id'),
+            model_training_cutoff=artifact['training']['cutoff_utc'],
+            league_model=code, quote_captured_at=captured_at,
+            formula_version=FORMULA_VERSION,
+            direction_counts=direction_counts(forecasts),
+        )
+        if not value_rows:
             skipped['NO_VALUE'] = skipped.get('NO_VALUE', 0) + 1
-            continue
-        market, label, o = max(opps, key=lambda t: t[2]['ev'])
-        research = journal.record_research_decision(
-            observation['artifact_id'], {'market': market, 'side': o['side'],
-                'line_quarters': o['line_quarters'], 'decimal_odds': o['odds']},
-            decision_at=decision_at, policy_id=FORMULA_VERSION + '-watch-policy-v1', model=artifact)
-        picks.append({
-            'match_id': int(info['match_id']),
-            'match': f"{info.get('home')} vs {info.get('away')}",
-            'home': info.get('home'), 'away': info.get('away'),
-            'league': info.get('league'),
-            'start_ts': int(float(info['start_ts'])),
-            'quote_observation_id': observation['artifact_id'],
-            'quote_captured_at': captured_at,
-            'decision_at': decision_at,
-            'research_decision_id': research['artifact_id'],
-            'uncertainty_status': 'UNAVAILABLE_HEURISTIC_PENALTY_ONLY',
-            'market': market, 'pick': label,
-            'probability': round(o['probability'], 4),
-            'odds': o['odds'],
-            'ev': round(o['ev'], 4),
-            'conservative_ev': round(o['conservative_ev'], 4),
-            'uncertainty_penalty': UNCERTAINTY_PENALTY,
-            'fair_odds': round(o['fair_odds'], 3),
-            'market_probability': (round(o['market_probability'], 4)
-                                   if o['market_probability'] is not None else None),
-            'edge_pct': (round(o['probability'] - o['market_probability'], 4)
-                         if o['market_probability'] is not None else None),
-            'formula_version': FORMULA_VERSION,
-            'lambda_source': 'engine-dc-csv',
-            'coverage_status': 'full',
-            'league_model': code,
-            'selection_status': 'watch',
-            'decision': 'watch',
-            'tier': 'watch',
-            'is_top_pick': False,
-            'calibrated_prob': None,
-            'rank_score': round(o['ev'] * 100, 2),
-            'locked': False,
-            'quote_provider': '1xbit',
-            'quote_captured_at': datetime.now(timezone.utc).isoformat(),
-            'quote_is_closing': False,
-            'secondary_provider': 'flashscore',
-            'secondary_status': secondary.get('status', 'unavailable'),
-            'secondary_match_verified': secondary.get('match_verified', False),
-            'comparison_status': 'verified' if secondary.get('status') == 'available' and secondary.get('match_verified') else 'unavailable',
-            'official_comparison_eligible': secondary.get('status') == 'available' and secondary.get('match_verified') and bool(secondary.get('bookmakers')),
-            'primary_source': '1xbit',
-        })
-        m['picks'] = [picks[-1]]
-        m['qualified_picks'] = [picks[-1]]
-        m['info']['coverage_status'] = 'full'
+
+        def row_payload(row):
+            market, label, o = row
+            return {
+                'match_id': str(info['match_id']),
+                'match': f"{info.get('home')} vs {info.get('away')}",
+                'home': info.get('home'), 'away': info.get('away'),
+                'league': info.get('league'), 'start_ts': int(float(info['start_ts'])),
+                'quote_observation_id': observation['artifact_id'],
+                'quote_captured_at': captured_at, 'decision_at': decision_at,
+                'uncertainty_status': 'UNAVAILABLE_HEURISTIC_PENALTY_ONLY',
+                'market': market, 'pick': label, 'side': o['side'],
+                'line_quarters': o['line_quarters'],
+                'probability': round(o['probability'], 4),
+                'effective_win_probability': round(o['effective_win_probability'], 4),
+                'payout': o['payout'], 'odds': o['odds'],
+                'ev': round(o['ev'], 4), 'conservative_ev': round(o['conservative_ev'], 4),
+                'uncertainty_penalty': UNCERTAINTY_PENALTY,
+                'fair_odds': round(o['fair_odds'], 3),
+                'market_probability': round(o['market_probability'], 4),
+                'edge_pct': round(1 / o['fair_odds'] - o['market_probability'], 4),
+                'formula_version': FORMULA_VERSION, 'policy_version': POLICY_VERSION,
+                'lambda_source': 'engine-dc-csv', 'coverage_status': info['coverage_status'],
+                'league_model': code, 'selection_status': 'watch', 'decision': 'watch',
+                'tier': 'watch', 'is_top_pick': False, 'calibrated_prob': None,
+                'rank_score': round(o['conservative_ev'] * 100, 2), 'locked': False,
+                'analysis_status': 'forecast' if o['gate_reasons'] else 'value_candidate',
+                'gate_reasons': list(o['gate_reasons']), 'official_eligible': False,
+                'quote_provider': '1xbit', 'quote_is_closing': False,
+                'secondary_provider': 'flashscore',
+                'secondary_status': secondary.get('status', 'unavailable'),
+                'secondary_match_verified': secondary.get('match_verified', False),
+                'primary_source': '1xbit',
+            }
+
+        m['projections'] = [row_payload(row) for row in forecasts]
+        m['market_options'] = [row_payload(row) for row in opportunities]
+        for row in value_rows:
+            market, _label, o = row
+            research = journal.record_research_decision(
+                observation['artifact_id'], {'market': market, 'side': o['side'],
+                    'line_quarters': o['line_quarters'], 'decimal_odds': o['odds']},
+                decision_at=decision_at, policy_id=POLICY_VERSION, model=artifact)
+            item = row_payload(row)
+            item['research_decision_id'] = research['artifact_id']
+            picks.append(item)
+            m['qualified_picks'].append(item)
+        m['picks'] = list(m['qualified_picks'])
 
     # 4. atomic writes
     def atomic_write(path, data):
         tmp = path + '.tmp'
         with open(tmp, 'w', encoding='utf-8') as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
+            json.dump(data, f, ensure_ascii=False, indent=2, allow_nan=False)
         os.replace(tmp, path)
 
     ordered = sorted(merged.values(), key=lambda m: float(m['info'].get('start_ts') or 0))
     atomic_write(matches_path, ordered)
     atomic_write(os.path.join(FC_DIR, 'picks.json'), picks)
 
-    # Lock picks into bets.db so settlement can track them.
-    # Dedup by source_match_id + market + pick to avoid re-locking same pick.
+    # Preserve the previous tracker exposure: at most one research watch pick
+    # per fixture. Other value candidates remain browseable in picks.json.
     import sqlite3
-    conn = sqlite3.connect(os.path.join(FC_DIR, 'bets.db'))
-    existing = set()
-    for r in conn.execute('SELECT source_match_id, market, pick FROM bets'):
-        existing.add((r[0], r[1], r[2]))
     locked_now = 0
-    for pick in picks:
-        key = (str(pick['match_id']), pick['market'], pick['pick'])
-        if key in existing:
-            continue
-        conn.execute(
-            'INSERT INTO bets (match, home, away, league, start_ts, market, pick, odds, ev, probability, placed_at, settled, won, profit, settled_at, source_match_id, home_score, away_score, score_status, score_updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
-            (
-                pick['match'], pick['home'], pick['away'], pick['league'],
-                int(pick['start_ts']), pick['market'], pick['pick'],
-                pick['odds'], pick['ev'], pick['probability'],
-                datetime.fromtimestamp(now, tz=timezone.utc).isoformat(),
-                0, None, None, None, str(pick['match_id']),
-                None, None, None, None,
-            ),
-        )
-        locked_now += 1
-    conn.commit()
-    conn.close()
+    db_path = os.path.join(FC_DIR, 'bets.db')
+    tracked_picks = [max(m['qualified_picks'], key=lambda p: p['conservative_ev'])
+                     for m in future if m.get('qualified_picks')]
+    if tracked_picks and os.path.exists(db_path):
+        conn = sqlite3.connect(db_path)
+        existing = set()
+        for r in conn.execute('SELECT source_match_id, market, pick FROM bets'):
+            existing.add((r[0], r[1], r[2]))
+        for pick in tracked_picks:
+            key = (str(pick['match_id']), pick['market'], pick['pick'])
+            if key in existing:
+                continue
+            conn.execute(
+                'INSERT INTO bets (match, home, away, league, start_ts, market, pick, odds, ev, probability, placed_at, settled, won, profit, settled_at, source_match_id, home_score, away_score, score_status, score_updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+                (
+                    pick['match'], pick['home'], pick['away'], pick['league'],
+                    int(pick['start_ts']), pick['market'], pick['pick'],
+                    pick['odds'], pick['ev'], pick['probability'],
+                    datetime.fromtimestamp(now, tz=timezone.utc).isoformat(),
+                    0, None, None, None, str(pick['match_id']),
+                    None, None, None, None,
+                ),
+            )
+            locked_now += 1
+        conn.commit()
+        conn.close()
 
     config_path = os.path.join(FC_DIR, 'config.json')
     cfg = {}
@@ -789,6 +858,12 @@ def main():
     cfg['last_successful_scan_count'] = scanned
     cfg['last_successful_scan_picks'] = len(picks)
     cfg['last_scan_diagnostics'] = {'skipped': skipped, 'leagues': codes_needed,
+                                    'policy_version': POLICY_VERSION,
+                                    'forecast_matches': sum(bool(m.get('projections')) for m in future),
+                                    'forecast_count': sum(len(m.get('projections', [])) for m in future),
+                                    'official_enabled': False,
+                                    'official_reason': 'MODEL_NOT_VALIDATED',
+                                    'training_data': MODEL_DATA_INFO,
                                     'second_source': second_status,
                                     'second_source_fixtures_captured': second_captured,
                                     'second_source_fixtures_matched': second_matched}
@@ -797,6 +872,8 @@ def main():
     print(json.dumps({
         'status': 'ok', 'fixtures_future': len(future), 'scanned': scanned,
         'picks': len(picks), 'locked': locked_now, 'skipped': skipped,
+        'forecasts': sum(len(m.get('projections', [])) for m in future),
+        'analyzed_matches': sum(bool(m.get('projections')) for m in future),
         'markets': sorted({p['market'] for p in picks}),
         'seconds': round(time.time() - started, 1),
     }, sort_keys=True))

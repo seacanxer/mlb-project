@@ -34,3 +34,6 @@ db_check.ts
 
 # FC engine daily model-fit cache (regenerable by scripts/fc-scan-live.py)
 betting-machine-fc/models_cache/
+betting-machine-fc/data/*_live_scores.csv
+betting-machine-fc/data/*_live_scores.source.json
+betting-machine-fc/odds_quotes.jsonl

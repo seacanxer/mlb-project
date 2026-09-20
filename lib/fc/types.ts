@@ -52,7 +52,7 @@ export type CoverageStatus = 'full' | 'shadow' | 'market_only';
 // for full coverage. "blocked"/"market_only" never reach published picks.
 export type Tier = 'top_pick' | 'official' | 'watch';
 export type Decision = 'official' | 'top_pick' | 'watch';
-export type SelectionStatus = 'top_pick' | 'official' | 'shadow' | 'top_pick:shadow';
+export type SelectionStatus = 'top_pick' | 'official' | 'shadow' | 'top_pick:shadow' | 'watch';
 
 // ---- GET /api/fc/picks (mirrors engine GET /api/picks) ----
 export interface FcPick {
@@ -223,7 +223,38 @@ export interface DetailedMatch {
   info: FixtureInfo;
   picks?: FcPick[];
   qualified_picks?: FcPick[];
+  projections?: ForecastPick[];
+  market_options?: ForecastPick[];
+  analysis?: MatchAnalysis;
   [key: string]: unknown;
+}
+
+export interface ForecastPick extends FcPick {
+  side?: string;
+  line_quarters?: number | null;
+  fair_odds?: number;
+  effective_win_probability?: number;
+  payout?: { full_win: number; half_win: number; push: number; half_loss: number; full_loss: number };
+  analysis_status?: 'forecast' | 'value_candidate';
+  gate_reasons?: string[];
+  official_eligible?: boolean;
+  quote_captured_at?: number | string;
+}
+
+export interface MatchAnalysis {
+  status: 'ready' | 'unavailable' | 'legacy';
+  reason_codes: string[];
+  official_enabled: boolean;
+  official_reason?: string;
+  policy_version?: string;
+  generated_at?: number;
+  model_goals?: { home: number; away: number };
+  model_artifact_id?: string;
+  model_training_cutoff?: number;
+  model_data_as_of?: number;
+  league_model?: string;
+  quote_captured_at?: number;
+  formula_version?: string;
 }
 
 export interface MatchesResponse {
