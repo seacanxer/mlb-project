@@ -23,6 +23,9 @@ async function main() {
       modelRun: {
         include: {
           model: true,
+          configVersion: { select: { semver: true } },
+          inputSnapshot: { select: { frozenAt: true, marketSnapshotId: true } },
+          warnings: { select: { code: true } },
           game: {
             include: {
               homeTeam: true,
@@ -39,6 +42,15 @@ async function main() {
   });
 
   console.log(`Loaded ${forecasts.length} forecasts from Postgres`);
+
+  const inputQuoteIds = [...new Set(forecasts
+    .map((forecast) => forecast.modelRun.inputSnapshot.marketSnapshotId)
+    .filter((id): id is string => Boolean(id)))];
+  const inputQuotes = await prisma.marketSnapshot.findMany({
+    where: { id: { in: inputQuoteIds } },
+    select: { id: true, retrievedAt: true },
+  });
+  const inputQuoteTime = new Map(inputQuotes.map((quote) => [quote.id, quote.retrievedAt.toISOString()]));
 
   const records = forecasts.map((f, idx) => {
     const mr = f.modelRun;
@@ -88,6 +100,12 @@ async function main() {
       awayAbbr: g.awayTeam.abbreviation,
       venue: g.venue.name,
       modelId: mr.modelId,
+      modelConfigVersion: mr.configVersion.semver,
+      modelRunAt: mr.runAt.toISOString(),
+      inputFrozenAt: mr.inputSnapshot.frozenAt.toISOString(),
+      inputQuoteRetrievedAt: mr.inputSnapshot.marketSnapshotId
+        ? inputQuoteTime.get(mr.inputSnapshot.marketSnapshotId) ?? null : null,
+      warningCodes: mr.warnings.map((warning) => warning.code),
       market,
       tier: f.finalState,
       selectedSide: f.selectedSide,

@@ -107,7 +107,7 @@ export interface OUV3Config {
  * parallel totals formulas.
  */
 export interface OUTotalsConfig {
-  version: '4.0.0';
+  version: '4.0.1';
   starterSeasonWeight: number;
   starterRecentWeight: number;
   offenseProjectionWeight: number;
@@ -226,7 +226,7 @@ export const DEFAULT_OU_V3_CONFIG: OUV3Config = {
 };
 
 export const DEFAULT_OU_TOTALS_CONFIG: OUTotalsConfig = {
-  version: '4.0.0',
+  version: '4.0.1',
   starterSeasonWeight: 0.70,
   starterRecentWeight: 0.30,
   // The independent projection gives equal voice to actual team scoring and

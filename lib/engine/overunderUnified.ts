@@ -60,7 +60,7 @@ export interface OUTotalsInputs {
 export interface OUTotalsResult {
   isExperimental: true;
   isCalibrated: false;
-  modelVersion: '4.0.0';
+  modelVersion: '4.0.1';
   formulaName: 'Unified MLB Totals';
   selectedSide: 'over' | 'under' | null;
   selectedPrice: number | null;
@@ -213,7 +213,7 @@ function emptyResult(
   return {
     isExperimental: true,
     isCalibrated: false,
-    modelVersion: '4.0.0',
+    modelVersion: '4.0.1',
     formulaName: 'Unified MLB Totals',
     selectedSide: null,
     selectedPrice: null,
@@ -400,7 +400,10 @@ export function runOUTotalsEngine(inputs: OUTotalsInputs, config: OUTotalsConfig
   }
 
   const noVig = twoWayNoVigProbabilities(inputs.overDecimal, inputs.underDecimal);
-  const estimated = poissonTotalProbabilities(independentModelTotal, inputs.marketLine!);
+  // The displayed signal and projectedTotal use the market-shrunk estimate.
+  // Diagnostics must use that same estimate; the independent total remains
+  // separately available for model-vs-market audits.
+  const estimated = poissonTotalProbabilities(projectedTotal, inputs.marketLine!);
   const estimatedProbabilityEdge = selectedSide === 'over' && noVig.first !== null
     ? estimated.over - noVig.first
     : selectedSide === 'under' && noVig.second !== null
@@ -409,7 +412,7 @@ export function runOUTotalsEngine(inputs: OUTotalsInputs, config: OUTotalsConfig
   return {
     isExperimental: true,
     isCalibrated: false,
-    modelVersion: '4.0.0',
+    modelVersion: '4.0.1',
     formulaName: 'Unified MLB Totals',
     selectedSide,
     selectedPrice,

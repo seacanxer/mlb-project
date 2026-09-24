@@ -217,7 +217,7 @@ export default function MatchDetail() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
             <h2 id="ou-heading" style={{ fontSize: '1rem', fontWeight: 700, color: '#f1f5f9' }}>
               Over/Under — {ouRun.modelId === 'OU_UNIFIED'
-                ? `Unified MLB Totals v${ouOut.modelVersion ?? '4.0.0'}`
+                ? `Unified MLB Totals v${ouOut.modelVersion ?? '4.0.1'}`
                 : ouRun.modelId === 'OU_V3'
                 ? `Archived Staff Run Model v${ouOut.modelVersion ?? '3.1.0'}`
                 : 'Archived Formula v2.3'}

@@ -53,6 +53,19 @@ describe('Unified MLB Totals v4', () => {
     expect(integer.over + integer.under + integer.push).toBeCloseTo(1, 8);
     expect(integer.push).toBeGreaterThan(0);
   });
+  it('uses the published market-shrunk projection for its diagnostic distribution', () => {
+    const result = runOUTotalsEngine(inputs({
+      awayRpg: 5.4,
+      homeRpg: 5.1,
+      awaySeasonEra: 5.0,
+      homeSeasonEra: 4.8,
+    }), DEFAULT_OU_TOTALS_CONFIG);
+    expect(result.projectedTotal).not.toBeCloseTo(result.independentModelTotal!, 4);
+    const expected = poissonTotalProbabilities(result.projectedTotal!, result.marketLine!);
+    expect(result.estimatedOverProbability).toBeCloseTo(expected.over, 8);
+    expect(result.estimatedUnderProbability).toBeCloseTo(expected.under, 8);
+    expect(result.selectedSide).toBe('over');
+  });
   it('can publish an OVER using the Over price', () => {
     const result = runOUTotalsEngine(inputs({
       awayRpg: 5.7,
@@ -116,7 +129,7 @@ describe('Unified MLB Totals v4', () => {
 
   it('does not publish fabricated model probability or EV', () => {
     const result = runOUTotalsEngine(inputs(), DEFAULT_OU_TOTALS_CONFIG);
-    expect(result.modelVersion).toBe('4.0.0');
+    expect(result.modelVersion).toBe('4.0.1');
     expect(result.isCalibrated).toBe(false);
     expect(result).not.toHaveProperty('winProbability');
     expect(result).not.toHaveProperty('expectedValue');

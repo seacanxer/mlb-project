@@ -437,11 +437,11 @@ async function ensureOUTotalsModelConfigOnce() {
     create: {
       id: 'OU_UNIFIED',
       name: 'Unified MLB Totals',
-      version: '4.0',
+      version: '4.0.1',
       description: 'Single market-anchored offense and pitching totals model. Experimental and not calibrated.',
       isActive: true,
     },
-    update: { version: '4.0', isActive: true },
+    update: { version: '4.0.1', isActive: true },
   });
   await prisma.modelDefinition.updateMany({
     where: { id: { in: ['OU_V2_3', 'OU_V3'] } },
@@ -455,20 +455,24 @@ async function ensureOUTotalsModelConfigOnce() {
     where: { modelId: 'OU_UNIFIED', semver: DEFAULT_OU_TOTALS_CONFIG.version },
     orderBy: { createdAt: 'desc' },
   });
-  if (existing) {
-    if (!existing.isActive) {
-      return prisma.modelConfigVersion.update({ where: { id: existing.id }, data: { isActive: true } });
+  if (existing?.isActive) return existing;
+  return prisma.$transaction(async (tx) => {
+    await tx.modelConfigVersion.updateMany({
+      where: { modelId: 'OU_UNIFIED', isActive: true },
+      data: { isActive: false },
+    });
+    if (existing) {
+      return tx.modelConfigVersion.update({ where: { id: existing.id }, data: { isActive: true } });
     }
-    return existing;
-  }
-  return prisma.modelConfigVersion.create({
-    data: {
-      modelId: 'OU_UNIFIED',
-      semver: DEFAULT_OU_TOTALS_CONFIG.version,
-      configJson: JSON.stringify(DEFAULT_OU_TOTALS_CONFIG),
-      isActive: true,
-      createdBy: 'pipeline-bootstrap',
-    },
+    return tx.modelConfigVersion.create({
+      data: {
+        modelId: 'OU_UNIFIED',
+        semver: DEFAULT_OU_TOTALS_CONFIG.version,
+        configJson: JSON.stringify(DEFAULT_OU_TOTALS_CONFIG),
+        isActive: true,
+        createdBy: 'pipeline-bootstrap',
+      },
+    });
   });
 }
 

@@ -3,11 +3,22 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { FinalStateChip, ExperimentalBadge } from '@/components/FinalStateChip';
 import { formatWIB, mlbScheduleDate } from '@/lib/utils/timezone';
+import { PRIORITY_LABEL, priorityForGame, priorityOrder } from '@/lib/engine/pickPriority';
 
 const DEFAULT_DATE = mlbScheduleDate();
 
 function getLatestRun(runs: any[], modelId: string) {
   return runs?.find((r: any) => r.modelId === modelId && !r.isInvalidated);
+}
+
+function priorityOfGame(game: any) {
+  const ml = getLatestRun(game.modelRuns, 'ML_COMBO_V2');
+  const ou = getLatestRun(game.modelRuns, 'OU_UNIFIED')
+    ?? getLatestRun(game.modelRuns, 'OU_V3')
+    ?? getLatestRun(game.modelRuns, 'OU_V2_3');
+  let mlSide: string | null = null;
+  try { if (ml) mlSide = JSON.parse(ml.outputJson).candidate ?? null; } catch { /* Missing output remains cautious. */ }
+  return priorityForGame(ml?.finalState, mlSide, ou?.finalState);
 }
 
 function isActionableRun(run: any) {
@@ -261,6 +272,7 @@ export default function DailySlate() {
                 <th>Starters</th>
                 <th>Odds Fetch Age</th>
                 <th>ML Score</th>
+                <th>Prioritas</th>
                 <th>ML Signal</th>
                 <th>ML Pick</th>
                 <th>O/U Line</th>
@@ -273,7 +285,10 @@ export default function DailySlate() {
               </tr>
             </thead>
             <tbody>
-              {games.map((game: any) => {
+              {[...games].sort((a: any, b: any) => {
+                return priorityOrder(priorityOfGame(a)) - priorityOrder(priorityOfGame(b))
+                  || new Date(a.startTimeUtc).getTime() - new Date(b.startTimeUtc).getTime();
+              }).map((game: any) => {
                 const mlRun = getLatestRun(game.modelRuns, 'ML_COMBO_V2');
                 const ouRun = getLatestRun(game.modelRuns, 'OU_UNIFIED')
                   ?? getLatestRun(game.modelRuns, 'OU_V3')
@@ -296,6 +311,7 @@ export default function DailySlate() {
                   ?? (mlOut?.candidate === 'away' ? game.awayTeam?.name : game.homeTeam?.name);
                 const mlPickOdds = mlOut?.candidateDecimalOdds
                   ?? (mlOut?.candidate === 'away' ? market?.moneylineAway : market?.moneylineHome);
+                const priority = priorityOfGame(game);
 
                 return (
                   <tr key={game.id}>
@@ -328,6 +344,9 @@ export default function DailySlate() {
                           </div>
                         </div>
                       ) : <span className="muted">—</span>}
+                    </td>
+                    <td style={{ fontSize: '0.72rem', fontWeight: priority === 'primary' ? 700 : 500, color: priority === 'primary' ? 'var(--green-lt)' : 'var(--muted)' }}>
+                      {PRIORITY_LABEL[priority]}
                     </td>
                     <td>
                       {mlRun ? <FinalStateChip state={mlRun.finalState} size="sm" /> : <span className="muted">—</span>}
@@ -413,7 +432,7 @@ export default function DailySlate() {
             </tbody>
           </table>
           <p className="muted" style={{ fontSize: '0.75rem', marginTop: '1rem' }}>
-            T1 is the official ML tier; T2 remains a visible watchlist signal. Formula scores are not win probabilities. Only O/U STRONG can be locked; LEAN and RISKY remain shadow/watchlist while totals calibration is incomplete.
+            Prioritas mengurutkan pilihan dari hasil settlement sebelumnya; semua game dan sinyal tetap ditampilkan. Skor formula bukan probabilitas menang. Hasil historis tidak menjamin hasil berikutnya.
           </p>
         </div>
       )}

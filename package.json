@@ -9,6 +9,7 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "dry:mlb-priority": "tsx scripts/mlb-dry-test-priority.ts",
     "test:watch": "vitest",
     "test:integration": "vitest run --project integration",
     "test:e2e": "playwright test",
