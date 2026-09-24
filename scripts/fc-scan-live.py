@@ -8,8 +8,8 @@ Pipeline (Phase 7 adapter):
      Dixon-Coles artifact (betting-machine-fc/models_cache/{CODE}.json)
   3. fetch live odds per fixture from 1xbit, price 1X2/O-U/AH/BTTS with the
      engine payout math, compute EV against the live price
-  4. gate (odds >= 1.5, ev >= EV_GATE, conservative_ev >= 0.01), one value pick
-     per market, with ungated forecasts, tier=watch (model is unvalidated -> never official)
+  4. gate (odds >= 1.6, ev >= EV_GATE, conservative_ev >= 0), max 2 value picks
+     per match (different markets), auto-locked to bets.db for ROI tracking
   5. atomic writes: picks.json, matches_detailed.json picks merge,
      config.json scan metadata
 
@@ -43,9 +43,11 @@ from football_formula_engine.live_training import current_season, refresh_scores
 
 FORMULA_VERSION = 'dc-loglink-time-decay-v1'
 UNCERTAINTY_PENALTY = 0.02
-EV_GATE = 0.03
-ODDS_FLOOR = 1.5
-ODDS_CAP = 4.0
+EV_GATE = 0.01
+ODDS_FLOOR = 1.6
+ODDS_CAP = 2.5
+MAX_VALUE_PICKS_PER_MATCH = 2
+SECOND_PICK_MIN_CEV = 0.02
 WINDOW_HOURS = 24
 MODELS_CACHE = os.path.join(FC_DIR, 'models_cache')
 MODEL_DATA_INFO = {}
@@ -470,7 +472,7 @@ def opp(payout, odds, no_vig_probs, *, gated=True):
         reasons.append('ODDS_OUTSIDE_VALUE_RANGE')
     if ev < EV_GATE:
         reasons.append('EV_BELOW_VALUE_THRESHOLD')
-    if cev < 0.01:
+    if cev < 0:
         reasons.append('CONSERVATIVE_EV_BELOW_THRESHOLD')
     if gated and reasons:
         return None
@@ -792,7 +794,11 @@ def main():
 
         m['projections'] = [row_payload(row) for row in forecasts]
         m['market_options'] = [row_payload(row) for row in opportunities]
-        for row in value_rows:
+        ranked_value = sorted(value_rows, key=lambda r: r[2]['conservative_ev'], reverse=True)
+        kept_value = ranked_value[:1]
+        if len(ranked_value) > 1 and ranked_value[1][2]['conservative_ev'] >= SECOND_PICK_MIN_CEV:
+            kept_value.append(ranked_value[1])
+        for row in kept_value:
             market, _label, o = row
             research = journal.record_research_decision(
                 observation['artifact_id'], {'market': market, 'side': o['side'],
@@ -820,8 +826,7 @@ def main():
     import sqlite3
     locked_now = 0
     db_path = os.path.join(FC_DIR, 'bets.db')
-    tracked_picks = [max(m['qualified_picks'], key=lambda p: p['conservative_ev'])
-                     for m in future if m.get('qualified_picks')]
+    tracked_picks = [p for m in future for p in (m.get('qualified_picks') or [])]
     if tracked_picks and os.path.exists(db_path):
         conn = sqlite3.connect(db_path)
         existing = set()

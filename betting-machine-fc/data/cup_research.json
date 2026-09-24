@@ -1,0 +1,5961 @@
+{
+  "card_version": "fc-cup-research-v1",
+  "analyzer_version": "fc-cup-analyzer-v1",
+  "generated_at": "2026-09-22T22:12:06Z",
+  "fixture_source": "1xbit-live",
+  "fallback_ladder": [
+    "production",
+    "fc-historical-strength-v1",
+    "competition-prior",
+    "market-only"
+  ],
+  "official_enabled": false,
+  "official_reason": "MODEL_NOT_VALIDATED",
+  "note": "Standalone research output. Not the production gate; not an official pick.",
+  "matches": [
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:11:53.307459+00:00",
+      "match_id": "754982162",
+      "home": "Criciuma",
+      "away": "Operario Ferroviario",
+      "league": "Brazil. Campeonato Brasileiro. Serie B",
+      "start_ts": 1790116200,
+      "is_cup": false,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": null,
+        "ou": {
+          "market": "ou",
+          "side": "over",
+          "line": 2.0,
+          "odds": 1.666,
+          "model_prob": 0.5443,
+          "source": "market"
+        },
+        "btts": {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 1.731,
+          "model_prob": 0.5348,
+          "source": "market"
+        },
+        "1x2": {
+          "market": "1x2",
+          "side": "home",
+          "line": null,
+          "odds": 1.98,
+          "model_prob": 0.4677,
+          "source": "market"
+        }
+      },
+      "all_priced": [
+        {
+          "market": "1x2",
+          "side": "home",
+          "line": null,
+          "odds": 1.98,
+          "model_prob": 0.4677,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 1.99,
+          "model_prob": 0.4652,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 1.731,
+          "model_prob": 0.5348,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 2.0,
+          "odds": 1.666,
+          "model_prob": 0.5443,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.0,
+          "odds": 1.99,
+          "model_prob": 0.4557,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 2.29,
+          "model_prob": 0.4067,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.5,
+          6.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:11:53.639413+00:00",
+      "match_id": "752737580",
+      "home": "Independiente Medellin",
+      "away": "Jaguares de Cordoba",
+      "league": "Colombia. Categoria Primera A",
+      "start_ts": 1790118000,
+      "is_cup": false,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": {
+          "market": "ah",
+          "side": "away",
+          "line": -1.5,
+          "odds": 1.83,
+          "model_prob": 0.5067,
+          "source": "market"
+        },
+        "ou": {
+          "market": "ou",
+          "side": "under",
+          "line": 3.0,
+          "odds": 1.77,
+          "model_prob": 0.5124,
+          "source": "market"
+        },
+        "btts": {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 1.823,
+          "model_prob": 0.5077,
+          "source": "market"
+        },
+        "1x2": null
+      },
+      "all_priced": [
+        {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 1.88,
+          "model_prob": 0.4923,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 1.823,
+          "model_prob": 0.5077,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 2.29,
+          "model_prob": 0.4067,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 1.86,
+          "model_prob": 0.4876,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 3.0,
+          "odds": 1.77,
+          "model_prob": 0.5124,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.5,
+          "odds": 2.33,
+          "model_prob": 0.3885,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": -2.0,
+          "odds": 2.46,
+          "model_prob": 0.3676,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": -1.5,
+          "odds": 1.88,
+          "model_prob": 0.4933,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": -1.5,
+          "odds": 1.83,
+          "model_prob": 0.5067,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": -1.0,
+          "odds": 2.46,
+          "model_prob": 0.3676,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.0,
+          5.5,
+          6.5,
+          7.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:11:53.883664+00:00",
+      "match_id": "754448522",
+      "home": "Club Independiente Santa Fe",
+      "away": "Deportivo Cali",
+      "league": "Colombia. Categoria Primera A",
+      "start_ts": 1790125200,
+      "is_cup": false,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "AWAY_TEAM_UNRESOLVED"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": null,
+        "ou": {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 1.61,
+          "model_prob": 0.5785,
+          "source": "market"
+        },
+        "btts": {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 1.771,
+          "model_prob": 0.5228,
+          "source": "market"
+        },
+        "1x2": {
+          "market": "1x2",
+          "side": "home",
+          "line": null,
+          "odds": 1.972,
+          "model_prob": 0.4699,
+          "source": "market"
+        }
+      },
+      "all_priced": [
+        {
+          "market": "1x2",
+          "side": "home",
+          "line": null,
+          "odds": 1.972,
+          "model_prob": 0.4699,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 1.94,
+          "model_prob": 0.4772,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 1.771,
+          "model_prob": 0.5228,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 2.0,
+          "odds": 1.615,
+          "model_prob": 0.5617,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.0,
+          "odds": 2.07,
+          "model_prob": 0.4383,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 2.21,
+          "model_prob": 0.4215,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 1.61,
+          "model_prob": 0.5785,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.5,
+          6.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:11:54.223517+00:00",
+      "match_id": "755085707",
+      "home": "Gamba Osaka",
+      "away": "Tokushima Vortis",
+      "league": "Japan. Emperors Cup",
+      "start_ts": 1790150400,
+      "is_cup": true,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": {
+          "market": "ah",
+          "side": "away",
+          "line": -1.0,
+          "odds": 1.615,
+          "model_prob": 0.5744,
+          "source": "market"
+        },
+        "ou": {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 1.8,
+          "model_prob": 0.5174,
+          "source": "market"
+        },
+        "btts": {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 1.77,
+          "model_prob": 0.5236,
+          "source": "market"
+        },
+        "1x2": {
+          "market": "1x2",
+          "side": "home",
+          "line": null,
+          "odds": 1.66,
+          "model_prob": 0.5579,
+          "source": "market"
+        }
+      },
+      "all_priced": [
+        {
+          "market": "1x2",
+          "side": "home",
+          "line": null,
+          "odds": 1.66,
+          "model_prob": 0.5579,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 1.77,
+          "model_prob": 0.5236,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 1.945,
+          "model_prob": 0.4764,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 1.8,
+          "model_prob": 0.5174,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 1.93,
+          "model_prob": 0.4826,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 2.34,
+          "model_prob": 0.3874,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": -1.0,
+          "odds": 2.18,
+          "model_prob": 0.4256,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": -1.0,
+          "odds": 1.615,
+          "model_prob": 0.5744,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.0,
+          5.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:11:54.559589+00:00",
+      "match_id": "755085704",
+      "home": "Kashima Antlers",
+      "away": "Ventforet Kofu",
+      "league": "Japan. Emperors Cup",
+      "start_ts": 1790150400,
+      "is_cup": true,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": {
+          "market": "ah",
+          "side": "home",
+          "line": -1.5,
+          "odds": 1.8,
+          "model_prob": 0.5028,
+          "source": "market"
+        },
+        "ou": {
+          "market": "ou",
+          "side": "under",
+          "line": 3.0,
+          "odds": 1.72,
+          "model_prob": 0.5275,
+          "source": "market"
+        },
+        "btts": {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 1.731,
+          "model_prob": 0.5348,
+          "source": "market"
+        },
+        "1x2": null
+      },
+      "all_priced": [
+        {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 1.99,
+          "model_prob": 0.4652,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 1.731,
+          "model_prob": 0.5348,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 2.14,
+          "model_prob": 0.4232,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 1.92,
+          "model_prob": 0.4725,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 3.0,
+          "odds": 1.72,
+          "model_prob": 0.5275,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.5,
+          "odds": 2.46,
+          "model_prob": 0.3788,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": -2.0,
+          "odds": 2.41,
+          "model_prob": 0.3852,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": -1.5,
+          "odds": 1.8,
+          "model_prob": 0.5028,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": -1.5,
+          "odds": 1.82,
+          "model_prob": 0.4972,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": -1.0,
+          "odds": 2.49,
+          "model_prob": 0.3632,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.0,
+          5.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:11:54.827872+00:00",
+      "match_id": "755086218",
+      "home": "Kashiwa Reysol",
+      "away": "Imabari",
+      "league": "Japan. Emperors Cup",
+      "start_ts": 1790150400,
+      "is_cup": true,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": {
+          "market": "ah",
+          "side": "home",
+          "line": -2.0,
+          "odds": 1.77,
+          "model_prob": 0.5242,
+          "source": "market"
+        },
+        "ou": {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 1.6,
+          "model_prob": 0.5664,
+          "source": "market"
+        },
+        "btts": {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 1.638,
+          "model_prob": 0.5653,
+          "source": "market"
+        },
+        "1x2": null
+      },
+      "all_priced": [
+        {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 2.13,
+          "model_prob": 0.4347,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 1.638,
+          "model_prob": 0.5653,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 1.6,
+          "model_prob": 0.5664,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 3.0,
+          "odds": 2.09,
+          "model_prob": 0.4336,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.5,
+          "odds": 2.06,
+          "model_prob": 0.4521,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 3.5,
+          "odds": 1.7,
+          "model_prob": 0.5479,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": -2.5,
+          "odds": 2.15,
+          "model_prob": 0.4205,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": -2.0,
+          "odds": 1.77,
+          "model_prob": 0.5242,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": -2.0,
+          "odds": 1.95,
+          "model_prob": 0.4758,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": -1.5,
+          "odds": 2.375,
+          "model_prob": 0.3807,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.0,
+          5.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:11:55.086000+00:00",
+      "match_id": "755086215",
+      "home": "Kyoto Sanga",
+      "away": "Fujieda MYFC",
+      "league": "Japan. Emperors Cup",
+      "start_ts": 1790150400,
+      "is_cup": true,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": {
+          "market": "ah",
+          "side": "away",
+          "line": -1.0,
+          "odds": 1.6,
+          "model_prob": 0.5801,
+          "source": "market"
+        },
+        "ou": {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 1.81,
+          "model_prob": 0.5147,
+          "source": "market"
+        },
+        "btts": {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 1.77,
+          "model_prob": 0.5236,
+          "source": "market"
+        },
+        "1x2": {
+          "market": "1x2",
+          "side": "home",
+          "line": null,
+          "odds": 1.68,
+          "model_prob": 0.5512,
+          "source": "market"
+        }
+      },
+      "all_priced": [
+        {
+          "market": "1x2",
+          "side": "home",
+          "line": null,
+          "odds": 1.68,
+          "model_prob": 0.5512,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 1.77,
+          "model_prob": 0.5236,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 1.945,
+          "model_prob": 0.4764,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 1.81,
+          "model_prob": 0.5147,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 1.92,
+          "model_prob": 0.4853,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 2.36,
+          "model_prob": 0.3838,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": -1.0,
+          "odds": 2.21,
+          "model_prob": 0.4199,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": -1.0,
+          "odds": 1.6,
+          "model_prob": 0.5801,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.0,
+          5.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:11:55.422655+00:00",
+      "match_id": "755086222",
+      "home": "Machida Zelvia",
+      "away": "Tochigi City",
+      "league": "Japan. Emperors Cup",
+      "start_ts": 1790150400,
+      "is_cup": true,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": {
+          "market": "ah",
+          "side": "away",
+          "line": -1.5,
+          "odds": 1.7,
+          "model_prob": 0.5455,
+          "source": "market"
+        },
+        "ou": {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 1.74,
+          "model_prob": 0.5207,
+          "source": "market"
+        },
+        "btts": {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 1.68,
+          "model_prob": 0.5508,
+          "source": "market"
+        },
+        "1x2": null
+      },
+      "all_priced": [
+        {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 1.68,
+          "model_prob": 0.5508,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 2.06,
+          "model_prob": 0.4492,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 2.375,
+          "model_prob": 0.3807,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 1.74,
+          "model_prob": 0.5207,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 3.0,
+          "odds": 1.89,
+          "model_prob": 0.4793,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.5,
+          "odds": 2.25,
+          "model_prob": 0.4141,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": -1.5,
+          "odds": 2.04,
+          "model_prob": 0.4545,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": -1.5,
+          "odds": 1.7,
+          "model_prob": 0.5455,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": -1.0,
+          "odds": 2.15,
+          "model_prob": 0.4205,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.0,
+          5.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:11:55.695315+00:00",
+      "match_id": "755086226",
+      "home": "Vissel Kobe",
+      "away": "Sagan Tosu",
+      "league": "Japan. Emperors Cup",
+      "start_ts": 1790150400,
+      "is_cup": true,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": {
+          "market": "ah",
+          "side": "home",
+          "line": -1.0,
+          "odds": 1.78,
+          "model_prob": 0.5215,
+          "source": "market"
+        },
+        "ou": {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 1.77,
+          "model_prob": 0.5267,
+          "source": "market"
+        },
+        "btts": {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 1.823,
+          "model_prob": 0.5077,
+          "source": "market"
+        },
+        "1x2": null
+      },
+      "all_priced": [
+        {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 1.88,
+          "model_prob": 0.4923,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 1.823,
+          "model_prob": 0.5077,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 1.77,
+          "model_prob": 0.5267,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 1.97,
+          "model_prob": 0.4733,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 2.27,
+          "model_prob": 0.3995,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": -1.5,
+          "odds": 2.28,
+          "model_prob": 0.3968,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": -1.0,
+          "odds": 1.78,
+          "model_prob": 0.5215,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": -1.0,
+          "odds": 1.94,
+          "model_prob": 0.4785,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.0,
+          5.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:11:55.962467+00:00",
+      "match_id": "754944753",
+      "home": "Nacional Potosi",
+      "away": "Club Bamin Real Potosi",
+      "league": "Bolivia Cup",
+      "start_ts": 1790118000,
+      "is_cup": true,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "AWAY_TEAM_UNRESOLVED"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": null,
+        "ou": {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 1.727,
+          "model_prob": 0.5238,
+          "source": "market"
+        },
+        "btts": null,
+        "1x2": {
+          "market": "1x2",
+          "side": "home",
+          "line": null,
+          "odds": 1.929,
+          "model_prob": 0.4675,
+          "source": "market"
+        }
+      },
+      "all_priced": [
+        {
+          "market": "1x2",
+          "side": "home",
+          "line": null,
+          "odds": 1.929,
+          "model_prob": 0.4675,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 2.375,
+          "model_prob": 0.3807,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 1.727,
+          "model_prob": 0.5238,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 3.0,
+          "odds": 1.9,
+          "model_prob": 0.4762,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.5,
+          "odds": 2.2,
+          "model_prob": 0.4164,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.0,
+          5.5,
+          6.5,
+          7.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:11:56.198487+00:00",
+      "match_id": "755227096",
+      "home": "Inter Playa del Carmen AC",
+      "away": "Deportiva Venados",
+      "league": "Mexico Promesas Cup",
+      "start_ts": 1790118000,
+      "is_cup": true,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "AWAY_TEAM_UNRESOLVED"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": null,
+        "ou": {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 1.88,
+          "model_prob": 0.5053,
+          "source": "market"
+        },
+        "btts": {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 1.7,
+          "model_prob": 0.5471,
+          "source": "market"
+        },
+        "1x2": {
+          "market": "1x2",
+          "side": "home",
+          "line": null,
+          "odds": 2.46,
+          "model_prob": 0.3759,
+          "source": "market"
+        }
+      },
+      "all_priced": [
+        {
+          "market": "1x2",
+          "side": "home",
+          "line": null,
+          "odds": 2.46,
+          "model_prob": 0.3759,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 1.7,
+          "model_prob": 0.5471,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 2.054,
+          "model_prob": 0.4529,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 1.92,
+          "model_prob": 0.4947,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 1.88,
+          "model_prob": 0.5053,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:11:56.445698+00:00",
+      "match_id": "754902500",
+      "home": "CA Terremoto",
+      "away": "Salto Uruguay",
+      "league": "Uruguay. Primera Divisional C",
+      "start_ts": 1790118000,
+      "is_cup": false,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": null,
+        "ou": {
+          "market": "ou",
+          "side": "over",
+          "line": 2.0,
+          "odds": 1.79,
+          "model_prob": 0.5055,
+          "source": "market"
+        },
+        "btts": {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 1.685,
+          "model_prob": 0.544,
+          "source": "market"
+        },
+        "1x2": {
+          "market": "1x2",
+          "side": "away",
+          "line": null,
+          "odds": 2.36,
+          "model_prob": 0.3824,
+          "source": "market"
+        }
+      },
+      "all_priced": [
+        {
+          "market": "1x2",
+          "side": "away",
+          "line": null,
+          "odds": 2.36,
+          "model_prob": 0.3824,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 2.01,
+          "model_prob": 0.456,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 1.685,
+          "model_prob": 0.544,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 1.5,
+          "odds": 2.43,
+          "model_prob": 0.3721,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 2.0,
+          "odds": 1.79,
+          "model_prob": 0.5055,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.0,
+          "odds": 1.83,
+          "model_prob": 0.4945,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 2.41,
+          "model_prob": 0.3805,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:11:56.707168+00:00",
+      "match_id": "755149050",
+      "home": "Deportivo Malvinas",
+      "away": "CS La Fraternidad",
+      "league": "Argentina. Torneo Regional Federal",
+      "start_ts": 1790119800,
+      "is_cup": false,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": {
+          "market": "ah",
+          "side": "home",
+          "line": -1.0,
+          "odds": 2.46,
+          "model_prob": 0.3676,
+          "source": "market"
+        },
+        "ou": {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 1.64,
+          "model_prob": 0.5591,
+          "source": "market"
+        },
+        "btts": {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 2.203,
+          "model_prob": 0.4161,
+          "source": "market"
+        },
+        "1x2": {
+          "market": "1x2",
+          "side": "home",
+          "line": null,
+          "odds": 1.82,
+          "model_prob": 0.4957,
+          "source": "market"
+        }
+      },
+      "all_priced": [
+        {
+          "market": "1x2",
+          "side": "home",
+          "line": null,
+          "odds": 1.82,
+          "model_prob": 0.4957,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 2.203,
+          "model_prob": 0.4161,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 1.64,
+          "model_prob": 0.5591,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 2.08,
+          "model_prob": 0.4409,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 2.02,
+          "model_prob": 0.4481,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 3.0,
+          "odds": 1.64,
+          "model_prob": 0.5519,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": -1.0,
+          "odds": 2.46,
+          "model_prob": 0.3676,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          0.5,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:11:57.032901+00:00",
+      "match_id": "754837765",
+      "home": "Audax Italiano",
+      "away": "Colo-Colo",
+      "league": "Chile Cup",
+      "start_ts": 1790119800,
+      "is_cup": true,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": null,
+        "ou": {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 1.72,
+          "model_prob": 0.5413,
+          "source": "market"
+        },
+        "btts": {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 1.615,
+          "model_prob": 0.5735,
+          "source": "market"
+        },
+        "1x2": {
+          "market": "1x2",
+          "side": "away",
+          "line": null,
+          "odds": 1.97,
+          "model_prob": 0.4701,
+          "source": "market"
+        }
+      },
+      "all_priced": [
+        {
+          "market": "1x2",
+          "side": "away",
+          "line": null,
+          "odds": 1.97,
+          "model_prob": 0.4701,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 1.615,
+          "model_prob": 0.5735,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 2.172,
+          "model_prob": 0.4265,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 1.72,
+          "model_prob": 0.5413,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 2.03,
+          "model_prob": 0.4587,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 2.14,
+          "model_prob": 0.4232,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.0,
+          5.5,
+          6.5,
+          7.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:11:57.370156+00:00",
+      "match_id": "754837344",
+      "home": "Cobreloa",
+      "away": "Coquimbo Unido",
+      "league": "Chile Cup",
+      "start_ts": 1790119800,
+      "is_cup": true,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": null,
+        "ou": {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 1.77,
+          "model_prob": 0.5267,
+          "source": "market"
+        },
+        "btts": {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 1.81,
+          "model_prob": 0.5115,
+          "source": "market"
+        },
+        "1x2": {
+          "market": "1x2",
+          "side": "away",
+          "line": null,
+          "odds": 1.92,
+          "model_prob": 0.4822,
+          "source": "market"
+        }
+      },
+      "all_priced": [
+        {
+          "market": "1x2",
+          "side": "away",
+          "line": null,
+          "odds": 1.92,
+          "model_prob": 0.4822,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 1.81,
+          "model_prob": 0.5115,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 1.895,
+          "model_prob": 0.4885,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.0,
+          "odds": 2.36,
+          "model_prob": 0.3838,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 1.97,
+          "model_prob": 0.4733,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 1.77,
+          "model_prob": 0.5267,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.0,
+          5.5,
+          6.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:11:57.602581+00:00",
+      "match_id": "755154722",
+      "home": "Defensores Salto",
+      "away": "CA Compania General",
+      "league": "Argentina. Torneo Regional Federal",
+      "start_ts": 1790121600,
+      "is_cup": false,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": {
+          "market": "ah",
+          "side": "home",
+          "line": -1.5,
+          "odds": 2.1,
+          "model_prob": 0.4309,
+          "source": "market"
+        },
+        "ou": {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 1.71,
+          "model_prob": 0.5366,
+          "source": "market"
+        },
+        "btts": {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 1.747,
+          "model_prob": 0.5249,
+          "source": "market"
+        },
+        "1x2": null
+      },
+      "all_priced": [
+        {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 1.93,
+          "model_prob": 0.4751,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 1.747,
+          "model_prob": 0.5249,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 1.71,
+          "model_prob": 0.5366,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 1.98,
+          "model_prob": 0.4634,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 2.21,
+          "model_prob": 0.4091,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": -1.5,
+          "odds": 2.1,
+          "model_prob": 0.4309,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": -1.0,
+          "odds": 2.15,
+          "model_prob": 0.4251,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          0.5,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:11:57.846980+00:00",
+      "match_id": "755115698",
+      "home": "Soles Sonora",
+      "away": "Deportivo Etchojoa",
+      "league": "Mexico Promesas Cup",
+      "start_ts": 1790128800,
+      "is_cup": true,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": null,
+        "ou": {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 1.76,
+          "model_prob": 0.5256,
+          "source": "market"
+        },
+        "btts": {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 1.65,
+          "model_prob": 0.5633,
+          "source": "market"
+        },
+        "1x2": {
+          "market": "1x2",
+          "side": "home",
+          "line": null,
+          "odds": 2.15,
+          "model_prob": 0.4278,
+          "source": "market"
+        }
+      },
+      "all_priced": [
+        {
+          "market": "1x2",
+          "side": "home",
+          "line": null,
+          "odds": 2.15,
+          "model_prob": 0.4278,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 1.65,
+          "model_prob": 0.5633,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 2.128,
+          "model_prob": 0.4367,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 1.76,
+          "model_prob": 0.5256,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 1.95,
+          "model_prob": 0.4744,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 2.27,
+          "model_prob": 0.4073,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          0.5,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:11:58.069849+00:00",
+      "match_id": "755185759",
+      "home": "Republic of Vanuatu (Women)",
+      "away": "New Caledonia (Women)",
+      "league": "International Tournament. National Teams. Women",
+      "start_ts": 1790136000,
+      "is_cup": false,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": null,
+        "ou": {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 1.71,
+          "model_prob": 0.5353,
+          "source": "market"
+        },
+        "btts": null,
+        "1x2": {
+          "market": "1x2",
+          "side": "away",
+          "line": null,
+          "odds": 2.01,
+          "model_prob": 0.4481,
+          "source": "market"
+        }
+      },
+      "all_priced": [
+        {
+          "market": "1x2",
+          "side": "away",
+          "line": null,
+          "odds": 2.01,
+          "model_prob": 0.4481,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 1.71,
+          "model_prob": 0.5353,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 3.0,
+          "odds": 1.97,
+          "model_prob": 0.4647,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.5,
+          "odds": 2.2,
+          "model_prob": 0.4164,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": false,
+        "ou_lines": [
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5
+        ],
+        "ah_lines": [
+          1.0
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:11:58.319496+00:00",
+      "match_id": "755102991",
+      "home": "Nojima Stella (Women)",
+      "away": "AS Elfen Saitama (Women)",
+      "league": "Japan. League Cup. Women",
+      "start_ts": 1790139600,
+      "is_cup": true,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": null,
+        "ou": {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 1.8,
+          "model_prob": 0.5095,
+          "source": "market"
+        },
+        "btts": null,
+        "1x2": {
+          "market": "1x2",
+          "side": "home",
+          "line": null,
+          "odds": 2,
+          "model_prob": 0.4509,
+          "source": "market"
+        }
+      },
+      "all_priced": [
+        {
+          "market": "1x2",
+          "side": "home",
+          "line": null,
+          "odds": 2,
+          "model_prob": 0.4509,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 1.8,
+          "model_prob": 0.5095,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 1.87,
+          "model_prob": 0.4905,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 2.35,
+          "model_prob": 0.3848,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": false,
+        "ou_lines": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:11:58.545194+00:00",
+      "match_id": "755096060",
+      "home": "NTV Beleza (Women)",
+      "away": "Albirex Niigata (Women)",
+      "league": "Japan. League Cup. Women",
+      "start_ts": 1790139600,
+      "is_cup": true,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": {
+          "market": "ah",
+          "side": "home",
+          "line": -1.0,
+          "odds": 1.7,
+          "model_prob": 0.533,
+          "source": "market"
+        },
+        "ou": {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 1.71,
+          "model_prob": 0.5366,
+          "source": "market"
+        },
+        "btts": null,
+        "1x2": null
+      },
+      "all_priced": [
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 1.71,
+          "model_prob": 0.5366,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 1.98,
+          "model_prob": 0.4634,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 2.19,
+          "model_prob": 0.4129,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": -1.5,
+          "odds": 2.27,
+          "model_prob": 0.4026,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": -1.0,
+          "odds": 1.7,
+          "model_prob": 0.533,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": -1.0,
+          "odds": 1.94,
+          "model_prob": 0.467,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": false,
+        "ou_lines": [
+          0.5,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:11:58.837989+00:00",
+      "match_id": "754813256",
+      "home": "China U23",
+      "away": "United Arab Emirates U23",
+      "league": "Asian Games",
+      "start_ts": 1790141400,
+      "is_cup": false,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": null,
+        "ou": {
+          "market": "ou",
+          "side": "over",
+          "line": 2.0,
+          "odds": 1.62,
+          "model_prob": 0.5586,
+          "source": "market"
+        },
+        "btts": {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 1.733,
+          "model_prob": 0.532,
+          "source": "market"
+        },
+        "1x2": {
+          "market": "1x2",
+          "side": "home",
+          "line": null,
+          "odds": 1.88,
+          "model_prob": 0.4807,
+          "source": "market"
+        }
+      },
+      "all_priced": [
+        {
+          "market": "1x2",
+          "side": "home",
+          "line": null,
+          "odds": 1.88,
+          "model_prob": 0.4807,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 1.97,
+          "model_prob": 0.468,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 1.733,
+          "model_prob": 0.532,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 2.0,
+          "odds": 1.62,
+          "model_prob": 0.5586,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.0,
+          "odds": 2.05,
+          "model_prob": 0.4414,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 2.2,
+          "model_prob": 0.4166,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:11:59.125658+00:00",
+      "match_id": "754813259",
+      "home": "Iran U23",
+      "away": "North Korea U23",
+      "league": "Asian Games",
+      "start_ts": 1790141400,
+      "is_cup": false,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": null,
+        "ou": {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 1.6,
+          "model_prob": 0.5733,
+          "source": "market"
+        },
+        "btts": {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 1.723,
+          "model_prob": 0.5347,
+          "source": "market"
+        },
+        "1x2": {
+          "market": "1x2",
+          "side": "home",
+          "line": null,
+          "odds": 1.79,
+          "model_prob": 0.5051,
+          "source": "market"
+        }
+      },
+      "all_priced": [
+        {
+          "market": "1x2",
+          "side": "home",
+          "line": null,
+          "odds": 1.79,
+          "model_prob": 0.5051,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 1.98,
+          "model_prob": 0.4653,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 1.723,
+          "model_prob": 0.5347,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 2.0,
+          "odds": 1.6,
+          "model_prob": 0.5652,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.0,
+          "odds": 2.08,
+          "model_prob": 0.4348,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 2.15,
+          "model_prob": 0.4267,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 1.6,
+          "model_prob": 0.5733,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:11:59.344722+00:00",
+      "match_id": "755051154",
+      "home": "Parikrama",
+      "away": "Real Bengaluru",
+      "league": "India. Bangalore. Super Division",
+      "start_ts": 1790141400,
+      "is_cup": false,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": null,
+        "ou": {
+          "market": "ou",
+          "side": "under",
+          "line": 3.0,
+          "odds": 1.77,
+          "model_prob": 0.511,
+          "source": "market"
+        },
+        "btts": {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 2.464,
+          "model_prob": 0.3721,
+          "source": "market"
+        },
+        "1x2": {
+          "market": "1x2",
+          "side": "home",
+          "line": null,
+          "odds": 2.29,
+          "model_prob": 0.389,
+          "source": "market"
+        }
+      },
+      "all_priced": [
+        {
+          "market": "1x2",
+          "side": "home",
+          "line": null,
+          "odds": 2.29,
+          "model_prob": 0.389,
+          "source": "market"
+        },
+        {
+          "market": "1x2",
+          "side": "away",
+          "line": null,
+          "odds": 2.45,
+          "model_prob": 0.3636,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 2.464,
+          "model_prob": 0.3721,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 2.27,
+          "model_prob": 0.4042,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 1.85,
+          "model_prob": 0.489,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 3.0,
+          "odds": 1.77,
+          "model_prob": 0.511,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.5,
+          "odds": 2.35,
+          "model_prob": 0.3848,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          0.5,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:11:59.597837+00:00",
+      "match_id": "755189805",
+      "home": "Fiji (Women)",
+      "away": "Solomon Islands (Women)",
+      "league": "International Tournament. National Teams. Women",
+      "start_ts": 1790146800,
+      "is_cup": false,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": null,
+        "ou": {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 1.72,
+          "model_prob": 0.526,
+          "source": "market"
+        },
+        "btts": null,
+        "1x2": {
+          "market": "1x2",
+          "side": "home",
+          "line": null,
+          "odds": 1.99,
+          "model_prob": 0.4529,
+          "source": "market"
+        }
+      },
+      "all_priced": [
+        {
+          "market": "1x2",
+          "side": "home",
+          "line": null,
+          "odds": 1.99,
+          "model_prob": 0.4529,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 2.41,
+          "model_prob": 0.3756,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 1.72,
+          "model_prob": 0.526,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 3.0,
+          "odds": 1.909,
+          "model_prob": 0.474,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.5,
+          "odds": 2.2,
+          "model_prob": 0.4164,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": false,
+        "ou_lines": [
+          0.5,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.0,
+          5.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:11:59.850030+00:00",
+      "match_id": "755096527",
+      "home": "JEF United Ichihara Chiba (Women)",
+      "away": "INAC Kobe Leonessa (Women)",
+      "league": "Japan. League Cup. Women",
+      "start_ts": 1790146800,
+      "is_cup": true,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": null,
+        "ou": {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 1.77,
+          "model_prob": 0.5177,
+          "source": "market"
+        },
+        "btts": null,
+        "1x2": {
+          "market": "1x2",
+          "side": "away",
+          "line": null,
+          "odds": 1.87,
+          "model_prob": 0.4823,
+          "source": "market"
+        }
+      },
+      "all_priced": [
+        {
+          "market": "1x2",
+          "side": "away",
+          "line": null,
+          "odds": 1.87,
+          "model_prob": 0.4823,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 1.77,
+          "model_prob": 0.5177,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 1.9,
+          "model_prob": 0.4823,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 2.3,
+          "model_prob": 0.3931,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": false,
+        "ou_lines": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:12:00.111885+00:00",
+      "match_id": "755102994",
+      "home": "RB Omiya Ardija (Women)",
+      "away": "MyNavi Sendai (Women)",
+      "league": "Japan. League Cup. Women",
+      "start_ts": 1790146800,
+      "is_cup": true,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": null,
+        "ou": {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 1.81,
+          "model_prob": 0.5068,
+          "source": "market"
+        },
+        "btts": null,
+        "1x2": {
+          "market": "1x2",
+          "side": "home",
+          "line": null,
+          "odds": 1.929,
+          "model_prob": 0.4679,
+          "source": "market"
+        }
+      },
+      "all_priced": [
+        {
+          "market": "1x2",
+          "side": "home",
+          "line": null,
+          "odds": 1.929,
+          "model_prob": 0.4679,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 1.86,
+          "model_prob": 0.4932,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 1.81,
+          "model_prob": 0.5068,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": false,
+        "ou_lines": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:12:00.967164+00:00",
+      "match_id": "755108592",
+      "home": "Urawa Red Diamonds (Women)",
+      "away": "Nagano Parceiro (Women)",
+      "league": "Japan. League Cup. Women",
+      "start_ts": 1790146800,
+      "is_cup": true,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "AWAY_TEAM_UNRESOLVED"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": {
+          "market": "ah",
+          "side": "home",
+          "line": -1.5,
+          "odds": 1.83,
+          "model_prob": 0.5,
+          "source": "market"
+        },
+        "ou": {
+          "market": "ou",
+          "side": "under",
+          "line": 3.0,
+          "odds": 1.8,
+          "model_prob": 0.5028,
+          "source": "market"
+        },
+        "btts": null,
+        "1x2": null
+      },
+      "all_priced": [
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 2.28,
+          "model_prob": 0.3968,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 1.82,
+          "model_prob": 0.4972,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 3.0,
+          "odds": 1.8,
+          "model_prob": 0.5028,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.5,
+          "odds": 2.36,
+          "model_prob": 0.3886,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": -2.0,
+          "odds": 2.43,
+          "model_prob": 0.3721,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": -1.5,
+          "odds": 1.83,
+          "model_prob": 0.5,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": -1.5,
+          "odds": 1.83,
+          "model_prob": 0.5,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": false,
+        "ou_lines": [
+          0.5,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.0,
+          5.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:12:01.187042+00:00",
+      "match_id": "755239198",
+      "home": "Seoul (Women)",
+      "away": "Hwacheon KSPO (Women)",
+      "league": "South Korea. WK-League",
+      "start_ts": 1790146800,
+      "is_cup": false,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": null,
+        "ou": null,
+        "btts": null,
+        "1x2": {
+          "market": "1x2",
+          "side": "away",
+          "line": null,
+          "odds": 1.69,
+          "model_prob": 0.5496,
+          "source": "market"
+        }
+      },
+      "all_priced": [
+        {
+          "market": "1x2",
+          "side": "away",
+          "line": null,
+          "odds": 1.69,
+          "model_prob": 0.5496,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": false,
+        "ou_lines": [],
+        "ah_lines": []
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:12:01.405164+00:00",
+      "match_id": "755085882",
+      "home": "Hasaacas (Women)",
+      "away": "Jonina (Women)",
+      "league": "Ghana Super Cup. Women",
+      "start_ts": 1790150400,
+      "is_cup": true,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": {
+          "market": "ah",
+          "side": "away",
+          "line": -1.0,
+          "odds": 1.83,
+          "model_prob": 0.5054,
+          "source": "market"
+        },
+        "ou": {
+          "market": "ou",
+          "side": "over",
+          "line": 2.0,
+          "odds": 1.73,
+          "model_prob": 0.5362,
+          "source": "market"
+        },
+        "btts": null,
+        "1x2": null
+      },
+      "all_priced": [
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 2.0,
+          "odds": 1.73,
+          "model_prob": 0.5362,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.0,
+          "odds": 2,
+          "model_prob": 0.4638,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 2.3,
+          "model_prob": 0.4026,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": -1.5,
+          "odds": 2.5,
+          "model_prob": 0.3703,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": -1.0,
+          "odds": 1.87,
+          "model_prob": 0.4946,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": -1.0,
+          "odds": 1.83,
+          "model_prob": 0.5054,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": false,
+        "ou_lines": [
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:12:01.649530+00:00",
+      "match_id": "755115607",
+      "home": "Nakhon Sawan See Kwae",
+      "away": "Kamphaeng Phet",
+      "league": "Thailand. FA Cup",
+      "start_ts": 1790152200,
+      "is_cup": true,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": null,
+        "ou": {
+          "market": "ou",
+          "side": "under",
+          "line": 3.0,
+          "odds": 1.76,
+          "model_prob": 0.5138,
+          "source": "market"
+        },
+        "btts": {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 2.389,
+          "model_prob": 0.3841,
+          "source": "market"
+        },
+        "1x2": {
+          "market": "1x2",
+          "side": "away",
+          "line": null,
+          "odds": 1.91,
+          "model_prob": 0.472,
+          "source": "market"
+        }
+      },
+      "all_priced": [
+        {
+          "market": "1x2",
+          "side": "away",
+          "line": null,
+          "odds": 1.91,
+          "model_prob": 0.472,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 2.389,
+          "model_prob": 0.3841,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 2.22,
+          "model_prob": 0.4127,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 1.86,
+          "model_prob": 0.4862,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 3.0,
+          "odds": 1.76,
+          "model_prob": 0.5138,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.5,
+          "odds": 2.35,
+          "model_prob": 0.3848,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          0.5,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:12:01.866425+00:00",
+      "match_id": "755186147",
+      "home": "ACF Brescia (Women)",
+      "away": "Venezia (Women)",
+      "league": "Italy. Serie B. Women",
+      "start_ts": 1790154000,
+      "is_cup": false,
+      "is_neutral_venue": false,
+      "coverage_status": "rated",
+      "rating_basis": "fc-historical-strength-v1",
+      "model_source": "fc-historical-strength-v1",
+      "confidence": "medium",
+      "decision": "watch",
+      "reason_codes": [],
+      "expected_goals": {
+        "home": 1.621,
+        "away": 1.295
+      },
+      "card": {
+        "ah": {
+          "market": "ah",
+          "side": "away",
+          "line": -1.0,
+          "odds": 1.68,
+          "model_prob": 0.5494,
+          "effective_win_prob": 0.5494,
+          "ev": 0.1414,
+          "fair_odds": 1.423,
+          "source": "model"
+        },
+        "ou": {
+          "market": "ou",
+          "side": "under",
+          "line": 3.0,
+          "odds": 1.86,
+          "model_prob": 0.4423,
+          "effective_win_prob": 0.4423,
+          "ev": 0.0464,
+          "fair_odds": 1.755,
+          "source": "model"
+        },
+        "btts": null,
+        "1x2": {
+          "market": "1x2",
+          "side": "home",
+          "line": null,
+          "odds": 1.6,
+          "model_prob": 0.4506,
+          "effective_win_prob": 0.4506,
+          "ev": -0.279,
+          "fair_odds": 2.219,
+          "source": "model"
+        }
+      },
+      "all_priced": [
+        {
+          "market": "1x2",
+          "side": "home",
+          "line": null,
+          "odds": 1.6,
+          "model_prob": 0.4506,
+          "effective_win_prob": 0.4506,
+          "ev": -0.279,
+          "fair_odds": 2.219,
+          "source": "model"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 2.33,
+          "model_prob": 0.4423,
+          "effective_win_prob": 0.4423,
+          "ev": 0.0305,
+          "fair_odds": 2.261,
+          "source": "model"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 1.76,
+          "model_prob": 0.334,
+          "effective_win_prob": 0.334,
+          "ev": -0.1885,
+          "fair_odds": 2.324,
+          "source": "model"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 3.0,
+          "odds": 1.86,
+          "model_prob": 0.4423,
+          "effective_win_prob": 0.4423,
+          "ev": 0.0464,
+          "fair_odds": 1.755,
+          "source": "model"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.5,
+          "odds": 2.24,
+          "model_prob": 0.334,
+          "effective_win_prob": 0.334,
+          "ev": -0.2519,
+          "fair_odds": 2.994,
+          "source": "model"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": -1.0,
+          "odds": 2.0,
+          "model_prob": 0.2322,
+          "effective_win_prob": 0.2322,
+          "ev": -0.3172,
+          "fair_odds": 3.366,
+          "source": "model"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": -1.0,
+          "odds": 1.68,
+          "model_prob": 0.5494,
+          "effective_win_prob": 0.5494,
+          "ev": 0.1414,
+          "fair_odds": 1.423,
+          "source": "model"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": false,
+        "ou_lines": [
+          0.5,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.0,
+          5.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:12:02.125610+00:00",
+      "match_id": "755093256",
+      "home": "Cerezo Osaka (Women)",
+      "away": "Sanfrecce Hiroshima (Women)",
+      "league": "Japan. League Cup. Women",
+      "start_ts": 1790154000,
+      "is_cup": true,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": null,
+        "ou": {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 1.615,
+          "model_prob": 0.5676,
+          "source": "market"
+        },
+        "btts": null,
+        "1x2": {
+          "market": "1x2",
+          "side": "away",
+          "line": null,
+          "odds": 1.96,
+          "model_prob": 0.46,
+          "source": "market"
+        }
+      },
+      "all_priced": [
+        {
+          "market": "1x2",
+          "side": "away",
+          "line": null,
+          "odds": 1.96,
+          "model_prob": 0.46,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.0,
+          "odds": 2.12,
+          "model_prob": 0.427,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 2.12,
+          "model_prob": 0.4324,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 1.615,
+          "model_prob": 0.5676,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": false,
+        "ou_lines": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:12:02.363304+00:00",
+      "match_id": "754817365",
+      "home": "Tokyo 23",
+      "away": "Edo All United",
+      "league": "Japan. Regional League",
+      "start_ts": 1790154000,
+      "is_cup": false,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": null,
+        "ou": {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 1.84,
+          "model_prob": 0.5027,
+          "source": "market"
+        },
+        "btts": null,
+        "1x2": {
+          "market": "1x2",
+          "side": "away",
+          "line": null,
+          "odds": 2.19,
+          "model_prob": 0.4186,
+          "source": "market"
+        }
+      },
+      "all_priced": [
+        {
+          "market": "1x2",
+          "side": "away",
+          "line": null,
+          "odds": 2.19,
+          "model_prob": 0.4186,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 2.32,
+          "model_prob": 0.3974,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 1.84,
+          "model_prob": 0.5027,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 3.0,
+          "odds": 1.86,
+          "model_prob": 0.4973,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.5,
+          "odds": 2.3,
+          "model_prob": 0.4026,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:12:02.560719+00:00",
+      "match_id": "755160196",
+      "home": "Yadanarbon U20",
+      "away": "Myawady U20",
+      "league": "Myanmar Championship U20",
+      "start_ts": 1790154000,
+      "is_cup": false,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": {
+          "market": "ah",
+          "side": "home",
+          "line": -3.0,
+          "odds": 1.8,
+          "model_prob": 0.5135,
+          "source": "market"
+        },
+        "ou": {
+          "market": "ou",
+          "side": "over",
+          "line": 3.5,
+          "odds": 1.63,
+          "model_prob": 0.5676,
+          "source": "market"
+        },
+        "btts": null,
+        "1x2": null
+      },
+      "all_priced": [
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.5,
+          "odds": 1.63,
+          "model_prob": 0.5676,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 3.5,
+          "odds": 2.14,
+          "model_prob": 0.4324,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 4.0,
+          "odds": 1.94,
+          "model_prob": 0.4771,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 4.0,
+          "odds": 1.77,
+          "model_prob": 0.5229,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 4.5,
+          "odds": 2.34,
+          "model_prob": 0.3953,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": -3.5,
+          "odds": 2.2,
+          "model_prob": 0.4195,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": -3.0,
+          "odds": 1.8,
+          "model_prob": 0.5135,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": -3.0,
+          "odds": 1.9,
+          "model_prob": 0.4865,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": -2.5,
+          "odds": 2.33,
+          "model_prob": 0.3964,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5
+        ],
+        "ah_lines": [
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:12:02.744616+00:00",
+      "match_id": "755014878",
+      "home": "LNZ Cherkasy U19",
+      "away": "Karpaty Lviv U19",
+      "league": "Ukraine Championship U19",
+      "start_ts": 1790154000,
+      "is_cup": false,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": {
+          "market": "ah",
+          "side": "home",
+          "line": 1.0,
+          "odds": 1.7,
+          "model_prob": 0.5393,
+          "source": "market"
+        },
+        "ou": {
+          "market": "ou",
+          "side": "over",
+          "line": 3.5,
+          "odds": 1.83,
+          "model_prob": 0.5,
+          "source": "market"
+        },
+        "btts": null,
+        "1x2": null
+      },
+      "all_priced": [
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 3.0,
+          "odds": 2.5,
+          "model_prob": 0.3655,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.5,
+          "odds": 1.83,
+          "model_prob": 0.5,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 3.5,
+          "odds": 1.83,
+          "model_prob": 0.5,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 4.0,
+          "odds": 2.41,
+          "model_prob": 0.3789,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": 1.0,
+          "odds": 1.7,
+          "model_prob": 0.5393,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": 1.0,
+          "odds": 1.99,
+          "model_prob": 0.4607,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:12:03.465019+00:00",
+      "match_id": "755058526",
+      "home": "Rangdajied United",
+      "away": "Nongkseh",
+      "league": "India. Premier League. Shillong",
+      "start_ts": 1790155800,
+      "is_cup": false,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": {
+          "market": "ah",
+          "side": "away",
+          "line": 1.0,
+          "odds": 1.68,
+          "model_prob": 0.5435,
+          "source": "market"
+        },
+        "ou": {
+          "market": "ou",
+          "side": "under",
+          "line": 3.5,
+          "odds": 1.64,
+          "model_prob": 0.5591,
+          "source": "market"
+        },
+        "btts": {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 2.245,
+          "model_prob": 0.4084,
+          "source": "market"
+        },
+        "1x2": null
+      },
+      "all_priced": [
+        {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 2.245,
+          "model_prob": 0.4084,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 1.64,
+          "model_prob": 0.5519,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 3.0,
+          "odds": 2.02,
+          "model_prob": 0.4481,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.5,
+          "odds": 2.08,
+          "model_prob": 0.4409,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 3.5,
+          "odds": 1.64,
+          "model_prob": 0.5591,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": 1.0,
+          "odds": 2.0,
+          "model_prob": 0.4565,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": 1.0,
+          "odds": 1.68,
+          "model_prob": 0.5435,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": 1.5,
+          "odds": 2.12,
+          "model_prob": 0.427,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          0.5,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.0,
+          5.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:12:03.688106+00:00",
+      "match_id": "755010054",
+      "home": "Lesotho U20",
+      "away": "Angola U20",
+      "league": "COSAFA Cup U20",
+      "start_ts": 1790157600,
+      "is_cup": true,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": {
+          "market": "ah",
+          "side": "home",
+          "line": 4.0,
+          "odds": 1.63,
+          "model_prob": 0.5546,
+          "source": "market"
+        },
+        "ou": {
+          "market": "ou",
+          "side": "under",
+          "line": 4.5,
+          "odds": 1.77,
+          "model_prob": 0.5177,
+          "source": "market"
+        },
+        "btts": null,
+        "1x2": null
+      },
+      "all_priced": [
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 4.0,
+          "odds": 2.17,
+          "model_prob": 0.4167,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 4.5,
+          "odds": 1.9,
+          "model_prob": 0.4823,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 4.5,
+          "odds": 1.77,
+          "model_prob": 0.5177,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 5.0,
+          "odds": 2.375,
+          "model_prob": 0.3807,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": 3.5,
+          "odds": 1.98,
+          "model_prob": 0.462,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": 3.5,
+          "odds": 1.7,
+          "model_prob": 0.538,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": 4.0,
+          "odds": 1.63,
+          "model_prob": 0.5546,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": 4.0,
+          "odds": 2.03,
+          "model_prob": 0.4454,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": 4.5,
+          "odds": 2.46,
+          "model_prob": 0.3676,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          1.5,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.0,
+          5.5,
+          6.0
+        ],
+        "ah_lines": [
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.0
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:12:03.889595+00:00",
+      "match_id": "755069397",
+      "home": "South Africa U20",
+      "away": "Eswatini U20",
+      "league": "COSAFA Cup U20",
+      "start_ts": 1790157600,
+      "is_cup": true,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": {
+          "market": "ah",
+          "side": "home",
+          "line": -2.5,
+          "odds": 1.79,
+          "model_prob": 0.5109,
+          "source": "market"
+        },
+        "ou": {
+          "market": "ou",
+          "side": "over",
+          "line": 4.0,
+          "odds": 1.81,
+          "model_prob": 0.5,
+          "source": "market"
+        },
+        "btts": {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 1.81,
+          "model_prob": 0.5068,
+          "source": "market"
+        },
+        "1x2": null
+      },
+      "all_priced": [
+        {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 1.81,
+          "model_prob": 0.5068,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 1.86,
+          "model_prob": 0.4932,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 3.5,
+          "odds": 2.22,
+          "model_prob": 0.4127,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 4.0,
+          "odds": 1.81,
+          "model_prob": 0.5,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 4.0,
+          "odds": 1.81,
+          "model_prob": 0.5,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 4.5,
+          "odds": 2.21,
+          "model_prob": 0.4091,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": -3.0,
+          "odds": 2.21,
+          "model_prob": 0.4091,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": -2.5,
+          "odds": 1.79,
+          "model_prob": 0.5109,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": -2.5,
+          "odds": 1.87,
+          "model_prob": 0.4891,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": -2.0,
+          "odds": 2.43,
+          "model_prob": 0.3721,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.0
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:12:04.187544+00:00",
+      "match_id": "755180965",
+      "home": "Metalist 1925 (Women)",
+      "away": "SCU Torreense (Women)",
+      "league": "Europa Cup UEFA. Women",
+      "start_ts": 1790157600,
+      "is_cup": true,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": {
+          "market": "ah",
+          "side": "home",
+          "line": 1.5,
+          "odds": 1.61,
+          "model_prob": 0.5625,
+          "source": "market"
+        },
+        "ou": {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 1.79,
+          "model_prob": 0.5055,
+          "source": "market"
+        },
+        "btts": null,
+        "1x2": null
+      },
+      "all_priced": [
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 2.3,
+          "model_prob": 0.3931,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 1.79,
+          "model_prob": 0.5055,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 3.0,
+          "odds": 1.83,
+          "model_prob": 0.4945,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.5,
+          "odds": 2.28,
+          "model_prob": 0.402,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": 1.0,
+          "odds": 2.08,
+          "model_prob": 0.4394,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": 1.0,
+          "odds": 1.63,
+          "model_prob": 0.5606,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": 1.5,
+          "odds": 1.61,
+          "model_prob": 0.5625,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": 1.5,
+          "odds": 2.07,
+          "model_prob": 0.4375,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": false,
+        "ou_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.0,
+          5.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:12:05.011056+00:00",
+      "match_id": "755105454",
+      "home": "Real Madrid U19",
+      "away": "Getafe U19",
+      "league": "Spain. Youth Championship",
+      "start_ts": 1790157600,
+      "is_cup": false,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": {
+          "market": "ah",
+          "side": "away",
+          "line": -2.0,
+          "odds": 1.77,
+          "model_prob": 0.511,
+          "source": "market"
+        },
+        "ou": {
+          "market": "ou",
+          "side": "under",
+          "line": 3.5,
+          "odds": 1.79,
+          "model_prob": 0.5123,
+          "source": "market"
+        },
+        "btts": {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 1.81,
+          "model_prob": 0.5068,
+          "source": "market"
+        },
+        "1x2": null
+      },
+      "all_priced": [
+        {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 1.81,
+          "model_prob": 0.5068,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 1.86,
+          "model_prob": 0.4932,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 3.0,
+          "odds": 2.28,
+          "model_prob": 0.3968,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.5,
+          "odds": 1.88,
+          "model_prob": 0.4877,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 3.5,
+          "odds": 1.79,
+          "model_prob": 0.5123,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 4.0,
+          "odds": 2.41,
+          "model_prob": 0.3756,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": -2.5,
+          "odds": 2.28,
+          "model_prob": 0.3968,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": -2.0,
+          "odds": 1.85,
+          "model_prob": 0.489,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": -2.0,
+          "odds": 1.77,
+          "model_prob": 0.511,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": -1.5,
+          "odds": 2.21,
+          "model_prob": 0.4138,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          0.5,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.0,
+          5.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:12:05.206910+00:00",
+      "match_id": "755015371",
+      "home": "Dynamo Kyiv U19",
+      "away": "Kharkiv U19",
+      "league": "Ukraine Championship U19",
+      "start_ts": 1790157600,
+      "is_cup": false,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": {
+          "market": "ah",
+          "side": "home",
+          "line": -1.5,
+          "odds": 1.75,
+          "model_prob": 0.5232,
+          "source": "market"
+        },
+        "ou": {
+          "market": "ou",
+          "side": "over",
+          "line": 3.5,
+          "odds": 1.83,
+          "model_prob": 0.5,
+          "source": "market"
+        },
+        "btts": {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 2.22,
+          "model_prob": 0.4127,
+          "source": "market"
+        },
+        "1x2": null
+      },
+      "all_priced": [
+        {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 2.22,
+          "model_prob": 0.4127,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 3.0,
+          "odds": 2.5,
+          "model_prob": 0.3655,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.5,
+          "odds": 1.83,
+          "model_prob": 0.5,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 3.5,
+          "odds": 1.83,
+          "model_prob": 0.5,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 4.0,
+          "odds": 2.4,
+          "model_prob": 0.3814,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": -2.0,
+          "odds": 2.29,
+          "model_prob": 0.4005,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": -1.5,
+          "odds": 1.75,
+          "model_prob": 0.5232,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": -1.5,
+          "odds": 1.92,
+          "model_prob": 0.4768,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:12:05.394482+00:00",
+      "match_id": "755016564",
+      "home": "Lviv U19",
+      "away": "Oleksandriya U19",
+      "league": "Ukraine Championship U19",
+      "start_ts": 1790157600,
+      "is_cup": false,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": {
+          "market": "ah",
+          "side": "home",
+          "line": 1.5,
+          "odds": 1.77,
+          "model_prob": 0.5164,
+          "source": "market"
+        },
+        "ou": {
+          "market": "ou",
+          "side": "over",
+          "line": 3.5,
+          "odds": 1.83,
+          "model_prob": 0.5,
+          "source": "market"
+        },
+        "btts": {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 2.38,
+          "model_prob": 0.385,
+          "source": "market"
+        },
+        "1x2": null
+      },
+      "all_priced": [
+        {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 2.38,
+          "model_prob": 0.385,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 3.0,
+          "odds": 2.5,
+          "model_prob": 0.3655,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.5,
+          "odds": 1.83,
+          "model_prob": 0.5,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 3.5,
+          "odds": 1.83,
+          "model_prob": 0.5,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 4.0,
+          "odds": 2.41,
+          "model_prob": 0.3805,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": 1.0,
+          "odds": 2.38,
+          "model_prob": 0.385,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": 1.5,
+          "odds": 1.77,
+          "model_prob": 0.5164,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": 1.5,
+          "odds": 1.89,
+          "model_prob": 0.4836,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:12:05.687426+00:00",
+      "match_id": "754868318",
+      "home": "Japan U23",
+      "away": "Thailand U23",
+      "league": "Asian Games",
+      "start_ts": 1790159400,
+      "is_cup": false,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": {
+          "market": "ah",
+          "side": "home",
+          "line": -2.0,
+          "odds": 1.71,
+          "model_prob": 0.5341,
+          "source": "market"
+        },
+        "ou": {
+          "market": "ou",
+          "side": "under",
+          "line": 3.5,
+          "odds": 1.63,
+          "model_prob": 0.563,
+          "source": "market"
+        },
+        "btts": {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 2.28,
+          "model_prob": 0.4044,
+          "source": "market"
+        },
+        "1x2": null
+      },
+      "all_priced": [
+        {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 2.28,
+          "model_prob": 0.4044,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 2.49,
+          "model_prob": 0.3632,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 1.66,
+          "model_prob": 0.5452,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 3.0,
+          "odds": 1.99,
+          "model_prob": 0.4548,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.5,
+          "odds": 2.1,
+          "model_prob": 0.437,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 3.5,
+          "odds": 1.63,
+          "model_prob": 0.563,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": -2.5,
+          "odds": 2.12,
+          "model_prob": 0.427,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": -2.0,
+          "odds": 1.71,
+          "model_prob": 0.5341,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": -2.0,
+          "odds": 1.96,
+          "model_prob": 0.4659,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": -1.5,
+          "odds": 2.43,
+          "model_prob": 0.3721,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.0,
+          5.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:12:06.082680+00:00",
+      "match_id": "754852788",
+      "home": "Kyrgyzstan U23",
+      "away": "Hong Kong U23",
+      "league": "Asian Games",
+      "start_ts": 1790159400,
+      "is_cup": false,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": {
+          "market": "ah",
+          "side": "home",
+          "line": -1.0,
+          "odds": 1.83,
+          "model_prob": 0.5,
+          "source": "market"
+        },
+        "ou": {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 1.61,
+          "model_prob": 0.5695,
+          "source": "market"
+        },
+        "btts": {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 1.7,
+          "model_prob": 0.542,
+          "source": "market"
+        },
+        "1x2": null
+      },
+      "all_priced": [
+        {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 1.7,
+          "model_prob": 0.542,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 2.012,
+          "model_prob": 0.458,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 1.61,
+          "model_prob": 0.5695,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 2.13,
+          "model_prob": 0.4305,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 1.98,
+          "model_prob": 0.4569,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 3.0,
+          "odds": 1.666,
+          "model_prob": 0.5431,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.5,
+          "odds": 2.49,
+          "model_prob": 0.3632,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": -1.5,
+          "odds": 2.33,
+          "model_prob": 0.3885,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": -1.0,
+          "odds": 1.83,
+          "model_prob": 0.5,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": -1.0,
+          "odds": 1.83,
+          "model_prob": 0.5,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    },
+    {
+      "analyzer_version": "fc-cup-analyzer-v1",
+      "generated_at": "2026-09-22T22:12:06.327482+00:00",
+      "match_id": "755106764",
+      "home": "Chachoengsao",
+      "away": "Bangkok",
+      "league": "Thailand. FA Cup",
+      "start_ts": 1790161200,
+      "is_cup": true,
+      "is_neutral_venue": false,
+      "coverage_status": "market_only",
+      "rating_basis": null,
+      "model_source": "market-only",
+      "confidence": "low",
+      "decision": "watch",
+      "reason_codes": [
+        "NO_TEAM_HISTORY_FALLBACK_TO_MARKET",
+        "HOME_TEAM_UNRESOLVED",
+        "AWAY_TEAM_UNRESOLVED",
+        "BOTH_TEAMS_UNKNOWN_TO_STORE"
+      ],
+      "expected_goals": {
+        "home": null,
+        "away": null
+      },
+      "card": {
+        "ah": {
+          "market": "ah",
+          "side": "home",
+          "line": 1.0,
+          "odds": 1.666,
+          "model_prob": 0.5492,
+          "source": "market"
+        },
+        "ou": {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 1.79,
+          "model_prob": 0.5123,
+          "source": "market"
+        },
+        "btts": {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 1.79,
+          "model_prob": 0.5124,
+          "source": "market"
+        },
+        "1x2": null
+      },
+      "all_priced": [
+        {
+          "market": "btts",
+          "side": "yes",
+          "line": null,
+          "odds": 1.79,
+          "model_prob": 0.5124,
+          "source": "market"
+        },
+        {
+          "market": "btts",
+          "side": "no",
+          "line": null,
+          "odds": 1.881,
+          "model_prob": 0.4876,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 2.5,
+          "odds": 1.79,
+          "model_prob": 0.5123,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "under",
+          "line": 2.5,
+          "odds": 1.88,
+          "model_prob": 0.4877,
+          "source": "market"
+        },
+        {
+          "market": "ou",
+          "side": "over",
+          "line": 3.0,
+          "odds": 2.3,
+          "model_prob": 0.3931,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "home",
+          "line": 1.0,
+          "odds": 1.666,
+          "model_prob": 0.5492,
+          "source": "market"
+        },
+        {
+          "market": "ah",
+          "side": "away",
+          "line": 1.0,
+          "odds": 2.03,
+          "model_prob": 0.4508,
+          "source": "market"
+        }
+      ],
+      "market_availability": {
+        "1x2": true,
+        "btts": true,
+        "ou_lines": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.5
+        ],
+        "ah_lines": [
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5
+        ]
+      },
+      "official_eligible": false,
+      "note": "Standalone research output. Not the production gate; do not treat as an official pick."
+    }
+  ]
+}

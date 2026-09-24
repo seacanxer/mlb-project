@@ -16,7 +16,7 @@ const NAV_LINKS = [
 
 const FC_LINKS = [
   { href: '/fc/schedule', label: 'Jadwal' },
-  { href: '/fc',          label: 'Value Picks' },
+  { href: '/fc',          label: 'Top Picks' },
   { href: '/fc/analyzer', label: 'Analisis Pasar' },
   { href: '/fc/results',  label: 'Hasil & ROI' },
 ];

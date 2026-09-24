@@ -87,7 +87,7 @@ export interface PickQuery {
   offset?: number;
 }
 
-const ODDS_FLOOR_ABS = 1.5;
+const ODDS_FLOOR_ABS = 1.6;
 
 /** Picks mirrors engine GET /api/picks (future-only, filter/sort/paginate). */
 export function readPicks(q: PickQuery): PicksResponse {
@@ -146,7 +146,7 @@ export function readPicks(q: PickQuery): PicksResponse {
       total_picks: raw.length,
       qualified_picks: filtered.length,
       top_pick_count: filtered.filter((p) => p.is_top_pick).length,
-      official_count: filtered.filter((p) => p.decision === 'official' || p.decision === 'top_pick').length,
+official_count: filtered.filter((p) => p.tier === 'official' && p.selection_status === 'official').length,
       watch_count: filtered.filter((p) => p.tier === 'watch').length,
       formula_version: formulaVersion(cfg),
       avg_ev_pct: Math.round(avg(filtered.map((p) => p.ev)) * 10000) / 100,

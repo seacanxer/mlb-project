@@ -40,6 +40,18 @@ export const TOP_LEAGUES: Array<{ country: string; league: string }> = [
 
 export const TOP_SECTION = 'Top Leagues';
 
+export const TOP_ASIA_LEAGUES: Array<{ country: string; league: string }> = [
+  { country: 'Saudi Arabia', league: 'Professional League' },
+  { country: 'Japan', league: 'J1 League' },
+  { country: 'South Korea', league: 'K League 1' },
+  { country: 'China', league: 'Super League' },
+  { country: 'United Arab Emirates', league: 'Pro League' },
+];
+
+function isTopLeague(country: string, league: string): boolean {
+  return [...TOP_LEAGUES, ...TOP_ASIA_LEAGUES].some((x) => x.country.toLowerCase() === country.toLowerCase() && x.league.toLowerCase() === league.toLowerCase());
+}
+
 /** "England. Premier League" → {England, Premier League}; bare → {International, raw}. */
 export function splitLeague(raw: unknown): { country: string; league: string } {
   if (typeof raw !== 'string' || !raw.trim()) return { country: INTERNATIONAL, league: 'Unknown' };
@@ -87,5 +99,12 @@ export function groupByCountryLeague(matches: DetailedMatch[]): CountryGroup[] {
     return { country, leagues: leagueGroups, total: leagueGroups.reduce((n, g) => n + g.matches.length, 0) };
   });
 
-  return groups;
+  const featured: CountryGroup = {
+    country: TOP_SECTION,
+    featured: true,
+    leagues: groups.flatMap((country) => country.leagues.filter((league) => isTopLeague(country.country, league.league))),
+    total: groups.reduce((n, country) => n + country.leagues.filter((league) => isTopLeague(country.country, league.league)).reduce((m, league) => m + league.matches.length, 0), 0),
+  };
+  const rest = groups.map((country) => ({ ...country, leagues: country.leagues.filter((league) => !isTopLeague(country.country, league.league)) })).filter((country) => country.leagues.length);
+  return featured.total ? [featured, ...rest] : groups;
 }

@@ -16,9 +16,9 @@ const REASONS: Record<string, string> = {
   MODEL_NOT_VALIDATED: 'Model belum lolos validasi untuk Official.',
   RESCAN_REQUIRED: 'Jalankan scan untuk memperoleh analisis empat pasar.',
   STALE_TRAINING_DATA: 'Histori hasil terlalu lama; perbarui data liga.',
-  ODDS_OUTSIDE_VALUE_RANGE: 'Odds di luar rentang value 1,50–4,00.',
-  EV_BELOW_VALUE_THRESHOLD: 'EV belum mencapai 3%.',
-  CONSERVATIVE_EV_BELOW_THRESHOLD: 'EV setelah penalti belum mencapai 1%.',
+  ODDS_OUTSIDE_VALUE_RANGE: 'Odds di luar rentang value 1,60–2,50.',
+  EV_BELOW_VALUE_THRESHOLD: 'EV belum mencapai 1%.',
+  CONSERVATIVE_EV_BELOW_THRESHOLD: 'EV setelah penalti masih negatif.',
   TEAM_COVERAGE_MISSING: 'Histori tim belum cukup.',
   TEAM_LOW_COVERAGE: 'Sampel tim masih terbatas.',
 };
@@ -35,8 +35,8 @@ export function forecastPicks(match: DetailedMatch): ForecastPick[] {
 
 export function isValue(pick: ForecastPick): boolean {
   return pick.analysis_status === 'value_candidate' ||
-    (pick.analysis_status === undefined && Number.isFinite(pick.ev) && pick.ev >= 0.03 &&
-      Number.isFinite(pick.conservative_ev) && pick.conservative_ev >= 0.01 && pick.odds >= 1.5 && pick.odds <= 4);
+    (pick.analysis_status === undefined && Number.isFinite(pick.ev) && pick.ev >= 0.01 &&
+      Number.isFinite(pick.conservative_ev) && pick.conservative_ev >= 0 && pick.odds >= 1.6 && pick.odds <= 2.5);
 }
 
 export function matchKey(match: DetailedMatch): string {

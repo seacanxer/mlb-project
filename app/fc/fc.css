@@ -123,13 +123,24 @@ body:has(.fc-shell) .main-content { max-width: 1460px; padding: 1.5rem 2rem 3rem
 .prediction-guide-foot { padding-top: .75rem; border-top: 1px solid #244237; }
 .prediction-empty { text-align: center; padding: 2.5rem 1rem; background: #0e1e19; border: 1px dashed #30533e; border-radius: 12px; }
 .fc-schedule-list { display: grid; gap: 1.25rem; }
+.fc-schedule-toolbar { display:flex; align-items:center; gap:.45rem; flex-wrap:wrap; padding:.7rem .85rem; background:#0e1e19; border:1px solid #244237; border-radius:12px; color:#91a99f; font-size:.72rem; }
+.fc-schedule-toolbar button { border:1px solid #315445; border-radius:7px; background:#10231c; color:#cce5d9; padding:.42rem .7rem; cursor:pointer; }
+.fc-schedule-toolbar button.active { background:#2d8b6a; border-color:#58c39b; color:#fff; }
 .fc-schedule-country { background: #0e1e19; border: 1px solid #244237; border-radius: 14px; overflow: hidden; }
 .fc-schedule-country > header { display:flex; justify-content:space-between; align-items:center; padding: .9rem 1.1rem; background:#12271e; border-bottom:1px solid #244237; }
 .fc-schedule-country h2 { margin:0; font-size:1rem; }
 .fc-schedule-country > header span { color:#91a99f; font-size:.7rem; }
+.fc-schedule-country-toggle, .fc-schedule-league-toggle { width:100%; display:flex; justify-content:space-between; align-items:center; border:0; color:#d6eee2; cursor:pointer; text-align:left; }
+.fc-schedule-country-toggle { padding:.9rem 1.1rem; background:#12271e; }
+.fc-schedule-country-toggle > span, .fc-schedule-league-toggle > span { display:flex; align-items:center; gap:.65rem; }
+.fc-schedule-country-toggle small, .fc-schedule-league-toggle small { color:#91a99f; font-size:.68rem; font-weight:400; }
+.fc-schedule-country-toggle b, .fc-schedule-league-toggle b { color:#70b9a2; font-size:1.1rem; }
+.fc-schedule-country.is-collapsed { padding-bottom:0; }
 .fc-schedule-league { padding: .75rem 1.1rem; }
 .fc-schedule-league + .fc-schedule-league { border-top:1px solid #1d382b; }
-.fc-schedule-league h3 { margin:0 0 .45rem; color:#70b9a2; font-size:.75rem; font-weight:600; }
+.fc-schedule-league-toggle { padding:0 0 .45rem; background:transparent; }
+.fc-schedule-league-toggle strong { color:#70b9a2; font-size:.75rem; font-weight:600; }
+.fc-schedule-league.is-collapsed { padding-bottom:.75rem; }
 .fc-schedule-rows { display:grid; gap:.3rem; }
 .fc-schedule-row { display:grid; grid-template-columns: 115px minmax(0,1fr) 28px minmax(0,1fr); align-items:center; gap:.55rem; padding:.65rem .7rem; border:1px solid #1d382b; border-radius:8px; background:#10231c; font-size:.78rem; }
 .fc-schedule-row time { color:#91a99f; font-family:'JetBrains Mono',monospace; font-size:.68rem; }

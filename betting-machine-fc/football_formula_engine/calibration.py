@@ -78,6 +78,8 @@ def identity_calibration():
 
 def calibrate_distribution(distribution, calibration_artifact):
     validate_calibration_artifact(calibration_artifact)
+    if calibration_artifact['method'] == 'identity':
+        return distribution
     coefficients = np.asarray(calibration_artifact['coefficients'], dtype=np.float64)
     shifts = []
     for home, row in enumerate(distribution.probabilities):
