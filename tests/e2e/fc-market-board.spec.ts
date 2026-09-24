@@ -66,3 +66,22 @@ test('all FC entry points use the new board and empty fixtures remain honest', a
     await expect(page.locator('.fc-navigation .active')).toHaveCount(1);
   }
 });
+
+test('model choices remain discoverable when there are no value candidates', async ({ page }) => {
+  const research = fixture('201', 'South Korea', 'Ecuador', 'Friendlies. National Teams');
+  research.info.coverage_status = 'shadow';
+  research.qualified_picks = [];
+  research.projections = (research.projections ?? []).map((pick) => ({
+    ...pick, coverage_status: 'shadow', analysis_status: 'forecast',
+    gate_reasons: ['NATIONAL_BASELINE_UNVALIDATED'],
+  }));
+  await mockApi(page, [research, fixture('202', 'Unknown United', 'Example City', 'Japan. J1 League', false)]);
+  await page.goto('/fc');
+  await expect(page.getByText('Belum ada kandidat value')).toBeVisible();
+  await page.getByRole('button', { name: 'Pilihan model (1)' }).click();
+  await expect(page.locator('.prediction-card')).toHaveCount(1);
+  await expect(page.locator('.prediction-card').getByText('South Korea', { exact: true }).first()).toBeVisible();
+  await expect(page.locator('.prediction-card .prediction-selection')).toHaveCount(4);
+  await page.getByRole('button', { name: 'Kandidat value', exact: true }).click();
+  await expect(page.locator('.prediction-card')).toHaveCount(0);
+});

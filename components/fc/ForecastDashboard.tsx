@@ -43,6 +43,6 @@ export function ForecastDashboard({ view = 'all', title = 'Prediksi Pertandingan
     <header className="prediction-page-header"><div><span className="prediction-eyebrow">FOOTBALL MARKET INTELLIGENCE</span><h1>{title}</h1><p>Temukan pertandingan. Bandingkan pasar. Susun pilihan Anda.</p></div><button type="button" className="prediction-scan" onClick={scan} disabled={scanning} aria-busy={scanning}>{scanning ? 'Memproses analisis…' : '↻ Perbarui analisis'}</button></header>
     {message && <p className="prediction-scan-message" role="status">{message}</p>}
     {error && <ErrorBanner message={error} onRetry={() => setRefresh((n) => n + 1)} />}
-    {matches === null ? <SkeletonRows rows={5} label="Memuat pertandingan…" /> : mode === 'schedule' ? <ScheduleList matches={matches} /> : <PredictionBoard matches={matches} initialView={view} marketScope={mode === 'market' ? 'top' : 'all'} valueOnly={mode === 'value'} />}
+    {matches === null ? <SkeletonRows rows={5} label="Memuat pertandingan…" /> : mode === 'schedule' ? <ScheduleList matches={matches} /> : <PredictionBoard matches={matches} initialView={view} marketScope={mode === 'market' ? 'top' : 'all'} />}
   </div>;
 }

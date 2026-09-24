@@ -6,7 +6,7 @@ import { formatEv, formatOdds, formatProb } from '@/lib/fc/format';
 import { formatKickoffWIB } from '@/lib/fc/kickoff';
 import { splitLeague } from '@/lib/fc/grouping';
 
-export type BoardView = 'all' | 'ready' | 'value' | 'unavailable' | 'saved';
+export type BoardView = 'all' | 'ready' | 'model' | 'value' | 'unavailable' | 'saved';
 type Choice = { match: DetailedMatch; pick: ForecastPick; id: string };
 const choiceId = (match: DetailedMatch, pick: ForecastPick) => `${matchKey(match)}|${pick.market}|${pick.pick}`;
 const STORAGE_KEY = 'fc-prediction-watchlist-v2';
@@ -83,7 +83,7 @@ function isTopMarketLeague(match: DetailedMatch): boolean {
   return TOP_MARKET_TERMS.some((term) => text.includes(term));
 }
 
-export function PredictionBoard({ matches, initialView = 'all', marketScope = 'all', valueOnly = false }: { matches: DetailedMatch[]; initialView?: BoardView; marketScope?: 'all' | 'top'; valueOnly?: boolean }) {
+export function PredictionBoard({ matches, initialView = 'all', marketScope = 'all' }: { matches: DetailedMatch[]; initialView?: BoardView; marketScope?: 'all' | 'top' }) {
   const [view, setView] = useState<BoardView>(initialView);
   const [search, setSearch] = useState('');
   const [league, setLeague] = useState('all');
@@ -111,13 +111,14 @@ export function PredictionBoard({ matches, initialView = 'all', marketScope = 'a
   }, [scopedMatches, saved]);
   const leagues = useMemo(() => [...new Set(matches.map((m) => m.info.league).filter((v): v is string => Boolean(v)))].sort(), [matches]);
   const ready = matches.filter((m) => forecastPicks(m).length > 0).length;
+  const scopedReady = scopedMatches.filter((m) => forecastPicks(m).length > 0).length;
   const values = matches.reduce((n, m) => n + (m.qualified_picks ?? []).filter(isValue).length, 0);
   const unsupportedLeagues = matches.filter((m) => m.analysis?.reason_codes?.includes('LEAGUE_MODEL_UNAVAILABLE')).length;
   const unmatchedTeams = matches.filter((m) => m.analysis?.reason_codes?.includes('TEAM_UNMATCHED')).length;
   const selectedKeys = new Set(savedChoices.map(({ match }) => matchKey(match)));
   const filtered = scopedMatches.filter((m) => {
-    const picks = choicesFor(m, valueOnly || view === 'value');
-    if (view === 'ready' && !picks.length) return false;
+    const picks = choicesFor(m, view === 'value');
+    if ((view === 'ready' || view === 'model') && !picks.length) return false;
     if (view === 'value' && !picks.length) return false;
     if (view === 'unavailable' && forecastPicks(m).length) return false;
     if (view === 'saved' && !selectedKeys.has(matchKey(m))) return false;
@@ -144,7 +145,7 @@ export function PredictionBoard({ matches, initialView = 'all', marketScope = 'a
     <div className="prediction-workspace">
       <section className="prediction-content" aria-label="Daftar Prediksi Pertandingan">
         <div className="prediction-view-tabs" role="group" aria-label="Jenis hasil">
-          {([['all', 'Semua pertandingan'], ['ready', 'Ada analisis'], ['value', 'Kandidat value'], ['unavailable', 'Perlu data'], ['saved', `Tersimpan (${savedChoices.length})`]] as [BoardView, string][]).map(([key, label]) => <button key={key} type="button" aria-pressed={view === key} onClick={() => changeView(key)}>{label}</button>)}
+          {([['all', 'Semua pertandingan'], ['model', `Pilihan model (${scopedReady})`], ['value', 'Kandidat value'], ['unavailable', 'Perlu data'], ['saved', `Tersimpan (${savedChoices.length})`]] as [BoardView, string][]).map(([key, label]) => <button key={key} type="button" aria-pressed={view === key} onClick={() => changeView(key)}>{label}</button>)}
         </div>
         <div className="prediction-filters">
           <label className="prediction-search"><span>Cari pertandingan</span><input type="search" placeholder="Cari tim atau liga…" value={search} onChange={(e) => { setSearch(e.target.value); setPage(0); }} /></label>
@@ -153,7 +154,7 @@ export function PredictionBoard({ matches, initialView = 'all', marketScope = 'a
         </div>
         <div className="prediction-list-heading"><div><h2>Daftar Prediksi Pertandingan</h2><p>{filtered.length} pertandingan · waktu Indonesia Barat</p></div><div className="prediction-market-tabs" role="group" aria-label="Market"><button type="button" aria-pressed={market === 'all'} onClick={() => { setMarket('all'); setPage(0); }}>Semua</button>{PREDICTION_MARKETS.map((m) => <button key={m.key} type="button" aria-pressed={market === m.key} onClick={() => { setMarket(m.key); setPage(0); }}>{m.label}</button>)}</div></div>
         <div className="prediction-list">{filtered.slice(activePage * PAGE_SIZE, (activePage + 1) * PAGE_SIZE).map((m) => <PredictionCard key={matchKey(m)} match={m} market={market} valueOnly={view === 'value'} saved={saved} onToggle={toggle} />)}</div>
-        {!filtered.length && <div className="prediction-empty"><span aria-hidden="true">⌕</span><h3>{view === 'value' ? 'Belum ada kandidat value' : 'Tidak ada pertandingan untuk filter ini'}</h3><p>{view === 'value' ? 'Lihat tab Ada analisis untuk proyeksi model. Kandidat hanya muncul bila liga, tim, odds, dan EV memenuhi syarat.' : 'Coba liga lain atau tampilkan semua pertandingan.'}</p><button type="button" onClick={() => { setSearch(''); setLeague('all'); setMarket('all'); changeView('all'); }}>Reset filter</button></div>}
+        {!filtered.length && <div className="prediction-empty"><span aria-hidden="true">⌕</span><h3>{view === 'value' ? 'Belum ada kandidat value' : view === 'model' ? 'Belum ada pilihan model' : 'Tidak ada pertandingan untuk filter ini'}</h3><p>{view === 'value' ? 'Lihat tab Pilihan model untuk proyeksi pertandingan. Kandidat value hanya muncul bila liga, tim, odds, dan EV memenuhi syarat.' : 'Coba liga lain atau tampilkan semua pertandingan.'}</p><button type="button" onClick={() => { setSearch(''); setLeague('all'); setMarket('all'); changeView('all'); }}>Reset filter</button></div>}
         {pages > 1 && <nav className="prediction-pagination" aria-label="Halaman pertandingan"><button disabled={activePage === 0} onClick={() => setPage(activePage - 1)}>← Sebelumnya</button><span>{activePage + 1} / {pages}</span><button disabled={activePage + 1 >= pages} onClick={() => setPage(activePage + 1)}>Berikutnya →</button></nav>}
       </section>
       <aside className="prediction-sidebar">
