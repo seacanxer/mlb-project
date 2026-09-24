@@ -29,6 +29,30 @@ N1, P1, B1, T1, G1, SC1–SC3).
 
 ## Integritas
 
+### Tim nasional senior putra
+
+`international_results.csv` berasal dari
+`martj42/international_results` (CC0; hash dan tanggal ada di
+`international_results.source.json`). Dataset mencakup hasil tim nasional
+senior putra, termasuk pertandingan netral. Jalankan
+`python scripts/fc-refresh-national.py` untuk memperbarui snapshot; updater
+memvalidasi format, skor, tanggal, dan tidak menerima sumber yang mundur.
+
+Scanner memakai hasil sejak 2023 dan model ratio baseline terpisah (`INT_MEN`).
+Pertandingan historis netral dikeluarkan dari fitting karena baseline ini
+memerlukan observasi home/away yang jelas.
+Hasil pertandingan baru masuk ke model paling cepat hari UTC berikutnya.
+Kompetisi yang didukung secara eksplisit: UEFA Nations League, Africa Cup of
+Nations senior, CONCACAF Nations League, persahabatan tim nasional senior, dan
+Arabian Gulf Cup. Nama liga seperti `UEFA Nations League. Team vs Player`,
+turnamen junior, tim cadangan, klub, dan wanita tidak digabung ke model ini.
+
+Hasil `INT_MEN` adalah proyeksi riset: venue netral pada fixture live belum
+terverifikasi dan model belum lulus evaluasi prospektif. Selisih probabilitas
+1X2 di atas 20 poin persentase dari pasar menahan seluruh proyeksi fixture.
+Jalur ini tidak menerbitkan value atau Official pick. Audit cakupan sebelum
+scan dengan `python scripts/fc-preflight-24h.py`.
+
 - `python3 scripts/fc-fetch-historical.py --verify` — laporan integritas file lokal.
 - `F2_2526.csv` ada 1 baris tanpa skor final (Bastia vs Red Star 05/12/2025,
   di-upstream-kosong) — engine harus skip baris skor-null (sudah ditangani

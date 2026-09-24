@@ -1,0 +1,9 @@
+{
+  "source": "https://github.com/martj42/international_results/blob/master/results.csv",
+  "license": "CC0-1.0",
+  "retrieved_on": "2026-09-24",
+  "sha256": "df35268f8fc341ff7fb93d448b4e40356676ac35300a6b4461fd199a99ac1514",
+  "scope": "men's senior international results only",
+  "latest_result_date": "2026-08-26",
+  "rules": "No youth, reserve, club or mixed Team vs Player fixtures. Result becomes available to model the following UTC day."
+}

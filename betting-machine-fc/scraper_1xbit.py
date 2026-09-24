@@ -28,11 +28,10 @@ def list_matches_paginated(sport=1, count=500, mode=1, country=169, window_hours
     seen, order = {}, []
     for page in range(max_pages):
         url = f"{BASE}BestGamesExtZip?sports={sport}&count={count}&lng=en&mode={mode}&country={country}&page={page}"
-        try:
-            j = fetch(url)
-        except Exception:
-            break
-        v = [x for x in j.get("Value", []) if x.get("I")]
+        j = fetch(url)
+        if not isinstance(j, dict) or not isinstance(j.get("Value"), list):
+            raise ValueError("Invalid fixture feed response")
+        v = [x for x in j["Value"] if isinstance(x, dict) and x.get("I")]
         if not v:
             break
         new = False

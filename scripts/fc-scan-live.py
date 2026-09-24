@@ -16,6 +16,7 @@ Pipeline (Phase 7 adapter):
 Run: betting-machine-fc/venv/bin/python scripts/fc-scan-live.py
 """
 import difflib
+import argparse
 import json
 import math
 import hashlib
@@ -34,12 +35,17 @@ import scraper_1xbit as sc  # noqa: E402
 import odds_flashscore  # noqa: E402
 from football_formula_engine.data import load_football_data_csv, stable_id  # noqa: E402
 from football_formula_engine.markets import asian_handicap, btts, match_odds, over_under  # noqa: E402
-from football_formula_engine.model import FitConfig, fit_dixon_coles, project_fixture  # noqa: E402
+from football_formula_engine.model import (FitConfig, fit_dixon_coles,
+    build_ratio_baseline_artifact, project_fixture)  # noqa: E402
 from football_formula_engine.value import expected_value, fair_odds, proportional_no_vig  # noqa: E402
 from football_formula_engine.live_quotes import QuoteJournal  # noqa: E402
 from football_formula_engine.second_source import collect as collect_second_source  # noqa: E402
 from football_formula_engine.catalog import POLICY_VERSION, select_markets, direction_counts  # noqa: E402
 from football_formula_engine.live_training import current_season, refresh_scores  # noqa: E402
+from football_formula_engine.national_teams import (MODEL_CODE as NATIONAL_CODE,
+    senior_competition, load_results as load_national_results,
+    resolve_fixture as resolve_national_fixture,
+    nonneutral_baseline_coverage)  # noqa: E402
 
 FORMULA_VERSION = 'dc-loglink-time-decay-v1'
 UNCERTAINTY_PENALTY = 0.02
@@ -48,9 +54,11 @@ ODDS_FLOOR = 1.6
 ODDS_CAP = 2.5
 MAX_VALUE_PICKS_PER_MATCH = 2
 SECOND_PICK_MIN_CEV = 0.02
+NATIONAL_MAX_MARKET_GAP = 0.20
 WINDOW_HOURS = 24
 MODELS_CACHE = os.path.join(FC_DIR, 'models_cache')
 MODEL_DATA_INFO = {}
+NATIONAL_MODEL_VERSION = 'intl-ratio-nonneutral-v1'
 
 # football-data code -> (csvs [(file, season)], timezone, 1xbit league names)
 LEAGUES = {
@@ -59,6 +67,8 @@ LEAGUES = {
     'E1': ([('E1_2526.csv', '2526')], 'Europe/London', ['England. Championship']),
     'E2': ([('E2_2526.csv', '2526')], 'Europe/London', ['England. League One']),
     'E3': ([('E3_2526.csv', '2526')], 'Europe/London', ['England. League Two']),
+    'EC': ([('EC_2526.csv', '2526')], 'Europe/London',
+           ['England. National League']),
     'SP1': ([('SP1_2526.csv', '2526')], 'Europe/Madrid', ['Spain. La Liga']),
     'SP2': ([('SP2_2526.csv', '2526')], 'Europe/Madrid', ['Spain. Segunda Division']),
     'D1': ([('D1_2526.csv', '2526')], 'Europe/Berlin', ['Germany. Bundesliga']),
@@ -70,7 +80,8 @@ LEAGUES = {
     'N1': ([('N1_2526.csv', '2526')], 'Europe/Amsterdam', ['Netherlands. Eredivisie']),
     'P1': ([('P1_2526.csv', '2526')], 'Europe/Lisbon', ['Portugal. Primeira Liga']),
     'B1': ([('B1_2526.csv', '2526')], 'Europe/Brussels',
-           ['Belgium. First Division A', 'Belgium. Division 1']),
+           ['Belgium. First Division A', 'Belgium. Division 1',
+            'Belgium. Jupiler League']),
     'T1': ([('T1_2526.csv', '2526')], 'Europe/Istanbul',
            ['Turkiye. Super Lig', 'Turkey. Super Lig']),
     'G1': ([('G1_2526.csv', '2526')], 'Europe/Athens', ['Greece. Super League']),
@@ -82,6 +93,21 @@ LEAGUE_BY_NAME = {}
 for code, (_csvs, _tz, names) in LEAGUES.items():
     for name in names:
         LEAGUE_BY_NAME[name.lower()] = code
+
+
+def model_code(league):
+    name = (league or '').strip()
+    return NATIONAL_CODE if senior_competition(name) else LEAGUE_BY_NAME.get(name.lower())
+
+
+def national_market_reason(opportunities):
+    benchmark = [offer for market, _label, offer in opportunities if market == '1x2']
+    if len(benchmark) != 3:
+        return 'MARKET_BENCHMARK_UNAVAILABLE'
+    if max(abs(offer['probability'] - offer['market_probability'])
+           for offer in benchmark) > NATIONAL_MAX_MARKET_GAP:
+        return 'MODEL_MARKET_DISAGREEMENT'
+    return None
 
 TEAM_ALIASES = {
     # 1xbit -> football-data
@@ -423,6 +449,46 @@ def load_model(code, now):
     return artifact
 
 
+def load_national_model(now):
+    """Fit a separate senior-national baseline from known nonneutral results."""
+    source = Path(FC_DIR, 'data', 'international_results.csv')
+    if not source.exists():
+        return None, {}
+    os.makedirs(MODELS_CACHE, exist_ok=True)
+    path = Path(MODELS_CACHE, f'{NATIONAL_CODE}.json')
+    fingerprint = hashlib.sha256(source.read_bytes()).hexdigest()
+    today = datetime.fromtimestamp(now, tz=timezone.utc).strftime('%Y-%m-%d')
+    if path.exists():
+        try:
+            cached = json.loads(path.read_text(encoding='utf-8'))
+            if (cached['fitted_for_date'] == today and cached['source_fingerprint'] == fingerprint
+                    and cached.get('model_version') == NATIONAL_MODEL_VERSION):
+                MODEL_DATA_INFO[NATIONAL_CODE] = cached['data_info']
+                return cached['artifact'], cached['team_counts']
+        except (OSError, ValueError, KeyError):
+            pass
+    matches, neutral_ids, _counts, last_result = load_national_results(source, int(now))
+    training, counts = nonneutral_baseline_coverage(matches, neutral_ids)
+    if len(training) < 40:
+        return None, {}
+    try:
+        artifact = build_ratio_baseline_artifact(
+            training, cutoff_utc=int(now), minimum_team_matches=5)
+    except Exception as exc:
+        print(f'  [{NATIONAL_CODE}] fit failed: {exc}', file=sys.stderr)
+        return None, {}
+    info = {'last_result_at': last_result, 'source_files': [source.name],
+            'training_matches': len(training), 'neutral_excluded_matches': len(neutral_ids)}
+    MODEL_DATA_INFO[NATIONAL_CODE] = info
+    payload = {'fitted_for_date': today, 'source_fingerprint': fingerprint,
+               'model_version': NATIONAL_MODEL_VERSION,
+               'artifact': artifact, 'team_counts': dict(counts), 'data_info': info}
+    tmp = path.with_suffix('.json.tmp')
+    tmp.write_text(json.dumps(payload, ensure_ascii=False), encoding='utf-8')
+    os.replace(tmp, path)
+    return artifact, counts
+
+
 def team_id(code, csv_name):
     return 'fd-team-' + stable_id(code, csv_name)
 
@@ -570,11 +636,27 @@ def price_fixture(dist, mk, *, gated=True):
     return out
 
 
-def main():
+def main(argv=()):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--from-cache', action='store_true',
+                        help='Use fixture IDs from a recent local schedule; live identity and odds are still verified')
+    args = parser.parse_args(argv)
     started = time.time()
     # 1. fixtures
     try:
-        rows = sc.list_matches_paginated(window_hours=WINDOW_HOURS, max_pages=60)
+        if args.from_cache:
+            cached = json.loads(Path(FC_DIR, 'matches_detailed.json').read_text(encoding='utf-8'))
+            rows = []
+            for match in cached:
+                info = match.get('info') or {}
+                if not (0 < started - float(info.get('scraped_at') or 0) <= 21600):
+                    continue
+                rows.append({'I': info.get('match_id'), 'S': info.get('start_ts'),
+                             'O1': info.get('home'), 'O2': info.get('away'), 'L': info.get('league')})
+            if not rows:
+                raise ValueError('No fixture cache newer than six hours')
+        else:
+            rows = sc.list_matches_paginated(window_hours=WINDOW_HOURS, max_pages=60)
     except Exception as exc:
         print(json.dumps({'status': 'error', 'stage': 'fixtures', 'message': str(exc)}))
         return 1
@@ -626,10 +708,16 @@ def main():
     models, teams_by_code = {}, {}
     future = [m for m in merged.values() if float(m['info'].get('start_ts') or 0) > now]
     codes_needed = sorted({code for code in
-                           (LEAGUE_BY_NAME.get((m['info'].get('league') or '').lower()) for m in future)
+                           (model_code(m['info'].get('league')) for m in future)
                            if code is not None})
     for code in codes_needed:
         print(f'  model {code}...', file=sys.stderr)
+        if code == NATIONAL_CODE:
+            art, team_counts = load_national_model(now)
+            if art:
+                models[code] = art
+                teams_by_code[code] = team_counts
+            continue
         # Current-season refresh is bounded and failures are visible; never
         # synthesize new-team ratings from another league's averages.
         refresh_result = refresh_scores(code, os.path.join(FC_DIR, 'data'), now)
@@ -641,6 +729,8 @@ def main():
 
     # 3. odds + projection + gate
     picks, scanned, skipped = [], 0, {}
+    unavailable_leagues = {}
+    unmatched_teams = {}
     journal = QuoteJournal(os.environ.get('FC_QUOTES_DB', os.path.join(FC_DIR, 'live_quotes.db')))
     second_mappings = {}
     mapping_path = os.environ.get('FC_SECOND_MAPPING_PATH')
@@ -652,6 +742,7 @@ def main():
         with open(mapping_path, encoding='utf-8') as handle:
             second_mappings = {str(row['fixture']['match_id']): row for row in json.load(handle)}
         second_status = 'CONFIGURED_NOT_YET_VALIDATED'
+    seen_national_fixtures = set()
     for m in sorted(future, key=lambda x: float(x['info']['start_ts'])):
         info = m['info']
         m.update(picks=[], qualified_picks=[], projections=[], market_options=[])
@@ -659,10 +750,21 @@ def main():
                          'official_enabled': False, 'official_reason': 'MODEL_NOT_VALIDATED',
                          'policy_version': POLICY_VERSION, 'generated_at': now}
         info['coverage_status'] = 'market_only'
-        code = LEAGUE_BY_NAME.get((info.get('league') or '').lower())
+        code = model_code(info.get('league'))
         if not code:
             m['analysis']['reason_codes'] = ['LEAGUE_MODEL_UNAVAILABLE']
+            league_name = info.get('league') or 'Unknown league'
+            unavailable_leagues[league_name] = unavailable_leagues.get(league_name, 0) + 1
             continue
+        national_key = None
+        if code == NATIONAL_CODE:
+            national_key = (normalize_team_name(info.get('home')),
+                            normalize_team_name(info.get('away')),
+                            int(float(info['start_ts'])))
+            if national_key in seen_national_fixtures:
+                skipped['DUPLICATE_FIXTURE'] = skipped.get('DUPLICATE_FIXTURE', 0) + 1
+                m['analysis']['reason_codes'] = ['DUPLICATE_FIXTURE']
+                continue
         scanned += 1
         # Capture every supported-league fixture before model/team/value filtering.
         try:
@@ -712,18 +814,30 @@ def main():
             skipped['MODEL_UNAVAILABLE'] = skipped.get('MODEL_UNAVAILABLE', 0) + 1
             m['analysis']['reason_codes'] = ['MODEL_UNAVAILABLE']
             continue
-        home_csv = match_team(info.get('home') or '', teams_by_code[code])
-        away_csv = match_team(info.get('away') or '', teams_by_code[code])
+        if code == NATIONAL_CODE:
+            resolved = resolve_national_fixture(info.get('home'), info.get('away'), teams_by_code[code])
+            home_csv, away_csv = resolved if resolved else (None, None)
+        else:
+            home_csv = match_team(info.get('home') or '', teams_by_code[code])
+            away_csv = match_team(info.get('away') or '', teams_by_code[code])
         if not home_csv or not away_csv:
             skipped['TEAM_UNMATCHED'] = skipped.get('TEAM_UNMATCHED', 0) + 1
             m['analysis']['reason_codes'] = ['TEAM_UNMATCHED']
+            for name, matched in ((info.get('home'), home_csv), (info.get('away'), away_csv)):
+                if not matched and name:
+                    key = f'{code}: {name}'
+                    unmatched_teams[key] = unmatched_teams.get(key, 0) + 1
             continue
         artifact = models[code]
-        season = sorted(artifact['parameters']['season_effects'])[-1]
-        proj = project_fixture(artifact,
-                               home_team_id=team_id(code, home_csv),
-                               away_team_id=team_id(code, away_csv),
-                               season=season)
+        season = ('2026' if code == NATIONAL_CODE else
+                  sorted(artifact['parameters']['season_effects'])[-1])
+        if code == NATIONAL_CODE:
+            home_id, away_id = ('intl-team-' + stable_id(home_csv),
+                                'intl-team-' + stable_id(away_csv))
+        else:
+            home_id, away_id = team_id(code, home_csv), team_id(code, away_csv)
+        proj = project_fixture(artifact, home_team_id=home_id,
+                               away_team_id=away_id, season=season)
         if proj.distribution is None:
             key = ','.join(proj.reason_codes) or 'PROJECTION_BLOCKED'
             skipped[key] = skipped.get(key, 0) + 1
@@ -735,7 +849,17 @@ def main():
             m['analysis']['reason_codes'] = ['QUOTE_EXPIRED']
             continue
         opportunities = price_fixture(proj.distribution, mk, gated=False)
+        if code == NATIONAL_CODE:
+            reason = national_market_reason(opportunities)
+            if reason:
+                skipped[reason] = skipped.get(reason, 0) + 1
+                info['coverage_status'] = 'shadow'
+                m['analysis']['reason_codes'] = [reason]
+                m['analysis']['league_model'] = code
+                continue
         model_reasons = list(proj.reason_codes)
+        if code == NATIONAL_CODE:
+            model_reasons.extend(('NATIONAL_BASELINE_UNVALIDATED', 'NEUTRAL_VENUE_UNVERIFIED'))
         last_result = MODEL_DATA_INFO.get(code, {}).get('last_result_at')
         if last_result and now - last_result > 90 * 86400:
             model_reasons.append('STALE_TRAINING_DATA')
@@ -752,7 +876,7 @@ def main():
             model_artifact_id=artifact.get('artifact_id'),
             model_training_cutoff=artifact['training']['cutoff_utc'],
             league_model=code, quote_captured_at=captured_at,
-            formula_version=FORMULA_VERSION,
+            formula_version=artifact.get('formula_version', FORMULA_VERSION),
             direction_counts=direction_counts(forecasts),
         )
         if not value_rows:
@@ -778,8 +902,10 @@ def main():
                 'fair_odds': round(o['fair_odds'], 3),
                 'market_probability': round(o['market_probability'], 4),
                 'edge_pct': round(1 / o['fair_odds'] - o['market_probability'], 4),
-                'formula_version': FORMULA_VERSION, 'policy_version': POLICY_VERSION,
-                'lambda_source': 'engine-dc-csv', 'coverage_status': info['coverage_status'],
+                'formula_version': artifact.get('formula_version', FORMULA_VERSION),
+                'policy_version': POLICY_VERSION,
+                'lambda_source': ('intl-ratio-baseline' if code == NATIONAL_CODE else 'engine-dc-csv'),
+                'coverage_status': info['coverage_status'],
                 'league_model': code, 'selection_status': 'watch', 'decision': 'watch',
                 'tier': 'watch', 'is_top_pick': False, 'calibrated_prob': None,
                 'rank_score': round(o['conservative_ev'] * 100, 2), 'locked': False,
@@ -793,6 +919,8 @@ def main():
             }
 
         m['projections'] = [row_payload(row) for row in forecasts]
+        if national_key and forecasts:
+            seen_national_fixtures.add(national_key)
         m['market_options'] = [row_payload(row) for row in opportunities]
         ranked_value = sorted(value_rows, key=lambda r: r[2]['conservative_ev'], reverse=True)
         kept_value = ranked_value[:1]
@@ -859,10 +987,20 @@ def main():
     except (OSError, ValueError):
         cfg = {}
     cfg['formula'] = {'version': FORMULA_VERSION}
+    cfg['scan_window_hours'] = WINDOW_HOURS
     cfg['last_successful_scan_at'] = datetime.fromtimestamp(now, tz=timezone.utc).isoformat()
     cfg['last_successful_scan_count'] = scanned
     cfg['last_successful_scan_picks'] = len(picks)
     cfg['last_scan_diagnostics'] = {'skipped': skipped, 'leagues': codes_needed,
+                                    'fixtures_future': len(future),
+                                    'modelable_league_fixtures': scanned,
+                                    'coverage_verdict': ('NO_SUPPORTED_LEAGUE_24H' if not scanned else
+                                                         'VALUE_CHECK_REQUIRED' if not picks else 'VALUE_PICKS_AVAILABLE'),
+                                    'league_model_unavailable': sum(unavailable_leagues.values()),
+                                    'unavailable_leagues': dict(sorted(unavailable_leagues.items(), key=lambda item: (-item[1], item[0]))),
+                                    'unmatched_teams': dict(sorted(unmatched_teams.items(), key=lambda item: (-item[1], item[0]))),
+                                    'value_matches': sum(bool(m.get('qualified_picks')) for m in future),
+                                    'value_picks': len(picks),
                                     'policy_version': POLICY_VERSION,
                                     'forecast_matches': sum(bool(m.get('projections')) for m in future),
                                     'forecast_count': sum(len(m.get('projections', [])) for m in future),
@@ -877,6 +1015,7 @@ def main():
     print(json.dumps({
         'status': 'ok', 'fixtures_future': len(future), 'scanned': scanned,
         'picks': len(picks), 'locked': locked_now, 'skipped': skipped,
+        'league_model_unavailable': sum(unavailable_leagues.values()),
         'forecasts': sum(len(m.get('projections', [])) for m in future),
         'analyzed_matches': sum(bool(m.get('projections')) for m in future),
         'markets': sorted({p['market'] for p in picks}),
@@ -886,4 +1025,4 @@ def main():
 
 
 if __name__ == '__main__':
-    raise SystemExit(main())
+    raise SystemExit(main(sys.argv[1:]))

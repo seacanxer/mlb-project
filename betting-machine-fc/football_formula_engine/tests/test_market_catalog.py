@@ -15,6 +15,23 @@ scan = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(scan)
 
 
+def test_supported_competitions_and_daily_scan_window():
+    assert scan.WINDOW_HOURS == 24
+    assert scan.LEAGUE_BY_NAME['england. national league'] == 'EC'
+    assert scan.LEAGUE_BY_NAME['belgium. jupiler league'] == 'B1'
+    assert scan.model_code('UEFA Nations League') == 'INT_MEN'
+    assert scan.model_code('UEFA Nations League. Team vs Player') is None
+
+
+def test_national_forecast_is_held_on_large_market_gap():
+    rows = [('1x2', side, {'probability': p, 'market_probability': q})
+            for side, p, q in [('Home', .70, .40), ('Draw', .20, .30), ('Away', .10, .30)]]
+    assert scan.national_market_reason(rows) == 'MODEL_MARKET_DISAGREEMENT'
+    assert scan.national_market_reason(rows[:2]) == 'MARKET_BENCHMARK_UNAVAILABLE'
+    assert scan.national_market_reason([('1x2', side, {'probability': .3, 'market_probability': .3})
+                                        for side in ('Home', 'Draw', 'Away')]) is None
+
+
 def markets():
     return {'odds_1x2': {1: 2.0, 2: 3.5, 3: 3.5},
             'odds_btts': {'yes': 1.95, 'no': 1.95},

@@ -21,6 +21,11 @@ const REASONS: Record<string, string> = {
   CONSERVATIVE_EV_BELOW_THRESHOLD: 'EV setelah penalti masih negatif.',
   TEAM_COVERAGE_MISSING: 'Histori tim belum cukup.',
   TEAM_LOW_COVERAGE: 'Sampel tim masih terbatas.',
+  NATIONAL_BASELINE_UNVALIDATED: 'Analisis tim nasional masih memakai baseline riset yang belum tervalidasi.',
+  NEUTRAL_VENUE_UNVERIFIED: 'Lokasi netral pertandingan belum dapat diverifikasi.',
+  MODEL_MARKET_DISAGREEMENT: 'Proyeksi tim nasional terlalu jauh dari harga pasar; analisis ditahan.',
+  MARKET_BENCHMARK_UNAVAILABLE: 'Odds 1X2 lengkap diperlukan untuk memeriksa baseline tim nasional.',
+  DUPLICATE_FIXTURE: 'Pertandingan yang sama sudah dianalisis dari fixture lain.',
 };
 
 export function reasonLabel(code: string): string {

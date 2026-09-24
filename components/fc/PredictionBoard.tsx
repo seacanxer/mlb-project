@@ -48,7 +48,7 @@ function PredictionCard({ match, market, valueOnly, saved, onToggle }: {
               <strong>{pickLabel(pick, match)}</strong>
               <span className="prediction-odds">@{formatOdds(pick.odds)} <span>{selected ? '✓' : '+'}</span></span>
               <small>P(menang) {formatProb(pick.probability)}</small>
-              <span className={`prediction-tag ${isValue(pick) ? 'is-value' : ''}`}>{isValue(pick) ? '🔒 Top Pick' : 'Proyeksi'}</span>
+              <span className={`prediction-tag ${isValue(pick) ? 'is-value' : ''}`}>{isValue(pick) ? 'Kandidat value' : 'Proyeksi'}</span>
             </button> : <div className="prediction-no-market"><strong>—</strong><small>{available ? 'Pasar belum tersedia' : 'Menunggu data'}</small></div>}
           </div>;
         })}
@@ -69,7 +69,7 @@ function PredictionCard({ match, market, valueOnly, saved, onToggle }: {
       </div>
       {options.length > 0 && <div className="prediction-options-wrap"><table className="prediction-options"><thead><tr><th>Pasar / pilihan</th><th>Odds</th><th>P(menang)</th><th>Fair odds</th><th>EV</th><th>Status</th><th>Simpan</th></tr></thead><tbody>{options.map((p, i) => <tr key={`${p.market}-${p.pick}-${i}`}>
         <td>{p.market.toUpperCase()} · {pickLabel(p, match)}</td><td>{formatOdds(p.odds)}</td><td>{formatProb(p.probability)}</td><td>{formatOdds(p.fair_odds)}</td><td className={p.ev > 0 ? 'positive' : ''}>{formatEv(p.ev)}</td>
-        <td>{isValue(p) ? '🔒 Top Pick' : p.gate_reasons?.map(reasonLabel).join(' ') || 'Proyeksi model'}</td>
+        <td>{isValue(p) ? 'Kandidat value' : p.gate_reasons?.map(reasonLabel).join(' ') || 'Proyeksi model'}</td>
         <td><button type="button" onClick={() => onToggle(match, p)} aria-label={`Simpan alternatif ${pickLabel(p, match)}`} aria-pressed={saved.includes(choiceId(match, p))}>{saved.includes(choiceId(match, p)) ? '✓' : '+'}</button></td>
       </tr>)}</tbody></table></div>}
     </details>
@@ -112,6 +112,8 @@ export function PredictionBoard({ matches, initialView = 'all', marketScope = 'a
   const leagues = useMemo(() => [...new Set(matches.map((m) => m.info.league).filter((v): v is string => Boolean(v)))].sort(), [matches]);
   const ready = matches.filter((m) => forecastPicks(m).length > 0).length;
   const values = matches.reduce((n, m) => n + (m.qualified_picks ?? []).filter(isValue).length, 0);
+  const unsupportedLeagues = matches.filter((m) => m.analysis?.reason_codes?.includes('LEAGUE_MODEL_UNAVAILABLE')).length;
+  const unmatchedTeams = matches.filter((m) => m.analysis?.reason_codes?.includes('TEAM_UNMATCHED')).length;
   const selectedKeys = new Set(savedChoices.map(({ match }) => matchKey(match)));
   const filtered = scopedMatches.filter((m) => {
     const picks = choicesFor(m, valueOnly || view === 'value');
@@ -128,20 +130,21 @@ export function PredictionBoard({ matches, initialView = 'all', marketScope = 'a
   const activePage = Math.min(page, pages - 1);
   const changeView = (next: BoardView) => { setView(next); setPage(0); };
   const copy = async () => {
-    try { await navigator.clipboard.writeText(savedChoices.map(({ match, pick }) => `${match.info.home} vs ${match.info.away} | ${pickLabel(pick, match)} @${formatOdds(pick.odds)} | EV ${formatEv(pick.ev)} | ${formatKickoffWIB(match.info.start_ts)} | ${isValue(pick) ? '🔒 Top Pick' : 'Proyeksi'}`).join('\n')); setMessage('Ringkasan berhasil disalin.'); } catch { setMessage('Clipboard tidak tersedia. Pilihan tetap tersimpan di daftar.'); }
+    try { await navigator.clipboard.writeText(savedChoices.map(({ match, pick }) => `${match.info.home} vs ${match.info.away} | ${pickLabel(pick, match)} @${formatOdds(pick.odds)} | EV ${formatEv(pick.ev)} | ${formatKickoffWIB(match.info.start_ts)} | ${isValue(pick) ? 'Kandidat value' : 'Proyeksi'}`).join('\n')); setMessage('Ringkasan berhasil disalin.'); } catch { setMessage('Clipboard tidak tersedia. Pilihan tetap tersimpan di daftar.'); }
   };
 
   return <>
     <div className="prediction-stats">
-      <div><span>Pertandingan mendatang</span><strong>{matches.length}</strong><small>Fixture dari sumber utama</small></div>
+      <div><span>Pertandingan mendatang</span><strong>{matches.length}</strong><small>Jendela scan 24 jam</small></div>
       <div><span>Siap dianalisis</span><strong>{ready}<em>match</em></strong><small>Memiliki hasil model</small></div>
-      <div><span>Top Picks</span><strong className="positive">{values}</strong><small>🔒 Auto-locked untuk ROI</small></div>
+      <div><span>Kandidat value</span><strong className="positive">{values}</strong><small>Belum berstatus Official</small></div>
       <div><span>Perlu data tambahan</span><strong>{matches.length - ready}</strong><small>Alasan tersedia per match</small></div>
     </div>
+    {ready === 0 && matches.length > 0 && <p role="status" className="prediction-feedback">Belum ada pertandingan dengan proyeksi model pada jadwal ini. {unsupportedLeagues} pertandingan berasal dari liga tanpa model{unmatchedTeams ? `; ${unmatchedTeams} pertandingan memiliki tim yang belum cocok dengan histori` : ''}. Jadwal tetap ditampilkan agar cakupan dapat diperiksa.</p>}
     <div className="prediction-workspace">
       <section className="prediction-content" aria-label="Daftar Prediksi Pertandingan">
         <div className="prediction-view-tabs" role="group" aria-label="Jenis hasil">
-          {([['all', 'Semua pertandingan'], ['ready', 'Ada analisis'], ['value', 'Top Picks 🔒'], ['unavailable', 'Perlu data'], ['saved', `Tersimpan (${savedChoices.length})`]] as [BoardView, string][]).map(([key, label]) => <button key={key} type="button" aria-pressed={view === key} onClick={() => changeView(key)}>{label}</button>)}
+          {([['all', 'Semua pertandingan'], ['ready', 'Ada analisis'], ['value', 'Kandidat value'], ['unavailable', 'Perlu data'], ['saved', `Tersimpan (${savedChoices.length})`]] as [BoardView, string][]).map(([key, label]) => <button key={key} type="button" aria-pressed={view === key} onClick={() => changeView(key)}>{label}</button>)}
         </div>
         <div className="prediction-filters">
           <label className="prediction-search"><span>Cari pertandingan</span><input type="search" placeholder="Cari tim atau liga…" value={search} onChange={(e) => { setSearch(e.target.value); setPage(0); }} /></label>
@@ -150,7 +153,7 @@ export function PredictionBoard({ matches, initialView = 'all', marketScope = 'a
         </div>
         <div className="prediction-list-heading"><div><h2>Daftar Prediksi Pertandingan</h2><p>{filtered.length} pertandingan · waktu Indonesia Barat</p></div><div className="prediction-market-tabs" role="group" aria-label="Market"><button type="button" aria-pressed={market === 'all'} onClick={() => { setMarket('all'); setPage(0); }}>Semua</button>{PREDICTION_MARKETS.map((m) => <button key={m.key} type="button" aria-pressed={market === m.key} onClick={() => { setMarket(m.key); setPage(0); }}>{m.label}</button>)}</div></div>
         <div className="prediction-list">{filtered.slice(activePage * PAGE_SIZE, (activePage + 1) * PAGE_SIZE).map((m) => <PredictionCard key={matchKey(m)} match={m} market={market} valueOnly={view === 'value'} saved={saved} onToggle={toggle} />)}</div>
-        {!filtered.length && <div className="prediction-empty"><span aria-hidden="true">⌕</span><h3>Tidak ada pertandingan untuk filter ini</h3><p>Coba liga lain atau tampilkan semua pertandingan.</p><button type="button" onClick={() => { setSearch(''); setLeague('all'); setMarket('all'); changeView('all'); }}>Reset filter</button></div>}
+        {!filtered.length && <div className="prediction-empty"><span aria-hidden="true">⌕</span><h3>{view === 'value' ? 'Belum ada kandidat value' : 'Tidak ada pertandingan untuk filter ini'}</h3><p>{view === 'value' ? 'Lihat tab Ada analisis untuk proyeksi model. Kandidat hanya muncul bila liga, tim, odds, dan EV memenuhi syarat.' : 'Coba liga lain atau tampilkan semua pertandingan.'}</p><button type="button" onClick={() => { setSearch(''); setLeague('all'); setMarket('all'); changeView('all'); }}>Reset filter</button></div>}
         {pages > 1 && <nav className="prediction-pagination" aria-label="Halaman pertandingan"><button disabled={activePage === 0} onClick={() => setPage(activePage - 1)}>← Sebelumnya</button><span>{activePage + 1} / {pages}</span><button disabled={activePage + 1 >= pages} onClick={() => setPage(activePage + 1)}>Berikutnya →</button></nav>}
       </section>
       <aside className="prediction-sidebar">
@@ -158,7 +161,7 @@ export function PredictionBoard({ matches, initialView = 'all', marketScope = 'a
           {!savedChoices.length ? <div className="watchlist-empty"><span aria-hidden="true">☆</span><p>Mulai dari satu pilihan.</p><small>Klik pasar pada kartu pertandingan untuk menyimpannya di sini.</small></div> : <ul>{savedChoices.map(({ match, pick, id }) => <li key={id}><button type="button" aria-label={`Hapus ${pickLabel(pick, match)}`} onClick={() => updateSaved(saved.filter((v) => v !== id))}>×</button><strong>{match.info.home} vs {match.info.away}</strong><span>{pickLabel(pick, match)} <b>@{formatOdds(pick.odds)}</b></span><small>{formatKickoffWIB(match.info.start_ts)}</small></li>)}</ul>}
           <div className="watchlist-total"><span>Total pilihan</span><strong>{savedChoices.length}</strong></div><p className="watchlist-note">Pilihan tersimpan di perangkat ini. Beberapa pasar dari match yang sama saling berkorelasi.</p><button type="button" className="prediction-copy" disabled={!savedChoices.length} onClick={copy}>Salin ringkasan pilihan ↗</button><p role="status" className="prediction-feedback">{message}</p>
         </section>
-        <section className="prediction-guide"><span className="prediction-eyebrow">MEMBACA HASIL</span><h3>Curated picks, auto-tracked.</h3><p><b>🔒 Top Pick</b> memenuhi gate odds 1.60–2.50, EV ≥ 1%. Otomatis di-lock untuk pelacakan ROI.</p><p><b>Proyeksi</b> menampilkan arah model untuk pasar lain — tidak di-lock.</p><p><b>Max 2 pick per match</b> dari market berbeda. Pick ke-2 hanya muncul jika analisanya kuat.</p><p className="prediction-guide-foot">Semua Top Pick langsung masuk ke Hasil & ROI tracker.</p></section>
+        <section className="prediction-guide"><span className="prediction-eyebrow">MEMBACA HASIL</span><h3>Analisis dan kandidat</h3><p><b>Kandidat value</b> memenuhi gate odds 1,60–2,50 dan EV konservatif positif. Kandidat ini belum tervalidasi sebagai Official.</p><p><b>Proyeksi</b> menampilkan arah model untuk pasar lain dan tidak otomatis menjadi pick.</p><p>Hingga dua kandidat dari market berbeda dapat muncul untuk satu match.</p><p className="prediction-guide-foot">Kandidat dicatat untuk evaluasi prospektif.</p></section>
       </aside>
     </div>
   </>;
