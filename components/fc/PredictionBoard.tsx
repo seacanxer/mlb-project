@@ -76,7 +76,7 @@ function PredictionCard({ match, market, valueOnly, saved, onToggle }: {
   </article>;
 }
 
-const TOP_MARKET_TERMS = ['premier league', 'la liga', 'bundesliga', 'serie a', 'ligue 1', 'champions league', 'europa league', 'conference league', 'uefa champions', 'uefa europa', 'uefa conference', 'j1 league', 'j league', 'k league', 'liga 1', 'indonesia', 'afc champions'];
+const TOP_MARKET_TERMS = ['premier league', 'la liga', 'bundesliga', 'serie a', 'ligue 1', 'champions league', 'europa league', 'conference league', 'uefa champions', 'uefa europa', 'uefa conference', 'uefa nations league', 'nations league', 'j1 league', 'j league', 'k league', 'liga 1', 'indonesia', 'afc champions'];
 function isTopMarketLeague(match: DetailedMatch): boolean {
   const { country, league } = splitLeague(match.info.league);
   const text = `${country} ${league}`.toLowerCase();

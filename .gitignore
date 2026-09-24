@@ -37,3 +37,6 @@ betting-machine-fc/models_cache/
 betting-machine-fc/data/*_live_scores.csv
 betting-machine-fc/data/*_live_scores.source.json
 betting-machine-fc/odds_quotes.jsonl
+
+# Report temp charts
+reports/.*charts/

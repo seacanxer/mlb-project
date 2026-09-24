@@ -48,8 +48,19 @@ export const TOP_ASIA_LEAGUES: Array<{ country: string; league: string }> = [
   { country: 'United Arab Emirates', league: 'Pro League' },
 ];
 
+export const TOP_INTERNATIONAL_LEAGUES: Array<{ country: string; league: string }> = [
+  { country: INTERNATIONAL, league: 'UEFA Nations League' },
+];
+
 function isTopLeague(country: string, league: string): boolean {
-  return [...TOP_LEAGUES, ...TOP_ASIA_LEAGUES].some((x) => x.country.toLowerCase() === country.toLowerCase() && x.league.toLowerCase() === league.toLowerCase());
+  const c = country.toLowerCase();
+  const l = league.toLowerCase();
+  if (l === 'uefa nations league' || (c === 'uefa nations league' && l !== 'team vs player')) {
+    return true;
+  }
+  return [...TOP_LEAGUES, ...TOP_ASIA_LEAGUES, ...TOP_INTERNATIONAL_LEAGUES].some(
+    (x) => x.country.toLowerCase() === c && x.league.toLowerCase() === l
+  );
 }
 
 /** "England. Premier League" → {England, Premier League}; bare → {International, raw}. */

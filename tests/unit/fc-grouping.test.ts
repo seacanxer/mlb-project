@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { groupByCountryLeague, INTERNATIONAL, splitLeague } from '@/lib/fc/grouping';
+import { groupByCountryLeague, INTERNATIONAL, splitLeague, TOP_SECTION } from '@/lib/fc/grouping';
 import type { DetailedMatch } from '@/lib/fc/types';
 
 function match(league: string, start_ts: number, home = 'H', away = 'A'): DetailedMatch {
@@ -31,16 +31,29 @@ describe('fc league grouping', () => {
     expect(groupByCountryLeague([])).toEqual([]);
   });
 
-  it('keeps every match under its country and league category', () => {
+  it('pins Top Leagues including UEFA Nations League at top without duplicates', () => {
     const groups = groupByCountryLeague([
       match('England. Championship', 300),
       match('Spain. La Liga', 100),
       match('England. Premier League', 200),
       match('Italy. Serie A', 150),
+      match('UEFA Nations League', 250),
+      match('Club Friendlies', 180),
     ]);
-    expect(groups.map((g) => g.country)).toEqual(['England', 'Italy', 'Spain']);
+    expect(groups[0].country).toBe(TOP_SECTION);
+    expect(groups[0].featured).toBe(true);
+    expect(groups[0].leagues.map((l) => l.league)).toEqual([
+      'Premier League',
+      'Serie A',
+      'La Liga',
+      'UEFA Nations League',
+    ]);
     const england = groups.find((g) => g.country === 'England');
-    expect(england?.leagues.map((l) => l.league)).toEqual(['Championship', 'Premier League']);
-    expect(groups.find((g) => g.country === 'Italy')?.leagues[0].league).toBe('Serie A');
+    expect(england?.leagues.map((l) => l.league)).toEqual(['Championship']);
+    expect(groups.find((g) => g.country === 'Italy')).toBeUndefined();
+    expect(groups.find((g) => g.country === 'Spain')).toBeUndefined();
+
+    const international = groups.find((g) => g.country === INTERNATIONAL);
+    expect(international?.leagues.map((l) => l.league)).toEqual(['Club Friendlies']);
   });
 });
