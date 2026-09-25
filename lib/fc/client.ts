@@ -57,6 +57,49 @@ export async function fcGet<T>(path: string, timeoutMs = DEFAULT_TIMEOUT_MS): Pr
   }
 }
 
+/** POST JSON with explicit timeout; throws FcApiError (never parses HTML blindly). */
+export async function fcPost<T>(
+  path: string,
+  body?: unknown,
+  headers: Record<string, string> = {},
+  timeoutMs = DEFAULT_TIMEOUT_MS,
+): Promise<T> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const res = await fetch(path, {
+      method: 'POST',
+      headers: body !== undefined ? { 'Content-Type': 'application/json', ...headers } : headers,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+      cache: 'no-store',
+      signal: ctrl.signal,
+    });
+    const text = await res.text();
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(text);
+    } catch {
+      const isHtml = text.trimStart().startsWith('<');
+      throw new FcApiError(
+        isHtml
+          ? `Server mengembalikan halaman HTML (HTTP ${res.status}), bukan JSON — build Next belum direstart atau proxy/nginx tidak meneruskan rute ini.`
+          : `Respons tidak valid (HTTP ${res.status}).`,
+        res.status,
+      );
+    }
+    if (!res.ok) throw new FcApiError(apiErrorMessage(parsed, `Request failed (${res.status})`), res.status);
+    return parsed as T;
+  } catch (err) {
+    if (err instanceof FcApiError) throw err;
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      throw new FcApiError('Request timed out, try again.', 408);
+    }
+    throw new FcApiError('Failed to load, try again.', 0);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export function buildQuery(params: Record<string, string | number | undefined | null>): string {
   const q = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) {

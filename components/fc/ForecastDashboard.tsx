@@ -1,11 +1,15 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { fetchAllMatches } from '@/lib/fc/allMatches';
+import { fcPost } from '@/lib/fc/client';
 import { FC_UI_VERSION } from '@/lib/fc/predictions';
 import type { DetailedMatch } from '@/lib/fc/types';
 import { PredictionBoard, type BoardView } from './PredictionBoard';
 import { ScheduleList } from './ScheduleList';
 import { ErrorBanner, SkeletonRows } from './shared';
+
+// The live scan script allows 10 minutes server-side; keep the client above it.
+const SCAN_TIMEOUT_MS = 660000;
 
 export function ForecastDashboard({ view = 'all', title = 'Prediksi Pertandingan', mode = 'board' }: { view?: BoardView; title?: string; mode?: 'board' | 'schedule' | 'value' | 'market' }) {
   const [matches, setMatches] = useState<DetailedMatch[] | null>(null);
@@ -32,9 +36,7 @@ export function ForecastDashboard({ view = 'all', title = 'Prediksi Pertandingan
   const scan = async () => {
     setScanning(true); setMessage('Memperbarui fixture, odds, dan model liga. Proses dapat memerlukan beberapa menit.');
     try {
-      const res = await fetch('/api/fc/scan', { method: 'POST' });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || `Scan gagal (${res.status})`);
+      const data = await fcPost<{ message?: string }>('/api/fc/scan', undefined, {}, SCAN_TIMEOUT_MS);
       setMessage(data.message || 'Analisis diperbarui.'); setRefresh((n) => n + 1);
     } catch (err) { setMessage(err instanceof Error ? err.message : 'Scan gagal.'); }
     finally { setScanning(false); }

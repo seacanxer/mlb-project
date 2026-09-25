@@ -8,6 +8,7 @@
 'use client';
 import { useMemo, useState } from 'react';
 import { useFcPoll } from '@/lib/fc/hooks';
+import { fcPost } from '@/lib/fc/client';
 import type { ManualParlay, TrackerResponse } from '@/lib/fc/types';
 import { formatProfit } from '@/lib/fc/format';
 import { slipStatusLabel } from '@/lib/fc/parlay';
@@ -30,14 +31,14 @@ export default function FcResults() {
     try {
       let token = '';
       try { token = sessionStorage.getItem('fc-lock-operator-token') || ''; } catch { /* Session storage is optional. */ }
-      const res = await fetch('/api/fc/settle', {
-        method: 'POST',
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-        cache: 'no-store',
-      });
-      const body = await res.json().catch(() => null);
-      if (!res.ok) throw new Error(body?.message || `Settlement gagal (${res.status}).`);
-      setSettleNote(body?.message || 'Settlement diperbarui.');
+      // Server budget: settle up to 180s + snapshot rebuild up to 60s.
+      const body = await fcPost<{ status?: string; message?: string }>(
+        '/api/fc/settle',
+        undefined,
+        token ? { Authorization: `Bearer ${token}` } : {},
+        300000,
+      );
+      setSettleNote(body.message || 'Settlement diperbarui.');
       refresh();
     } catch (err) {
       setSettleNote(err instanceof Error ? err.message : 'Settlement gagal.');

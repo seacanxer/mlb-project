@@ -5,11 +5,14 @@ import { forecastPicks, isValue, matchKey, pickLabel, PREDICTION_MARKETS, reason
 import { formatEv, formatOdds, formatProb } from '@/lib/fc/format';
 import { formatKickoffWIB } from '@/lib/fc/kickoff';
 import { splitLeague } from '@/lib/fc/grouping';
+import { fcPost } from '@/lib/fc/client';
 
 export type BoardView = 'all' | 'ready' | 'model' | 'value' | 'unavailable' | 'saved';
 type Choice = { match: DetailedMatch; pick: ForecastPick; id: string };
 type LockedChoice = Choice & { lockedAt: string; settlementId?: number };
 type LockedParlay = { id: number; odds: number; lockedAt: string; status: string; profit?: number | null; legs: { source_match_id: string; market: string; pick: string; home: string; away: string }[] };
+type LockSingleResponse = { status?: string; message?: string; bet_id: number; locked_at: string };
+type LockBatchResponse = { status?: string; message?: string; locked_at: string; parlay_id: number; odds: number; locks?: { id: string; bet_id: number; locked_at: string }[] };
 const choiceId = (match: DetailedMatch, pick: ForecastPick) => `${matchKey(match)}|${pick.market}|${pick.pick}`;
 const STORAGE_KEY = 'fc-prediction-watchlist-v2';
 const LOCK_STORAGE_KEY = 'fc-prediction-locked-v1';
@@ -144,12 +147,10 @@ export function PredictionBoard({ matches, initialView = 'all', marketScope = 'a
     const matchId = choice.match.info.match_id;
     if (!matchId) { setMessage('Fixture tidak memiliki ID provider yang bisa diverifikasi.'); return; }
     try {
-      const response = await fetch('/api/fc/locks', {
-        method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${operatorToken}` },
-        body: JSON.stringify({ match_id: String(matchId), market: choice.pick.market, pick: choice.pick.pick, odds: choice.pick.odds }),
-      });
-      const result = await response.json();
-      if (!response.ok || result.status !== 'locked') throw new Error(result.message || 'Lock settlement gagal.');
+      const result = await fcPost<LockSingleResponse>('/api/fc/locks',
+        { match_id: String(matchId), market: choice.pick.market, pick: choice.pick.pick, odds: choice.pick.odds },
+        { Authorization: `Bearer ${operatorToken}` });
+      if (result.status !== 'locked') throw new Error(result.message || 'Lock settlement gagal.');
       updateLocked([...lockedChoices.filter((item) => item.id !== choice.id), {
         id: choice.id, match: { info: { ...choice.match.info } }, pick: { ...choice.pick },
         lockedAt: result.locked_at || new Date().toISOString(), settlementId: result.bet_id,
@@ -165,12 +166,10 @@ export function PredictionBoard({ matches, initialView = 'all', marketScope = 'a
     if (choices.some((choice) => !choice.match.info.match_id)) { setMessage('Ada fixture tanpa ID provider.'); return; }
     setLocking(true);
     try {
-      const response = await fetch('/api/fc/locks', {
-        method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${operatorToken}` },
-        body: JSON.stringify({ mode, choices: choices.map((choice) => ({ match_id: String(choice.match.info.match_id), market: choice.pick.market, pick: choice.pick.pick, odds: choice.pick.odds })) }),
-      });
-      const result = await response.json();
-      if (!response.ok || result.status !== 'locked') throw new Error(result.message || 'Batch lock gagal.');
+      const result = await fcPost<LockBatchResponse>('/api/fc/locks',
+        { mode, choices: choices.map((choice) => ({ match_id: String(choice.match.info.match_id), market: choice.pick.market, pick: choice.pick.pick, odds: choice.pick.odds })) },
+        { Authorization: `Bearer ${operatorToken}` });
+      if (result.status !== 'locked') throw new Error(result.message || 'Batch lock gagal.');
       if (mode === 'singles') {
         const byId = new Map((result.locks as { id: string; bet_id: number; locked_at: string }[]).map((item) => [item.id, item]));
         updateLocked([...lockedChoices.filter((item) => !byId.has(item.id)), ...choices.map((choice) => ({
