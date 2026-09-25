@@ -125,6 +125,11 @@ def test_batch_singles_is_atomic_and_parlay_is_separate(tmp_path):
     snapshot = json.loads((tmp_path / 'tracker.json').read_text())
     assert snapshot['summary']['manual_locked_picks'] == 2
     assert snapshot['manual_parlay_summary']['pending_slips'] == 1
+    slip_row = snapshot['manual_parlays'][0]
+    assert len(slip_row['legs']) == 2
+    assert {leg['market'] for leg in slip_row['legs']} == {'ou', 'btts'}
+    assert all(leg['result'] == 'pending' for leg in slip_row['legs'])
+    assert all('parlay_id' not in leg for leg in slip_row['legs'])
 
 
 def test_manual_parlay_settlement_multiplies_leg_returns(tmp_path):

@@ -144,8 +144,21 @@ def main():
                       'pushes': 0, 'profit_units': 0.0, 'roi_pct': 0.0, 'hit_rate_pct': 0.0}
     manual_parlays = []
     if conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='parlay_slips'").fetchone():
-        manual_parlays = [dict(r) for r in conn.execute(
+        slips = [dict(r) for r in conn.execute(
             "SELECT id,combined_odds,generated_at,status,profit,settled_at FROM parlay_slips WHERE source='manual_lock' ORDER BY id DESC")]
+        legs_by_slip = {}
+        if conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='parlay_legs'").fetchone():
+            for row in conn.execute(
+                    "SELECT parlay_id, id, match, home, away, league, start_ts, market, pick,"
+                    " odds, result, leg_return, home_score, away_score, settled_at"
+                    " FROM parlay_legs ORDER BY parlay_id, id"):
+                slip_id = row['parlay_id']
+                leg = dict(row)
+                leg.pop('parlay_id', None)
+                legs_by_slip.setdefault(slip_id, []).append(leg)
+        for slip in slips:
+            slip['legs'] = legs_by_slip.get(slip['id'], [])
+        manual_parlays = slips
         finished = [r for r in manual_parlays if r['status'] != 'pending']
         parlay_summary.update({
             'pending_slips': len(manual_parlays) - len(finished), 'settled_slips': len(finished),

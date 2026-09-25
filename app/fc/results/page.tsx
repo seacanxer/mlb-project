@@ -8,8 +8,11 @@
 'use client';
 import { useMemo, useState } from 'react';
 import { useFcPoll } from '@/lib/fc/hooks';
-import type { TrackerResponse } from '@/lib/fc/types';
+import type { ManualParlay, TrackerResponse } from '@/lib/fc/types';
+import { formatProfit } from '@/lib/fc/format';
+import { slipStatusLabel } from '@/lib/fc/parlay';
 import { ByVersionTable, EquityChart, KpiRow, MarketBreakdown, ResultsTable } from '@/components/fc/Results';
+import { ParlayDialog } from '@/components/fc/ParlayDialog';
 import { EmptyState, ErrorBanner, SkeletonRows } from '@/components/fc/shared';
 
 export default function FcResults() {
@@ -18,6 +21,7 @@ export default function FcResults() {
   const [result, setResult] = useState('all');
   const [settling, setSettling] = useState(false);
   const [settleNote, setSettleNote] = useState('');
+  const [slipDetail, setSlipDetail] = useState<ManualParlay | null>(null);
   const offline = data?.engine_offline ?? false;
 
   const runSettle = async () => {
@@ -86,7 +90,17 @@ export default function FcResults() {
       {data?.manual_summary && <div className="card card-sm" style={{ marginBottom: '1rem' }}><strong>Pilihan manual</strong><p className="muted">{data.manual_summary.locked_picks} menunggu hasil · {data.manual_summary.settled_picks} settled · ROI {data.manual_summary.roi_pct.toFixed(2)}%</p></div>}
       {data?.manual_parlay_summary && <div className="card card-sm" style={{ marginBottom: '1rem' }}>
         <strong>Parlay manual</strong><p className="muted">{data.manual_parlay_summary.pending_slips} menunggu hasil · {data.manual_parlay_summary.settled_slips} settled · {data.manual_parlay_summary.wins} menang · {data.manual_parlay_summary.losses} kalah · ROI {data.manual_parlay_summary.roi_pct.toFixed(2)}%</p>
-        {!!data.manual_parlays?.length && <div className="muted">{data.manual_parlays.slice(0, 10).map((slip) => <p key={slip.id}>#{slip.id} · @{slip.combined_odds.toFixed(2)} · {slip.status} · {slip.profit == null ? 'Menunggu skor' : `${slip.profit > 0 ? '+' : ''}${slip.profit.toFixed(2)} unit`}</p>)}</div>}
+        {!!data.manual_parlays?.length && <div className="muted">{data.manual_parlays.slice(0, 10).map((slip) => (
+          <button
+            key={slip.id}
+            type="button"
+            className="fc-slip-link"
+            aria-label={`Detail parlay ${slip.id}`}
+            onClick={() => setSlipDetail(slip)}
+          >
+            #{slip.id} · @{slip.combined_odds.toFixed(2)} · {slipStatusLabel(slip.status)}{slip.profit !== null && ` ${formatProfit(slip.profit)}`} · {(slip.legs?.length ?? 0) || '?'} leg
+          </button>
+        ))}</div>}
       </div>}
 
       {loading && !data ? (
@@ -133,6 +147,7 @@ export default function FcResults() {
           <ByVersionTable rows={data.by_version} />
         </>
       )}
+      <ParlayDialog slip={slipDetail} onClose={() => setSlipDetail(null)} />
     </div>
   );
 }

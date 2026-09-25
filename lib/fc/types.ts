@@ -196,11 +196,42 @@ export interface VersionPerformance {
   ci95_hw_pct: number | null;
 }
 
+export interface ParlayLeg {
+  id?: number;
+  match?: string;
+  home?: string;
+  away?: string;
+  league?: string;
+  /** Unix epoch seconds. */
+  start_ts?: number;
+  market: string;
+  pick: string;
+  odds: number;
+  /** 'pending' | 'won' | 'lost' | 'push'. */
+  result?: string;
+  /** Multiplied return of this leg (1.0 = push). */
+  leg_return?: number | null;
+  home_score?: number | null;
+  away_score?: number | null;
+  settled_at?: string | null;
+}
+
+export interface ManualParlay {
+  id: number;
+  combined_odds: number;
+  generated_at: string;
+  status: string;
+  profit: number | null;
+  settled_at: string | null;
+  /** Frozen legs in kick order; missing on snapshots built before this field existed. */
+  legs?: ParlayLeg[];
+}
+
 export interface TrackerResponse {
   summary: TrackerSummary;
   manual_summary?: TrackerSummary;
   manual_parlay_summary?: { pending_slips: number; settled_slips: number; wins: number; losses: number; pushes: number; profit_units: number; roi_pct: number; hit_rate_pct: number };
-  manual_parlays?: { id: number; combined_odds: number; generated_at: string; status: string; profit: number | null; settled_at: string | null }[];
+  manual_parlays?: ManualParlay[];
   locked: TrackedBet[];
   live: TrackedBet[];
   overdue: TrackedBet[];

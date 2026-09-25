@@ -363,3 +363,15 @@ body:has(.fc-shell) .main-content { max-width: 1460px; padding: 1.5rem 2rem 3rem
 .fc-prediction-foot a { color:#2dd4bf; white-space:nowrap; }
 @media (max-width:800px) { .fc-prediction-body { grid-template-columns:1fr; } }
 @media (max-width:560px) { .fc-predictions-head,.fc-prediction-meta,.fc-prediction-foot { align-items:flex-start; flex-direction:column; } .fc-prediction-markets { grid-template-columns:repeat(2,minmax(0,1fr)); } .fc-prediction-market:nth-child(2) { border-right:0; } .fc-prediction-market:nth-child(-n+2) { border-bottom:1px solid #1b382f; padding-bottom:.6rem; } }
+
+/* Manual parlay: clickable slip row + native <dialog> detail popup. */
+.fc-slip-link { display: block; background: none; border: 0; padding: 0; margin: .2rem 0 0; color: #8bdcb3; font: inherit; font-size: .84rem; text-align: left; text-decoration: underline; text-underline-offset: 3px; }
+.fc-slip-link:hover { color: #5eead4; }
+dialog.fc-slip-dialog { width: min(920px, 94vw); max-height: 86vh; padding: 0; border: 1px solid #275c48; border-radius: 16px; background: #0e1e19; color: #e4ede8; overflow: auto; }
+dialog.fc-slip-dialog::backdrop { background: rgba(4, 12, 9, .72); }
+.fc-slip-body { display: grid; gap: 1rem; padding: 1.2rem 1.3rem; }
+.fc-slip-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.fc-slip-header h2 { margin: 0; font-size: 1.05rem; }
+.fc-slip-meta { display: flex; flex-wrap: wrap; gap: .5rem 1.4rem; font-size: .82rem; color: #91a99f; align-items: center; }
+.fc-slip-meta strong { color: #e4ede8; }
+.fc-slip-meta code { color: #91a99f; }

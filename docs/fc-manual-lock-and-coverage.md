@@ -35,8 +35,12 @@ separate exposures. Repeating the identical parlay returns its existing slip.
 The FC settlement job settles manual parlay slips after every leg has a final
 score. Each leg's gross return is multiplied; a push returns 1, half loss 0.5,
 and half win `(odds + 1) / 2`. The tracker exposes
-`manual_parlay_summary` and `manual_parlays` in the Hasil & ROI page. The VPS
-must run the updated `scripts/fc-settle-live.py` and `scripts/fc-snapshot.py`.
+`manual_parlay_summary` and `manual_parlays` in the Hasil & ROI page. Each
+entry in `manual_parlays` embeds its frozen `legs` (kickoff, league, match,
+market, pick, odds, FT score, per-leg result and multiplied return), so the
+page can open a detail popup for a slip without re-querying the ledger. The
+VPS must run the updated `scripts/fc-settle-live.py` and
+`scripts/fc-snapshot.py`.
 For legs from one match, the combined odds are a theoretical record and may
 not be offered or priced the same way by a bookmaker.
 
