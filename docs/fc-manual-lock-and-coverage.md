@@ -49,11 +49,15 @@ not be offered or priced the same way by a bookmaker.
 The Hasil & ROI page has an active **Refresh settlement** button
 (`POST /api/fc/settle`). It shells out to `scripts/fc-settle-live.py` with the
 engine interpreter (VPS venv, else `FC_PYTHON`, else system python), waits up
-to three minutes, then returns a message while the page re-reads
-`tracker_snapshot.json`. The button is disabled only while the engine is
-offline (`picks.json` and `matches_detailed.json` both missing) and requires
-the same `FC_LOCK_TOKEN` bearer token as the lock API when that token is
-configured.
+to three minutes, then ALWAYS rebuilds `tracker_snapshot.json` with
+`scripts/fc-snapshot.py` — so `manual_parlays[].legs` and the KPI cards stay
+fresh even when a score feed is unreachable (the settle script only rebuilds
+the snapshot on its own success path). A partial result returns HTTP 200 with
+`status: "partial"` and an honest message: snapshot updated, settlement
+failed. The page then re-reads the tracker. The button is disabled only while
+the engine is offline (`picks.json` and `matches_detailed.json` both missing)
+and requires the same `FC_LOCK_TOKEN` bearer token as the lock API when that
+token is configured.
 
 Nothing in the repository schedules settlement, so refresh it manually or add
 a cron job on the VPS:

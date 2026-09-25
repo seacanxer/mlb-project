@@ -9,14 +9,17 @@ import { promisify } from 'node:util';
  * POST /api/fc/settle — refresh settlement from the results feeds.
  *
  * Runs scripts/fc-settle-live.py (FlashScore → TheSportsDB/OpenLigaDB, then
- * payout math + fc-snapshot.py), so tracker_snapshot.json carries fresh
- * `settled`, `manual_summary` and `manual_parlay_summary` for the Hasil & ROI
- * page. Same operator token gate as /api/fc/locks when FC_LOCK_TOKEN is
- * configured; without a token (local dev) the lock API is closed anyway.
+ * payout math), then ALWAYS rebuilds tracker_snapshot.json with
+ * scripts/fc-snapshot.py — so `manual_parlays[].legs` and the KPI cards stay
+ * fresh even when a score feed fails (the settle script only rebuilds the
+ * snapshot on its own success path). Same operator token gate as
+ * /api/fc/locks when FC_LOCK_TOKEN is configured; without a token (local
+ * dev) the lock API is closed anyway.
  */
 export const dynamic = 'force-dynamic';
 const run = promisify(execFile);
 const TIMEOUT_MS = 180000;
+const SNAPSHOT_TIMEOUT_MS = 60000;
 
 interface SettleSummary {
   status?: string;
@@ -76,6 +79,17 @@ async function settle(): Promise<{ status: string; message: string; summary: Set
   }
 }
 
+/** Rebuild tracker_snapshot.json regardless of feed availability. */
+async function refreshSnapshot(): Promise<void> {
+  const script = path.join(process.cwd(), 'scripts', 'fc-snapshot.py');
+  const db = path.join(process.cwd(), 'betting-machine-fc', 'bets.db');
+  try {
+    await run(settlePython(), [script, '--db', db], { timeout: SNAPSHOT_TIMEOUT_MS, maxBuffer: 1024 * 1024 });
+  } catch (error) {
+    throw new Error(`Snapshot gagal diperbarui: ${error instanceof Error ? error.message : 'error'}`);
+  }
+}
+
 export async function GET() {
   return NextResponse.json({ running, last });
 }
@@ -89,19 +103,43 @@ export async function POST(request: Request) {
   }
   running = true;
   try {
-    const { status, message, summary } = await settle();
-    last = { at: new Date().toISOString(), status, message };
-    return NextResponse.json({
-      status,
-      message,
+    let settleError: Error | null = null;
+    let summary: SettleSummary = {};
+    try {
+      const result = await settle();
+      summary = result.summary;
+    } catch (error) {
+      settleError = error instanceof Error ? error : new Error('Settlement gagal.');
+    }
+
+    let snapshotError: Error | null = null;
+    try {
+      await refreshSnapshot();
+    } catch (error) {
+      snapshotError = error instanceof Error ? error : new Error('Snapshot gagal diperbarui.');
+    }
+
+    if (settleError && snapshotError) {
+      const message = `${settleError.message} ${snapshotError.message}`;
+      last = { at: new Date().toISOString(), status: 'error', message };
+      return NextResponse.json({ status: 'error', message }, { status: 502 });
+    }
+
+    const base = {
       settled: summary.settled ?? 0,
       parlay_settled: summary.parlay_settled ?? 0,
       remaining: summary.remaining ?? summary.pending ?? 0,
-    });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Settlement gagal.';
-    last = { at: new Date().toISOString(), status: 'error', message };
-    return NextResponse.json({ status: 'error', message }, { status: 502 });
+    };
+    if (settleError) {
+      // Snapshot rebuilt anyway: parlay legs and cards are fresh, scores are not.
+      const message = `Snapshot tracker diperbarui, tetapi settlement gagal: ${settleError.message}`;
+      last = { at: new Date().toISOString(), status: 'partial', message };
+      return NextResponse.json({ status: 'partial', message, ...base });
+    }
+    const warning = snapshotError ? ` ⚠ ${snapshotError.message}` : '';
+    const message = `${summaryMessage(summary)}${warning}`;
+    last = { at: new Date().toISOString(), status: 'done', message };
+    return NextResponse.json({ status: 'done', message, ...base });
   } finally {
     running = false;
   }
