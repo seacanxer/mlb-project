@@ -38,7 +38,9 @@ test.describe('FC Picks navigation', () => {
 
   test('settle trigger reflects engine availability', async ({ page }) => {
     await page.goto('/fc/results');
-    await expect(page.getByRole('button', { name: /Refresh settlement/ })).toBeVisible();
+    const trigger = page.getByRole('button', { name: /Refresh settlement/ });
+    await expect(trigger).toBeVisible();
+    await expect(trigger).toBeEnabled();
   });
 
   test('schedule has a scan button', async ({ page }) => {

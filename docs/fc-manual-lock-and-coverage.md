@@ -40,6 +40,28 @@ must run the updated `scripts/fc-settle-live.py` and `scripts/fc-snapshot.py`.
 For legs from one match, the combined odds are a theoretical record and may
 not be offered or priced the same way by a bookmaker.
 
+## Refreshing settlement from the UI
+
+The Hasil & ROI page has an active **Refresh settlement** button
+(`POST /api/fc/settle`). It shells out to `scripts/fc-settle-live.py` with the
+engine interpreter (VPS venv, else `FC_PYTHON`, else system python), waits up
+to three minutes, then returns a message while the page re-reads
+`tracker_snapshot.json`. The button is disabled only while the engine is
+offline (`picks.json` and `matches_detailed.json` both missing) and requires
+the same `FC_LOCK_TOKEN` bearer token as the lock API when that token is
+configured.
+
+Nothing in the repository schedules settlement, so refresh it manually or add
+a cron job on the VPS:
+
+```bash
+*/10 * * * * cd /path/to/repo && ./betting-machine-fc/venv/bin/python scripts/fc-settle-live.py >> /tmp/fc-settle.log 2>&1
+```
+
+A slip stays `pending` ("Menunggu skor") until every leg reports a final score
+and at least 1h45m have passed since kickoff; feeds are FlashScore first, then
+TheSportsDB/OpenLigaDB for major leagues.
+
 ## Why the 2026-09-25 scan showed 401 unsupported fixtures
 
 The snapshot contains 437 fixtures and 424 without projections: 401 have no

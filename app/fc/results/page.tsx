@@ -16,6 +16,31 @@ export default function FcResults() {
   const { data, loading, error, refresh } = useFcPoll<TrackerResponse>('/api/fc/tracker', 60000);
   const [market, setMarket] = useState('all');
   const [result, setResult] = useState('all');
+  const [settling, setSettling] = useState(false);
+  const [settleNote, setSettleNote] = useState('');
+  const offline = data?.engine_offline ?? false;
+
+  const runSettle = async () => {
+    setSettling(true);
+    setSettleNote('Mengambil skor final dan menyelesaikan pick/parlay…');
+    try {
+      let token = '';
+      try { token = sessionStorage.getItem('fc-lock-operator-token') || ''; } catch { /* Session storage is optional. */ }
+      const res = await fetch('/api/fc/settle', {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        cache: 'no-store',
+      });
+      const body = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(body?.message || `Settlement gagal (${res.status}).`);
+      setSettleNote(body?.message || 'Settlement diperbarui.');
+      refresh();
+    } catch (err) {
+      setSettleNote(err instanceof Error ? err.message : 'Settlement gagal.');
+    } finally {
+      setSettling(false);
+    }
+  };
 
   const settled = useMemo(() => {
     const rows = data?.settled ?? [];
@@ -43,13 +68,19 @@ export default function FcResults() {
         <div className="fc-scanrow">
           <button
             className="btn btn-ghost"
-            disabled
-            title="Engine offline — refresh settlement aktif lagi setelah engine direstore di VPS."
+            disabled={offline || settling}
+            aria-busy={settling}
+            onClick={() => void runSettle()}
+            title={offline
+              ? 'Engine offline — refresh settlement aktif lagi setelah engine direstore di VPS.'
+              : 'Ambil skor final lalu settle pick dan parlay manual (fc-settle-live.py).'}
           >
-            ↻ Refresh settlement (offline)
+            {settling ? '↻ Refresh settlement…' : offline ? '↻ Refresh settlement (offline)' : '↻ Refresh settlement'}
           </button>
         </div>
       </div>
+
+      {settleNote && <p className="muted" role="status" style={{ marginBottom: '1rem' }}>{settleNote}</p>}
 
       {error && <ErrorBanner message={error} onRetry={refresh} />}
       {data?.manual_summary && <div className="card card-sm" style={{ marginBottom: '1rem' }}><strong>Pilihan manual</strong><p className="muted">{data.manual_summary.locked_picks} menunggu hasil · {data.manual_summary.settled_picks} settled · ROI {data.manual_summary.roi_pct.toFixed(2)}%</p></div>}
