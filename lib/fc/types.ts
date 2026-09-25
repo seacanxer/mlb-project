@@ -199,6 +199,8 @@ export interface VersionPerformance {
 export interface TrackerResponse {
   summary: TrackerSummary;
   manual_summary?: TrackerSummary;
+  manual_parlay_summary?: { pending_slips: number; settled_slips: number; wins: number; losses: number; pushes: number; profit_units: number; roi_pct: number; hit_rate_pct: number };
+  manual_parlays?: { id: number; combined_odds: number; generated_at: string; status: string; profit: number | null; settled_at: string | null }[];
   locked: TrackedBet[];
   live: TrackedBet[];
   overdue: TrackedBet[];

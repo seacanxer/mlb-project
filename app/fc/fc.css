@@ -126,6 +126,11 @@ body:has(.fc-shell) .main-content { max-width: 1460px; padding: 1.5rem 2rem 3rem
 .watchlist-total { display: flex; justify-content: space-between; padding-top: .8rem; border-top: 1px solid #244237; font-size: .75rem; color: #91a99f; }
 .watchlist-total strong { color: #e4ede8; }
 .watchlist-note { font-size: .64rem; color: #91a99f; margin: .65rem 0 .9rem; }
+.watchlist-batch-actions { display: grid; grid-template-columns: 1fr 1fr; gap: .45rem; margin-top: .8rem; }
+.watchlist-batch-actions button { padding: .65rem .35rem; border: 1px solid #326e4c; border-radius: 8px; background: #19382a; color: #7ee0b8; font-size: .65rem; font-weight: 600; cursor: pointer; }
+.watchlist-batch-actions button:disabled { opacity: .45; cursor: not-allowed; }
+.watchlist-parlays { margin-top: .8rem; padding: .65rem; border: 1px solid #28523d; border-radius: 8px; color: #c6ddcf; font-size: .65rem; }
+.watchlist-parlays p { margin: .45rem 0 0; color: #9fcbb4; }
 .prediction-copy { width: 100%; padding: .7rem .4rem; border-radius: 9px; border: 1px solid #28523d; color: #7ee0b8; background: #19382a; font-size: .69rem; font-weight: 600; }
 .prediction-feedback { font-size: .68rem; color: #aed9c4; margin: .5rem 0 0; }
 .prediction-feedback:empty { display: none; }

@@ -10,6 +10,7 @@ Flow:
 Run: betting-machine-fc/venv/bin/python scripts/fc-settle-live.py
 """
 import json
+import math
 import os
 import sys
 import time
@@ -80,6 +81,43 @@ def result_for_bet(home, away, kickoff_ts, lookup_fs, lookup_alt):
     return None
 
 
+def settle_manual_parlays(conn, now, lookup_fs, lookup_alt):
+    """Settle each manual slip as one unit; leg payouts multiply, including half results."""
+    if not conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='parlay_slips'").fetchone():
+        return 0
+    slips = conn.execute("SELECT id FROM parlay_slips WHERE source='manual_lock' AND status='pending'").fetchall()
+    count = 0
+    for slip in slips:
+        legs = conn.execute('SELECT * FROM parlay_legs WHERE parlay_id=? ORDER BY id', (slip['id'],)).fetchall()
+        if not legs or any(leg['start_ts'] > now - SETTLE_DELAY_S for leg in legs):
+            continue
+        outcomes = []
+        for leg in legs:
+            score = result_for_bet(leg['home'], leg['away'], leg['start_ts'], lookup_fs, lookup_alt)
+            if not score:
+                break
+            home_goals, away_goals, _ = score
+            outcome = settle_bet(leg['market'], leg['pick'], leg['odds'], home_goals, away_goals)
+            if outcome is None:
+                break
+            won, profit = outcome
+            outcomes.append((leg['id'], won, profit, home_goals, away_goals))
+        if len(outcomes) != len(legs):
+            continue
+        gross = math.prod(1 + item[2] for item in outcomes)
+        profit = round(gross - 1, 4)
+        status = 'won' if profit > 0 else 'lost' if profit < 0 else 'push'
+        settled_at = datetime.now(timezone.utc).isoformat()
+        for leg_id, won, leg_profit, home_goals, away_goals in outcomes:
+            conn.execute('''UPDATE parlay_legs SET result=?,leg_return=?,home_score=?,away_score=?,settled_at=? WHERE id=?''',
+                         ('push' if won is None else 'won' if won else 'lost', 1 + leg_profit,
+                          home_goals, away_goals, settled_at, leg_id))
+        conn.execute('UPDATE parlay_slips SET status=?,profit=?,settled_at=? WHERE id=?',
+                     (status, profit, settled_at, slip['id']))
+        count += 1
+    return count
+
+
 def main():
     if not os.path.exists(DB_PATH):
         print(json.dumps({'status': 'error', 'message': 'bets.db missing'}))
@@ -94,7 +132,8 @@ def main():
         (now - SETTLE_DELAY_S,),
     ).fetchall()
 
-    if not unsettled:
+    pending_parlays = conn.execute("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='parlay_slips'").fetchone()[0] and conn.execute("SELECT COUNT(*) FROM parlay_slips WHERE source='manual_lock' AND status='pending'").fetchone()[0]
+    if not unsettled and not pending_parlays:
         print(json.dumps({'status': 'ok', 'settled': 0, 'pending': 0}))
         return 0
 
@@ -120,6 +159,7 @@ def main():
         )
         settled_count += 1
 
+    parlay_settled = settle_manual_parlays(conn, now, lookup_fs_idx, lookup_alt_idx)
     conn.commit()
     remaining = conn.execute('SELECT COUNT(*) c FROM bets WHERE settled=0').fetchone()['c']
     conn.close()
@@ -128,7 +168,7 @@ def main():
 
     print(json.dumps({
         'status': 'ok', 'settled': settled_count,
-        'to_settle': len(unsettled), 'remaining': remaining,
+        'to_settle': len(unsettled), 'remaining': remaining, 'parlay_settled': parlay_settled,
     }))
     return 0
 

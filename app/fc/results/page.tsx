@@ -53,6 +53,10 @@ export default function FcResults() {
 
       {error && <ErrorBanner message={error} onRetry={refresh} />}
       {data?.manual_summary && <div className="card card-sm" style={{ marginBottom: '1rem' }}><strong>Pilihan manual</strong><p className="muted">{data.manual_summary.locked_picks} menunggu hasil · {data.manual_summary.settled_picks} settled · ROI {data.manual_summary.roi_pct.toFixed(2)}%</p></div>}
+      {data?.manual_parlay_summary && <div className="card card-sm" style={{ marginBottom: '1rem' }}>
+        <strong>Parlay manual</strong><p className="muted">{data.manual_parlay_summary.pending_slips} menunggu hasil · {data.manual_parlay_summary.settled_slips} settled · {data.manual_parlay_summary.wins} menang · {data.manual_parlay_summary.losses} kalah · ROI {data.manual_parlay_summary.roi_pct.toFixed(2)}%</p>
+        {!!data.manual_parlays?.length && <div className="muted">{data.manual_parlays.slice(0, 10).map((slip) => <p key={slip.id}>#{slip.id} · @{slip.combined_odds.toFixed(2)} · {slip.status} · {slip.profit == null ? 'Menunggu skor' : `${slip.profit > 0 ? '+' : ''}${slip.profit.toFixed(2)} unit`}</p>)}</div>}
+      </div>}
 
       {loading && !data ? (
         <SkeletonRows rows={6} label="Memuat hasil…" />

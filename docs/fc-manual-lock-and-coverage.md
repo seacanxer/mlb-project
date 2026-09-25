@@ -21,6 +21,25 @@ Browser-only locks created before this change remain visible as **belum masuk
 settlement**. They require a new server lock while the fixture and quote are
 still current. They are never backdated into the ledger.
 
+## Batch single and parlay locks
+
+The watchlist now offers **Kunci semua sebagai single** and **Kunci sebagai
+parlay**. A batch validates every current fixture, quote and price before one
+database transaction, so an invalid leg cannot leave a partial single batch.
+Parlay requires at least two legs and writes one manual slip with frozen legs
+and theoretical multiplied odds to `parlay_slips` and `parlay_legs`. It does not
+insert the legs into `bets`; single and parlay stakes and ROI remain separate.
+The same selection may intentionally be locked in both modes and is then two
+separate exposures. Repeating the identical parlay returns its existing slip.
+
+The FC settlement job settles manual parlay slips after every leg has a final
+score. Each leg's gross return is multiplied; a push returns 1, half loss 0.5,
+and half win `(odds + 1) / 2`. The tracker exposes
+`manual_parlay_summary` and `manual_parlays` in the Hasil & ROI page. The VPS
+must run the updated `scripts/fc-settle-live.py` and `scripts/fc-snapshot.py`.
+For legs from one match, the combined odds are a theoretical record and may
+not be offered or priced the same way by a bookmaker.
+
 ## Why the 2026-09-25 scan showed 401 unsupported fixtures
 
 The snapshot contains 437 fixtures and 424 without projections: 401 have no

@@ -140,6 +140,25 @@ def main():
         if manual_wins + manual_losses else 0.0,
     }
 
+    parlay_summary = {'pending_slips': 0, 'settled_slips': 0, 'wins': 0, 'losses': 0,
+                      'pushes': 0, 'profit_units': 0.0, 'roi_pct': 0.0, 'hit_rate_pct': 0.0}
+    manual_parlays = []
+    if conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='parlay_slips'").fetchone():
+        manual_parlays = [dict(r) for r in conn.execute(
+            "SELECT id,combined_odds,generated_at,status,profit,settled_at FROM parlay_slips WHERE source='manual_lock' ORDER BY id DESC")]
+        finished = [r for r in manual_parlays if r['status'] != 'pending']
+        parlay_summary.update({
+            'pending_slips': len(manual_parlays) - len(finished), 'settled_slips': len(finished),
+            'wins': sum(r['status'] == 'won' for r in finished),
+            'losses': sum(r['status'] == 'lost' for r in finished),
+            'pushes': sum(r['status'] == 'push' for r in finished),
+            'profit_units': round(sum(r['profit'] or 0 for r in finished), 2),
+        })
+        n = len(finished)
+        decided = parlay_summary['wins'] + parlay_summary['losses']
+        parlay_summary['roi_pct'] = round(parlay_summary['profit_units'] / n * 100, 2) if n else 0.0
+        parlay_summary['hit_rate_pct'] = round(parlay_summary['wins'] / decided * 100, 2) if decided else 0.0
+
     mkt_rows = conn.execute(
         CANONICAL_CTE + """SELECT market, COUNT(*) AS bets,
                SUM(CASE WHEN won=1 THEN 1 ELSE 0 END) AS wins,
@@ -196,6 +215,8 @@ def main():
     snap = {
         'summary': summary,
         'manual_summary': manual_summary,
+        'manual_parlay_summary': parlay_summary,
+        'manual_parlays': manual_parlays,
         'locked': buckets['locked'], 'live': buckets['live'],
         'overdue': buckets['overdue'], 'settled': buckets['settled'],
         'status_counts': {k: len(v) for k, v in buckets.items()},

@@ -92,3 +92,67 @@ def test_settlement_counts_push_and_quarter_handicap_correctly():
     assert settle('ou', 'Over 2.0', 1.9, 2, 0) == (None, 0.0)
     assert settle('ah', 'AH Away +0.25', 1.9, 1, 1) == (1, 0.45)
     assert settle('ah', 'AH Home -0.25', 1.9, 1, 1) == (0, -0.5)
+
+
+def test_batch_singles_is_atomic_and_parlay_is_separate(tmp_path):
+    db, env, _ = run_lock(tmp_path)
+    matches_path = Path(env['FC_MATCHES_PATH'])
+    fixture = json.loads(matches_path.read_text())[0]
+    fixture['market_options'].append({'market': 'btts', 'pick': 'BTTS Yes', 'odds': 1.8,
+                                      'probability': 0.55, 'ev': 0.03,
+                                      'quote_captured_at': time.time() - 30})
+    matches_path.write_text(json.dumps([fixture]))
+    choices = [{'match_id': 'fixture-1', 'market': 'ou', 'pick': 'Over 2.5', 'odds': 1.91},
+               {'match_id': 'fixture-1', 'market': 'btts', 'pick': 'BTTS Yes', 'odds': 1.8}]
+    def batch(mode, entries):
+        return subprocess.run([sys.executable, str(SCRIPT), 'batch', '--payload',
+                               json.dumps({'mode': mode, 'choices': entries})],
+                              env=env, capture_output=True, text=True)
+    bad = batch('singles', [choices[0], {**choices[1], 'odds': 1.7}])
+    assert bad.returncode != 0
+    with sqlite3.connect(db) as conn:
+        assert conn.execute('SELECT COUNT(*) FROM bets').fetchone()[0] == 0
+    singles = batch('singles', choices)
+    assert singles.returncode == 0, singles.stdout
+    assert len(json.loads(singles.stdout)['locks']) == 2
+    slip = batch('parlay', choices)
+    assert slip.returncode == 0, slip.stdout
+    assert json.loads(slip.stdout)['odds'] == 1.91 * 1.8
+    with sqlite3.connect(db) as conn:
+        assert conn.execute('SELECT COUNT(*) FROM bets').fetchone()[0] == 2
+        assert conn.execute('SELECT COUNT(*) FROM parlay_slips').fetchone()[0] == 1
+        assert conn.execute('SELECT COUNT(*) FROM parlay_legs').fetchone()[0] == 2
+    snapshot = json.loads((tmp_path / 'tracker.json').read_text())
+    assert snapshot['summary']['manual_locked_picks'] == 2
+    assert snapshot['manual_parlay_summary']['pending_slips'] == 1
+
+
+def test_manual_parlay_settlement_multiplies_leg_returns(tmp_path):
+    db, env, _ = run_lock(tmp_path)
+    matches_path = Path(env['FC_MATCHES_PATH'])
+    fixture = json.loads(matches_path.read_text())[0]
+    fixture['market_options'].append({'market': 'btts', 'pick': 'BTTS Yes', 'odds': 1.8,
+                                      'probability': 0.55, 'ev': 0.03,
+                                      'quote_captured_at': time.time() - 30})
+    matches_path.write_text(json.dumps([fixture]))
+    payload = {'mode': 'parlay', 'choices': [
+        {'match_id': 'fixture-1', 'market': 'ou', 'pick': 'Over 2.5', 'odds': 1.91},
+        {'match_id': 'fixture-1', 'market': 'btts', 'pick': 'BTTS Yes', 'odds': 1.8}]}
+    created = subprocess.run([sys.executable, str(SCRIPT), 'batch', '--payload', json.dumps(payload)],
+                             env=env, capture_output=True, text=True)
+    assert created.returncode == 0, created.stdout
+    with sqlite3.connect(db) as conn:
+        conn.execute('UPDATE parlay_legs SET start_ts=1000')
+        conn.commit()
+        conn.row_factory = sqlite3.Row
+        settle = runpy.run_path(str(ROOT / 'scripts' / 'fc-settle-live.py'))['settle_manual_parlays']
+        import scores_flashscore
+        old = scores_flashscore.find_result
+        scores_flashscore.find_result = lambda *args: {'score_status': 'final', 'home_score': 2, 'away_score': 1}
+        try:
+            assert settle(conn, time.time(), {}, {}) == 1
+        finally:
+            scores_flashscore.find_result = old
+        status, profit = conn.execute('SELECT status,profit FROM parlay_slips WHERE id=1').fetchone()
+        assert status == 'won'
+        assert round(profit, 2) == round(1.91 * 1.8 - 1, 2)

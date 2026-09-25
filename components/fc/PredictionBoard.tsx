@@ -9,6 +9,7 @@ import { splitLeague } from '@/lib/fc/grouping';
 export type BoardView = 'all' | 'ready' | 'model' | 'value' | 'unavailable' | 'saved';
 type Choice = { match: DetailedMatch; pick: ForecastPick; id: string };
 type LockedChoice = Choice & { lockedAt: string; settlementId?: number };
+type LockedParlay = { id: number; odds: number; lockedAt: string; status: string; profit?: number | null; legs: { source_match_id: string; market: string; pick: string; home: string; away: string }[] };
 const choiceId = (match: DetailedMatch, pick: ForecastPick) => `${matchKey(match)}|${pick.market}|${pick.pick}`;
 const STORAGE_KEY = 'fc-prediction-watchlist-v2';
 const LOCK_STORAGE_KEY = 'fc-prediction-locked-v1';
@@ -95,6 +96,8 @@ export function PredictionBoard({ matches, initialView = 'all', marketScope = 'a
   const [page, setPage] = useState(0);
   const [saved, setSaved] = useState<string[]>([]);
   const [lockedChoices, setLockedChoices] = useState<LockedChoice[]>([]);
+  const [parlays, setParlays] = useState<LockedParlay[]>([]);
+  const [locking, setLocking] = useState(false);
   const [operatorToken, setOperatorToken] = useState('');
   const [tokenDraft, setTokenDraft] = useState('');
   const [message, setMessage] = useState('');
@@ -115,6 +118,7 @@ export function PredictionBoard({ matches, initialView = 'all', marketScope = 'a
         if (!response.ok) throw new Error(result.message || 'Gagal memuat lock settlement.');
         if (!active) return;
         const server = (result.locks || []) as LockedChoice[];
+        setParlays((result.parlays || []) as LockedParlay[]);
         setLockedChoices((previous) => {
           const ids = new Set(server.map((choice) => choice.id));
           const next = [...previous.filter((choice) => !choice.settlementId && !ids.has(choice.id)), ...server];
@@ -152,6 +156,36 @@ export function PredictionBoard({ matches, initialView = 'all', marketScope = 'a
       }]);
       setMessage(`Pick masuk settlement sebagai #${result.bet_id}. Odds @${formatOdds(choice.pick.odds)} dikunci.`);
     } catch (error) { setMessage(error instanceof Error ? error.message : 'Lock settlement gagal.'); }
+  };
+  const lockBatch = async (mode: 'singles' | 'parlay') => {
+    if (!operatorToken) { setMessage('Masukkan token operator sebelum mengunci pilihan.'); return; }
+    const choices = savedChoices.filter((choice) => !lockedIds.has(choice.id));
+    if (mode === 'parlay' && choices.length < 2) { setMessage('Parlay membutuhkan sedikitnya dua pilihan belum dikunci.'); return; }
+    if (!choices.length) { setMessage('Tidak ada pilihan baru untuk dikunci.'); return; }
+    if (choices.some((choice) => !choice.match.info.match_id)) { setMessage('Ada fixture tanpa ID provider.'); return; }
+    setLocking(true);
+    try {
+      const response = await fetch('/api/fc/locks', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${operatorToken}` },
+        body: JSON.stringify({ mode, choices: choices.map((choice) => ({ match_id: String(choice.match.info.match_id), market: choice.pick.market, pick: choice.pick.pick, odds: choice.pick.odds })) }),
+      });
+      const result = await response.json();
+      if (!response.ok || result.status !== 'locked') throw new Error(result.message || 'Batch lock gagal.');
+      if (mode === 'singles') {
+        const byId = new Map((result.locks as { id: string; bet_id: number; locked_at: string }[]).map((item) => [item.id, item]));
+        updateLocked([...lockedChoices.filter((item) => !byId.has(item.id)), ...choices.map((choice) => ({
+          ...choice, lockedAt: byId.get(choice.id)!.locked_at, settlementId: byId.get(choice.id)!.bet_id,
+        }))]);
+        setMessage(`${choices.length} pick dikunci ke settlement sebagai single.`);
+      } else {
+        const slip: LockedParlay = { id: result.parlay_id, odds: result.odds, lockedAt: result.locked_at,
+          status: 'pending', legs: choices.map((choice) => ({ source_match_id: String(choice.match.info.match_id),
+            market: choice.pick.market, pick: choice.pick.pick, home: choice.match.info.home || '', away: choice.match.info.away || '' })) };
+        setParlays((previous) => [slip, ...previous.filter((item) => item.id !== slip.id)]);
+        setMessage(`Parlay #${slip.id} dikunci dengan ${choices.length} leg. Odds gabungan teoretis @${formatOdds(slip.odds)}.`);
+      }
+    } catch (error) { setMessage(error instanceof Error ? error.message : 'Batch lock gagal.'); }
+    finally { setLocking(false); }
   };
   const scopedMatches = marketScope === 'top' ? matches.filter(isTopMarketLeague) : matches;
   const savedChoices = useMemo(() => {
@@ -216,8 +250,11 @@ export function PredictionBoard({ matches, initialView = 'all', marketScope = 'a
       <aside className="prediction-sidebar">
         <section className="prediction-watchlist"><header><div><span className="prediction-eyebrow">PILIHAN ANDA</span><h2>Watchlist pertandingan</h2></div><button type="button" disabled={!saved.some((id) => !lockedIds.has(id))} onClick={() => updateSaved(saved.filter((id) => lockedIds.has(id)))}>Reset</button></header>
           <form className="watchlist-token" onSubmit={(event) => { event.preventDefault(); const token = tokenDraft.trim(); setOperatorToken(token); try { sessionStorage.setItem('fc-lock-operator-token', token); } catch { /* Session state remains available. */ } }}><label htmlFor="fc-lock-token">Token operator settlement</label><div><input id="fc-lock-token" type="password" autoComplete="off" value={tokenDraft} onChange={(event) => setTokenDraft(event.target.value)} placeholder="Masukkan token operator" /><button type="submit">Hubungkan</button></div></form>
-          {!savedChoices.length ? <div className="watchlist-empty"><span aria-hidden="true">☆</span><p>Mulai dari satu pilihan.</p><small>Klik pasar pada kartu pertandingan untuk menyimpannya di sini.</small></div> : <ul>{savedChoices.map((choice) => { const { match, pick, id } = choice; const locked = lockedChoices.find((item) => item.id === id); const confirmed = Boolean(locked?.settlementId); return <li key={id}>{!locked && <button type="button" className="watchlist-remove" aria-label={`Hapus ${pickLabel(pick, match)}`} onClick={() => updateSaved(saved.filter((v) => v !== id))}>×</button>}<strong>{match.info.home} vs {match.info.away}</strong><span>{pickLabel(pick, match)} <b>@{formatOdds(pick.odds)}</b></span><small>{formatKickoffWIB(match.info.start_ts)}</small><div className="watchlist-lock-row"><span>{confirmed ? `🔒 Settlement #${locked?.settlementId} · ${new Date(locked!.lockedAt).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })} WIB` : locked ? 'Lock lama di perangkat · belum masuk settlement' : 'Belum dikunci'}</span>{!confirmed && <button type="button" onClick={() => void lock(choice)}>Kunci ke settlement</button>}</div>{locked && !confirmed && <button type="button" className="watchlist-legacy-remove" onClick={() => { updateLocked(lockedChoices.filter((item) => item.id !== id)); updateSaved(saved.filter((item) => item !== id)); }}>Hapus lock lama</button>}</li>; })}</ul>}
-          <div className="watchlist-total"><span>Total pilihan</span><strong>{savedChoices.length} · {lockedChoices.filter((choice) => choice.settlementId).length} settlement</strong></div><p className="watchlist-note">Lock settlement menyimpan pick dan odds di server sebelum kickoff. Lock bersifat final dan dihitung dalam hasil serta ROI setelah skor final tersedia. Proyeksi yang dikunci manual tetap bukan Official.</p><button type="button" className="prediction-copy" disabled={!savedChoices.length} onClick={copy}>Salin ringkasan pilihan ↗</button><p role="status" className="prediction-feedback">{message}</p>
+          {!savedChoices.length ? <div className="watchlist-empty"><span aria-hidden="true">☆</span><p>Mulai dari satu pilihan.</p><small>Klik pasar pada kartu pertandingan untuk menyimpannya di sini.</small></div> : <ul>{savedChoices.map((choice) => { const { match, pick, id } = choice; const locked = lockedChoices.find((item) => item.id === id); const confirmed = Boolean(locked?.settlementId); const slipIds = parlays.filter((slip) => slip.legs.some((leg) => `${leg.source_match_id}|${leg.market}|${leg.pick}` === id)).map((slip) => slip.id); return <li key={id}>{!locked && <button type="button" className="watchlist-remove" aria-label={`Hapus ${pickLabel(pick, match)}`} onClick={() => updateSaved(saved.filter((v) => v !== id))}>×</button>}<strong>{match.info.home} vs {match.info.away}</strong><span>{pickLabel(pick, match)} <b>@{formatOdds(pick.odds)}</b></span><small>{formatKickoffWIB(match.info.start_ts)}</small><div className="watchlist-lock-row"><span>{confirmed ? `🔒 Settlement single #${locked?.settlementId} · ${new Date(locked!.lockedAt).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })} WIB` : locked ? 'Lock lama di perangkat · belum masuk settlement' : slipIds.length ? `🔒 Parlay #${slipIds.join(', #')}` : 'Belum dikunci'}</span>{!confirmed && <button type="button" onClick={() => void lock(choice)}>Kunci sebagai single</button>}</div>{locked && !confirmed && <button type="button" className="watchlist-legacy-remove" onClick={() => { updateLocked(lockedChoices.filter((item) => item.id !== id)); updateSaved(saved.filter((item) => item !== id)); }}>Hapus lock lama</button>}</li>; })}</ul>}
+          <div className="watchlist-total"><span>Total pilihan</span><strong>{savedChoices.length} · {lockedChoices.filter((choice) => choice.settlementId).length} single · {parlays.length} parlay</strong></div>
+          <div className="watchlist-batch-actions"><button type="button" disabled={locking || !savedChoices.some((choice) => !lockedIds.has(choice.id))} onClick={() => void lockBatch('singles')}>Kunci semua sebagai single</button><button type="button" disabled={locking || savedChoices.filter((choice) => !lockedIds.has(choice.id)).length < 2} onClick={() => void lockBatch('parlay')}>Kunci sebagai parlay</button></div>
+          {parlays.length > 0 && <div className="watchlist-parlays"><strong>Parlay terkunci</strong>{parlays.slice(0, 5).map((slip) => <p key={slip.id}>#{slip.id} · {slip.legs.length} leg · @{formatOdds(slip.odds)} · {slip.status}{slip.profit != null ? ` · ${slip.profit > 0 ? '+' : ''}${slip.profit} unit` : ''}</p>)}</div>}
+          <p className="watchlist-note">Single dan parlay dicatat serta dihitung terpisah. Lock final sebelum kickoff. Odds parlay adalah perkalian teoretis; beberapa pilihan dalam satu match dapat berkorelasi dan mungkin tidak tersedia sebagai parlay di bookmaker. Lock manual tetap bukan Official.</p><button type="button" className="prediction-copy" disabled={!savedChoices.length} onClick={copy}>Salin ringkasan pilihan ↗</button><p role="status" className="prediction-feedback">{message}</p>
         </section>
         <section className="prediction-guide"><span className="prediction-eyebrow">MEMBACA HASIL</span><h3>Analisis dan kandidat</h3><p><b>Kandidat value</b> memenuhi gate odds 1,60–2,50 dan EV konservatif positif. Kandidat ini belum tervalidasi sebagai Official.</p><p><b>Proyeksi</b> menampilkan arah model untuk pasar lain dan tidak otomatis menjadi pick.</p><p>Hingga dua kandidat dari market berbeda dapat muncul untuk satu match.</p><p className="prediction-guide-foot">Kandidat dicatat untuk evaluasi prospektif.</p></section>
       </aside>

@@ -42,6 +42,18 @@ export async function POST(request: Request) {
   if (!authorized(request)) return NextResponse.json({ message: 'Token operator tidak valid atau belum dikonfigurasi.' }, { status: 401 });
   let body: Record<string, unknown>;
   try { body = await request.json(); } catch { return NextResponse.json({ message: 'JSON tidak valid.' }, { status: 400 }); }
+  if (body.mode === 'singles' || body.mode === 'parlay') {
+    const choices = body.choices;
+    if (!Array.isArray(choices) || choices.length < (body.mode === 'parlay' ? 2 : 1) || choices.length > 30 ||
+        !choices.every((item) => item && typeof item.match_id === 'string' && item.match_id.length <= 100 &&
+          typeof item.market === 'string' && ['1x2', 'ah', 'ou', 'btts'].includes(item.market) &&
+          typeof item.pick === 'string' && item.pick.length <= 100 &&
+          typeof item.odds === 'number' && Number.isFinite(item.odds))) {
+      return NextResponse.json({ message: 'Batch pilihan tidak valid.' }, { status: 400 });
+    }
+    const result = await ledger(['batch', '--payload', JSON.stringify({ mode: body.mode, choices })]);
+    return NextResponse.json(result, { status: result.status === 'locked' ? 200 : 409 });
+  }
   const { match_id, market, pick, odds } = body;
   if (typeof match_id !== 'string' || match_id.length > 100 ||
       typeof market !== 'string' || !['1x2', 'ah', 'ou', 'btts'].includes(market) ||
