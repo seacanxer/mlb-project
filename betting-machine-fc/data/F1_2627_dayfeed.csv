@@ -1,0 +1,46 @@
+Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG
+F1,03/09/2026,20:45,Toulouse,Lille,0,1
+F1,04/09/2026,19:00,Lyon,Auxerre,3,1
+F1,04/09/2026,21:05,Paris Saint-Germain,Monaco,1,2
+F1,05/09/2026,17:15,Lens,Lorient,0,1
+F1,05/09/2026,20:45,Le Havre,Brest,1,2
+F1,05/09/2026,20:45,Nice,Le Mans,1,1
+F1,06/09/2026,15:00,Troyes,Strasbourg,2,6
+F1,06/09/2026,17:15,Angers,Rennes,1,2
+F1,06/09/2026,20:45,Marseille,Paris FC,2,3
+F1,11/09/2026,20:45,Rennes,Marseille,1,0
+F1,12/09/2026,17:15,Strasbourg,Monaco,1,1
+F1,12/09/2026,20:45,Auxerre,Nice,1,0
+F1,12/09/2026,20:45,Le Havre,Angers,0,0
+F1,12/09/2026,20:45,Lorient,Toulouse,2,2
+F1,12/09/2026,20:45,Paris FC,Lyon,0,0
+F1,13/09/2026,15:00,Lille,Troyes,2,0
+F1,13/09/2026,17:15,Le Mans,Lens,2,2
+F1,13/09/2026,20:45,Brest,Paris Saint-Germain,0,1
+F1,18/09/2026,20:45,Monaco,Lens,2,1
+F1,19/09/2026,17:15,Paris FC,Strasbourg,2,1
+F1,19/09/2026,20:45,Angers,Troyes,2,0
+F1,19/09/2026,20:45,Le Mans,Lorient,2,1
+F1,19/09/2026,20:45,Lyon,Rennes,4,0
+F1,19/09/2026,20:45,Toulouse,Le Havre,3,2
+F1,20/09/2026,15:00,Auxerre,Brest,2,1
+F1,20/09/2026,17:15,Nice,Lille,2,1
+F1,20/09/2026,20:45,Marseille,Paris Saint-Germain,1,2
+F1,21/08/2026,20:45,Marseille,Strasbourg,4,0
+F1,22/08/2026,17:15,Lens,Auxerre,5,2
+F1,22/08/2026,20:45,Le Mans,Brest,2,2
+F1,22/08/2026,20:45,Nice,Lorient,0,0
+F1,22/08/2026,20:45,Toulouse,Lyon,0,2
+F1,22/08/2026,20:45,Troyes,Paris FC,0,0
+F1,23/08/2026,15:00,Angers,Lille,0,2
+F1,23/08/2026,17:15,Le Havre,Monaco,0,1
+F1,23/08/2026,20:45,Rennes,Paris Saint-Germain,2,2
+F1,28/08/2026,21:00,Lille,Paris Saint-Germain,2,2
+F1,29/08/2026,17:15,Strasbourg,Lens,2,1
+F1,29/08/2026,20:45,Auxerre,Angers,1,3
+F1,29/08/2026,20:45,Brest,Toulouse,2,2
+F1,29/08/2026,20:45,Lorient,Troyes,1,2
+F1,29/08/2026,20:45,Lyon,Le Havre,1,1
+F1,30/08/2026,15:00,Paris FC,Nice,3,0
+F1,30/08/2026,17:15,Rennes,Le Mans,3,2
+F1,30/08/2026,20:45,Monaco,Marseille,2,0

@@ -1,0 +1,55 @@
+Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG
+D2,04/09/2026,18:30,Arminia Bielefeld,St. Pauli,2,2
+D2,04/09/2026,18:30,Hannover 96,Karlsruher SC,2,2
+D2,05/09/2026,13:00,Holstein Kiel,1. FC Nürnberg,2,2
+D2,05/09/2026,13:00,Kaiserslautern,Darmstadt,3,0
+D2,05/09/2026,13:00,Wolfsburg,Energie Cottbus,4,4
+D2,05/09/2026,20:30,Dynamo Dresden,Bochum,1,2
+D2,06/09/2026,13:30,Greuther Fürth,FC Heidenheim,0,1
+D2,06/09/2026,13:30,Hertha BSC,Magdeburg,2,1
+D2,06/09/2026,13:30,VfL Osnabrück,Eintracht Braunschweig,3,1
+D2,07/08/2026,20:30,Bochum,Hertha BSC,0,1
+D2,08/08/2026,13:00,Darmstadt,Holstein Kiel,2,2
+D2,08/08/2026,13:00,FC Heidenheim,VfL Osnabrück,4,3
+D2,08/08/2026,13:00,Karlsruher SC,Arminia Bielefeld,2,1
+D2,08/08/2026,13:00,Magdeburg,Eintracht Braunschweig,1,6
+D2,08/08/2026,20:30,Wolfsburg,Kaiserslautern,0,0
+D2,09/08/2026,13:30,Energie Cottbus,Hannover 96,3,1
+D2,09/08/2026,13:30,1. FC Nürnberg,Dynamo Dresden,3,0
+D2,09/08/2026,13:30,St. Pauli,Greuther Fürth,1,1
+D2,11/09/2026,18:30,Darmstadt,Arminia Bielefeld,2,1
+D2,11/09/2026,18:30,1. FC Nürnberg,Hannover 96,2,1
+D2,12/09/2026,13:00,Bochum,Greuther Fürth,1,1
+D2,12/09/2026,13:00,Magdeburg,Kaiserslautern,3,0
+D2,12/09/2026,13:15,Eintracht Braunschweig,Dynamo Dresden,2,2
+D2,12/09/2026,20:30,St. Pauli,Wolfsburg,1,0
+D2,13/09/2026,13:30,FC Heidenheim,Holstein Kiel,1,0
+D2,13/09/2026,13:30,Karlsruher SC,Energie Cottbus,0,3
+D2,13/09/2026,13:30,VfL Osnabrück,Hertha BSC,1,3
+D2,14/08/2026,18:30,Eintracht Braunschweig,Bochum,0,1
+D2,14/08/2026,18:30,Holstein Kiel,St. Pauli,2,2
+D2,15/08/2026,13:00,Greuther Fürth,1. FC Nürnberg,2,4
+D2,15/08/2026,13:00,Hertha BSC,FC Heidenheim,4,1
+D2,15/08/2026,13:00,VfL Osnabrück,Magdeburg,0,3
+D2,15/08/2026,20:30,Kaiserslautern,Karlsruher SC,0,0
+D2,16/08/2026,13:30,Arminia Bielefeld,Energie Cottbus,3,0
+D2,16/08/2026,13:30,Dynamo Dresden,Darmstadt,1,0
+D2,16/08/2026,13:30,Hannover 96,Wolfsburg,0,1
+D2,18/09/2026,18:30,Greuther Fürth,Magdeburg,1,1
+D2,18/09/2026,18:30,Wolfsburg,Darmstadt,5,1
+D2,19/09/2026,13:00,Holstein Kiel,VfL Osnabrück,1,1
+D2,19/09/2026,13:00,Kaiserslautern,Eintracht Braunschweig,1,0
+D2,19/09/2026,13:00,Karlsruher SC,1. FC Nürnberg,0,1
+D2,19/09/2026,20:30,Dynamo Dresden,Hertha BSC,1,2
+D2,20/09/2026,13:30,Arminia Bielefeld,FC Heidenheim,2,2
+D2,20/09/2026,13:30,Energie Cottbus,St. Pauli,1,1
+D2,20/09/2026,13:30,Hannover 96,Bochum,2,1
+D2,28/08/2026,18:30,Bochum,VfL Osnabrück,0,1
+D2,28/08/2026,18:30,Eintracht Braunschweig,Hertha BSC,3,5
+D2,29/08/2026,13:00,Energie Cottbus,Greuther Fürth,3,4
+D2,29/08/2026,13:00,FC Heidenheim,Dynamo Dresden,5,3
+D2,29/08/2026,13:00,Karlsruher SC,Wolfsburg,2,5
+D2,29/08/2026,20:30,1. FC Nürnberg,Arminia Bielefeld,4,1
+D2,30/08/2026,13:30,Darmstadt,Hannover 96,0,1
+D2,30/08/2026,13:30,Magdeburg,Holstein Kiel,2,0
+D2,30/08/2026,13:30,St. Pauli,Kaiserslautern,1,2

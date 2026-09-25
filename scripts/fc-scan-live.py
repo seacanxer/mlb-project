@@ -42,6 +42,8 @@ from football_formula_engine.live_quotes import QuoteJournal  # noqa: E402
 from football_formula_engine.second_source import collect as collect_second_source  # noqa: E402
 from football_formula_engine.catalog import POLICY_VERSION, select_markets, direction_counts  # noqa: E402
 from football_formula_engine.live_training import current_season, refresh_scores  # noqa: E402
+from football_formula_engine.leagues import (LEAGUES, LEAGUE_BY_NAME,  # noqa: E402
+    current_season_for)  # noqa: E402
 from football_formula_engine.national_teams import (MODEL_CODE as NATIONAL_CODE,
     senior_competition, load_results as load_national_results,
     resolve_fixture as resolve_national_fixture,
@@ -59,44 +61,6 @@ WINDOW_HOURS = 24
 MODELS_CACHE = os.path.join(FC_DIR, 'models_cache')
 MODEL_DATA_INFO = {}
 NATIONAL_MODEL_VERSION = 'intl-ratio-nonneutral-v1'
-
-# football-data code -> (csvs [(file, season)], timezone, 1xbit league names)
-LEAGUES = {
-    'E0': ([('E0_2425.csv', '2425'), ('E0_2526.csv', '2526')], 'Europe/London',
-           ['England. Premier League']),
-    'E1': ([('E1_2526.csv', '2526')], 'Europe/London', ['England. Championship']),
-    'E2': ([('E2_2526.csv', '2526')], 'Europe/London', ['England. League One']),
-    'E3': ([('E3_2526.csv', '2526')], 'Europe/London', ['England. League Two']),
-    'EC': ([('EC_2526.csv', '2526')], 'Europe/London',
-           ['England. National League']),
-    'SP1': ([('SP1_2526.csv', '2526')], 'Europe/Madrid', ['Spain. La Liga']),
-    'SP2': ([('SP2_2526.csv', '2526')], 'Europe/Madrid', ['Spain. Segunda Division']),
-    'D1': ([('D1_2526.csv', '2526')], 'Europe/Berlin', ['Germany. Bundesliga']),
-    'D2': ([('D2_2526.csv', '2526')], 'Europe/Berlin', ['Germany. 2. Bundesliga']),
-    'I1': ([('I1_2526.csv', '2526')], 'Europe/Rome', ['Italy. Serie A']),
-    'I2': ([('I2_2526.csv', '2526')], 'Europe/Rome', ['Italy. Serie B']),
-    'F1': ([('F1_2526.csv', '2526')], 'Europe/Paris', ['France. Ligue 1']),
-    'F2': ([('F2_2526.csv', '2526')], 'Europe/Paris', ['France. Ligue 2']),
-    'N1': ([('N1_2526.csv', '2526')], 'Europe/Amsterdam', ['Netherlands. Eredivisie']),
-    'P1': ([('P1_2526.csv', '2526')], 'Europe/Lisbon', ['Portugal. Primeira Liga']),
-    'B1': ([('B1_2526.csv', '2526')], 'Europe/Brussels',
-           ['Belgium. First Division A', 'Belgium. Division 1',
-            'Belgium. Jupiler League']),
-    'T1': ([('T1_2526.csv', '2526')], 'Europe/Istanbul',
-           ['Turkiye. Super Lig', 'Turkey. Super Lig']),
-    'G1': ([('G1_2526.csv', '2526')], 'Europe/Athens', ['Greece. Super League']),
-    # football-data codes are SC0 Premiership, SC1 Championship,
-    # SC2 League One and SC3 League Two. SC0 has no local CSV yet.
-    'SC1': ([('historical/SC1_2324.csv', '2324'),
-             ('historical/SC1_2425.csv', '2425'),
-             ('SC1_2526.csv', '2526')], 'Europe/London', ['Scotland. Championship']),
-    'SC2': ([('SC2_2526.csv', '2526')], 'Europe/London', ['Scotland. League One']),
-    'SC3': ([('SC3_2526.csv', '2526')], 'Europe/London', ['Scotland. League Two']),
-}
-LEAGUE_BY_NAME = {}
-for code, (_csvs, _tz, names) in LEAGUES.items():
-    for name in names:
-        LEAGUE_BY_NAME[name.lower()] = code
 
 
 def model_code(league):
@@ -139,6 +103,7 @@ TEAM_ALIASES = {
     'ayr united': 'ayr', 'greenock morton': 'morton',
     'raith rovers': 'raith rvs', "queen's park": 'queens park',
     # extra 1xbit -> football-data (found via TEAM_UNMATCHED)
+    'albacete balompie': 'albacete',
     'cagliari calcio': 'cagliari', 'angers sco': 'angers',
     'as saint etienne': 'st etienne', 'saint etienne': 'st etienne',
     'usl dunkerque': 'dunkerque', 'ud almeria': 'almeria',
@@ -300,6 +265,40 @@ TEAM_ALIASES = {
     'greuther furth': 'greuther furth', 'magdeburg': 'magdeburg',
     'osnabruck': 'osnabruck', 'hansa rostock': 'hansa rostock',
     'hamburg': 'hamburg',
+    # score-feed (FotMob day feed) names: 1xbit -> feed spelling
+    'club atletico ituzaingo': 'ituzaingo',
+    'londrina': 'londrina ec',
+    'havelse': 'tsv havelse',
+    'roskilde': 'fc roskilde',
+    'helsingor': 'fc helsingør',
+    'holbaek': 'holbæk b&i',
+    'ktp kotka': 'fc ktp',
+    'mikkelin palloilijat': 'mp',
+    '1 nurnberg ii': 'nurnberg ii',
+    'bayern munich ii': 'bayern munchen ii',
+    'bayreuth': 'spvgg bayreuth',
+    'buchbach': 'tsv buchbach',
+    'memmingen': 'fc memmingen',
+    'fsv schoningen': 'schoningen',
+    'vfb lubeck': 'lubeck',
+    'astoria walldorf': 'fca walldorf',
+    'galway': 'galway united',
+    'wexford youths': 'wexford',
+    'university college dublin': 'ucd',
+    'consadole sapporo': 'hokkaido consadole sapporo',
+    'atlas guadalajara': 'atlas',
+    'correcaminos uat': 'correcaminos de la uat',
+    'jaiba brava': 'jaiba brava del tampico madero',
+    'dordrecht': 'fc dordrecht',
+    'aalesunds ii': 'aalesund 2',
+    'rosenborg ii': 'rosenborg 2',
+    'atletico madrid ii': 'atletico madrileno',
+    'villarreal ii': 'villarreal b',
+    'sporting jacksonville': 'sporting jax',
+    'tulsa': 'fc tulsa',
+    'sportivo luqueno': 'luqueno',
+    'club guarani': 'guarani',
+    'club nacional asuncion': 'nacional',
 }
 _JUNK_SUFFIXES = (' fc', ' cf', ' sc', ' afc', ' ac', ' us', ' as', ' rc')
 CATEGORY_TOKENS = frozenset({
@@ -418,7 +417,7 @@ def load_model(code, now):
                 return cached['artifact']
         except (OSError, ValueError, KeyError):
             pass
-    _configured, tz, _names = LEAGUES[code]
+    tz = LEAGUES[code].tz
     matches = []
     temps = []
     for fname, season in csvs:
@@ -502,8 +501,11 @@ def team_id(code, csv_name):
 
 def training_files(code, now=None):
     files = list(LEAGUES[code][0])
-    season = current_season(time.time() if now is None else now)
-    for name in (f'{code}_{season}_live_scores.csv', f'{code}_{season}.csv'):
+    season = current_season_for(code, time.time() if now is None else now)
+    # Lane priority: football-data live refresh > football-data archive >
+    # FotMob day feed > ESPN scoreboard. Only one file per season is used.
+    for name in (f'{code}_{season}_live_scores.csv', f'{code}_{season}.csv',
+                 f'{code}_{season}_dayfeed.csv', f'{code}_{season}_espn.csv'):
         if os.path.exists(os.path.join(FC_DIR, 'data', name)):
             files = [(file, yr) for file, yr in files if yr != season] + [(name, season)]
             break
@@ -726,8 +728,13 @@ def main(argv=()):
                 teams_by_code[code] = team_counts
             continue
         # Current-season refresh is bounded and failures are visible; never
-        # synthesize new-team ratings from another league's averages.
-        refresh_result = refresh_scores(code, os.path.join(FC_DIR, 'data'), now)
+        # synthesize new-team ratings from another league's averages. Score-feed
+        # leagues are rebuilt by scripts/fc-fetch-dayfeed.py instead.
+        if LEAGUES[code].source == 'football-data':
+            refresh_result = refresh_scores(code, os.path.join(FC_DIR, 'data'), now)
+        else:
+            refresh_result = {'status': 'skipped', 'season': current_season_for(code, now),
+                              'reason': 'NON_FOOTBALL_DATA_SOURCE'}
         art = load_model(code, now)
         MODEL_DATA_INFO.setdefault(code, {})['refresh'] = refresh_result
         if art:

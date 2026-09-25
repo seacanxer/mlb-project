@@ -1,0 +1,343 @@
+Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG
+GRLNE,01/02/2026,14:00,Carl Zeiss Jena,VSG Altglienicke,0,0
+GRLNE,01/02/2026,14:00,FSV Zwickau,Babelsberg,0,0
+GRLNE,01/02/2026,14:00,Greifswalder FC,RW Erfurt,0,0
+GRLNE,01/03/2026,14:00,BSG Chemie Leipzig,Hallescher FC,0,2
+GRLNE,01/03/2026,14:00,Hertha Zehlendorf,ZFC Meuselwitz,1,1
+GRLNE,01/04/2026,19:00,Babelsberg,BFC Dynamo,2,2
+GRLNE,01/04/2026,19:00,Hertha Zehlendorf,Carl Zeiss Jena,0,3
+GRLNE,01/04/2026,19:00,ZFC Meuselwitz,BFC Preussen,2,3
+GRLNE,01/08/2025,19:00,BFC Dynamo,RW Erfurt,2,3
+GRLNE,01/08/2025,19:00,Carl Zeiss Jena,Hertha Berlin II,1,0
+GRLNE,01/08/2025,19:00,Lokomotive Leipzig,VSG Altglienicke,1,0
+GRLNE,01/10/2025,19:00,Carl Zeiss Jena,Lokomotive Leipzig,1,0
+GRLNE,01/11/2025,14:00,FC Eilenburg,RW Erfurt,1,1
+GRLNE,01/11/2025,14:00,FSV Zwickau,FSV Luckenwalde,3,0
+GRLNE,01/11/2025,14:00,VSG Altglienicke,Greifswalder FC,1,2
+GRLNE,02/04/2026,19:00,VSG Altglienicke,BSG Chemie Leipzig,1,1
+GRLNE,02/04/2026,19:30,FC Eilenburg,Chemnitzer FC,1,1
+GRLNE,02/05/2026,14:00,Carl Zeiss Jena,BFC Dynamo,2,1
+GRLNE,02/05/2026,14:00,FC Eilenburg,Greifswalder FC,0,6
+GRLNE,02/05/2026,14:00,Lokomotive Leipzig,BFC Preussen,1,3
+GRLNE,02/08/2025,14:00,FC Eilenburg,FSV Zwickau,3,0
+GRLNE,02/08/2025,14:00,FSV Luckenwalde,Chemnitzer FC,2,1
+GRLNE,02/08/2025,14:00,Greifswalder FC,BSG Chemie Leipzig,3,0
+GRLNE,02/09/2025,19:00,BSG Chemie Leipzig,Carl Zeiss Jena,0,2
+GRLNE,02/11/2025,14:00,Hertha Berlin II,Hallescher FC,1,0
+GRLNE,02/11/2025,14:00,Lokomotive Leipzig,BFC Dynamo,3,0
+GRLNE,02/11/2025,14:00,ZFC Meuselwitz,Chemnitzer FC,1,4
+GRLNE,02/12/2025,19:00,BFC Dynamo,FSV Luckenwalde,0,0
+GRLNE,03/02/2026,19:00,BFC Dynamo,FSV Luckenwalde,0,0
+GRLNE,03/03/2026,19:00,BFC Dynamo,BFC Preussen,3,1
+GRLNE,03/03/2026,19:00,Carl Zeiss Jena,VSG Altglienicke,0,0
+GRLNE,03/03/2026,19:00,FC Eilenburg,Hertha Berlin II,0,1
+GRLNE,03/03/2026,19:00,FSV Zwickau,Babelsberg,3,2
+GRLNE,03/05/2026,14:00,FSV Zwickau,RW Erfurt,2,1
+GRLNE,03/05/2026,14:00,Hertha Zehlendorf,Magdeburg II,0,2
+GRLNE,03/05/2026,14:00,VSG Altglienicke,Chemnitzer FC,1,2
+GRLNE,03/05/2026,14:00,ZFC Meuselwitz,BSG Chemie Leipzig,0,4
+GRLNE,03/08/2025,14:00,Hertha Zehlendorf,BFC Preussen,0,2
+GRLNE,03/08/2025,14:00,ZFC Meuselwitz,Babelsberg,1,1
+GRLNE,03/09/2025,19:00,Hertha Berlin II,ZFC Meuselwitz,2,3
+GRLNE,03/10/2025,14:00,BFC Dynamo,FSV Zwickau,1,0
+GRLNE,03/10/2025,14:00,BSG Chemie Leipzig,VSG Altglienicke,3,0
+GRLNE,03/10/2025,14:00,Greifswalder FC,BFC Preussen,1,1
+GRLNE,04/03/2026,19:00,BSG Chemie Leipzig,Chemnitzer FC,2,1
+GRLNE,04/03/2026,19:00,FSV Luckenwalde,Magdeburg II,0,0
+GRLNE,04/03/2026,19:00,Greifswalder FC,RW Erfurt,1,2
+GRLNE,04/03/2026,19:00,Hertha Zehlendorf,Hallescher FC,1,4
+GRLNE,04/03/2026,19:00,ZFC Meuselwitz,Lokomotive Leipzig,0,1
+GRLNE,04/04/2026,14:00,Babelsberg,Hertha Zehlendorf,4,0
+GRLNE,04/04/2026,14:00,Carl Zeiss Jena,FSV Luckenwalde,1,0
+GRLNE,04/04/2026,14:00,Lokomotive Leipzig,RW Erfurt,2,1
+GRLNE,04/04/2026,16:00,ZFC Meuselwitz,Hallescher FC,3,2
+GRLNE,04/10/2025,14:00,Chemnitzer FC,FC Eilenburg,2,2
+GRLNE,04/10/2025,14:00,Hallescher FC,ZFC Meuselwitz,1,0
+GRLNE,05/04/2026,14:00,BFC Preussen,Greifswalder FC,0,0
+GRLNE,05/04/2026,14:00,Hertha Berlin II,Magdeburg II,2,1
+GRLNE,05/04/2026,18:00,FSV Zwickau,BFC Dynamo,2,2
+GRLNE,05/10/2025,14:00,FSV Luckenwalde,Carl Zeiss Jena,1,1
+GRLNE,05/10/2025,14:00,Hertha Zehlendorf,Babelsberg,3,3
+GRLNE,05/10/2025,14:00,RW Erfurt,Lokomotive Leipzig,0,2
+GRLNE,05/12/2025,19:00,BFC Dynamo,Hallescher FC,1,1
+GRLNE,05/12/2025,19:00,Lokomotive Leipzig,FSV Zwickau,0,2
+GRLNE,06/02/2026,19:00,Hertha Berlin II,Greifswalder FC,0,0
+GRLNE,06/02/2026,19:00,Lokomotive Leipzig,Hertha Zehlendorf,0,0
+GRLNE,06/02/2026,19:00,Magdeburg II,Chemnitzer FC,0,1
+GRLNE,06/03/2026,19:00,Babelsberg,FC Eilenburg,2,1
+GRLNE,06/03/2026,19:00,Hertha Berlin II,BFC Preussen,5,0
+GRLNE,06/12/2025,14:00,FC Eilenburg,BFC Preussen,1,0
+GRLNE,06/12/2025,14:00,FSV Luckenwalde,RW Erfurt,1,1
+GRLNE,06/12/2025,14:00,Greifswalder FC,Chemnitzer FC,0,0
+GRLNE,06/12/2025,14:00,Hertha Zehlendorf,VSG Altglienicke,1,3
+GRLNE,07/02/2026,14:00,BFC Preussen,FSV Luckenwalde,0,0
+GRLNE,07/02/2026,14:00,Hallescher FC,RW Erfurt,1,0
+GRLNE,07/02/2026,14:00,VSG Altglienicke,FC Eilenburg,0,0
+GRLNE,07/03/2026,14:00,Greifswalder FC,BFC Dynamo,0,1
+GRLNE,07/03/2026,14:00,Hallescher FC,Chemnitzer FC,3,1
+GRLNE,07/03/2026,14:00,Magdeburg II,FSV Zwickau,1,2
+GRLNE,07/04/2026,19:00,FSV Luckenwalde,Hallescher FC,1,4
+GRLNE,07/04/2026,19:00,Hertha Zehlendorf,BSG Chemie Leipzig,0,5
+GRLNE,07/11/2025,19:00,BFC Dynamo,Carl Zeiss Jena,2,3
+GRLNE,07/11/2025,19:00,Chemnitzer FC,VSG Altglienicke,2,2
+GRLNE,07/11/2025,19:00,FSV Luckenwalde,Hertha Berlin II,0,1
+GRLNE,07/11/2025,19:00,Hallescher FC,Babelsberg,2,2
+GRLNE,07/12/2025,14:00,Carl Zeiss Jena,Babelsberg,1,1
+GRLNE,07/12/2025,14:00,Magdeburg II,BSG Chemie Leipzig,2,1
+GRLNE,07/12/2025,14:00,ZFC Meuselwitz,Hertha Berlin II,1,3
+GRLNE,08/02/2026,14:00,Babelsberg,BSG Chemie Leipzig,0,0
+GRLNE,08/02/2026,14:00,Carl Zeiss Jena,FSV Zwickau,0,0
+GRLNE,08/02/2026,14:00,ZFC Meuselwitz,BFC Dynamo,0,0
+GRLNE,08/03/2026,14:00,Hertha Zehlendorf,FSV Luckenwalde,1,1
+GRLNE,08/03/2026,14:00,Lokomotive Leipzig,Carl Zeiss Jena,1,2
+GRLNE,08/03/2026,14:00,RW Erfurt,BSG Chemie Leipzig,2,2
+GRLNE,08/03/2026,14:00,ZFC Meuselwitz,VSG Altglienicke,4,0
+GRLNE,08/04/2026,17:00,BFC Preussen,Chemnitzer FC,2,1
+GRLNE,08/04/2026,19:00,Carl Zeiss Jena,FSV Zwickau,5,1
+GRLNE,08/04/2026,19:00,Greifswalder FC,Babelsberg,0,0
+GRLNE,08/05/2026,19:00,BSG Chemie Leipzig,FC Eilenburg,3,2
+GRLNE,08/05/2026,19:00,Hallescher FC,Carl Zeiss Jena,0,2
+GRLNE,08/05/2026,19:00,Hertha Berlin II,VSG Altglienicke,1,1
+GRLNE,08/08/2025,19:00,Hertha Berlin II,FC Eilenburg,5,2
+GRLNE,08/08/2025,19:00,VSG Altglienicke,Carl Zeiss Jena,2,1
+GRLNE,08/11/2025,14:00,BSG Chemie Leipzig,ZFC Meuselwitz,0,2
+GRLNE,08/11/2025,14:00,RW Erfurt,FSV Zwickau,2,2
+GRLNE,09/05/2026,14:00,BFC Preussen,ZFC Meuselwitz,2,1
+GRLNE,09/05/2026,14:00,RW Erfurt,Hertha Zehlendorf,5,2
+GRLNE,09/05/2026,16:00,Chemnitzer FC,FSV Zwickau,3,2
+GRLNE,09/08/2025,14:00,Babelsberg,FSV Zwickau,0,2
+GRLNE,09/08/2025,14:00,BFC Preussen,BFC Dynamo,1,2
+GRLNE,09/08/2025,14:00,Hallescher FC,Hertha Zehlendorf,5,1
+GRLNE,09/08/2025,14:00,Magdeburg II,FSV Luckenwalde,1,2
+GRLNE,09/11/2025,14:00,BFC Preussen,Lokomotive Leipzig,2,0
+GRLNE,09/11/2025,14:00,Greifswalder FC,FC Eilenburg,2,1
+GRLNE,10/03/2026,19:00,BFC Dynamo,Magdeburg II,1,2
+GRLNE,10/03/2026,19:00,Hertha Berlin II,Greifswalder FC,0,1
+GRLNE,10/04/2026,19:00,Hallescher FC,VSG Altglienicke,2,3
+GRLNE,10/04/2026,19:00,Magdeburg II,ZFC Meuselwitz,2,1
+GRLNE,10/05/2026,14:00,FSV Luckenwalde,BFC Dynamo,0,1
+GRLNE,10/05/2026,14:00,Greifswalder FC,Lokomotive Leipzig,1,1
+GRLNE,10/05/2026,14:00,Magdeburg II,Babelsberg,6,4
+GRLNE,10/08/2025,14:00,Lokomotive Leipzig,ZFC Meuselwitz,1,0
+GRLNE,10/08/2025,14:00,RW Erfurt,Greifswalder FC,3,2
+GRLNE,10/10/2025,19:00,Magdeburg II,Hertha Berlin II,6,0
+GRLNE,10/12/2025,19:00,Hertha Zehlendorf,BSG Chemie Leipzig,0,0
+GRLNE,11/02/2026,14:30,BFC Preussen,Hertha Zehlendorf,0,0
+GRLNE,11/03/2026,19:00,VSG Altglienicke,FSV Luckenwalde,0,2
+GRLNE,11/04/2026,14:00,BFC Dynamo,Hertha Zehlendorf,5,1
+GRLNE,11/04/2026,14:00,Chemnitzer FC,Hertha Berlin II,0,1
+GRLNE,11/04/2026,14:00,FSV Luckenwalde,FC Eilenburg,1,1
+GRLNE,11/04/2026,14:00,RW Erfurt,Babelsberg,4,2
+GRLNE,11/11/2025,19:00,Magdeburg II,Hertha Zehlendorf,1,0
+GRLNE,12/04/2026,14:00,BFC Preussen,Carl Zeiss Jena,0,2
+GRLNE,12/04/2026,14:00,BSG Chemie Leipzig,Lokomotive Leipzig,1,0
+GRLNE,12/04/2026,14:00,Greifswalder FC,FSV Zwickau,1,2
+GRLNE,12/09/2025,18:00,Hallescher FC,BSG Chemie Leipzig,0,0
+GRLNE,12/09/2025,19:00,Hertha Berlin II,BFC Dynamo,2,2
+GRLNE,12/09/2025,19:00,Magdeburg II,Greifswalder FC,1,1
+GRLNE,12/09/2025,19:00,VSG Altglienicke,FSV Zwickau,3,0
+GRLNE,12/12/2025,19:00,Babelsberg,ZFC Meuselwitz,2,3
+GRLNE,12/12/2025,19:00,VSG Altglienicke,Lokomotive Leipzig,2,3
+GRLNE,13/02/2026,19:00,BFC Dynamo,Magdeburg II,0,0
+GRLNE,13/02/2026,19:00,FC Eilenburg,ZFC Meuselwitz,0,0
+GRLNE,13/02/2026,19:00,Greifswalder FC,Babelsberg,0,0
+GRLNE,13/03/2026,19:00,BFC Dynamo,BSG Chemie Leipzig,2,0
+GRLNE,13/03/2026,19:00,Carl Zeiss Jena,ZFC Meuselwitz,1,2
+GRLNE,13/03/2026,19:00,FSV Zwickau,Hertha Zehlendorf,1,0
+GRLNE,13/08/2025,19:00,Chemnitzer FC,BSG Chemie Leipzig,1,0
+GRLNE,13/09/2025,14:00,BFC Preussen,RW Erfurt,2,4
+GRLNE,13/09/2025,14:00,Carl Zeiss Jena,FC Eilenburg,2,0
+GRLNE,13/09/2025,14:00,Lokomotive Leipzig,FSV Luckenwalde,4,0
+GRLNE,13/09/2025,14:00,ZFC Meuselwitz,Hertha Zehlendorf,2,1
+GRLNE,13/09/2025,16:00,Babelsberg,Chemnitzer FC,0,1
+GRLNE,13/12/2025,13:00,BFC Preussen,Hertha Zehlendorf,0,0
+GRLNE,13/12/2025,14:00,Chemnitzer FC,FSV Luckenwalde,3,3
+GRLNE,13/12/2025,14:00,RW Erfurt,BFC Dynamo,1,0
+GRLNE,14/02/2026,14:00,BSG Chemie Leipzig,BFC Preussen,0,0
+GRLNE,14/02/2026,14:00,FSV Luckenwalde,Hallescher FC,0,0
+GRLNE,14/02/2026,14:00,FSV Zwickau,Hertha Berlin II,0,0
+GRLNE,14/02/2026,14:00,RW Erfurt,VSG Altglienicke,0,0
+GRLNE,14/03/2026,14:00,BFC Preussen,Hallescher FC,1,3
+GRLNE,14/03/2026,14:00,Chemnitzer FC,RW Erfurt,0,4
+GRLNE,14/03/2026,14:00,FC Eilenburg,Magdeburg II,0,1
+GRLNE,14/03/2026,14:00,FSV Luckenwalde,Greifswalder FC,1,1
+GRLNE,14/04/2026,15:00,Hertha Berlin II,Hertha Zehlendorf,3,1
+GRLNE,14/12/2025,14:00,BSG Chemie Leipzig,Greifswalder FC,2,3
+GRLNE,14/12/2025,14:00,FSV Zwickau,FC Eilenburg,2,2
+GRLNE,14/12/2025,14:00,Hallescher FC,Magdeburg II,3,1
+GRLNE,14/12/2025,14:00,Hertha Berlin II,Carl Zeiss Jena,2,3
+GRLNE,15/02/2026,14:00,Hertha Zehlendorf,Carl Zeiss Jena,0,0
+GRLNE,15/02/2026,16:00,Chemnitzer FC,Lokomotive Leipzig,3,0
+GRLNE,15/03/2026,14:00,Lokomotive Leipzig,Hertha Berlin II,4,0
+GRLNE,15/03/2026,14:00,VSG Altglienicke,Babelsberg,1,1
+GRLNE,15/04/2026,19:00,RW Erfurt,VSG Altglienicke,1,1
+GRLNE,15/04/2026,19:00,ZFC Meuselwitz,BFC Dynamo,0,1
+GRLNE,16/05/2026,14:00,Babelsberg,Hertha Berlin II,3,1
+GRLNE,16/05/2026,14:00,BFC Dynamo,Chemnitzer FC,2,2
+GRLNE,16/05/2026,14:00,Carl Zeiss Jena,RW Erfurt,2,0
+GRLNE,16/05/2026,14:00,FC Eilenburg,Hallescher FC,0,5
+GRLNE,16/05/2026,14:00,FSV Zwickau,BSG Chemie Leipzig,1,0
+GRLNE,16/05/2026,14:00,Hertha Zehlendorf,Greifswalder FC,2,3
+GRLNE,16/05/2026,14:00,Lokomotive Leipzig,Magdeburg II,5,2
+GRLNE,16/05/2026,14:00,VSG Altglienicke,BFC Preussen,1,0
+GRLNE,16/05/2026,14:00,ZFC Meuselwitz,FSV Luckenwalde,1,1
+GRLNE,16/09/2025,19:00,BFC Dynamo,Greifswalder FC,2,0
+GRLNE,16/09/2025,19:00,FC Eilenburg,Babelsberg,0,2
+GRLNE,16/09/2025,19:00,FSV Luckenwalde,Hertha Zehlendorf,1,0
+GRLNE,16/09/2025,19:00,FSV Zwickau,Magdeburg II,1,0
+GRLNE,16/09/2025,19:00,VSG Altglienicke,ZFC Meuselwitz,1,0
+GRLNE,16/09/2025,19:15,BSG Chemie Leipzig,RW Erfurt,0,1
+GRLNE,17/02/2026,18:00,ZFC Meuselwitz,BFC Preussen,0,0
+GRLNE,17/03/2026,19:00,FC Eilenburg,ZFC Meuselwitz,5,1
+GRLNE,17/04/2026,19:00,Babelsberg,FSV Luckenwalde,2,3
+GRLNE,17/04/2026,19:00,Carl Zeiss Jena,Greifswalder FC,2,1
+GRLNE,17/04/2026,19:00,FSV Zwickau,BFC Preussen,1,0
+GRLNE,17/04/2026,19:00,Hertha Zehlendorf,Chemnitzer FC,1,2
+GRLNE,17/09/2025,17:00,BFC Preussen,Hertha Berlin II,0,0
+GRLNE,17/09/2025,19:00,Chemnitzer FC,Hallescher FC,3,0
+GRLNE,17/10/2025,19:00,Carl Zeiss Jena,BFC Preussen,3,1
+GRLNE,17/10/2025,19:00,FC Eilenburg,FSV Luckenwalde,0,2
+GRLNE,18/03/2026,19:00,BSG Chemie Leipzig,BFC Preussen,2,2
+GRLNE,18/04/2026,14:00,Lokomotive Leipzig,Hallescher FC,0,0
+GRLNE,18/04/2026,14:00,VSG Altglienicke,Magdeburg II,5,1
+GRLNE,18/04/2026,16:00,Hertha Berlin II,BSG Chemie Leipzig,0,1
+GRLNE,18/10/2025,14:00,Babelsberg,RW Erfurt,0,2
+GRLNE,18/10/2025,14:00,FSV Zwickau,Greifswalder FC,1,0
+GRLNE,18/10/2025,14:00,Hertha Zehlendorf,BFC Dynamo,2,1
+GRLNE,18/10/2025,14:00,VSG Altglienicke,Hallescher FC,1,1
+GRLNE,19/04/2026,14:00,FC Eilenburg,BFC Dynamo,2,2
+GRLNE,19/04/2026,14:00,ZFC Meuselwitz,RW Erfurt,0,3
+GRLNE,19/09/2025,19:00,Babelsberg,VSG Altglienicke,1,2
+GRLNE,19/09/2025,19:00,BSG Chemie Leipzig,BFC Dynamo,2,0
+GRLNE,19/09/2025,19:45,Hertha Zehlendorf,FSV Zwickau,0,1
+GRLNE,19/10/2025,14:00,Hertha Berlin II,Chemnitzer FC,2,0
+GRLNE,19/10/2025,14:00,Lokomotive Leipzig,BSG Chemie Leipzig,2,0
+GRLNE,19/10/2025,16:00,ZFC Meuselwitz,Magdeburg II,1,1
+GRLNE,20/02/2026,19:00,Magdeburg II,RW Erfurt,2,3
+GRLNE,20/03/2026,19:00,BFC Dynamo,VSG Altglienicke,1,1
+GRLNE,20/03/2026,19:00,Hallescher FC,FSV Zwickau,3,0
+GRLNE,20/03/2026,19:00,RW Erfurt,Hertha Berlin II,3,2
+GRLNE,20/09/2025,14:00,Hallescher FC,BFC Preussen,0,1
+GRLNE,20/09/2025,16:00,RW Erfurt,Chemnitzer FC,2,2
+GRLNE,21/02/2026,14:00,Carl Zeiss Jena,BSG Chemie Leipzig,2,1
+GRLNE,21/02/2026,14:00,Hallescher FC,Greifswalder FC,2,0
+GRLNE,21/03/2026,14:00,Babelsberg,Lokomotive Leipzig,1,2
+GRLNE,21/03/2026,14:00,Greifswalder FC,ZFC Meuselwitz,2,0
+GRLNE,21/09/2025,14:00,Greifswalder FC,FSV Luckenwalde,0,2
+GRLNE,21/09/2025,14:00,Hertha Berlin II,Lokomotive Leipzig,2,7
+GRLNE,21/09/2025,14:00,ZFC Meuselwitz,Carl Zeiss Jena,0,3
+GRLNE,21/11/2025,19:00,FC Eilenburg,BSG Chemie Leipzig,0,1
+GRLNE,21/11/2025,19:00,Lokomotive Leipzig,Greifswalder FC,3,0
+GRLNE,21/11/2025,20:20,Carl Zeiss Jena,Hallescher FC,1,1
+GRLNE,22/02/2026,14:00,Lokomotive Leipzig,FC Eilenburg,3,0
+GRLNE,22/02/2026,14:00,ZFC Meuselwitz,FSV Zwickau,4,0
+GRLNE,22/03/2026,14:00,BSG Chemie Leipzig,FSV Luckenwalde,1,0
+GRLNE,22/03/2026,14:00,Chemnitzer FC,Carl Zeiss Jena,4,1
+GRLNE,22/03/2026,14:00,Hertha Zehlendorf,FC Eilenburg,0,0
+GRLNE,22/03/2026,14:00,Magdeburg II,BFC Preussen,1,1
+GRLNE,22/04/2026,17:30,BFC Preussen,Hertha Zehlendorf,3,2
+GRLNE,22/08/2025,19:00,BSG Chemie Leipzig,Babelsberg,2,3
+GRLNE,22/08/2025,19:00,FC Eilenburg,VSG Altglienicke,0,2
+GRLNE,22/08/2025,19:00,FSV Luckenwalde,BFC Preussen,3,0
+GRLNE,22/08/2025,19:00,FSV Zwickau,Carl Zeiss Jena,0,0
+GRLNE,22/08/2025,19:00,Hertha Zehlendorf,Lokomotive Leipzig,0,1
+GRLNE,22/11/2025,14:00,Babelsberg,Magdeburg II,1,3
+GRLNE,22/11/2025,14:00,FSV Zwickau,Chemnitzer FC,4,0
+GRLNE,22/11/2025,14:00,Hertha Zehlendorf,RW Erfurt,1,1
+GRLNE,22/11/2025,14:00,ZFC Meuselwitz,BFC Preussen,0,0
+GRLNE,23/08/2025,14:00,Chemnitzer FC,Magdeburg II,2,4
+GRLNE,23/08/2025,14:00,RW Erfurt,Hallescher FC,1,2
+GRLNE,23/09/2025,19:00,Magdeburg II,FC Eilenburg,4,0
+GRLNE,24/01/2026,14:00,ZFC Meuselwitz,BFC Preussen,0,0
+GRLNE,24/03/2026,19:00,FSV Zwickau,Hertha Berlin II,2,0
+GRLNE,24/04/2026,19:00,BFC Dynamo,Lokomotive Leipzig,0,1
+GRLNE,24/04/2026,19:00,Greifswalder FC,VSG Altglienicke,1,0
+GRLNE,24/08/2025,14:00,BFC Dynamo,ZFC Meuselwitz,1,1
+GRLNE,24/08/2025,14:00,Greifswalder FC,Hertha Berlin II,1,1
+GRLNE,24/10/2025,19:00,FSV Luckenwalde,Babelsberg,0,0
+GRLNE,24/10/2025,19:00,Hallescher FC,Lokomotive Leipzig,2,4
+GRLNE,25/02/2026,19:00,Hertha Zehlendorf,BSG Chemie Leipzig,0,0
+GRLNE,25/03/2026,19:00,BFC Dynamo,FSV Luckenwalde,0,1
+GRLNE,25/03/2026,19:00,Greifswalder FC,Magdeburg II,1,3
+GRLNE,25/03/2026,19:00,Lokomotive Leipzig,Hertha Zehlendorf,0,2
+GRLNE,25/03/2026,19:00,VSG Altglienicke,FC Eilenburg,3,1
+GRLNE,25/04/2026,14:00,BSG Chemie Leipzig,Hertha Zehlendorf,4,2
+GRLNE,25/04/2026,14:00,RW Erfurt,FC Eilenburg,3,3
+GRLNE,25/07/2025,19:00,Hertha Berlin II,ZFC Meuselwitz,0,0
+GRLNE,25/07/2025,19:00,RW Erfurt,FSV Luckenwalde,2,1
+GRLNE,25/07/2025,19:00,VSG Altglienicke,Hertha Zehlendorf,2,0
+GRLNE,25/10/2025,14:00,BSG Chemie Leipzig,Hertha Berlin II,3,1
+GRLNE,25/10/2025,14:00,Chemnitzer FC,Hertha Zehlendorf,2,1
+GRLNE,25/10/2025,14:00,Greifswalder FC,Carl Zeiss Jena,3,3
+GRLNE,25/11/2025,19:00,Hertha Zehlendorf,BSG Chemie Leipzig,0,0
+GRLNE,26/04/2026,14:00,BFC Preussen,Babelsberg,3,6
+GRLNE,26/04/2026,14:00,Chemnitzer FC,ZFC Meuselwitz,3,2
+GRLNE,26/04/2026,14:00,FSV Luckenwalde,FSV Zwickau,0,1
+GRLNE,26/04/2026,14:00,Hallescher FC,Hertha Berlin II,2,0
+GRLNE,26/04/2026,14:00,Magdeburg II,Carl Zeiss Jena,4,1
+GRLNE,26/07/2025,14:00,BFC Preussen,FC Eilenburg,2,2
+GRLNE,26/07/2025,14:00,Hallescher FC,BFC Dynamo,1,0
+GRLNE,26/07/2025,16:00,FSV Zwickau,Lokomotive Leipzig,1,1
+GRLNE,26/08/2025,17:30,BFC Preussen,BSG Chemie Leipzig,2,1
+GRLNE,26/08/2025,19:00,Carl Zeiss Jena,Hertha Zehlendorf,4,0
+GRLNE,26/08/2025,19:00,Hallescher FC,FSV Luckenwalde,3,1
+GRLNE,26/08/2025,19:00,VSG Altglienicke,RW Erfurt,1,3
+GRLNE,26/09/2025,19:00,Hertha Berlin II,RW Erfurt,0,0
+GRLNE,26/09/2025,19:00,Lokomotive Leipzig,Babelsberg,1,0
+GRLNE,26/10/2025,14:00,BFC Dynamo,FC Eilenburg,2,1
+GRLNE,26/10/2025,14:00,BFC Preussen,FSV Zwickau,3,2
+GRLNE,26/10/2025,14:00,RW Erfurt,ZFC Meuselwitz,3,3
+GRLNE,26/11/2025,19:00,Magdeburg II,Lokomotive Leipzig,1,5
+GRLNE,26/11/2025,19:00,VSG Altglienicke,Hertha Berlin II,3,0
+GRLNE,27/02/2026,19:00,BFC Dynamo,Hertha Berlin II,1,3
+GRLNE,27/02/2026,19:00,Chemnitzer FC,Babelsberg,5,1
+GRLNE,27/02/2026,19:00,FC Eilenburg,Carl Zeiss Jena,2,1
+GRLNE,27/03/2026,19:00,Babelsberg,BSG Chemie Leipzig,5,0
+GRLNE,27/07/2025,14:00,Babelsberg,Carl Zeiss Jena,1,4
+GRLNE,27/07/2025,14:00,BSG Chemie Leipzig,Magdeburg II,0,2
+GRLNE,27/07/2025,14:00,Chemnitzer FC,Greifswalder FC,1,0
+GRLNE,27/08/2025,18:00,ZFC Meuselwitz,FC Eilenburg,1,1
+GRLNE,27/08/2025,19:00,Babelsberg,Greifswalder FC,3,1
+GRLNE,27/08/2025,19:00,Hertha Berlin II,FSV Zwickau,3,3
+GRLNE,27/08/2025,19:00,Lokomotive Leipzig,Chemnitzer FC,2,1
+GRLNE,27/08/2025,19:00,Magdeburg II,BFC Dynamo,4,3
+GRLNE,27/09/2025,14:00,BFC Preussen,Magdeburg II,1,0
+GRLNE,27/09/2025,14:00,FC Eilenburg,Hertha Zehlendorf,1,1
+GRLNE,27/09/2025,14:00,FSV Luckenwalde,BSG Chemie Leipzig,1,0
+GRLNE,27/09/2025,16:00,Carl Zeiss Jena,Chemnitzer FC,2,0
+GRLNE,28/02/2026,14:00,FSV Luckenwalde,Lokomotive Leipzig,0,3
+GRLNE,28/02/2026,14:00,FSV Zwickau,VSG Altglienicke,2,2
+GRLNE,28/02/2026,14:00,RW Erfurt,BFC Preussen,0,1
+GRLNE,28/03/2026,14:00,BFC Preussen,FSV Luckenwalde,3,1
+GRLNE,28/09/2025,14:00,FSV Zwickau,Hallescher FC,2,1
+GRLNE,28/09/2025,14:00,VSG Altglienicke,BFC Dynamo,0,0
+GRLNE,28/09/2025,14:00,ZFC Meuselwitz,Greifswalder FC,1,1
+GRLNE,28/10/2025,19:00,Magdeburg II,VSG Altglienicke,0,1
+GRLNE,28/11/2025,19:00,Chemnitzer FC,BFC Dynamo,1,1
+GRLNE,28/11/2025,19:00,FSV Luckenwalde,ZFC Meuselwitz,2,2
+GRLNE,28/11/2025,19:00,Hallescher FC,FC Eilenburg,3,0
+GRLNE,28/11/2025,20:20,RW Erfurt,Carl Zeiss Jena,3,1
+GRLNE,29/04/2026,19:00,Babelsberg,Hallescher FC,4,1
+GRLNE,29/08/2025,19:00,FSV Luckenwalde,VSG Altglienicke,1,3
+GRLNE,29/11/2025,13:00,BFC Preussen,VSG Altglienicke,1,1
+GRLNE,29/11/2025,14:00,BSG Chemie Leipzig,FSV Zwickau,1,2
+GRLNE,30/01/2026,19:00,BFC Dynamo,BFC Preussen,0,0
+GRLNE,30/01/2026,19:00,BSG Chemie Leipzig,Chemnitzer FC,0,0
+GRLNE,30/01/2026,19:00,FC Eilenburg,Hertha Berlin II,0,0
+GRLNE,30/01/2026,19:00,FSV Luckenwalde,Magdeburg II,0,0
+GRLNE,30/04/2026,19:00,Hertha Berlin II,FSV Luckenwalde,0,1
+GRLNE,30/08/2025,14:00,BFC Dynamo,Babelsberg,0,4
+GRLNE,30/08/2025,14:00,Chemnitzer FC,BFC Preussen,1,1
+GRLNE,30/08/2025,14:00,Greifswalder FC,Hallescher FC,0,2
+GRLNE,30/08/2025,14:00,Hertha Zehlendorf,Hertha Berlin II,2,2
+GRLNE,30/11/2025,14:00,Greifswalder FC,Hertha Zehlendorf,1,1
+GRLNE,30/11/2025,14:00,Hertha Berlin II,Babelsberg,0,2
+GRLNE,31/01/2026,14:00,Hertha Zehlendorf,Hallescher FC,0,0
+GRLNE,31/01/2026,14:00,ZFC Meuselwitz,Lokomotive Leipzig,0,0
+GRLNE,31/07/2025,19:00,Magdeburg II,Hallescher FC,0,1
+GRLNE,31/08/2025,14:00,FC Eilenburg,Lokomotive Leipzig,0,1
+GRLNE,31/08/2025,14:00,FSV Zwickau,ZFC Meuselwitz,2,0
+GRLNE,31/08/2025,14:00,RW Erfurt,Magdeburg II,3,1
+GRLNE,31/10/2025,14:00,Carl Zeiss Jena,Magdeburg II,2,1
+GRLNE,31/10/2025,19:00,Babelsberg,BFC Preussen,2,5
+GRLNE,31/10/2025,19:00,Hertha Zehlendorf,BSG Chemie Leipzig,0,0

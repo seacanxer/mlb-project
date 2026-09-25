@@ -1,0 +1,311 @@
+Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG
+GRLSW,01/03/2026,14:00,FCA Walldorf,Homburg,1,0
+GRLSW,01/03/2026,14:00,Freiburg II,Sandhausen,2,2
+GRLSW,01/03/2026,14:00,Mainz 05 II,TSV Steinbach,3,1
+GRLSW,01/08/2025,19:00,Sandhausen,FSV Frankfurt,1,2
+GRLSW,01/10/2025,19:00,Hessen Kassel,Bahlinger SC,2,2
+GRLSW,01/10/2025,19:00,Sonnenhof Großaspach,Sandhausen,2,3
+GRLSW,01/11/2025,14:00,Bahlinger SC,TSG Balingen,4,3
+GRLSW,01/11/2025,14:00,FCA Walldorf,Kickers Offenbach,4,3
+GRLSW,01/11/2025,14:00,Freiberg,SG Barockstadt Fulda Lehnerz,1,1
+GRLSW,01/11/2025,14:00,Freiburg II,TSV Steinbach,3,2
+GRLSW,01/11/2025,14:00,FSV Frankfurt,Bayern Alzenau,4,0
+GRLSW,01/11/2025,14:00,Hessen Kassel,Eintracht Trier,3,2
+GRLSW,01/11/2025,14:00,Sonnenhof Großaspach,Mainz 05 II,2,2
+GRLSW,01/11/2025,14:00,TSV Schott Mainz,Sandhausen,0,2
+GRLSW,02/04/2026,19:00,FSV Frankfurt,FCA Walldorf,2,2
+GRLSW,02/05/2026,14:00,Bayern Alzenau,FSV Frankfurt,1,3
+GRLSW,02/05/2026,14:00,Kickers Offenbach,FCA Walldorf,1,1
+GRLSW,02/05/2026,14:00,Mainz 05 II,Sonnenhof Großaspach,0,0
+GRLSW,02/05/2026,14:00,Sandhausen,TSV Schott Mainz,0,1
+GRLSW,02/05/2026,14:00,SG Barockstadt Fulda Lehnerz,Freiberg,0,2
+GRLSW,02/05/2026,14:00,TSG Balingen,Bahlinger SC,1,2
+GRLSW,02/05/2026,14:00,TSV Steinbach,Freiburg II,3,1
+GRLSW,02/08/2025,14:00,Bahlinger SC,Kickers Offenbach,0,2
+GRLSW,02/08/2025,14:00,Bayern Alzenau,TSV Schott Mainz,0,4
+GRLSW,02/08/2025,14:00,Freiberg,Freiburg II,3,0
+GRLSW,02/08/2025,14:00,Homburg,Hessen Kassel,1,1
+GRLSW,02/08/2025,14:00,Mainz 05 II,FCA Walldorf,0,0
+GRLSW,02/08/2025,14:00,Sonnenhof Großaspach,TSG Balingen,6,1
+GRLSW,02/08/2025,14:00,TSV Steinbach,Eintracht Trier,3,2
+GRLSW,02/11/2025,14:00,Homburg,Stuttgarter Kickers,2,1
+GRLSW,03/03/2026,19:00,Bayern Alzenau,Bahlinger SC,2,0
+GRLSW,03/03/2026,19:00,Freiberg,Eintracht Trier,1,0
+GRLSW,03/03/2026,19:00,FSV Frankfurt,Hessen Kassel,4,2
+GRLSW,03/05/2026,14:00,Eintracht Trier,Hessen Kassel,0,2
+GRLSW,03/05/2026,14:00,Stuttgarter Kickers,Homburg,2,0
+GRLSW,03/08/2025,14:00,SG Barockstadt Fulda Lehnerz,Stuttgarter Kickers,0,1
+GRLSW,03/10/2025,14:00,Bayern Alzenau,SG Barockstadt Fulda Lehnerz,1,4
+GRLSW,04/03/2026,19:00,TSV Steinbach,Kickers Offenbach,4,2
+GRLSW,04/04/2026,14:00,Bahlinger SC,Hessen Kassel,1,2
+GRLSW,04/04/2026,14:00,Bayern Alzenau,TSV Steinbach,3,4
+GRLSW,04/04/2026,14:00,Eintracht Trier,Mainz 05 II,0,5
+GRLSW,04/04/2026,14:00,Sandhausen,Sonnenhof Großaspach,1,3
+GRLSW,04/04/2026,14:00,SG Barockstadt Fulda Lehnerz,Kickers Offenbach,1,0
+GRLSW,04/04/2026,14:00,TSG Balingen,Freiburg II,2,3
+GRLSW,04/04/2026,14:00,TSV Schott Mainz,Homburg,0,7
+GRLSW,04/10/2025,14:00,Bahlinger SC,Mainz 05 II,1,1
+GRLSW,04/10/2025,14:00,Eintracht Trier,Freiburg II,3,1
+GRLSW,04/10/2025,14:00,Freiberg,Homburg,1,2
+GRLSW,04/10/2025,14:00,Hessen Kassel,FCA Walldorf,1,3
+GRLSW,04/10/2025,14:00,TSG Balingen,Kickers Offenbach,1,1
+GRLSW,04/10/2025,14:00,TSV Schott Mainz,Sonnenhof Großaspach,1,4
+GRLSW,05/09/2025,19:00,FCA Walldorf,Freiberg,1,3
+GRLSW,05/09/2025,19:00,Kickers Offenbach,Homburg,2,2
+GRLSW,05/10/2025,14:00,FSV Frankfurt,Stuttgarter Kickers,3,0
+GRLSW,05/10/2025,14:00,Sandhausen,TSV Steinbach,1,5
+GRLSW,05/12/2025,19:00,Eintracht Trier,Stuttgarter Kickers,2,4
+GRLSW,05/12/2025,19:00,FCA Walldorf,TSV Steinbach,2,2
+GRLSW,05/12/2025,19:00,Kickers Offenbach,Mainz 05 II,3,1
+GRLSW,06/04/2026,14:00,Freiberg,Stuttgarter Kickers,2,1
+GRLSW,06/09/2025,14:00,Bahlinger SC,Sandhausen,1,3
+GRLSW,06/09/2025,14:00,Eintracht Trier,Bayern Alzenau,3,0
+GRLSW,06/09/2025,14:00,Hessen Kassel,Sonnenhof Großaspach,2,2
+GRLSW,06/09/2025,14:00,Mainz 05 II,SG Barockstadt Fulda Lehnerz,2,2
+GRLSW,06/09/2025,14:00,TSG Balingen,FSV Frankfurt,0,2
+GRLSW,06/09/2025,14:00,TSV Steinbach,Stuttgarter Kickers,0,1
+GRLSW,06/12/2025,14:00,Bahlinger SC,Homburg,0,2
+GRLSW,06/12/2025,14:00,Freiburg II,Bayern Alzenau,1,3
+GRLSW,06/12/2025,14:00,FSV Frankfurt,Sonnenhof Großaspach,1,3
+GRLSW,06/12/2025,14:00,Hessen Kassel,Sandhausen,2,3
+GRLSW,06/12/2025,14:00,TSG Balingen,SG Barockstadt Fulda Lehnerz,1,2
+GRLSW,06/12/2025,14:00,TSV Schott Mainz,Freiberg,0,1
+GRLSW,07/03/2026,14:00,Bayern Alzenau,Eintracht Trier,2,0
+GRLSW,07/03/2026,14:00,Freiberg,FCA Walldorf,2,0
+GRLSW,07/03/2026,14:00,FSV Frankfurt,TSG Balingen,2,3
+GRLSW,07/03/2026,14:00,Sandhausen,Bahlinger SC,1,1
+GRLSW,07/03/2026,14:00,SG Barockstadt Fulda Lehnerz,Mainz 05 II,2,1
+GRLSW,07/03/2026,14:00,Sonnenhof Großaspach,Hessen Kassel,1,0
+GRLSW,07/03/2026,14:00,Stuttgarter Kickers,TSV Steinbach,4,1
+GRLSW,07/03/2026,14:00,TSV Schott Mainz,Freiburg II,0,3
+GRLSW,07/09/2025,14:00,Freiburg II,TSV Schott Mainz,3,3
+GRLSW,07/11/2025,19:00,Kickers Offenbach,Freiburg II,1,1
+GRLSW,07/11/2025,19:00,TSV Steinbach,Hessen Kassel,1,2
+GRLSW,08/03/2026,14:00,Homburg,Kickers Offenbach,1,1
+GRLSW,08/08/2025,19:00,Kickers Offenbach,Bayern Alzenau,1,0
+GRLSW,08/11/2025,14:00,Bayern Alzenau,Homburg,1,1
+GRLSW,08/11/2025,14:00,Eintracht Trier,Bahlinger SC,2,1
+GRLSW,08/11/2025,14:00,Sandhausen,Freiberg,1,0
+GRLSW,08/11/2025,14:00,SG Barockstadt Fulda Lehnerz,Sonnenhof Großaspach,1,2
+GRLSW,08/11/2025,14:00,Stuttgarter Kickers,FCA Walldorf,2,1
+GRLSW,08/11/2025,14:00,TSG Balingen,TSV Schott Mainz,4,1
+GRLSW,09/05/2026,14:00,Bahlinger SC,Eintracht Trier,2,2
+GRLSW,09/05/2026,14:00,FCA Walldorf,Stuttgarter Kickers,0,1
+GRLSW,09/05/2026,14:00,Freiberg,Sandhausen,1,2
+GRLSW,09/05/2026,14:00,Freiburg II,Kickers Offenbach,1,3
+GRLSW,09/05/2026,14:00,FSV Frankfurt,Mainz 05 II,1,1
+GRLSW,09/05/2026,14:00,Hessen Kassel,TSV Steinbach,2,0
+GRLSW,09/05/2026,14:00,Homburg,Bayern Alzenau,5,2
+GRLSW,09/05/2026,14:00,Sonnenhof Großaspach,SG Barockstadt Fulda Lehnerz,0,2
+GRLSW,09/05/2026,15:00,TSV Schott Mainz,TSG Balingen,2,3
+GRLSW,09/08/2025,14:00,Eintracht Trier,SG Barockstadt Fulda Lehnerz,3,2
+GRLSW,09/08/2025,14:00,FCA Walldorf,Sonnenhof Großaspach,1,4
+GRLSW,09/08/2025,14:00,FSV Frankfurt,Freiberg,1,3
+GRLSW,09/08/2025,14:00,Hessen Kassel,Mainz 05 II,3,0
+GRLSW,09/08/2025,14:00,TSG Balingen,TSV Steinbach,0,3
+GRLSW,09/08/2025,14:00,TSV Schott Mainz,Bahlinger SC,1,3
+GRLSW,09/11/2025,14:00,Mainz 05 II,FSV Frankfurt,0,1
+GRLSW,10/04/2026,19:00,SG Barockstadt Fulda Lehnerz,Bayern Alzenau,3,1
+GRLSW,10/04/2026,19:00,Sonnenhof Großaspach,TSV Schott Mainz,2,1
+GRLSW,10/04/2026,19:00,TSV Steinbach,Sandhausen,2,3
+GRLSW,10/08/2025,14:00,Freiburg II,Homburg,5,3
+GRLSW,10/08/2025,14:00,Stuttgarter Kickers,Sandhausen,3,2
+GRLSW,10/10/2025,19:00,FCA Walldorf,Eintracht Trier,2,0
+GRLSW,10/10/2025,19:00,Homburg,FSV Frankfurt,3,1
+GRLSW,11/04/2026,14:00,FCA Walldorf,Hessen Kassel,3,4
+GRLSW,11/04/2026,14:00,Homburg,Freiberg,2,1
+GRLSW,11/04/2026,14:00,Kickers Offenbach,TSG Balingen,5,0
+GRLSW,11/04/2026,14:00,Mainz 05 II,Bahlinger SC,1,1
+GRLSW,11/04/2026,14:00,Stuttgarter Kickers,FSV Frankfurt,0,3
+GRLSW,11/10/2025,14:00,Freiburg II,Hessen Kassel,1,3
+GRLSW,11/10/2025,14:00,Kickers Offenbach,TSV Schott Mainz,3,1
+GRLSW,11/10/2025,14:00,Mainz 05 II,TSG Balingen,2,0
+GRLSW,11/10/2025,14:00,SG Barockstadt Fulda Lehnerz,Sandhausen,1,1
+GRLSW,11/10/2025,14:00,Sonnenhof Großaspach,Bayern Alzenau,3,2
+GRLSW,11/10/2025,14:00,Stuttgarter Kickers,Bahlinger SC,3,0
+GRLSW,11/10/2025,14:00,TSV Steinbach,Freiberg,1,1
+GRLSW,12/04/2026,14:00,Freiburg II,Eintracht Trier,4,1
+GRLSW,12/09/2025,19:00,Sonnenhof Großaspach,Kickers Offenbach,3,3
+GRLSW,13/09/2025,14:00,Bayern Alzenau,Mainz 05 II,1,3
+GRLSW,13/09/2025,14:00,Freiberg,Bahlinger SC,5,0
+GRLSW,13/09/2025,14:00,Homburg,TSV Steinbach,1,1
+GRLSW,13/09/2025,14:00,Sandhausen,TSG Balingen,1,2
+GRLSW,13/09/2025,14:00,SG Barockstadt Fulda Lehnerz,FCA Walldorf,1,1
+GRLSW,13/09/2025,14:00,Stuttgarter Kickers,Freiburg II,4,0
+GRLSW,13/09/2025,14:00,TSV Schott Mainz,Hessen Kassel,1,2
+GRLSW,14/03/2026,14:00,Bahlinger SC,Freiberg,2,2
+GRLSW,14/03/2026,14:00,Eintracht Trier,FSV Frankfurt,1,1
+GRLSW,14/03/2026,14:00,FCA Walldorf,SG Barockstadt Fulda Lehnerz,2,2
+GRLSW,14/03/2026,14:00,Freiburg II,Stuttgarter Kickers,1,3
+GRLSW,14/03/2026,14:00,Hessen Kassel,TSV Schott Mainz,2,1
+GRLSW,14/03/2026,14:00,Kickers Offenbach,Sonnenhof Großaspach,1,3
+GRLSW,14/03/2026,14:00,TSG Balingen,Sandhausen,1,2
+GRLSW,14/03/2026,14:00,TSV Steinbach,Homburg,1,4
+GRLSW,14/09/2025,14:00,FSV Frankfurt,Eintracht Trier,2,0
+GRLSW,15/03/2026,14:00,Mainz 05 II,Bayern Alzenau,2,0
+GRLSW,15/11/2025,14:00,Bahlinger SC,TSV Steinbach,1,2
+GRLSW,15/11/2025,14:00,Freiberg,Bayern Alzenau,0,0
+GRLSW,15/11/2025,14:00,FSV Frankfurt,SG Barockstadt Fulda Lehnerz,1,1
+GRLSW,15/11/2025,14:00,Hessen Kassel,Kickers Offenbach,1,1
+GRLSW,15/11/2025,14:00,Homburg,Sandhausen,0,1
+GRLSW,15/11/2025,14:00,Sonnenhof Großaspach,Stuttgarter Kickers,3,1
+GRLSW,15/11/2025,14:00,TSV Schott Mainz,Eintracht Trier,1,1
+GRLSW,16/05/2026,14:00,Bayern Alzenau,Freiberg,3,3
+GRLSW,16/05/2026,14:00,Eintracht Trier,TSV Schott Mainz,2,0
+GRLSW,16/05/2026,14:00,Kickers Offenbach,Hessen Kassel,1,3
+GRLSW,16/05/2026,14:00,Mainz 05 II,Freiburg II,0,4
+GRLSW,16/05/2026,14:00,Sandhausen,Homburg,1,3
+GRLSW,16/05/2026,14:00,SG Barockstadt Fulda Lehnerz,FSV Frankfurt,1,2
+GRLSW,16/05/2026,14:00,Stuttgarter Kickers,Sonnenhof Großaspach,2,0
+GRLSW,16/05/2026,14:00,TSG Balingen,FCA Walldorf,1,4
+GRLSW,16/05/2026,14:00,TSV Steinbach,Bahlinger SC,4,2
+GRLSW,16/08/2025,14:00,Bayern Alzenau,Freiburg II,2,2
+GRLSW,16/08/2025,14:00,Freiberg,TSV Schott Mainz,4,0
+GRLSW,16/08/2025,14:00,Mainz 05 II,Kickers Offenbach,3,1
+GRLSW,16/08/2025,14:00,SG Barockstadt Fulda Lehnerz,TSG Balingen,1,2
+GRLSW,16/08/2025,14:00,TSV Steinbach,FCA Walldorf,4,2
+GRLSW,16/11/2025,14:00,FCA Walldorf,TSG Balingen,6,0
+GRLSW,16/11/2025,14:00,Freiburg II,Mainz 05 II,2,1
+GRLSW,17/04/2026,19:00,FSV Frankfurt,Homburg,1,1
+GRLSW,17/08/2025,14:00,Stuttgarter Kickers,Eintracht Trier,1,1
+GRLSW,17/10/2025,19:00,Eintracht Trier,Homburg,2,0
+GRLSW,18/04/2026,14:00,Bahlinger SC,Stuttgarter Kickers,2,1
+GRLSW,18/04/2026,14:00,Bayern Alzenau,Sonnenhof Großaspach,1,4
+GRLSW,18/04/2026,14:00,Eintracht Trier,FCA Walldorf,0,0
+GRLSW,18/04/2026,14:00,Freiberg,TSV Steinbach,1,3
+GRLSW,18/04/2026,14:00,Hessen Kassel,Freiburg II,2,3
+GRLSW,18/04/2026,14:00,Sandhausen,SG Barockstadt Fulda Lehnerz,1,0
+GRLSW,18/04/2026,14:00,TSG Balingen,Mainz 05 II,1,1
+GRLSW,18/10/2025,14:00,Bayern Alzenau,FCA Walldorf,2,4
+GRLSW,18/10/2025,14:00,Freiberg,Sonnenhof Großaspach,1,1
+GRLSW,18/10/2025,14:00,Hessen Kassel,SG Barockstadt Fulda Lehnerz,2,1
+GRLSW,18/10/2025,14:00,Sandhausen,Mainz 05 II,2,2
+GRLSW,18/10/2025,14:00,TSG Balingen,Stuttgarter Kickers,0,2
+GRLSW,18/10/2025,14:00,TSV Schott Mainz,TSV Steinbach,1,4
+GRLSW,19/04/2026,14:00,TSV Schott Mainz,Kickers Offenbach,1,3
+GRLSW,19/08/2025,19:00,Sandhausen,Hessen Kassel,3,2
+GRLSW,19/08/2025,19:00,Sonnenhof Großaspach,FSV Frankfurt,2,3
+GRLSW,19/09/2025,19:00,TSV Steinbach,Sonnenhof Großaspach,2,2
+GRLSW,19/10/2025,14:00,Bahlinger SC,Freiburg II,1,2
+GRLSW,19/10/2025,14:00,FSV Frankfurt,Kickers Offenbach,1,2
+GRLSW,20/03/2026,19:00,Sonnenhof Großaspach,TSV Steinbach,4,1
+GRLSW,20/08/2025,19:00,Homburg,Bahlinger SC,6,0
+GRLSW,20/09/2025,14:00,Bahlinger SC,FSV Frankfurt,1,1
+GRLSW,20/09/2025,14:00,Eintracht Trier,Sandhausen,3,1
+GRLSW,20/09/2025,14:00,FCA Walldorf,TSV Schott Mainz,4,1
+GRLSW,20/09/2025,14:00,Freiburg II,SG Barockstadt Fulda Lehnerz,2,1
+GRLSW,20/09/2025,14:00,Hessen Kassel,Stuttgarter Kickers,3,0
+GRLSW,20/09/2025,14:00,Kickers Offenbach,Freiberg,2,5
+GRLSW,20/09/2025,14:00,Mainz 05 II,Homburg,2,2
+GRLSW,20/09/2025,14:00,TSG Balingen,Bayern Alzenau,3,1
+GRLSW,21/02/2026,14:00,Bayern Alzenau,Bahlinger SC,0,0
+GRLSW,21/02/2026,14:00,Freiberg,Eintracht Trier,0,0
+GRLSW,21/02/2026,14:00,FSV Frankfurt,Hessen Kassel,0,0
+GRLSW,21/02/2026,14:00,Homburg,TSG Balingen,4,0
+GRLSW,21/02/2026,14:00,Sandhausen,FCA Walldorf,1,2
+GRLSW,21/02/2026,14:00,SG Barockstadt Fulda Lehnerz,TSV Schott Mainz,0,2
+GRLSW,21/02/2026,14:00,Stuttgarter Kickers,Mainz 05 II,1,0
+GRLSW,21/02/2026,14:00,TSV Steinbach,Kickers Offenbach,0,0
+GRLSW,21/03/2026,14:00,Bayern Alzenau,TSG Balingen,0,0
+GRLSW,21/03/2026,14:00,Freiberg,Kickers Offenbach,2,0
+GRLSW,21/03/2026,14:00,FSV Frankfurt,Bahlinger SC,1,1
+GRLSW,21/03/2026,14:00,Sandhausen,Eintracht Trier,0,0
+GRLSW,21/03/2026,14:00,SG Barockstadt Fulda Lehnerz,Freiburg II,2,1
+GRLSW,21/03/2026,14:00,Stuttgarter Kickers,Hessen Kassel,0,1
+GRLSW,21/03/2026,14:00,TSV Schott Mainz,FCA Walldorf,4,2
+GRLSW,21/04/2026,19:00,FCA Walldorf,Bayern Alzenau,0,3
+GRLSW,21/04/2026,19:00,Freiburg II,Bahlinger SC,4,0
+GRLSW,21/04/2026,19:00,Homburg,Eintracht Trier,1,2
+GRLSW,21/04/2026,19:00,Mainz 05 II,Sandhausen,1,3
+GRLSW,21/04/2026,19:00,SG Barockstadt Fulda Lehnerz,Hessen Kassel,2,1
+GRLSW,21/04/2026,19:00,Stuttgarter Kickers,TSG Balingen,4,1
+GRLSW,21/11/2025,19:00,Eintracht Trier,TSV Steinbach,1,1
+GRLSW,21/11/2025,19:00,FSV Frankfurt,Sandhausen,1,0
+GRLSW,22/03/2026,14:00,Homburg,Mainz 05 II,0,1
+GRLSW,22/04/2026,19:00,Kickers Offenbach,FSV Frankfurt,3,3
+GRLSW,22/04/2026,19:00,Sonnenhof Großaspach,Freiberg,4,0
+GRLSW,22/04/2026,19:00,TSV Steinbach,TSV Schott Mainz,6,0
+GRLSW,22/08/2025,19:00,Hessen Kassel,FSV Frankfurt,0,1
+GRLSW,22/08/2025,19:00,Kickers Offenbach,TSV Steinbach,1,3
+GRLSW,22/11/2025,14:00,FCA Walldorf,Mainz 05 II,1,2
+GRLSW,22/11/2025,14:00,Hessen Kassel,Homburg,0,0
+GRLSW,22/11/2025,14:00,Kickers Offenbach,Bahlinger SC,1,0
+GRLSW,22/11/2025,14:00,Stuttgarter Kickers,SG Barockstadt Fulda Lehnerz,0,1
+GRLSW,22/11/2025,14:00,TSV Schott Mainz,Bayern Alzenau,1,0
+GRLSW,23/08/2025,14:00,Bahlinger SC,Bayern Alzenau,1,2
+GRLSW,23/08/2025,14:00,Eintracht Trier,Freiberg,1,4
+GRLSW,23/08/2025,14:00,FCA Walldorf,Sandhausen,4,0
+GRLSW,23/08/2025,14:00,Mainz 05 II,Stuttgarter Kickers,3,0
+GRLSW,23/08/2025,14:00,TSG Balingen,Homburg,1,4
+GRLSW,23/08/2025,14:00,TSV Schott Mainz,SG Barockstadt Fulda Lehnerz,2,4
+GRLSW,23/11/2025,14:00,Freiburg II,Freiberg,1,2
+GRLSW,24/08/2025,14:00,Freiburg II,Sonnenhof Großaspach,2,4
+GRLSW,25/02/2026,19:00,Sonnenhof Großaspach,Freiburg II,2,1
+GRLSW,25/04/2026,14:00,Bahlinger SC,Sonnenhof Großaspach,0,2
+GRLSW,25/04/2026,14:00,Bayern Alzenau,Sandhausen,1,2
+GRLSW,25/04/2026,14:00,FCA Walldorf,Freiburg II,2,3
+GRLSW,25/04/2026,14:00,Freiberg,Mainz 05 II,1,2
+GRLSW,25/04/2026,14:00,Hessen Kassel,TSG Balingen,2,2
+GRLSW,25/04/2026,14:00,Homburg,SG Barockstadt Fulda Lehnerz,1,1
+GRLSW,25/04/2026,14:00,TSV Schott Mainz,Stuttgarter Kickers,3,1
+GRLSW,25/10/2025,14:00,Freiburg II,FCA Walldorf,6,0
+GRLSW,25/10/2025,14:00,Mainz 05 II,Freiberg,2,1
+GRLSW,25/10/2025,14:00,Sonnenhof Großaspach,Bahlinger SC,4,0
+GRLSW,25/10/2025,14:00,Stuttgarter Kickers,TSV Schott Mainz,2,1
+GRLSW,25/10/2025,14:00,TSG Balingen,Hessen Kassel,1,1
+GRLSW,25/10/2025,14:00,TSV Steinbach,FSV Frankfurt,0,3
+GRLSW,25/11/2025,19:00,TSG Balingen,Sonnenhof Großaspach,0,4
+GRLSW,26/04/2026,14:00,Eintracht Trier,Kickers Offenbach,2,1
+GRLSW,26/04/2026,14:00,FSV Frankfurt,TSV Steinbach,0,6
+GRLSW,26/09/2025,19:00,FSV Frankfurt,Freiburg II,1,2
+GRLSW,26/09/2025,19:00,Sandhausen,Kickers Offenbach,4,3
+GRLSW,26/09/2025,19:00,SG Barockstadt Fulda Lehnerz,TSV Steinbach,1,1
+GRLSW,26/09/2025,19:00,TSV Schott Mainz,Mainz 05 II,1,2
+GRLSW,26/10/2025,14:00,Kickers Offenbach,Eintracht Trier,1,2
+GRLSW,26/10/2025,14:00,Sandhausen,Bayern Alzenau,1,0
+GRLSW,26/10/2025,14:00,SG Barockstadt Fulda Lehnerz,Homburg,3,3
+GRLSW,27/03/2026,19:00,TSV Steinbach,SG Barockstadt Fulda Lehnerz,2,1
+GRLSW,27/09/2025,14:00,Bahlinger SC,FCA Walldorf,2,2
+GRLSW,27/09/2025,14:00,Bayern Alzenau,Stuttgarter Kickers,3,0
+GRLSW,27/09/2025,14:00,Eintracht Trier,TSG Balingen,3,0
+GRLSW,27/09/2025,14:00,Freiberg,Hessen Kassel,3,2
+GRLSW,27/09/2025,14:00,Homburg,Sonnenhof Großaspach,1,1
+GRLSW,28/02/2026,14:00,Bahlinger SC,SG Barockstadt Fulda Lehnerz,1,2
+GRLSW,28/02/2026,14:00,Eintracht Trier,Sonnenhof Großaspach,2,0
+GRLSW,28/02/2026,14:00,Hessen Kassel,Bayern Alzenau,3,2
+GRLSW,28/02/2026,14:00,Kickers Offenbach,Stuttgarter Kickers,0,0
+GRLSW,28/02/2026,14:00,TSG Balingen,Freiberg,0,6
+GRLSW,28/02/2026,14:00,TSV Schott Mainz,FSV Frankfurt,0,5
+GRLSW,28/03/2026,14:00,FCA Walldorf,Bahlinger SC,3,1
+GRLSW,28/03/2026,14:00,Freiburg II,FSV Frankfurt,2,4
+GRLSW,28/03/2026,14:00,Hessen Kassel,Freiberg,1,1
+GRLSW,28/03/2026,14:00,Kickers Offenbach,Sandhausen,2,0
+GRLSW,28/03/2026,14:00,Mainz 05 II,TSV Schott Mainz,0,3
+GRLSW,28/03/2026,14:00,Sonnenhof Großaspach,Homburg,1,2
+GRLSW,28/03/2026,14:00,Stuttgarter Kickers,Bayern Alzenau,3,0
+GRLSW,28/03/2026,14:00,TSG Balingen,Eintracht Trier,0,1
+GRLSW,28/11/2025,19:00,Sonnenhof Großaspach,FCA Walldorf,6,0
+GRLSW,29/08/2025,19:00,Stuttgarter Kickers,Kickers Offenbach,1,2
+GRLSW,29/11/2025,14:00,Bahlinger SC,TSV Schott Mainz,0,0
+GRLSW,29/11/2025,14:00,Bayern Alzenau,Kickers Offenbach,2,0
+GRLSW,29/11/2025,14:00,Freiberg,FSV Frankfurt,3,1
+GRLSW,29/11/2025,14:00,TSV Steinbach,TSG Balingen,0,0
+GRLSW,30/08/2025,14:00,Bayern Alzenau,Hessen Kassel,2,2
+GRLSW,30/08/2025,14:00,Freiberg,TSG Balingen,1,0
+GRLSW,30/08/2025,14:00,FSV Frankfurt,TSV Schott Mainz,2,2
+GRLSW,30/08/2025,14:00,Homburg,FCA Walldorf,1,3
+GRLSW,30/08/2025,14:00,SG Barockstadt Fulda Lehnerz,Bahlinger SC,3,0
+GRLSW,30/08/2025,14:00,TSV Steinbach,Mainz 05 II,1,1
+GRLSW,30/09/2025,19:00,FCA Walldorf,FSV Frankfurt,1,0
+GRLSW,30/09/2025,19:00,Freiburg II,TSG Balingen,4,4
+GRLSW,30/09/2025,19:00,Homburg,TSV Schott Mainz,2,0
+GRLSW,30/09/2025,19:00,Kickers Offenbach,SG Barockstadt Fulda Lehnerz,1,1
+GRLSW,30/09/2025,19:00,Mainz 05 II,Eintracht Trier,3,2
+GRLSW,30/09/2025,19:00,Stuttgarter Kickers,Freiberg,1,1
+GRLSW,30/09/2025,19:00,TSV Steinbach,Bayern Alzenau,4,2
+GRLSW,30/11/2025,14:00,Homburg,Freiburg II,4,1
+GRLSW,30/11/2025,14:00,Mainz 05 II,Hessen Kassel,2,1
+GRLSW,30/11/2025,14:00,Sandhausen,Stuttgarter Kickers,2,1
+GRLSW,30/11/2025,14:00,SG Barockstadt Fulda Lehnerz,Eintracht Trier,1,0
+GRLSW,31/08/2025,14:00,Sandhausen,Freiburg II,2,2
+GRLSW,31/08/2025,14:00,Sonnenhof Großaspach,Eintracht Trier,2,2

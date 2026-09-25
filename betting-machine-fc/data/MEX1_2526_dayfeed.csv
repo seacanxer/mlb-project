@@ -1,0 +1,339 @@
+Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG
+MEX1,01/02/2026,00:00,Atlas,Mazatlan FC,1,0
+MEX1,01/02/2026,00:00,Atletico de San Luis,Chivas,2,3
+MEX1,01/02/2026,02:00,Monterrey,Tijuana,2,2
+MEX1,01/02/2026,02:10,Leon,Tigres,1,2
+MEX1,01/03/2026,00:00,Atletico de San Luis,Puebla,0,1
+MEX1,01/03/2026,00:00,Toluca,Chivas,2,0
+MEX1,01/03/2026,02:05,Monterrey,Cruz Azul,0,2
+MEX1,01/03/2026,02:06,Leon,Necaxa,2,1
+MEX1,01/03/2026,04:10,CF America,Tigres,1,4
+MEX1,01/09/2025,00:00,Pumas,Atlas,1,0
+MEX1,01/09/2025,05:00,Tijuana,Necaxa,3,0
+MEX1,01/11/2025,02:00,Necaxa,Santos Laguna,4,1
+MEX1,01/11/2025,04:00,Atletico de San Luis,FC Juarez,1,2
+MEX1,01/11/2025,04:05,Puebla,Cruz Azul,0,3
+MEX1,01/12/2025,02:00,Cruz Azul,Chivas,3,2
+MEX1,02/02/2026,00:00,Queretaro FC,Pachuca,0,0
+MEX1,02/11/2025,00:00,Atlas,Toluca,0,0
+MEX1,02/11/2025,02:05,Monterrey,Tigres,1,1
+MEX1,02/11/2025,04:10,CF America,Leon,2,0
+MEX1,02/11/2025,19:00,Pumas,Tijuana,4,1
+MEX1,03/05/2026,03:00,Tigres,Chivas,3,1
+MEX1,03/05/2026,05:15,Atlas,Cruz Azul,2,3
+MEX1,03/11/2025,00:00,Queretaro FC,Mazatlan FC,1,0
+MEX1,03/11/2025,02:00,Pachuca,Chivas,0,1
+MEX1,04/03/2026,02:00,Pachuca,Necaxa,2,1
+MEX1,04/03/2026,02:00,Santos Laguna,Cruz Azul,1,2
+MEX1,04/03/2026,04:00,Atletico de San Luis,Mazatlan FC,4,1
+MEX1,04/03/2026,04:10,Pumas,Toluca,2,3
+MEX1,04/04/2026,03:00,Puebla,FC Juarez,1,1
+MEX1,04/04/2026,05:00,Necaxa,Mazatlan FC,2,1
+MEX1,04/04/2026,05:06,Tijuana,Tigres,1,0
+MEX1,04/05/2026,01:00,CF America,Pumas,3,3
+MEX1,04/05/2026,03:15,Toluca,Pachuca,0,1
+MEX1,04/10/2025,03:00,Necaxa,Pachuca,0,1
+MEX1,04/10/2025,05:00,Mazatlan FC,Atletico de San Luis,2,1
+MEX1,04/10/2025,05:05,Atlas,FC Juarez,3,1
+MEX1,04/12/2025,02:00,Cruz Azul,Tigres,1,1
+MEX1,04/12/2025,04:10,Monterrey,Toluca,1,0
+MEX1,05/03/2026,02:00,Monterrey,Queretaro FC,4,0
+MEX1,05/03/2026,02:00,Puebla,Tigres,3,1
+MEX1,05/03/2026,04:00,Atlas,Tijuana,2,1
+MEX1,05/03/2026,04:00,CF America,FC Juarez,1,2
+MEX1,05/04/2026,01:00,Monterrey,Atletico de San Luis,1,2
+MEX1,05/04/2026,01:00,Queretaro FC,Toluca,1,0
+MEX1,05/04/2026,03:05,Cruz Azul,Pachuca,1,2
+MEX1,05/04/2026,03:06,Leon,Atlas,2,0
+MEX1,05/04/2026,05:10,Santos Laguna,CF America,1,1
+MEX1,05/10/2025,01:00,Queretaro FC,Puebla,3,1
+MEX1,05/10/2025,03:00,Leon,Toluca,2,4
+MEX1,05/10/2025,03:00,Tigres,Cruz Azul,1,1
+MEX1,05/10/2025,05:05,CF America,Santos Laguna,3,0
+MEX1,06/04/2026,04:07,Chivas,Pumas,2,2
+MEX1,06/10/2025,03:30,Pumas,Chivas,1,2
+MEX1,06/10/2025,05:05,Tijuana,Monterrey,2,2
+MEX1,07/02/2026,02:00,Necaxa,Atletico de San Luis,4,1
+MEX1,07/02/2026,02:00,Tigres,Santos Laguna,5,1
+MEX1,07/02/2026,04:06,Mazatlan FC,Chivas,1,2
+MEX1,07/02/2026,04:06,Tijuana,Puebla,0,0
+MEX1,07/03/2026,02:00,Mazatlan FC,Leon,4,2
+MEX1,07/03/2026,04:00,Necaxa,Pumas,0,1
+MEX1,07/12/2025,02:00,Toluca,Monterrey,3,2
+MEX1,07/12/2025,04:10,Tigres,Cruz Azul,1,1
+MEX1,08/02/2026,00:00,Queretaro FC,Leon,2,0
+MEX1,08/02/2026,00:00,Toluca,Cruz Azul,1,1
+MEX1,08/02/2026,02:05,Atlas,Pumas,2,2
+MEX1,08/02/2026,02:06,Pachuca,FC Juarez,2,0
+MEX1,08/02/2026,04:10,CF America,Monterrey,1,0
+MEX1,08/03/2026,00:00,Cruz Azul,Atletico de San Luis,3,0
+MEX1,08/03/2026,00:00,Queretaro FC,CF America,1,2
+MEX1,08/03/2026,02:05,Atlas,Chivas,1,2
+MEX1,08/03/2026,02:06,Pachuca,Puebla,2,1
+MEX1,08/03/2026,04:00,Tigres,Monterrey,1,0
+MEX1,08/04/2026,02:00,Queretaro FC,FC Juarez,1,1
+MEX1,08/11/2025,02:00,FC Juarez,Queretaro FC,1,2
+MEX1,08/11/2025,04:00,Mazatlan FC,Necaxa,1,1
+MEX1,08/11/2025,04:00,Tijuana,Atlas,2,0
+MEX1,09/03/2026,00:00,Toluca,FC Juarez,3,1
+MEX1,09/03/2026,04:06,Tijuana,Santos Laguna,1,2
+MEX1,09/08/2025,05:00,Tigres,Puebla,7,0
+MEX1,09/11/2025,00:00,Tigres,Atletico de San Luis,3,1
+MEX1,09/11/2025,00:07,Chivas,Monterrey,4,2
+MEX1,09/11/2025,02:00,Leon,Puebla,1,2
+MEX1,09/11/2025,02:00,Toluca,CF America,2,0
+MEX1,09/11/2025,04:15,Cruz Azul,Pumas,2,3
+MEX1,10/01/2026,02:00,Mazatlan FC,FC Juarez,1,2
+MEX1,10/01/2026,04:00,Atlas,Puebla,1,0
+MEX1,10/01/2026,04:00,Tijuana,CF America,0,0
+MEX1,10/05/2026,03:07,Chivas,Tigres,2,0
+MEX1,10/05/2026,05:15,Cruz Azul,Atlas,1,0
+MEX1,10/08/2025,04:45,CF America,Queretaro FC,1,0
+MEX1,10/08/2025,05:00,Mazatlan FC,Tijuana,2,2
+MEX1,10/08/2025,05:05,Atlas,Pachuca,0,3
+MEX1,10/11/2025,00:00,Santos Laguna,Pachuca,1,0
+MEX1,11/01/2026,00:07,Chivas,Pachuca,2,0
+MEX1,11/01/2026,02:00,Leon,Cruz Azul,2,1
+MEX1,11/01/2026,02:00,Santos Laguna,Necaxa,1,3
+MEX1,11/01/2026,04:05,Monterrey,Toluca,0,1
+MEX1,11/01/2026,19:00,Pumas,Queretaro FC,1,1
+MEX1,11/04/2026,03:00,Puebla,Leon,0,1
+MEX1,11/04/2026,05:06,FC Juarez,Tijuana,1,2
+MEX1,11/05/2026,01:00,Pachuca,Toluca,2,0
+MEX1,11/05/2026,03:15,Pumas,CF America,3,3
+MEX1,11/08/2025,02:00,Pumas,Necaxa,1,1
+MEX1,11/08/2025,04:05,Santos Laguna,Chivas,1,0
+MEX1,12/01/2026,02:00,Atletico de San Luis,Tigres,1,2
+MEX1,12/04/2026,01:00,Queretaro FC,Necaxa,3,1
+MEX1,12/04/2026,01:00,Tigres,Chivas,4,1
+MEX1,12/04/2026,03:00,Atlas,Monterrey,0,0
+MEX1,12/04/2026,03:00,Pachuca,Santos Laguna,4,2
+MEX1,12/04/2026,05:05,CF America,Cruz Azul,1,1
+MEX1,12/04/2026,20:00,Pumas,Mazatlan FC,3,1
+MEX1,12/07/2025,03:00,Puebla,Atlas,2,3
+MEX1,12/07/2025,05:00,FC Juarez,CF America,1,1
+MEX1,12/07/2025,05:05,Tijuana,Queretaro FC,1,0
+MEX1,12/08/2025,03:00,Leon,Monterrey,1,3
+MEX1,12/08/2025,05:00,FC Juarez,Toluca,0,2
+MEX1,12/08/2025,05:05,Atletico de San Luis,Cruz Azul,1,2
+MEX1,12/12/2025,03:00,Tigres,Toluca,1,0
+MEX1,13/04/2026,03:00,Toluca,Atletico de San Luis,1,1
+MEX1,13/07/2025,03:00,Santos Laguna,Pumas,3,0
+MEX1,13/07/2025,03:00,Toluca,Necaxa,3,1
+MEX1,13/07/2025,05:05,Cruz Azul,Mazatlan FC,0,0
+MEX1,13/09/2025,03:00,Necaxa,FC Juarez,1,1
+MEX1,13/09/2025,05:00,Mazatlan FC,Pumas,1,4
+MEX1,14/01/2026,00:00,Puebla,Mazatlan FC,2,1
+MEX1,14/01/2026,02:00,Necaxa,Monterrey,0,2
+MEX1,14/01/2026,02:06,Pachuca,Leon,2,1
+MEX1,14/01/2026,04:10,FC Juarez,Chivas,0,1
+MEX1,14/02/2026,02:00,Puebla,Pumas,2,3
+MEX1,14/02/2026,04:05,Toluca,Tijuana,1,0
+MEX1,14/03/2026,02:00,Puebla,Necaxa,0,0
+MEX1,14/03/2026,04:00,FC Juarez,Monterrey,2,2
+MEX1,14/05/2026,04:00,Cruz Azul,Chivas,2,2
+MEX1,14/07/2025,01:00,Pachuca,Monterrey,3,0
+MEX1,14/07/2025,03:00,Leon,Atletico de San Luis,0,1
+MEX1,14/09/2025,01:00,Pachuca,Cruz Azul,0,1
+MEX1,14/09/2025,03:00,Atlas,Santos Laguna,2,2
+MEX1,14/09/2025,03:00,Tigres,Leon,0,0
+MEX1,14/09/2025,05:00,Toluca,Puebla,3,1
+MEX1,14/09/2025,05:15,CF America,Chivas,1,2
+MEX1,15/01/2026,00:00,Cruz Azul,Atlas,2,0
+MEX1,15/01/2026,02:00,Queretaro FC,Tijuana,1,2
+MEX1,15/01/2026,02:05,CF America,Atletico de San Luis,0,2
+MEX1,15/01/2026,04:06,Tigres,Pumas,0,1
+MEX1,15/01/2026,04:10,Toluca,Santos Laguna,3,1
+MEX1,15/02/2026,00:00,Atletico de San Luis,Queretaro FC,3,0
+MEX1,15/02/2026,00:00,Pachuca,Atlas,3,1
+MEX1,15/02/2026,02:00,Monterrey,Leon,1,0
+MEX1,15/02/2026,02:06,FC Juarez,Necaxa,1,2
+MEX1,15/02/2026,04:07,Chivas,CF America,1,0
+MEX1,15/02/2026,23:30,Cruz Azul,Tigres,2,1
+MEX1,15/03/2026,00:00,Atletico de San Luis,Pachuca,1,1
+MEX1,15/03/2026,00:07,Chivas,Santos Laguna,3,0
+MEX1,15/03/2026,02:00,Leon,Tijuana,0,3
+MEX1,15/03/2026,02:00,Toluca,Atlas,1,1
+MEX1,15/03/2026,04:10,Pumas,Cruz Azul,2,2
+MEX1,15/05/2026,03:00,Pachuca,Pumas,1,0
+MEX1,15/09/2025,01:00,Queretaro FC,Monterrey,0,1
+MEX1,15/09/2025,03:00,Atletico de San Luis,Tijuana,1,1
+MEX1,15/12/2025,02:00,Toluca,Tigres,11,9
+MEX1,16/02/2026,00:00,Santos Laguna,Mazatlan FC,1,2
+MEX1,16/03/2026,00:00,Tigres,Queretaro FC,0,0
+MEX1,16/03/2026,02:00,CF America,Mazatlan FC,2,0
+MEX1,16/08/2025,03:00,Puebla,Atletico de San Luis,0,2
+MEX1,16/08/2025,05:05,Necaxa,Leon,0,1
+MEX1,17/01/2026,04:00,Mazatlan FC,Monterrey,1,5
+MEX1,17/05/2026,03:07,Chivas,Cruz Azul,1,2
+MEX1,17/07/2025,03:00,CF America,Tijuana,3,1
+MEX1,17/07/2025,05:05,Santos Laguna,Toluca,2,4
+MEX1,17/08/2025,01:07,Chivas,FC Juarez,1,2
+MEX1,17/08/2025,03:00,Cruz Azul,Santos Laguna,3,2
+MEX1,17/08/2025,03:00,Pachuca,Tijuana,0,2
+MEX1,17/08/2025,03:00,Tigres,CF America,1,3
+MEX1,17/08/2025,05:10,Toluca,Pumas,1,1
+MEX1,18/01/2026,00:00,Necaxa,Atlas,0,1
+MEX1,18/01/2026,00:07,Chivas,Queretaro FC,2,1
+MEX1,18/01/2026,02:00,Tigres,Toluca,0,0
+MEX1,18/01/2026,04:05,Cruz Azul,Puebla,1,0
+MEX1,18/01/2026,04:06,Tijuana,Atletico de San Luis,1,1
+MEX1,18/01/2026,19:00,Pumas,Leon,1,1
+MEX1,18/04/2026,03:00,Atletico de San Luis,Pumas,0,2
+MEX1,18/04/2026,03:00,Mazatlan FC,Queretaro FC,1,1
+MEX1,18/05/2026,03:00,Pumas,Pachuca,1,0
+MEX1,18/08/2025,00:00,Queretaro FC,Atlas,3,3
+MEX1,18/08/2025,02:00,Monterrey,Mazatlan FC,3,2
+MEX1,18/09/2025,04:50,Chivas,Tigres,0,0
+MEX1,18/10/2025,03:00,Puebla,Tijuana,4,3
+MEX1,18/10/2025,05:00,Atletico de San Luis,Atlas,2,0
+MEX1,18/10/2025,05:15,Tigres,Necaxa,5,3
+MEX1,19/01/2026,00:00,Santos Laguna,FC Juarez,2,2
+MEX1,19/01/2026,02:06,Pachuca,CF America,0,0
+MEX1,19/03/2026,03:07,Chivas,Leon,5,0
+MEX1,19/04/2026,01:00,Cruz Azul,Tijuana,1,1
+MEX1,19/04/2026,01:00,Necaxa,Tigres,1,1
+MEX1,19/04/2026,03:05,Monterrey,Pachuca,1,3
+MEX1,19/04/2026,03:07,Chivas,Puebla,5,0
+MEX1,19/04/2026,05:06,Leon,FC Juarez,3,1
+MEX1,19/04/2026,05:10,CF America,Toluca,2,1
+MEX1,19/07/2025,03:00,Necaxa,Queretaro FC,3,1
+MEX1,19/07/2025,05:00,Atletico de San Luis,Monterrey,0,1
+MEX1,19/07/2025,05:05,Mazatlan FC,Puebla,2,1
+MEX1,19/10/2025,01:00,FC Juarez,Pachuca,2,2
+MEX1,19/10/2025,01:00,Santos Laguna,Leon,2,0
+MEX1,19/10/2025,01:00,Toluca,Queretaro FC,4,0
+MEX1,19/10/2025,03:00,Monterrey,Pumas,1,1
+MEX1,19/10/2025,03:07,Chivas,Mazatlan FC,2,0
+MEX1,19/10/2025,05:05,Cruz Azul,CF America,2,1
+MEX1,20/04/2026,01:00,Santos Laguna,Atlas,0,1
+MEX1,20/07/2025,03:00,Leon,Chivas,1,0
+MEX1,20/07/2025,03:00,Tigres,FC Juarez,1,0
+MEX1,20/07/2025,05:05,Atlas,Cruz Azul,3,3
+MEX1,20/07/2025,20:00,Pumas,Pachuca,2,3
+MEX1,20/09/2025,03:00,Cruz Azul,FC Juarez,3,2
+MEX1,20/09/2025,03:00,Necaxa,Puebla,1,0
+MEX1,20/09/2025,05:00,Mazatlan FC,Atlas,1,1
+MEX1,20/09/2025,05:05,Tijuana,Leon,5,0
+MEX1,21/02/2026,02:00,Tigres,Pachuca,1,2
+MEX1,21/02/2026,04:06,Puebla,CF America,0,4
+MEX1,21/03/2026,02:00,Necaxa,Tijuana,3,0
+MEX1,21/03/2026,04:06,Mazatlan FC,Cruz Azul,1,1
+MEX1,21/09/2025,01:00,Pachuca,Queretaro FC,0,2
+MEX1,21/09/2025,03:00,Pumas,Tigres,1,1
+MEX1,21/09/2025,03:07,Chivas,Toluca,0,3
+MEX1,21/09/2025,05:05,Monterrey,CF America,2,2
+MEX1,21/11/2025,02:00,Pachuca,Pumas,3,1
+MEX1,21/11/2025,04:00,Tijuana,FC Juarez,3,1
+MEX1,22/02/2026,00:00,Atlas,Atletico de San Luis,3,2
+MEX1,22/02/2026,02:00,Leon,Santos Laguna,2,1
+MEX1,22/02/2026,02:00,Necaxa,Toluca,0,3
+MEX1,22/02/2026,04:05,Cruz Azul,Chivas,2,1
+MEX1,22/02/2026,06:10,Tijuana,Mazatlan FC,1,1
+MEX1,22/03/2026,00:00,Atlas,Queretaro FC,0,0
+MEX1,22/03/2026,02:00,Atletico de San Luis,Leon,1,2
+MEX1,22/03/2026,02:05,Monterrey,Chivas,2,3
+MEX1,22/03/2026,04:10,Pumas,CF America,1,0
+MEX1,22/04/2026,03:00,Pumas,FC Juarez,4,2
+MEX1,22/04/2026,03:00,Queretaro FC,Cruz Azul,1,1
+MEX1,22/04/2026,05:05,Monterrey,Puebla,2,1
+MEX1,22/04/2026,05:06,Leon,CF America,2,3
+MEX1,22/05/2026,04:00,Cruz Azul,Pumas,0,0
+MEX1,22/09/2025,01:00,Santos Laguna,Atletico de San Luis,1,4
+MEX1,22/10/2025,03:00,CF America,Puebla,2,1
+MEX1,22/10/2025,03:00,Necaxa,Cruz Azul,1,1
+MEX1,22/10/2025,05:00,Mazatlan FC,Santos Laguna,2,2
+MEX1,22/10/2025,05:05,Monterrey,FC Juarez,4,2
+MEX1,23/02/2026,00:00,Pumas,Monterrey,2,0
+MEX1,23/02/2026,02:00,Queretaro FC,FC Juarez,0,0
+MEX1,23/03/2026,00:00,Pachuca,Toluca,1,1
+MEX1,23/03/2026,00:00,Santos Laguna,Puebla,2,1
+MEX1,23/03/2026,02:00,FC Juarez,Tigres,2,1
+MEX1,23/04/2026,03:00,Atlas,Tigres,0,0
+MEX1,23/04/2026,03:00,Atletico de San Luis,Santos Laguna,2,0
+MEX1,23/04/2026,03:00,Mazatlan FC,Toluca,4,3
+MEX1,23/04/2026,05:06,Tijuana,Pachuca,3,1
+MEX1,23/04/2026,05:10,Necaxa,Chivas,0,0
+MEX1,23/08/2025,03:00,FC Juarez,Santos Laguna,2,1
+MEX1,23/08/2025,03:00,Queretaro FC,Atletico de San Luis,3,2
+MEX1,23/08/2025,05:00,Tijuana,Chivas,3,3
+MEX1,23/10/2025,03:00,Pachuca,Tigres,1,2
+MEX1,23/10/2025,03:00,Queretaro FC,Chivas,1,0
+MEX1,23/10/2025,05:00,Atlas,Leon,2,0
+MEX1,23/10/2025,05:00,Tijuana,Toluca,0,0
+MEX1,23/10/2025,05:05,Pumas,Atletico de San Luis,0,1
+MEX1,24/08/2025,01:00,Leon,Pachuca,1,1
+MEX1,24/08/2025,03:00,Mazatlan FC,Tigres,2,2
+MEX1,24/08/2025,03:00,Monterrey,Necaxa,3,0
+MEX1,24/08/2025,05:45,Cruz Azul,Toluca,1,0
+MEX1,24/09/2025,03:00,Puebla,Pachuca,2,2
+MEX1,24/09/2025,03:07,Chivas,Necaxa,3,1
+MEX1,24/09/2025,05:00,FC Juarez,Pumas,3,1
+MEX1,24/09/2025,05:05,Leon,Mazatlan FC,2,2
+MEX1,24/11/2025,02:00,FC Juarez,Pachuca,2,1
+MEX1,25/04/2026,05:00,Puebla,Queretaro FC,1,2
+MEX1,25/05/2026,03:00,Pumas,Cruz Azul,1,2
+MEX1,25/08/2025,01:00,Pumas,Puebla,0,0
+MEX1,25/08/2025,04:00,Atlas,CF America,2,4
+MEX1,25/09/2025,02:00,Cruz Azul,Queretaro FC,2,2
+MEX1,25/09/2025,03:00,Tigres,Atlas,2,0
+MEX1,25/09/2025,04:00,Toluca,Monterrey,6,2
+MEX1,25/09/2025,05:00,Atletico de San Luis,CF America,0,1
+MEX1,25/09/2025,05:00,Santos Laguna,Tijuana,1,0
+MEX1,25/10/2025,03:00,FC Juarez,Puebla,4,4
+MEX1,25/10/2025,05:00,Mazatlan FC,CF America,2,2
+MEX1,26/04/2026,01:00,Pachuca,Pumas,0,2
+MEX1,26/04/2026,01:00,Tigres,Mazatlan FC,5,1
+MEX1,26/04/2026,03:05,Toluca,Leon,4,1
+MEX1,26/04/2026,03:07,Chivas,Tijuana,0,0
+MEX1,26/04/2026,05:10,FC Juarez,Atletico de San Luis,2,1
+MEX1,26/04/2026,05:20,CF America,Atlas,0,1
+MEX1,26/07/2025,03:00,Puebla,Santos Laguna,1,0
+MEX1,26/07/2025,03:00,Queretaro FC,Pumas,0,2
+MEX1,26/07/2025,05:00,Tijuana,FC Juarez,1,1
+MEX1,26/10/2025,01:00,Tigres,Tijuana,2,0
+MEX1,26/10/2025,02:00,Leon,Pumas,1,1
+MEX1,26/10/2025,02:07,Chivas,Atlas,4,1
+MEX1,26/10/2025,04:05,Cruz Azul,Monterrey,2,0
+MEX1,27/04/2026,01:00,Santos Laguna,Monterrey,3,0
+MEX1,27/04/2026,03:10,Cruz Azul,Necaxa,4,1
+MEX1,27/07/2025,01:00,Pachuca,Mazatlan FC,1,0
+MEX1,27/07/2025,01:07,Chivas,Atletico de San Luis,4,3
+MEX1,27/07/2025,03:00,Cruz Azul,Leon,4,1
+MEX1,27/07/2025,03:00,Monterrey,Atlas,3,1
+MEX1,27/07/2025,03:00,Toluca,Tigres,3,4
+MEX1,27/07/2025,05:05,Necaxa,CF America,1,1
+MEX1,27/09/2025,03:00,FC Juarez,Leon,2,0
+MEX1,27/10/2025,00:00,Santos Laguna,Queretaro FC,3,1
+MEX1,27/10/2025,02:00,Atletico de San Luis,Necaxa,3,4
+MEX1,27/10/2025,02:00,Toluca,Pachuca,2,2
+MEX1,27/11/2025,02:00,FC Juarez,Toluca,1,2
+MEX1,27/11/2025,04:05,Monterrey,CF America,2,0
+MEX1,27/11/2025,06:00,Tijuana,Tigres,3,0
+MEX1,28/02/2026,02:00,Mazatlan FC,Pachuca,1,0
+MEX1,28/02/2026,02:00,Queretaro FC,Santos Laguna,2,2
+MEX1,28/02/2026,04:00,FC Juarez,Atlas,3,1
+MEX1,28/02/2026,04:06,Tijuana,Pumas,1,1
+MEX1,28/09/2025,01:00,Atlas,Necaxa,3,2
+MEX1,28/09/2025,01:00,Pachuca,Atletico de San Luis,2,1
+MEX1,28/09/2025,01:00,Puebla,Chivas,0,2
+MEX1,28/09/2025,03:00,Monterrey,Santos Laguna,1,0
+MEX1,28/09/2025,03:00,Toluca,Mazatlan FC,3,1
+MEX1,28/09/2025,05:05,CF America,Pumas,4,1
+MEX1,28/11/2025,03:07,Chivas,Cruz Azul,0,0
+MEX1,29/09/2025,01:00,Queretaro FC,Tigres,0,2
+MEX1,29/09/2025,05:05,Tijuana,Cruz Azul,2,0
+MEX1,30/08/2025,03:00,Atletico de San Luis,Toluca,1,3
+MEX1,30/08/2025,03:00,FC Juarez,Mazatlan FC,1,0
+MEX1,30/08/2025,05:05,Puebla,Monterrey,2,4
+MEX1,30/11/2025,00:00,CF America,Monterrey,2,1
+MEX1,30/11/2025,02:05,Toluca,FC Juarez,0,0
+MEX1,30/11/2025,04:10,Tigres,Tijuana,5,0
+MEX1,31/01/2026,02:00,Puebla,Toluca,0,0
+MEX1,31/01/2026,04:00,Pumas,Santos Laguna,4,0
+MEX1,31/01/2026,04:06,FC Juarez,Cruz Azul,3,4
+MEX1,31/01/2026,23:00,CF America,Necaxa,2,0
+MEX1,31/08/2025,01:00,Leon,Queretaro FC,3,0
+MEX1,31/08/2025,03:00,Santos Laguna,Tigres,0,1
+MEX1,31/08/2025,03:07,Chivas,Cruz Azul,1,2
+MEX1,31/08/2025,05:05,CF America,Pachuca,2,0

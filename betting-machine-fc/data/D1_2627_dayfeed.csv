@@ -1,0 +1,37 @@
+Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG
+D1,04/09/2026,20:30,VfB Stuttgart,1. FC Köln,4,1
+D1,05/09/2026,15:30,Bayer Leverkusen,Union Berlin,4,0
+D1,05/09/2026,15:30,Borussia Mönchengladbach,Elversberg,3,4
+D1,05/09/2026,15:30,Hoffenheim,Borussia Dortmund,2,3
+D1,05/09/2026,15:30,Paderborn,Freiburg,0,1
+D1,05/09/2026,15:30,Werder Bremen,RB Leipzig,3,1
+D1,05/09/2026,18:30,Schalke 04,Bayern München,0,0
+D1,06/09/2026,15:30,Hamburger SV,Mainz 05,0,5
+D1,06/09/2026,17:30,Eintracht Frankfurt,Augsburg,1,4
+D1,11/09/2026,20:30,Union Berlin,Schalke 04,1,3
+D1,12/09/2026,15:30,Augsburg,Bayer Leverkusen,2,2
+D1,12/09/2026,15:30,Borussia Dortmund,Paderborn,3,0
+D1,12/09/2026,15:30,Freiburg,Borussia Mönchengladbach,5,0
+D1,12/09/2026,15:30,Hoffenheim,VfB Stuttgart,2,1
+D1,12/09/2026,15:30,Mainz 05,Eintracht Frankfurt,1,3
+D1,12/09/2026,18:30,1. FC Köln,Werder Bremen,1,1
+D1,13/09/2026,15:30,RB Leipzig,Hamburger SV,5,0
+D1,13/09/2026,17:30,Elversberg,Bayern München,1,2
+D1,18/09/2026,20:30,Bayern München,Union Berlin,7,0
+D1,19/09/2026,15:30,Borussia Mönchengladbach,Mainz 05,3,4
+D1,19/09/2026,15:30,Eintracht Frankfurt,Freiburg,2,2
+D1,19/09/2026,15:30,Hamburger SV,1. FC Köln,2,1
+D1,19/09/2026,15:30,Werder Bremen,Augsburg,3,2
+D1,19/09/2026,18:30,VfB Stuttgart,Borussia Dortmund,0,1
+D1,20/09/2026,15:30,Bayer Leverkusen,RB Leipzig,2,0
+D1,20/09/2026,17:30,Schalke 04,Elversberg,0,0
+D1,20/09/2026,19:30,Paderborn,Hoffenheim,3,1
+D1,28/08/2026,20:30,Bayern München,VfB Stuttgart,5,1
+D1,29/08/2026,15:30,Elversberg,Bayer Leverkusen,3,2
+D1,29/08/2026,15:30,1. FC Köln,Hoffenheim,3,2
+D1,29/08/2026,15:30,Mainz 05,Paderborn,0,0
+D1,29/08/2026,15:30,RB Leipzig,Borussia Mönchengladbach,3,0
+D1,29/08/2026,15:30,Union Berlin,Eintracht Frankfurt,3,3
+D1,29/08/2026,18:30,Borussia Dortmund,Hamburger SV,2,0
+D1,30/08/2026,15:30,Freiburg,Werder Bremen,4,1
+D1,30/08/2026,17:30,Augsburg,Schalke 04,3,0

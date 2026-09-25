@@ -1,0 +1,75 @@
+Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG
+MEX2,01/08/2026,03:00,Correcaminos de la UAT,Tepatitlan FC,3,1
+MEX2,01/08/2026,03:00,Mineros de Zacatecas,Tlaxcala FC,3,1
+MEX2,01/08/2026,05:00,Atletico La Paz,Alacranes de Durango,0,1
+MEX2,01/08/2026,23:45,Cruz Azul Hidalgo,Venados FC,1,1
+MEX2,02/08/2026,01:00,Tapatio,Jaiba Brava del Tampico-Madero,1,0
+MEX2,02/08/2026,03:00,Cancun FC,Leones Negros,0,2
+MEX2,02/08/2026,03:00,Piratas,Atletico Morelia,1,0
+MEX2,04/09/2026,03:00,Tepatitlan FC,Dorados,1,4
+MEX2,05/09/2026,03:00,Alacranes de Durango,Tlaxcala FC,1,1
+MEX2,05/09/2026,05:00,Atletico La Paz,Mineros de Zacatecas,3,0
+MEX2,06/09/2026,03:00,Atletico Morelia,Alebrijes Oaxaca,4,1
+MEX2,06/09/2026,03:00,Cancun FC,Cruz Azul Hidalgo,6,0
+MEX2,06/09/2026,03:00,Jaiba Brava del Tampico-Madero,Venados FC,4,3
+MEX2,06/09/2026,03:00,Piratas,Correcaminos de la UAT,4,1
+MEX2,07/08/2026,00:00,Tlaxcala FC,Alebrijes Oaxaca,0,2
+MEX2,07/08/2026,03:00,Dorados,Mineros de Zacatecas,2,2
+MEX2,07/08/2026,03:00,Leones Negros,Correcaminos de la UAT,1,3
+MEX2,07/09/2026,01:00,Tapatio,Leones Negros,1,3
+MEX2,08/08/2026,03:00,Alacranes de Durango,Piratas,0,3
+MEX2,08/08/2026,03:00,Tepatitlan FC,Atletico La Paz,0,5
+MEX2,09/08/2026,01:30,Venados FC,Tapatio,3,2
+MEX2,09/08/2026,03:00,Atletico Morelia,Cancun FC,4,1
+MEX2,09/08/2026,03:00,Jaiba Brava del Tampico-Madero,Cruz Azul Hidalgo,3,0
+MEX2,11/09/2026,03:00,Alebrijes Oaxaca,Alacranes de Durango,1,0
+MEX2,11/09/2026,20:00,Cruz Azul Hidalgo,Piratas,1,1
+MEX2,12/09/2026,03:00,Correcaminos de la UAT,Cancun FC,2,2
+MEX2,13/09/2026,00:00,Tlaxcala FC,Jaiba Brava del Tampico-Madero,3,1
+MEX2,13/09/2026,01:00,Venados FC,Tepatitlan FC,5,0
+MEX2,13/09/2026,03:00,Dorados,Tapatio,3,1
+MEX2,13/09/2026,03:00,Mineros de Zacatecas,Atletico Morelia,0,1
+MEX2,13/09/2026,20:00,Leones Negros,Atletico La Paz,2,2
+MEX2,14/08/2026,03:00,Alebrijes Oaxaca,Tepatitlan FC,1,0
+MEX2,15/08/2026,03:00,Correcaminos de la UAT,Tapatio,2,3
+MEX2,15/08/2026,03:00,Mineros de Zacatecas,Venados FC,5,1
+MEX2,15/08/2026,05:00,Atletico La Paz,Piratas,2,0
+MEX2,15/08/2026,20:00,Cruz Azul Hidalgo,Atletico Morelia,1,2
+MEX2,16/08/2026,03:00,Cancun FC,Alacranes de Durango,2,0
+MEX2,16/08/2026,03:00,Dorados,Tlaxcala FC,2,2
+MEX2,16/08/2026,20:00,Leones Negros,Jaiba Brava del Tampico-Madero,4,0
+MEX2,16/09/2026,03:00,Dorados,Cancun FC,1,1
+MEX2,18/09/2026,03:00,Alacranes de Durango,Cruz Azul Hidalgo,2,0
+MEX2,19/09/2026,03:00,Piratas,Venados FC,2,1
+MEX2,19/09/2026,03:00,Tepatitlan FC,Mineros de Zacatecas,0,1
+MEX2,19/09/2026,05:00,Atletico La Paz,Correcaminos de la UAT,3,1
+MEX2,20/09/2026,03:00,Atletico Morelia,Leones Negros,2,0
+MEX2,20/09/2026,03:00,Cancun FC,Alebrijes Oaxaca,3,0
+MEX2,20/09/2026,03:00,Jaiba Brava del Tampico-Madero,Dorados,1,1
+MEX2,21/08/2026,01:00,Venados FC,Dorados,4,2
+MEX2,21/08/2026,03:00,Atletico Morelia,Correcaminos de la UAT,1,3
+MEX2,21/08/2026,03:00,Tepatitlan FC,Tlaxcala FC,3,2
+MEX2,21/09/2026,01:00,Tapatio,Tlaxcala FC,4,0
+MEX2,22/08/2026,05:00,Atletico La Paz,Cruz Azul Hidalgo,1,1
+MEX2,23/08/2026,03:00,Alacranes de Durango,Leones Negros,1,2
+MEX2,23/08/2026,03:00,Jaiba Brava del Tampico-Madero,Alebrijes Oaxaca,2,1
+MEX2,23/08/2026,03:00,Piratas,Cancun FC,0,1
+MEX2,24/08/2026,03:00,Tapatio,Mineros de Zacatecas,4,2
+MEX2,25/07/2026,03:00,Mineros de Zacatecas,Correcaminos de la UAT,3,3
+MEX2,25/07/2026,03:00,Tepatitlan FC,Alacranes de Durango,0,1
+MEX2,25/09/2026,03:00,Alebrijes Oaxaca,Atletico La Paz,1,3
+MEX2,25/09/2026,03:00,Mineros de Zacatecas,Piratas,3,0
+MEX2,26/07/2026,00:00,Tlaxcala FC,Leones Negros,2,4
+MEX2,26/07/2026,01:55,Venados FC,Alebrijes Oaxaca,3,0
+MEX2,26/07/2026,03:00,Atletico Morelia,Atletico La Paz,4,2
+MEX2,26/07/2026,03:00,Jaiba Brava del Tampico-Madero,Piratas,0,0
+MEX2,27/07/2026,01:00,Tapatio,Cruz Azul Hidalgo,0,0
+MEX2,28/08/2026,03:00,Alebrijes Oaxaca,Tapatio,1,1
+MEX2,28/08/2026,03:00,Cancun FC,Atletico La Paz,1,2
+MEX2,29/08/2026,03:00,Correcaminos de la UAT,Alacranes de Durango,0,0
+MEX2,29/08/2026,04:20,Dorados,Atletico Morelia,0,1
+MEX2,29/08/2026,20:00,Cruz Azul Hidalgo,Tepatitlan FC,6,0
+MEX2,30/08/2026,00:00,Tlaxcala FC,Venados FC,3,1
+MEX2,30/08/2026,03:00,Mineros de Zacatecas,Jaiba Brava del Tampico-Madero,2,0
+MEX2,30/08/2026,20:00,Leones Negros,Piratas,1,1
+MEX2,31/07/2026,03:00,Alebrijes Oaxaca,Dorados,0,2

@@ -1,0 +1,91 @@
+Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG
+GRLN,01/08/2026,14:00,HSC Hannover,Kickers Emden,4,4
+GRLN,01/08/2026,14:00,Lübeck,SC Weiche Flensburg,1,1
+GRLN,01/08/2026,15:00,SSV Jeddeloh,Schöningen,0,2
+GRLN,01/08/2026,15:30,Bremer SV,Hannover 96 II,0,3
+GRLN,02/08/2026,14:00,Eintracht Norderstedt,SV Atlas Delmenhorst,2,2
+GRLN,02/08/2026,14:00,SV Todesfelde,St. Pauli II,6,4
+GRLN,02/09/2026,18:00,HSC Hannover,1. FC Phönix Lübeck,0,3
+GRLN,04/09/2026,18:30,Hannover 96 II,St. Pauli II,3,2
+GRLN,04/09/2026,19:30,SV Drochtersen/Assel,Eimsbütteler TV,7,1
+GRLN,05/09/2026,15:00,SSV Jeddeloh,Hamburger SV II,1,3
+GRLN,06/09/2026,14:00,Eintracht Norderstedt,Lübeck,1,1
+GRLN,06/09/2026,14:00,Schöningen,Oldenburg,1,0
+GRLN,06/09/2026,14:00,SV Atlas Delmenhorst,SV Todesfelde,5,2
+GRLN,06/09/2026,14:00,Werder Bremen II,1. FC Phönix Lübeck,0,2
+GRLN,06/09/2026,15:00,Bremer SV,Kickers Emden,2,3
+GRLN,06/09/2026,16:00,HSC Hannover,SC Weiche Flensburg,1,6
+GRLN,07/08/2026,18:30,Hannover 96 II,HSC Hannover,2,0
+GRLN,07/08/2026,18:30,Oldenburg,SV Drochtersen/Assel,3,1
+GRLN,07/08/2026,19:00,Kickers Emden,Hamburger SV II,3,2
+GRLN,08/08/2026,14:00,SC Weiche Flensburg,Eimsbütteler TV,5,2
+GRLN,08/08/2026,15:00,SV Atlas Delmenhorst,Lübeck,2,0
+GRLN,09/08/2026,14:00,1. FC Phönix Lübeck,SSV Jeddeloh,2,0
+GRLN,09/08/2026,14:00,St. Pauli II,Bremer SV,0,1
+GRLN,09/08/2026,14:00,SV Todesfelde,Werder Bremen II,3,3
+GRLN,09/08/2026,15:00,Schöningen,Eintracht Norderstedt,1,1
+GRLN,11/08/2026,19:00,Lübeck,Oldenburg,1,1
+GRLN,11/09/2026,18:30,Oldenburg,Hannover 96 II,4,3
+GRLN,11/09/2026,19:00,SC Weiche Flensburg,Hamburger SV II,4,0
+GRLN,11/09/2026,19:30,SV Atlas Delmenhorst,SV Drochtersen/Assel,0,3
+GRLN,12/08/2026,18:00,Bremer SV,1. FC Phönix Lübeck,0,0
+GRLN,12/08/2026,18:30,Eimsbütteler TV,Schöningen,1,2
+GRLN,12/08/2026,18:30,HSC Hannover,SV Atlas Delmenhorst,3,0
+GRLN,12/08/2026,19:00,Eintracht Norderstedt,Kickers Emden,6,2
+GRLN,12/08/2026,19:00,SSV Jeddeloh,St. Pauli II,2,0
+GRLN,12/08/2026,19:30,Hamburger SV II,SV Todesfelde,2,2
+GRLN,12/08/2026,19:30,SV Drochtersen/Assel,Hannover 96 II,1,2
+GRLN,12/09/2026,14:00,Eimsbütteler TV,1. FC Phönix Lübeck,1,3
+GRLN,12/09/2026,14:00,Lübeck,HSC Hannover,1,1
+GRLN,12/09/2026,14:00,Werder Bremen II,Schöningen,0,1
+GRLN,12/09/2026,18:00,Kickers Emden,SSV Jeddeloh,4,1
+GRLN,13/09/2026,14:00,St. Pauli II,Eintracht Norderstedt,5,0
+GRLN,13/09/2026,14:00,SV Todesfelde,Bremer SV,0,2
+GRLN,15/08/2026,14:00,SC Weiche Flensburg,SSV Jeddeloh,5,2
+GRLN,15/08/2026,18:00,Kickers Emden,Eimsbütteler TV,2,3
+GRLN,15/08/2026,18:00,Oldenburg,Eintracht Norderstedt,4,1
+GRLN,15/08/2026,19:00,1. FC Phönix Lübeck,Lübeck,4,0
+GRLN,15/09/2026,19:30,SV Drochtersen/Assel,Kickers Emden,8,2
+GRLN,16/08/2026,14:00,Hamburger SV II,SV Drochtersen/Assel,1,4
+GRLN,16/08/2026,14:00,Hannover 96 II,SV Atlas Delmenhorst,0,1
+GRLN,16/08/2026,14:00,St. Pauli II,Werder Bremen II,2,1
+GRLN,16/08/2026,15:00,Bremer SV,HSC Hannover,0,1
+GRLN,16/08/2026,15:00,Schöningen,SV Todesfelde,2,0
+GRLN,16/09/2026,12:00,Hamburger SV II,St. Pauli II,0,3
+GRLN,16/09/2026,16:30,Bremer SV,Oldenburg,0,4
+GRLN,16/09/2026,18:00,Hannover 96 II,Lübeck,2,2
+GRLN,16/09/2026,18:00,Schöningen,SC Weiche Flensburg,2,1
+GRLN,16/09/2026,18:30,1. FC Phönix Lübeck,SV Todesfelde,9,0
+GRLN,16/09/2026,18:30,Eimsbütteler TV,Werder Bremen II,2,4
+GRLN,16/09/2026,18:30,Eintracht Norderstedt,HSC Hannover,3,3
+GRLN,16/09/2026,18:30,SSV Jeddeloh,SV Atlas Delmenhorst,5,0
+GRLN,19/08/2026,18:30,Werder Bremen II,SC Weiche Flensburg,1,2
+GRLN,19/09/2026,14:00,Lübeck,Bremer SV,2,1
+GRLN,19/09/2026,14:00,SC Weiche Flensburg,1. FC Phönix Lübeck,1,2
+GRLN,19/09/2026,15:00,Hannover 96 II,SV Todesfelde,3,1
+GRLN,19/09/2026,18:00,Kickers Emden,Schöningen,5,0
+GRLN,19/09/2026,18:00,Oldenburg,SSV Jeddeloh,1,3
+GRLN,19/09/2026,18:00,SV Drochtersen/Assel,St. Pauli II,1,0
+GRLN,20/09/2026,14:00,Eintracht Norderstedt,Werder Bremen II,2,5
+GRLN,20/09/2026,14:00,SV Atlas Delmenhorst,Eimsbütteler TV,1,1
+GRLN,20/09/2026,16:00,HSC Hannover,Hamburger SV II,0,4
+GRLN,21/08/2026,20:00,Hamburger SV II,Eimsbütteler TV,0,2
+GRLN,23/08/2026,14:00,Eintracht Norderstedt,SC Weiche Flensburg,1,4
+GRLN,26/08/2026,18:30,Eimsbütteler TV,Bremer SV,3,1
+GRLN,26/08/2026,18:30,Schöningen,St. Pauli II,3,2
+GRLN,26/08/2026,18:30,SV Todesfelde,Oldenburg,1,4
+GRLN,26/08/2026,19:00,Lübeck,Hamburger SV II,1,3
+GRLN,26/08/2026,19:00,SSV Jeddeloh,Hannover 96 II,2,2
+GRLN,26/08/2026,19:30,SV Atlas Delmenhorst,Kickers Emden,3,3
+GRLN,26/08/2026,19:30,SV Drochtersen/Assel,Werder Bremen II,0,1
+GRLN,29/08/2026,14:00,SC Weiche Flensburg,SV Atlas Delmenhorst,1,0
+GRLN,29/08/2026,14:00,Werder Bremen II,HSC Hannover,1,1
+GRLN,29/08/2026,16:00,Lübeck,SV Drochtersen/Assel,2,3
+GRLN,29/08/2026,18:00,Kickers Emden,Hannover 96 II,1,1
+GRLN,29/08/2026,18:00,Oldenburg,Eimsbütteler TV,7,3
+GRLN,30/08/2026,14:00,Hamburger SV II,Eintracht Norderstedt,0,2
+GRLN,30/08/2026,14:00,St. Pauli II,1. FC Phönix Lübeck,2,2
+GRLN,30/08/2026,14:00,SV Todesfelde,SSV Jeddeloh,2,0
+GRLN,30/08/2026,15:00,Bremer SV,Schöningen,2,2
+GRLN,31/07/2026,19:00,Werder Bremen II,Oldenburg,0,3
+GRLN,31/07/2026,19:30,SV Drochtersen/Assel,1. FC Phönix Lübeck,2,1

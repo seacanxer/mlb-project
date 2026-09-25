@@ -1,0 +1,134 @@
+Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG
+DEN2,01/04/2026,19:00,Fremad Amager,Thisted,2,0
+DEN2,01/04/2026,19:00,HIK,Ishøj IF,2,1
+DEN2,01/08/2025,19:00,FC Helsingør,Skive,0,4
+DEN2,01/08/2025,19:00,Næstved,FC Roskilde,1,0
+DEN2,01/08/2025,19:00,Thisted,Fremad Amager,2,1
+DEN2,01/11/2025,14:00,Brabrand,HIK,2,0
+DEN2,01/11/2025,14:00,FC Roskilde,Thisted,1,2
+DEN2,01/11/2025,14:00,Skive,VSK Aarhus,1,1
+DEN2,01/11/2025,15:00,Vendsyssel FF,Ishøj IF,2,1
+DEN2,02/04/2026,13:30,VSK Aarhus,Vendsyssel FF,0,0
+DEN2,02/04/2026,14:00,Brabrand,FC Helsingør,4,1
+DEN2,02/04/2026,14:00,FC Roskilde,Næstved,2,3
+DEN2,02/04/2026,14:00,Skive,AB,0,0
+DEN2,02/08/2025,13:00,Ishøj IF,AB,0,0
+DEN2,02/08/2025,13:30,VSK Aarhus,Brabrand,2,1
+DEN2,02/08/2025,14:00,Vendsyssel FF,HIK,1,0
+DEN2,02/11/2025,13:00,Næstved,FC Helsingør,2,1
+DEN2,03/10/2025,19:00,FC Helsingør,FC Roskilde,1,2
+DEN2,03/10/2025,19:00,Fremad Amager,HIK,0,1
+DEN2,03/10/2025,19:00,Thisted,Vendsyssel FF,0,1
+DEN2,04/10/2025,14:00,Skive,Ishøj IF,1,1
+DEN2,04/10/2025,15:00,VSK Aarhus,AB,1,3
+DEN2,05/09/2025,19:00,AB,Næstved,3,0
+DEN2,05/10/2025,14:00,Brabrand,Næstved,0,3
+DEN2,06/03/2026,19:00,FC Roskilde,Ishøj IF,2,1
+DEN2,06/03/2026,19:00,Fremad Amager,Næstved,2,3
+DEN2,06/03/2026,19:00,Skive,FC Helsingør,1,1
+DEN2,06/04/2026,14:00,AB,VSK Aarhus,1,1
+DEN2,06/04/2026,14:00,FC Helsingør,Fremad Amager,0,0
+DEN2,06/04/2026,14:00,Ishøj IF,Skive,1,1
+DEN2,06/04/2026,14:00,Næstved,HIK,2,1
+DEN2,06/04/2026,14:00,Thisted,Brabrand,0,0
+DEN2,06/04/2026,14:00,Vendsyssel FF,FC Roskilde,3,0
+DEN2,06/09/2025,14:00,FC Roskilde,Skive,1,1
+DEN2,06/09/2025,14:00,HIK,Thisted,1,1
+DEN2,06/09/2025,14:00,Ishøj IF,Vendsyssel FF,0,1
+DEN2,07/03/2026,13:30,VSK Aarhus,Thisted,0,0
+DEN2,07/03/2026,14:00,Vendsyssel FF,Brabrand,2,1
+DEN2,07/03/2026,16:00,AB,HIK,3,0
+DEN2,07/09/2025,13:00,FC Helsingør,Brabrand,0,0
+DEN2,07/09/2025,14:00,Fremad Amager,VSK Aarhus,0,2
+DEN2,07/11/2025,18:30,Skive,FC Roskilde,1,1
+DEN2,07/11/2025,19:00,HIK,FC Helsingør,3,2
+DEN2,08/08/2025,19:00,AB,FC Helsingør,1,2
+DEN2,08/08/2025,19:00,Fremad Amager,Ishøj IF,1,1
+DEN2,08/08/2025,19:00,HIK,Næstved,2,1
+DEN2,08/11/2025,13:00,Ishøj IF,Brabrand,2,2
+DEN2,08/11/2025,13:30,VSK Aarhus,Fremad Amager,1,1
+DEN2,08/11/2025,15:00,AB,Vendsyssel FF,3,1
+DEN2,09/08/2025,14:00,Brabrand,Vendsyssel FF,1,3
+DEN2,09/08/2025,14:00,FC Roskilde,VSK Aarhus,5,0
+DEN2,09/08/2025,14:00,Skive,Thisted,1,2
+DEN2,09/11/2025,13:00,Thisted,Næstved,1,2
+DEN2,10/10/2025,19:00,AB,Skive,4,0
+DEN2,10/10/2025,19:00,Fremad Amager,FC Helsingør,2,1
+DEN2,10/10/2025,19:00,Vendsyssel FF,Næstved,0,2
+DEN2,11/10/2025,13:00,Ishøj IF,Thisted,0,1
+DEN2,11/10/2025,14:00,FC Roskilde,Brabrand,5,1
+DEN2,11/10/2025,14:00,HIK,VSK Aarhus,1,0
+DEN2,12/09/2025,19:00,FC Roskilde,AB,4,1
+DEN2,13/03/2026,19:00,HIK,FC Roskilde,0,2
+DEN2,13/09/2025,13:00,Ishøj IF,HIK,1,1
+DEN2,13/09/2025,13:30,VSK Aarhus,Skive,1,1
+DEN2,14/03/2026,13:00,Ishøj IF,Fremad Amager,0,1
+DEN2,14/03/2026,14:00,Brabrand,Skive,2,4
+DEN2,14/09/2025,13:00,Næstved,Thisted,0,2
+DEN2,14/09/2025,13:00,Vendsyssel FF,FC Helsingør,3,1
+DEN2,14/09/2025,14:00,Brabrand,Fremad Amager,2,2
+DEN2,14/11/2025,18:00,HIK,Vendsyssel FF,4,1
+DEN2,14/11/2025,19:00,FC Helsingør,AB,1,5
+DEN2,14/11/2025,19:00,Fremad Amager,Skive,1,1
+DEN2,15/03/2026,13:00,FC Helsingør,VSK Aarhus,0,1
+DEN2,15/03/2026,13:00,Næstved,Vendsyssel FF,1,1
+DEN2,15/03/2026,15:00,Thisted,AB,0,2
+DEN2,15/08/2025,19:00,FC Helsingør,HIK,1,2
+DEN2,15/08/2025,19:00,Næstved,Fremad Amager,1,0
+DEN2,15/08/2025,19:00,Vendsyssel FF,Skive,2,0
+DEN2,15/11/2025,14:00,Brabrand,FC Roskilde,1,1
+DEN2,15/11/2025,15:00,Thisted,Ishøj IF,3,3
+DEN2,16/08/2025,13:00,Ishøj IF,FC Roskilde,1,2
+DEN2,16/08/2025,14:00,Brabrand,AB,1,2
+DEN2,16/08/2025,15:00,Thisted,VSK Aarhus,2,2
+DEN2,16/11/2025,13:00,Næstved,VSK Aarhus,2,2
+DEN2,17/10/2025,19:00,FC Helsingør,Ishøj IF,1,3
+DEN2,17/10/2025,19:00,FC Roskilde,Fremad Amager,2,0
+DEN2,17/10/2025,19:00,Næstved,AB,1,2
+DEN2,17/10/2025,19:00,Skive,Vendsyssel FF,1,2
+DEN2,18/10/2025,14:00,Brabrand,VSK Aarhus,4,0
+DEN2,19/09/2025,19:00,FC Helsingør,Næstved,1,2
+DEN2,19/09/2025,19:00,Fremad Amager,Vendsyssel FF,2,1
+DEN2,19/09/2025,19:00,HIK,AB,0,4
+DEN2,19/10/2025,14:00,Thisted,HIK,3,0
+DEN2,20/03/2026,19:00,FC Roskilde,FC Helsingør,0,1
+DEN2,20/03/2026,19:00,Vendsyssel FF,Thisted,2,1
+DEN2,20/08/2025,18:30,Ishøj IF,AB,0,1
+DEN2,20/09/2025,13:30,VSK Aarhus,Ishøj IF,0,1
+DEN2,20/09/2025,14:00,Skive,Brabrand,3,2
+DEN2,21/03/2026,14:00,Fremad Amager,Brabrand,1,0
+DEN2,21/03/2026,14:00,Skive,Næstved,0,0
+DEN2,21/03/2026,14:00,VSK Aarhus,HIK,4,1
+DEN2,21/03/2026,18:00,AB,Ishøj IF,5,1
+DEN2,21/09/2025,13:00,Thisted,FC Roskilde,0,0
+DEN2,22/08/2025,19:00,FC Roskilde,Vendsyssel FF,2,0
+DEN2,22/08/2025,19:00,Skive,Fremad Amager,0,0
+DEN2,23/08/2025,13:30,VSK Aarhus,FC Helsingør,2,0
+DEN2,23/08/2025,15:00,AB,Thisted,2,3
+DEN2,24/08/2025,13:00,Næstved,Ishøj IF,2,2
+DEN2,24/08/2025,14:00,HIK,Brabrand,4,0
+DEN2,24/10/2025,19:00,FC Helsingør,Thisted,1,0
+DEN2,24/10/2025,19:00,Vendsyssel FF,Fremad Amager,1,0
+DEN2,25/10/2025,13:00,Ishøj IF,Næstved,1,2
+DEN2,25/10/2025,13:30,VSK Aarhus,FC Roskilde,1,1
+DEN2,25/10/2025,14:00,AB,Brabrand,3,1
+DEN2,25/10/2025,14:00,HIK,Skive,1,0
+DEN2,26/09/2025,19:00,AB,Fremad Amager,5,0
+DEN2,26/09/2025,19:00,FC Roskilde,HIK,4,1
+DEN2,27/03/2026,19:00,AB,FC Roskilde,2,0
+DEN2,27/03/2026,19:00,FC Helsingør,Vendsyssel FF,0,3
+DEN2,27/03/2026,19:00,HIK,Fremad Amager,0,3
+DEN2,27/03/2026,19:00,Thisted,Skive,1,0
+DEN2,27/09/2025,13:00,Ishøj IF,FC Helsingør,3,1
+DEN2,27/09/2025,14:00,Brabrand,Thisted,2,1
+DEN2,27/09/2025,14:00,Vendsyssel FF,VSK Aarhus,1,2
+DEN2,28/03/2026,13:00,Ishøj IF,VSK Aarhus,2,2
+DEN2,28/09/2025,13:00,Næstved,Skive,2,0
+DEN2,29/03/2026,13:00,Næstved,Brabrand,0,0
+DEN2,29/08/2025,19:00,Fremad Amager,FC Roskilde,2,1
+DEN2,29/08/2025,19:00,Thisted,FC Helsingør,2,0
+DEN2,29/08/2025,19:00,Vendsyssel FF,AB,2,3
+DEN2,30/08/2025,13:30,VSK Aarhus,Næstved,1,3
+DEN2,30/08/2025,14:00,Brabrand,Ishøj IF,3,1
+DEN2,30/08/2025,14:00,Skive,HIK,1,2
+DEN2,31/10/2025,19:00,Fremad Amager,AB,2,1

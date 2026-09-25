@@ -1,0 +1,199 @@
+Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG
+PAR1,01/02/2026,00:15,Sportivo Ameliano,Sportivo San Lorenzo,1,0
+PAR1,01/02/2026,22:00,Olimpia,Sportivo Trinidense,3,2
+PAR1,01/03/2026,00:30,2 de Mayo,Sportivo Trinidense,1,0
+PAR1,01/03/2026,22:30,Nacional,Guarani,1,1
+PAR1,01/04/2026,01:30,Sportivo San Lorenzo,Sportivo Ameliano,1,2
+PAR1,01/04/2026,01:30,Luqueno,Cerro Porteno,2,3
+PAR1,01/04/2026,23:30,Rubio Nu,Guarani,0,2
+PAR1,01/05/2026,22:45,Sportivo Trinidense,2 de Mayo,1,2
+PAR1,01/08/2026,21:00,Sportivo Ameliano,2 de Mayo,1,1
+PAR1,01/08/2026,23:30,Cerro Porteno,Luqueno,3,0
+PAR1,01/09/2026,21:00,Rubio Nu,Sportivo San Lorenzo,3,1
+PAR1,01/09/2026,23:30,2 de Mayo,Luqueno,2,2
+PAR1,02/02/2026,00:15,Guarani,Rubio Nu,4,0
+PAR1,02/02/2026,22:00,Recoleta,Libertad,2,1
+PAR1,02/03/2026,00:30,Cerro Porteno,Recoleta,2,0
+PAR1,02/03/2026,22:30,Luqueno,Rubio Nu,0,1
+PAR1,02/04/2026,01:30,Sportivo Trinidense,Olimpia,2,1
+PAR1,02/05/2026,01:00,Libertad,Sportivo San Lorenzo,5,0
+PAR1,02/08/2026,21:00,Olimpia,Rubio Nu,5,0
+PAR1,02/08/2026,23:30,Guarani,Libertad,2,1
+PAR1,02/09/2026,21:00,Sportivo Ameliano,Sportivo Trinidense,0,3
+PAR1,02/09/2026,21:00,Nacional,Libertad,3,0
+PAR1,02/09/2026,23:30,Olimpia,Guarani,1,1
+PAR1,03/02/2026,00:15,Cerro Porteno,Luqueno,2,0
+PAR1,03/03/2026,00:30,Sportivo San Lorenzo,Libertad,0,7
+PAR1,03/05/2026,01:00,Rubio Nu,Luqueno,0,0
+PAR1,03/05/2026,14:30,Olimpia,Sportivo Ameliano,1,1
+PAR1,03/05/2026,14:30,Recoleta,Cerro Porteno,2,1
+PAR1,03/08/2026,21:00,Sportivo Trinidense,Sportivo San Lorenzo,3,0
+PAR1,03/08/2026,23:30,Recoleta,Nacional,3,2
+PAR1,03/09/2026,23:30,Recoleta,Cerro Porteno,1,3
+PAR1,04/04/2026,23:30,Olimpia,Nacional,3,0
+PAR1,04/05/2026,01:00,Guarani,Nacional,0,1
+PAR1,05/04/2026,01:30,Cerro Porteno,2 de Mayo,3,0
+PAR1,05/04/2026,01:30,Recoleta,Sportivo San Lorenzo,4,2
+PAR1,05/04/2026,23:30,Sportivo Ameliano,Luqueno,2,2
+PAR1,05/09/2026,23:30,Sportivo San Lorenzo,2 de Mayo,1,2
+PAR1,06/02/2026,22:30,Sportivo San Lorenzo,Recoleta,0,3
+PAR1,06/04/2026,01:30,Guarani,Libertad,1,0
+PAR1,06/09/2026,15:00,Sportivo Trinidense,Olimpia,1,2
+PAR1,06/09/2026,21:00,Libertad,Rubio Nu,4,2
+PAR1,06/09/2026,23:30,Luqueno,Sportivo Ameliano,1,2
+PAR1,07/02/2026,00:30,Luqueno,Sportivo Ameliano,0,1
+PAR1,07/02/2026,22:30,Rubio Nu,Sportivo Trinidense,0,1
+PAR1,07/03/2026,22:30,Guarani,Cerro Porteno,0,2
+PAR1,07/04/2026,01:00,Sportivo Trinidense,Rubio Nu,4,0
+PAR1,07/08/2026,23:30,Rubio Nu,Recoleta,1,3
+PAR1,07/09/2026,21:00,Guarani,Recoleta,2,0
+PAR1,07/09/2026,23:30,Cerro Porteno,Nacional,1,0
+PAR1,08/02/2026,00:30,2 de Mayo,Cerro Porteno,0,0
+PAR1,08/02/2026,22:30,Libertad,Guarani,3,3
+PAR1,08/03/2026,00:30,Libertad,Luqueno,1,0
+PAR1,08/03/2026,22:30,Olimpia,Sportivo San Lorenzo,1,1
+PAR1,08/08/2026,21:00,Sportivo Ameliano,Cerro Porteno,1,0
+PAR1,08/08/2026,23:30,2 de Mayo,Olimpia,1,0
+PAR1,09/02/2026,00:30,Nacional,Olimpia,1,2
+PAR1,09/03/2026,00:30,Rubio Nu,2 de Mayo,0,1
+PAR1,09/03/2026,22:30,Sportivo Trinidense,Nacional,1,1
+PAR1,09/05/2026,22:45,2 de Mayo,Rubio Nu,2,0
+PAR1,09/08/2026,21:00,Sportivo San Lorenzo,Luqueno,0,2
+PAR1,09/08/2026,23:30,Nacional,Guarani,0,0
+PAR1,10/03/2026,00:30,Recoleta,Sportivo Ameliano,1,1
+PAR1,10/04/2026,23:15,2 de Mayo,Sportivo Ameliano,1,2
+PAR1,10/05/2026,01:00,Nacional,Sportivo Trinidense,2,1
+PAR1,10/05/2026,22:45,Sportivo San Lorenzo,Olimpia,1,0
+PAR1,10/08/2026,23:30,Libertad,Sportivo Trinidense,2,1
+PAR1,11/04/2026,01:30,Sportivo San Lorenzo,Guarani,1,0
+PAR1,11/04/2026,23:15,Luqueno,Recoleta,2,1
+PAR1,11/05/2026,01:00,Luqueno,Libertad,2,3
+PAR1,11/05/2026,22:45,Sportivo Ameliano,Recoleta,3,2
+PAR1,11/09/2026,21:00,Sportivo Ameliano,Sportivo San Lorenzo,1,0
+PAR1,11/09/2026,23:30,2 de Mayo,Libertad,0,2
+PAR1,12/04/2026,01:30,Nacional,Cerro Porteno,0,0
+PAR1,12/04/2026,23:15,Rubio Nu,Olimpia,0,2
+PAR1,12/05/2026,01:00,Cerro Porteno,Guarani,0,0
+PAR1,12/09/2026,21:00,Guarani,Cerro Porteno,1,1
+PAR1,12/09/2026,23:30,Recoleta,Sportivo Trinidense,1,3
+PAR1,13/02/2026,22:30,Guarani,Sportivo San Lorenzo,3,1
+PAR1,13/03/2026,22:30,Luqueno,Sportivo San Lorenzo,1,1
+PAR1,13/04/2026,01:30,Libertad,Sportivo Trinidense,1,1
+PAR1,13/09/2026,21:00,Olimpia,Luqueno,3,0
+PAR1,13/09/2026,23:30,Rubio Nu,Nacional,0,1
+PAR1,14/02/2026,00:30,Recoleta,Luqueno,1,2
+PAR1,14/02/2026,22:30,Olimpia,Rubio Nu,0,0
+PAR1,14/03/2026,00:30,2 de Mayo,Libertad,0,2
+PAR1,14/03/2026,22:30,Recoleta,Olimpia,0,1
+PAR1,14/05/2026,22:00,Libertad,2 de Mayo,0,0
+PAR1,14/08/2026,23:30,Recoleta,2 de Mayo,1,2
+PAR1,15/02/2026,00:30,Sportivo Ameliano,2 de Mayo,3,0
+PAR1,15/02/2026,22:30,Sportivo Trinidense,Libertad,1,0
+PAR1,15/03/2026,00:30,Cerro Porteno,Sportivo Trinidense,2,1
+PAR1,15/03/2026,22:30,Nacional,Rubio Nu,1,0
+PAR1,15/05/2026,14:30,Olimpia,Recoleta,3,2
+PAR1,15/05/2026,22:00,Sportivo Trinidense,Cerro Porteno,3,1
+PAR1,15/05/2026,22:00,Rubio Nu,Nacional,1,1
+PAR1,15/08/2026,21:00,Guarani,Rubio Nu,2,3
+PAR1,15/08/2026,23:30,Sportivo Trinidense,Nacional,1,1
+PAR1,16/02/2026,00:30,Cerro Porteno,Nacional,0,2
+PAR1,16/03/2026,00:30,Sportivo Ameliano,Guarani,0,0
+PAR1,16/05/2026,22:15,Guarani,Sportivo Ameliano,1,0
+PAR1,16/08/2026,15:00,Cerro Porteno,Sportivo San Lorenzo,1,0
+PAR1,16/08/2026,21:00,Luqueno,Libertad,1,2
+PAR1,16/08/2026,23:30,Olimpia,Sportivo Ameliano,2,1
+PAR1,17/03/2026,22:30,Sportivo San Lorenzo,2 de Mayo,1,1
+PAR1,17/04/2026,22:00,Sportivo Trinidense,Sportivo San Lorenzo,2,1
+PAR1,17/05/2026,22:00,Sportivo San Lorenzo,Luqueno,0,0
+PAR1,18/03/2026,00:30,Olimpia,Luqueno,1,0
+PAR1,18/03/2026,22:30,Rubio Nu,Cerro Porteno,2,0
+PAR1,18/04/2026,23:15,Guarani,Luqueno,2,1
+PAR1,18/09/2026,21:00,Sportivo Trinidense,Guarani,0,1
+PAR1,18/09/2026,23:30,Nacional,2 de Mayo,3,0
+PAR1,19/02/2026,22:30,Sportivo San Lorenzo,Sportivo Trinidense,1,1
+PAR1,19/03/2026,00:30,Libertad,Nacional,2,1
+PAR1,19/03/2026,00:30,Guarani,Recoleta,3,1
+PAR1,19/04/2026,01:30,Recoleta,2 de Mayo,5,0
+PAR1,19/09/2026,21:00,Libertad,Sportivo Ameliano,1,1
+PAR1,19/09/2026,23:30,Cerro Porteno,Rubio Nu,1,0
+PAR1,20/02/2026,00:30,Nacional,Sportivo Ameliano,1,1
+PAR1,20/02/2026,22:30,Libertad,Rubio Nu,0,1
+PAR1,20/03/2026,00:00,Sportivo Trinidense,Sportivo Ameliano,1,1
+PAR1,20/09/2026,21:00,Sportivo San Lorenzo,Olimpia,0,3
+PAR1,20/09/2026,23:30,Luqueno,Recoleta,1,0
+PAR1,21/02/2026,00:30,2 de Mayo,Recoleta,0,1
+PAR1,21/02/2026,22:30,Cerro Porteno,Olimpia,0,1
+PAR1,21/03/2026,22:30,Guarani,Olimpia,0,2
+PAR1,21/04/2026,01:30,Sportivo Ameliano,Nacional,1,1
+PAR1,21/04/2026,22:00,Rubio Nu,Libertad,3,0
+PAR1,21/08/2026,23:30,Rubio Nu,Sportivo Trinidense,0,0
+PAR1,22/02/2026,01:00,Guarani,2 de Mayo,0,0
+PAR1,22/03/2026,00:30,Libertad,Cerro Porteno,2,3
+PAR1,22/03/2026,22:30,Sportivo San Lorenzo,Nacional,0,0
+PAR1,22/05/2026,23:00,2 de Mayo,Sportivo San Lorenzo,0,1
+PAR1,22/08/2026,21:00,Sportivo Ameliano,Recoleta,3,1
+PAR1,23/01/2026,22:00,Recoleta,Sportivo Trinidense,1,1
+PAR1,23/02/2026,12:00,Luqueno,Guarani,3,2
+PAR1,23/03/2026,00:30,Luqueno,2 de Mayo,0,2
+PAR1,23/03/2026,22:30,Sportivo Trinidense,Recoleta,3,2
+PAR1,23/05/2026,21:00,Luqueno,Olimpia,1,2
+PAR1,23/05/2026,23:15,Recoleta,Guarani,2,1
+PAR1,23/08/2026,21:00,Olimpia,Cerro Porteno,2,1
+PAR1,24/01/2026,00:15,2 de Mayo,Luqueno,1,2
+PAR1,24/01/2026,22:00,Nacional,Sportivo San Lorenzo,1,0
+PAR1,24/03/2026,00:30,Rubio Nu,Sportivo Ameliano,1,2
+PAR1,24/04/2026,22:45,Nacional,Recoleta,2,1
+PAR1,24/05/2026,22:00,Nacional,Libertad,2,1
+PAR1,24/05/2026,22:00,Cerro Porteno,Rubio Nu,2,0
+PAR1,24/05/2026,22:00,Sportivo Ameliano,Sportivo Trinidense,1,2
+PAR1,24/07/2026,21:00,2 de Mayo,Rubio Nu,1,0
+PAR1,24/07/2026,23:30,Cerro Porteno,Sportivo Trinidense,1,2
+PAR1,24/08/2026,21:00,Nacional,Luqueno,2,0
+PAR1,24/08/2026,23:30,Libertad,Sportivo San Lorenzo,1,0
+PAR1,25/01/2026,00:15,Cerro Porteno,Libertad,1,1
+PAR1,25/01/2026,22:00,Olimpia,Guarani,2,1
+PAR1,25/02/2026,22:30,Sportivo Ameliano,Cerro Porteno,0,1
+PAR1,25/03/2026,23:30,Guarani,2 de Mayo,1,1
+PAR1,25/04/2026,01:00,Cerro Porteno,Sportivo Ameliano,1,1
+PAR1,25/04/2026,22:45,Luqueno,Sportivo Trinidense,2,1
+PAR1,25/07/2026,21:00,Recoleta,Sportivo San Lorenzo,1,1
+PAR1,25/07/2026,23:30,Sportivo Ameliano,Nacional,1,1
+PAR1,25/08/2026,23:30,2 de Mayo,Guarani,0,0
+PAR1,26/01/2026,00:15,Sportivo Ameliano,Rubio Nu,2,2
+PAR1,26/02/2026,00:30,Olimpia,Libertad,1,0
+PAR1,26/02/2026,00:30,Sportivo Trinidense,Luqueno,1,1
+PAR1,26/02/2026,22:30,Rubio Nu,Sportivo San Lorenzo,2,0
+PAR1,26/04/2026,01:00,Libertad,Olimpia,3,2
+PAR1,26/04/2026,22:45,2 de Mayo,Guarani,2,2
+PAR1,26/07/2026,21:00,Olimpia,Libertad,0,1
+PAR1,26/07/2026,23:30,Guarani,Luqueno,1,2
+PAR1,27/01/2026,22:00,Luqueno,Nacional,1,2
+PAR1,27/02/2026,00:30,Recoleta,Nacional,2,2
+PAR1,27/03/2026,00:00,Recoleta,Rubio Nu,1,0
+PAR1,27/03/2026,22:30,Nacional,Luqueno,3,2
+PAR1,27/04/2026,01:00,Sportivo San Lorenzo,Rubio Nu,0,1
+PAR1,28/01/2026,00:15,Sportivo San Lorenzo,Cerro Porteno,2,4
+PAR1,28/01/2026,22:00,Libertad,Sportivo Ameliano,1,0
+PAR1,28/02/2026,22:30,Sportivo Ameliano,Olimpia,0,1
+PAR1,28/03/2026,00:30,Sportivo Ameliano,Libertad,2,0
+PAR1,28/03/2026,22:30,Olimpia,2 de Mayo,4,1
+PAR1,28/07/2026,21:00,Rubio Nu,Sportivo Ameliano,1,1
+PAR1,28/07/2026,23:30,2 de Mayo,Cerro Porteno,2,1
+PAR1,28/08/2026,21:00,Luqueno,Rubio Nu,2,1
+PAR1,28/08/2026,23:30,Sportivo San Lorenzo,Nacional,0,3
+PAR1,29/01/2026,00:15,2 de Mayo,Olimpia,1,1
+PAR1,29/01/2026,22:00,Sportivo Trinidense,Guarani,0,0
+PAR1,29/03/2026,00:30,Cerro Porteno,Sportivo San Lorenzo,2,0
+PAR1,29/07/2026,21:00,Luqueno,Sportivo Trinidense,1,4
+PAR1,29/07/2026,23:30,Nacional,Olimpia,2,0
+PAR1,29/08/2026,21:00,Sportivo Trinidense,2 de Mayo,0,1
+PAR1,29/08/2026,23:30,Recoleta,Olimpia,1,2
+PAR1,30/01/2026,00:15,Rubio Nu,Recoleta,1,1
+PAR1,30/03/2026,00:00,Guarani,Sportivo Trinidense,0,0
+PAR1,30/07/2026,21:00,Sportivo San Lorenzo,Guarani,0,1
+PAR1,30/07/2026,23:30,Libertad,Recoleta,4,1
+PAR1,30/08/2026,21:00,Cerro Porteno,Libertad,1,1
+PAR1,30/08/2026,23:30,Guarani,Sportivo Ameliano,1,1
+PAR1,31/01/2026,22:00,Nacional,2 de Mayo,5,1
+PAR1,31/03/2026,01:30,Libertad,Recoleta,1,0
+PAR1,31/03/2026,23:30,2 de Mayo,Nacional,1,1

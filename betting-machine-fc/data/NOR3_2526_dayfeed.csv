@@ -1,0 +1,611 @@
+Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG
+NOR3,01/08/2025,19:00,Djerv 1919,Sola,5,0
+NOR3,01/08/2025,19:00,Torvastad,Hinna FK,0,4
+NOR3,01/09/2025,18:00,Molde 2,Kristiansund BK 2,2,2
+NOR3,01/09/2025,18:00,Skedsmo,HamKam 2,0,4
+NOR3,01/09/2025,18:00,Strømsgodset 2,Kongsvinger 2,6,0
+NOR3,01/09/2025,18:00,Viking 2,Staal Jørpeland,1,0
+NOR3,01/09/2025,18:30,Lokomotiv Oslo FK,Fredrikstad 2,3,0
+NOR3,01/09/2025,19:00,Djerv 1919,Sandnes Ulf 2,2,0
+NOR3,01/09/2025,19:00,Madla,Haugesund 2,0,1
+NOR3,01/09/2025,19:00,Oppsal,Odds Ballklubb 2,2,0
+NOR3,01/09/2025,19:00,Pors 2,Sarpsborg 08 2,3,2
+NOR3,01/09/2025,19:00,Sandefjord 2,Vålerenga 2,4,1
+NOR3,02/07/2025,19:00,Melhus,Rosenborg 2,4,1
+NOR3,02/08/2025,13:00,Stord,Våg,4,3
+NOR3,02/08/2025,13:00,Vindbjart,Haugesund 2,3,0
+NOR3,02/08/2025,13:30,Vålerenga 2,Os,3,2
+NOR3,02/08/2025,14:00,Brodd,Sandnes Ulf 2,1,0
+NOR3,02/08/2025,14:00,Madla,Staal Jørpeland,3,2
+NOR3,02/08/2025,14:00,Askøy,Gneist,2,2
+NOR3,02/08/2025,14:00,Bjarg,Førde,1,1
+NOR3,02/08/2025,14:00,Fana,FK Fyllingsdalen,2,3
+NOR3,02/08/2025,14:00,Lokomotiv Oslo FK,Grei,3,2
+NOR3,02/08/2025,15:00,Vidar,Viking 2,5,1
+NOR3,02/08/2025,15:00,Loddefjord,Lyngbø,1,3
+NOR3,02/08/2025,15:00,Fram Larvik,Kvik Halden,0,2
+NOR3,02/08/2025,15:00,Pors 2,Drøbak/Frogn,2,4
+NOR3,02/10/2025,17:00,Fredrikstad 2,Odds Ballklubb 2,0,5
+NOR3,02/10/2025,19:00,Ulfstind,Fløya,4,2
+NOR3,03/08/2025,14:00,Ørn Horten,Odds Ballklubb 2,4,1
+NOR3,03/08/2025,14:00,Oppsal,Stabæk 2,0,3
+NOR3,03/08/2025,15:00,Fjøra,Åsane 2,3,0
+NOR3,03/10/2025,18:30,Hinna FK,Staal Jørpeland,0,3
+NOR3,04/08/2025,19:00,Sandefjord 2,Lyn 2,3,2
+NOR3,04/08/2025,19:00,Ready,Sarpsborg 08 2,2,1
+NOR3,04/08/2025,20:00,Flint,Fredrikstad 2,2,1
+NOR3,04/09/2025,19:00,Melhus,Kvik,3,0
+NOR3,04/10/2025,13:00,Tromsø 2,Sortland IL,1,1
+NOR3,04/10/2025,14:00,Skjervøy,Funnefoss/Vormsund,1,0
+NOR3,04/10/2025,14:00,Fana,Bjarg,3,4
+NOR3,04/10/2025,14:00,Fjøra,Askøy,4,3
+NOR3,04/10/2025,14:00,Vidar,Stord,6,2
+NOR3,04/10/2025,14:00,Oppsal,Lokomotiv Oslo FK,3,2
+NOR3,04/10/2025,14:00,Ready,Flint,5,1
+NOR3,04/10/2025,15:00,Gamle Oslo,Bærum,4,2
+NOR3,04/10/2025,15:00,Torvastad,Sola,1,1
+NOR3,04/10/2025,15:00,Vindbjart,Madla,5,2
+NOR3,04/10/2025,15:00,Melhus,Surnadal,1,1
+NOR3,04/10/2025,15:00,Nardo,Byåsen,3,0
+NOR3,04/10/2025,15:00,Spjelkavik,Volda,2,1
+NOR3,04/10/2025,15:00,Skjetten,Lillehammer FK,1,1
+NOR3,04/10/2025,17:00,Os,Førde,4,6
+NOR3,05/07/2025,12:30,Skjervøy,KFUM 2,4,2
+NOR3,05/07/2025,13:00,Frigg,Alta 2,5,2
+NOR3,05/07/2025,13:00,Volda,Tiller IL,9,2
+NOR3,05/07/2025,13:00,Gjøvik-Lyn,Kongsvinger 2,5,0
+NOR3,05/07/2025,13:00,Lillestrøm 2,Åssiden,4,3
+NOR3,05/07/2025,13:00,Nordstrand,Ull/Kisa 2,10,1
+NOR3,05/07/2025,15:00,Fløya,Gamle Oslo,4,3
+NOR3,05/07/2025,15:00,Byåsen,Nardo,2,1
+NOR3,05/07/2025,15:00,Spjelkavik,Ranheim 2,2,2
+NOR3,05/07/2025,15:00,Surnadal,Kvik,2,2
+NOR3,05/07/2025,15:00,Elverum,Bjørkelangen,5,0
+NOR3,05/07/2025,15:00,Skjetten,Lørenskog,2,1
+NOR3,05/07/2025,15:30,Melhus,Aalesund 2,5,0
+NOR3,05/09/2025,18:00,Hinna FK,Madla,0,0
+NOR3,05/10/2025,12:00,Alta 2,Junkeren,3,8
+NOR3,05/10/2025,12:00,Gneist,Åsane 2,0,5
+NOR3,05/10/2025,13:00,FK Fyllingsdalen,Sandefjord 2,3,1
+NOR3,05/10/2025,13:00,Nordstrand,Skedsmo,4,2
+NOR3,05/10/2025,14:00,Elverum,Gjøvik-Lyn,2,1
+NOR3,05/10/2025,14:00,Pors 2,Ørn Horten,1,2
+NOR3,05/10/2025,15:00,Lyn 2,Lyngbø,1,4
+NOR3,05/10/2025,15:00,Åssiden,Lørenskog,1,5
+NOR3,05/10/2025,15:00,Fram Larvik,Grei,3,4
+NOR3,05/10/2025,15:00,Kristiansund BK 2,Trygg/Lade,1,0
+NOR3,05/10/2025,15:00,Djerv 1919,Våg,4,1
+NOR3,05/10/2025,16:00,KFUM 2,Harstad,1,1
+NOR3,05/10/2025,16:00,Vålerenga 2,Loddefjord,7,0
+NOR3,05/10/2025,17:00,Kongsvinger 2,Bjørkelangen,3,1
+NOR3,06/07/2025,13:00,Ullern,Tromsø 2,3,4
+NOR3,06/07/2025,15:00,Junkeren,Ulfstind,3,2
+NOR3,06/07/2025,15:00,Lillehammer FK,Strømsgodset 2,1,0
+NOR3,06/07/2025,16:00,Bærum,Harstad,3,1
+NOR3,06/07/2025,16:00,Funnefoss/Vormsund,Sortland IL,2,2
+NOR3,06/09/2025,13:00,Loddefjord,Sandefjord 2,0,2
+NOR3,06/09/2025,13:00,Vålerenga 2,Fjøra,3,1
+NOR3,06/09/2025,13:00,Sarpsborg 08 2,Lokomotiv Oslo FK,1,1
+NOR3,06/09/2025,13:30,Lyn 2,FK Fyllingsdalen,4,4
+NOR3,06/09/2025,14:00,Åsane 2,Fana,2,2
+NOR3,06/09/2025,14:00,Gneist,Bjarg,1,2
+NOR3,06/09/2025,14:00,Os,Askøy,0,1
+NOR3,06/09/2025,14:00,Kvik Halden,Ørn Horten,3,0
+NOR3,06/09/2025,14:00,Odds Ballklubb 2,Ready,2,3
+NOR3,06/09/2025,14:00,Gamle Oslo,KFUM 2,7,0
+NOR3,06/09/2025,14:00,Kristiansund BK 2,Volda,0,2
+NOR3,06/09/2025,14:00,Spjelkavik,Molde 2,6,1
+NOR3,06/09/2025,14:00,Brodd,Djerv 1919,1,3
+NOR3,06/09/2025,14:00,Haugesund 2,Viking 2,0,1
+NOR3,06/09/2025,14:00,Sandnes Ulf 2,Stord,3,4
+NOR3,06/09/2025,14:00,Staal Jørpeland,Vidar,3,1
+NOR3,06/09/2025,15:00,Lyngbø,Førde,1,2
+NOR3,06/09/2025,15:00,Fram Larvik,Oppsal,1,4
+NOR3,06/09/2025,15:00,Stabæk 2,Grei,1,4
+NOR3,06/09/2025,15:00,Fløya,Bærum,1,2
+NOR3,06/09/2025,15:00,Byåsen,Rosenborg 2,1,1
+NOR3,06/09/2025,15:00,Nardo,Ranheim 2,3,1
+NOR3,06/09/2025,15:00,Surnadal,Trygg/Lade,1,1
+NOR3,06/09/2025,15:00,Sola,Våg,1,3
+NOR3,06/09/2025,15:00,Elverum,Skedsmo,5,2
+NOR3,06/09/2025,15:00,Gjøvik-Lyn,Lillehammer FK,1,1
+NOR3,06/09/2025,15:00,Nordstrand,Lørenskog,0,3
+NOR3,06/09/2025,15:00,Skjetten,Bjørkelangen,3,0
+NOR3,06/09/2025,15:30,Tiller IL,Aalesund 2,1,4
+NOR3,06/09/2025,16:00,Torvastad,Vindbjart,1,1
+NOR3,06/09/2025,17:30,Strømsgodset 2,Åssiden,2,0
+NOR3,06/10/2025,14:00,Aalesund 2,Molde 2,6,2
+NOR3,06/10/2025,16:30,Kvik Halden,Stabæk 2,2,2
+NOR3,06/10/2025,18:00,Drøbak/Frogn,Odds Ballklubb 2,0,1
+NOR3,06/10/2025,18:00,Sandnes Ulf 2,Haugesund 2,0,4
+NOR3,06/10/2025,18:30,Brodd,Viking 2,0,1
+NOR3,06/10/2025,19:00,Ranheim 2,Kvik,1,1
+NOR3,06/10/2025,19:00,Tiller IL,Rosenborg 2,2,5
+NOR3,06/10/2025,19:00,Sarpsborg 08 2,Fredrikstad 2,2,4
+NOR3,06/10/2025,19:00,Strømsgodset 2,Lillestrøm 2,6,0
+NOR3,06/10/2025,20:00,HamKam 2,Ull/Kisa 2,6,0
+NOR3,07/07/2025,18:00,Kristiansund BK 2,Molde 2,0,1
+NOR3,07/07/2025,19:00,Trygg/Lade,Rosenborg 2,2,0
+NOR3,07/07/2025,20:00,HamKam 2,Skedsmo,2,1
+NOR3,07/08/2025,18:00,Sola,Vidar,2,1
+NOR3,07/09/2025,11:00,Skjervøy,Junkeren,1,2
+NOR3,07/09/2025,12:00,Ulfstind,Alta 2,0,3
+NOR3,07/09/2025,14:00,Funnefoss/Vormsund,Tromsø 2,6,0
+NOR3,07/09/2025,14:00,Kongsvinger 2,Ull/Kisa 2,5,3
+NOR3,07/09/2025,14:00,Pors 2,Flint,1,4
+NOR3,07/09/2025,16:00,Frigg,Harstad,5,4
+NOR3,07/09/2025,16:00,Ullern,Sortland IL,4,2
+NOR3,07/10/2025,18:30,Ullern,Frigg,0,0
+NOR3,08/09/2025,20:00,HamKam 2,Lillestrøm 2,3,2
+NOR3,09/07/2025,19:00,KFUM 2,Frigg,0,0
+NOR3,09/07/2025,19:30,Bjørkelangen,Gjøvik-Lyn,0,1
+NOR3,09/08/2025,12:00,Bærum,Alta 2,3,0
+NOR3,09/08/2025,13:00,Funnefoss/Vormsund,Ulfstind,1,1
+NOR3,09/08/2025,13:00,Skjervøy,Gamle Oslo,1,1
+NOR3,09/08/2025,13:00,Gneist,Sandefjord 2,2,2
+NOR3,09/08/2025,14:00,Os,Loddefjord,5,1
+NOR3,09/08/2025,14:00,Surnadal,Ranheim 2,1,4
+NOR3,09/08/2025,14:00,Gjøvik-Lyn,Skedsmo,4,0
+NOR3,09/08/2025,14:00,Nordstrand,Åssiden,6,2
+NOR3,09/08/2025,14:00,Staal Jørpeland,Brodd,1,2
+NOR3,09/08/2025,14:00,Grei,Ready,3,1
+NOR3,09/08/2025,14:00,Kvik Halden,Pors 2,6,0
+NOR3,09/08/2025,14:15,Frigg,Tromsø 2,0,3
+NOR3,09/08/2025,15:00,FK Fyllingsdalen,Vålerenga 2,3,0
+NOR3,09/08/2025,15:00,Førde,Askøy,2,1
+NOR3,09/08/2025,15:00,Lyngbø,Fjøra,2,1
+NOR3,09/08/2025,15:00,Byåsen,Molde 2,2,1
+NOR3,09/08/2025,15:00,Melhus,Nardo,1,0
+NOR3,09/08/2025,15:00,Spjelkavik,Tiller IL,3,0
+NOR3,09/08/2025,15:00,Trygg/Lade,Kvik,3,2
+NOR3,09/08/2025,15:00,Lillehammer FK,Lørenskog,1,4
+NOR3,09/08/2025,15:00,Hinna FK,Vindbjart,3,1
+NOR3,09/08/2025,15:00,Våg,Madla,2,0
+NOR3,09/08/2025,15:00,Drøbak/Frogn,Oppsal,1,1
+NOR3,09/08/2025,16:00,Fredrikstad 2,Ørn Horten,4,2
+NOR3,09/08/2025,16:30,Åsane 2,Bjarg,0,6
+NOR3,10/07/2025,18:00,Tromsø 2,Fløya,3,0
+NOR3,10/07/2025,19:00,Ranheim 2,Melhus,3,4
+NOR3,10/08/2025,13:00,Lillestrøm 2,Bjørkelangen,3,3
+NOR3,10/08/2025,13:00,Lyn 2,Fana,1,5
+NOR3,10/08/2025,14:00,Skjetten,Ull/Kisa 2,0,1
+NOR3,10/08/2025,14:00,Sandnes Ulf 2,Torvastad,0,2
+NOR3,10/08/2025,14:00,Viking 2,Stord,3,2
+NOR3,10/08/2025,15:00,Elverum,Kongsvinger 2,6,1
+NOR3,10/08/2025,15:30,Fløya,Harstad,0,3
+NOR3,10/08/2025,16:00,Junkeren,Sortland IL,6,1
+NOR3,10/08/2025,17:00,HamKam 2,Strømsgodset 2,9,0
+NOR3,10/10/2025,16:00,Junkeren,Tromsø 2,3,1
+NOR3,10/10/2025,19:00,Gjøvik-Lyn,Strømsgodset 2,4,0
+NOR3,10/10/2025,19:30,HamKam 2,Skjetten,3,1
+NOR3,11/07/2025,18:00,Lørenskog,Lillestrøm 2,4,2
+NOR3,11/08/2025,15:30,Kristiansund BK 2,Rosenborg 2,0,2
+NOR3,11/08/2025,18:00,Ullern,KFUM 2,1,3
+NOR3,11/08/2025,19:00,Volda,Aalesund 2,5,0
+NOR3,11/08/2025,19:00,Odds Ballklubb 2,Flint,2,1
+NOR3,11/08/2025,19:00,Sarpsborg 08 2,Fram Larvik,2,3
+NOR3,11/08/2025,19:00,Stabæk 2,Lokomotiv Oslo FK,1,3
+NOR3,11/09/2025,18:00,Vidar,Hinna FK,2,1
+NOR3,11/10/2025,13:00,Bærum,Ulfstind,5,1
+NOR3,11/10/2025,13:00,Volda,Melhus,2,1
+NOR3,11/10/2025,14:00,Funnefoss/Vormsund,Ullern,2,2
+NOR3,11/10/2025,14:00,Surnadal,Kristiansund BK 2,2,3
+NOR3,11/10/2025,14:00,Bjarg,FK Fyllingsdalen,5,0
+NOR3,11/10/2025,14:00,Stord,Brodd,2,4
+NOR3,11/10/2025,14:00,Vidar,Djerv 1919,1,0
+NOR3,11/10/2025,14:00,Flint,Ørn Horten,0,2
+NOR3,11/10/2025,14:00,Fredrikstad 2,Oppsal,4,1
+NOR3,11/10/2025,14:00,Grei,Pors 2,11,1
+NOR3,11/10/2025,15:00,Fløya,KFUM 2,1,3
+NOR3,11/10/2025,15:00,Frigg,Skjervøy,6,1
+NOR3,11/10/2025,15:00,Sortland IL,Gamle Oslo,1,4
+NOR3,11/10/2025,15:00,Byåsen,Spjelkavik,5,1
+NOR3,11/10/2025,15:00,Kvik,Tiller IL,4,0
+NOR3,11/10/2025,15:00,Molde 2,Nardo,2,3
+NOR3,11/10/2025,15:00,Trygg/Lade,Ranheim 2,1,0
+NOR3,11/10/2025,15:00,Åsane 2,Vålerenga 2,1,3
+NOR3,11/10/2025,15:00,Førde,Fana,4,7
+NOR3,11/10/2025,15:00,Loddefjord,Fjøra,7,3
+NOR3,11/10/2025,15:00,Lyngbø,Os,2,2
+NOR3,11/10/2025,15:00,Staal Jørpeland,Vindbjart,3,1
+NOR3,11/10/2025,15:00,Våg,Torvastad,3,2
+NOR3,11/10/2025,15:00,Viking 2,Madla,1,3
+NOR3,11/10/2025,15:00,Stabæk 2,Drøbak/Frogn,2,4
+NOR3,11/10/2025,15:00,Bjørkelangen,Åssiden,3,1
+NOR3,11/10/2025,15:00,Lillehammer FK,Nordstrand,3,1
+NOR3,11/10/2025,15:00,Lørenskog,Elverum,3,1
+NOR3,11/10/2025,15:30,Lokomotiv Oslo FK,Ready,3,2
+NOR3,12/07/2025,13:00,Rosenborg 2,Volda,2,3
+NOR3,12/07/2025,14:00,Kongsvinger 2,Nordstrand,1,3
+NOR3,12/07/2025,14:00,Ull/Kisa 2,Elverum,1,4
+NOR3,12/07/2025,14:30,Sortland IL,Bærum,0,4
+NOR3,12/07/2025,15:00,Aalesund 2,Byåsen,2,0
+NOR3,12/07/2025,15:00,Kvik,Spjelkavik,1,4
+NOR3,12/07/2025,15:00,Molde 2,Surnadal,7,1
+NOR3,12/07/2025,15:00,Nardo,Trygg/Lade,1,3
+NOR3,12/07/2025,15:00,Skedsmo,Lillehammer FK,0,1
+NOR3,12/07/2025,16:00,Harstad,Skjervøy,6,2
+NOR3,12/09/2025,19:15,Fløya,Skjervøy,5,2
+NOR3,12/10/2025,11:30,Harstad,Alta 2,6,0
+NOR3,12/10/2025,13:00,Lillestrøm 2,Kongsvinger 2,3,0
+NOR3,12/10/2025,13:00,Lyn 2,Gneist,0,3
+NOR3,12/10/2025,14:00,Skedsmo,Ull/Kisa 2,7,0
+NOR3,12/10/2025,14:00,Sarpsborg 08 2,Kvik Halden,0,2
+NOR3,12/10/2025,15:00,Haugesund 2,Sola,1,1
+NOR3,12/10/2025,16:00,Sandefjord 2,Askøy,2,1
+NOR3,12/10/2025,17:00,Odds Ballklubb 2,Fram Larvik,2,3
+NOR3,13/07/2025,15:00,Alta 2,Funnefoss/Vormsund,2,3
+NOR3,13/07/2025,15:00,Ulfstind,Ullern,5,2
+NOR3,13/07/2025,16:00,Gamle Oslo,Junkeren,1,2
+NOR3,13/09/2025,13:00,Våg,Haugesund 2,4,1
+NOR3,13/09/2025,13:00,Vindbjart,Djerv 1919,3,0
+NOR3,13/09/2025,14:00,Madla,Brodd,2,2
+NOR3,13/09/2025,14:00,Stord,Staal Jørpeland,3,0
+NOR3,13/09/2025,14:00,Bjarg,Loddefjord,3,1
+NOR3,13/09/2025,14:00,FK Fyllingsdalen,Gneist,3,1
+NOR3,13/09/2025,14:00,Flint,Drøbak/Frogn,1,4
+NOR3,13/09/2025,14:00,Lokomotiv Oslo FK,Fram Larvik,3,2
+NOR3,13/09/2025,14:00,Ready,Kvik Halden,3,4
+NOR3,13/09/2025,15:00,Sola,Sandnes Ulf 2,2,1
+NOR3,13/09/2025,15:00,Askøy,Vålerenga 2,3,1
+NOR3,13/09/2025,15:00,Fana,Fjøra,1,1
+NOR3,13/09/2025,15:00,Sandefjord 2,Os,2,3
+NOR3,13/09/2025,15:00,Bærum,Frigg,2,3
+NOR3,13/09/2025,15:00,Harstad,Funnefoss/Vormsund,0,2
+NOR3,13/09/2025,15:00,Junkeren,Ullern,2,1
+NOR3,13/09/2025,15:00,Tromsø 2,Ulfstind,4,1
+NOR3,13/09/2025,15:00,Trygg/Lade,Byåsen,2,0
+NOR3,13/09/2025,15:00,Volda,Surnadal,5,0
+NOR3,13/09/2025,15:00,Bjørkelangen,Elverum,2,2
+NOR3,13/09/2025,15:00,Skedsmo,Skjetten,2,2
+NOR3,13/09/2025,15:30,Ørn Horten,Sarpsborg 08 2,5,1
+NOR3,13/09/2025,19:00,Ranheim 2,Spjelkavik,1,4
+NOR3,13/10/2025,19:00,Hinna FK,Sandnes Ulf 2,4,1
+NOR3,14/07/2025,18:00,Tiller IL,Kristiansund BK 2,1,2
+NOR3,14/07/2025,19:00,Åssiden,HamKam 2,0,5
+NOR3,14/07/2025,19:30,Strømsgodset 2,Skjetten,0,3
+NOR3,14/09/2025,12:15,Alta 2,Gamle Oslo,2,1
+NOR3,14/09/2025,13:00,Grei,Odds Ballklubb 2,1,3
+NOR3,14/09/2025,14:00,Oppsal,Pors 2,2,2
+NOR3,14/09/2025,14:00,Ull/Kisa 2,Nordstrand,0,5
+NOR3,14/09/2025,15:00,Sortland IL,KFUM 2,3,3
+NOR3,14/09/2025,15:00,Molde 2,Tiller IL,6,1
+NOR3,14/09/2025,15:00,Førde,Lyn 2,2,1
+NOR3,14/09/2025,16:00,Aalesund 2,Nardo,4,1
+NOR3,14/09/2025,16:30,Lillestrøm 2,Gjøvik-Lyn,2,3
+NOR3,14/09/2025,18:00,Fredrikstad 2,Stabæk 2,2,3
+NOR3,14/09/2025,19:00,Åsane 2,Lyngbø,7,0
+NOR3,15/08/2025,19:00,Ranheim 2,Byåsen,4,0
+NOR3,15/08/2025,19:00,Tiller IL,Melhus,3,6
+NOR3,15/09/2025,19:00,Kvik,Kristiansund BK 2,0,0
+NOR3,15/09/2025,19:00,Rosenborg 2,Melhus,2,3
+NOR3,15/09/2025,19:00,Åssiden,Kongsvinger 2,2,0
+NOR3,15/09/2025,19:00,Lillehammer FK,HamKam 2,3,2
+NOR3,15/09/2025,19:00,Lørenskog,Strømsgodset 2,6,1
+NOR3,15/09/2025,19:00,Viking 2,Torvastad,4,0
+NOR3,15/10/2025,15:30,Rosenborg 2,Aalesund 2,3,1
+NOR3,16/08/2025,12:00,Skedsmo,Lillestrøm 2,2,1
+NOR3,16/08/2025,13:00,Gamle Oslo,Ullern,1,0
+NOR3,16/08/2025,13:00,Sortland IL,Fløya,1,7
+NOR3,16/08/2025,13:00,Kvik,Volda,1,4
+NOR3,16/08/2025,13:00,Sandefjord 2,Førde,2,1
+NOR3,16/08/2025,13:00,Ready,Fredrikstad 2,5,0
+NOR3,16/08/2025,13:30,Ulfstind,Frigg,1,5
+NOR3,16/08/2025,14:00,Bjarg,Lyngbø,1,0
+NOR3,16/08/2025,14:00,Vålerenga 2,Gneist,1,2
+NOR3,16/08/2025,14:00,Ørn Horten,Grei,2,0
+NOR3,16/08/2025,14:00,Brodd,Torvastad,3,0
+NOR3,16/08/2025,14:00,Djerv 1919,Staal Jørpeland,4,2
+NOR3,16/08/2025,14:00,Stord,Hinna FK,3,1
+NOR3,16/08/2025,15:00,Åssiden,Elverum,0,1
+NOR3,16/08/2025,15:00,Bjørkelangen,Lillehammer FK,0,1
+NOR3,16/08/2025,15:00,Alta 2,Skjervøy,1,2
+NOR3,16/08/2025,15:00,Tromsø 2,Bærum,1,1
+NOR3,16/08/2025,15:00,Fjøra,FK Fyllingsdalen,1,2
+NOR3,16/08/2025,15:00,Fram Larvik,Drøbak/Frogn,1,2
+NOR3,16/08/2025,15:00,Vindbjart,Sola,8,0
+NOR3,16/08/2025,16:00,Harstad,Junkeren,1,3
+NOR3,16/08/2025,16:30,Fana,Os,2,1
+NOR3,17/08/2025,14:00,Ull/Kisa 2,Gjøvik-Lyn,0,3
+NOR3,17/08/2025,14:00,Askøy,Lyn 2,3,0
+NOR3,17/08/2025,14:00,Madla,Sandnes Ulf 2,2,0
+NOR3,17/08/2025,14:00,Vidar,Haugesund 2,4,1
+NOR3,17/08/2025,15:00,Loddefjord,Åsane 2,5,2
+NOR3,17/08/2025,15:00,Aalesund 2,Surnadal,4,0
+NOR3,17/08/2025,15:00,Rosenborg 2,Spjelkavik,5,1
+NOR3,17/08/2025,16:00,Molde 2,Trygg/Lade,3,7
+NOR3,17/08/2025,16:00,Lokomotiv Oslo FK,Kvik Halden,0,4
+NOR3,18/08/2025,18:00,Nardo,Kristiansund BK 2,1,1
+NOR3,18/08/2025,18:00,Våg,Viking 2,1,2
+NOR3,18/08/2025,19:00,KFUM 2,Funnefoss/Vormsund,1,1
+NOR3,18/08/2025,19:00,Lørenskog,HamKam 2,3,0
+NOR3,18/08/2025,19:00,Oppsal,Sarpsborg 08 2,1,0
+NOR3,18/08/2025,20:00,Strømsgodset 2,Nordstrand,4,4
+NOR3,18/10/2025,13:00,Nardo,Volda,0,0
+NOR3,18/10/2025,13:00,Tiller IL,Surnadal,1,1
+NOR3,18/10/2025,13:30,Ullern,Skjervøy,3,2
+NOR3,18/10/2025,14:00,Spjelkavik,Kristiansund BK 2,1,0
+NOR3,18/10/2025,14:00,Askøy,Åsane 2,0,1
+NOR3,18/10/2025,14:00,Fana,Lyngbø,2,1
+NOR3,18/10/2025,14:00,Vålerenga 2,Førde,1,6
+NOR3,18/10/2025,14:00,Djerv 1919,Hinna FK,2,1
+NOR3,18/10/2025,14:00,Madla,Stord,2,2
+NOR3,18/10/2025,14:00,Torvastad,Staal Jørpeland,2,3
+NOR3,18/10/2025,14:00,Flint,Lokomotiv Oslo FK,5,5
+NOR3,18/10/2025,14:00,Ørn Horten,Ready,3,1
+NOR3,18/10/2025,14:00,Oppsal,Grei,3,3
+NOR3,18/10/2025,15:00,Melhus,Byåsen,2,1
+NOR3,18/10/2025,15:00,Funnefoss/Vormsund,Frigg,1,4
+NOR3,18/10/2025,15:00,Sortland IL,Harstad,0,4
+NOR3,18/10/2025,15:00,Vindbjart,Vidar,2,2
+NOR3,18/10/2025,15:00,Nordstrand,Skjetten,3,1
+NOR3,18/10/2025,15:00,Skedsmo,Bjørkelangen,3,0
+NOR3,18/10/2025,15:00,Strømsgodset 2,Lillehammer FK,1,1
+NOR3,19/07/2025,13:00,Ready,Drøbak/Frogn,2,2
+NOR3,19/07/2025,14:00,Flint,Grei,3,1
+NOR3,19/07/2025,14:00,Askøy,FK Fyllingsdalen,4,1
+NOR3,19/07/2025,14:00,Brodd,Hinna FK,1,0
+NOR3,19/07/2025,14:00,Stord,Sandnes Ulf 2,2,0
+NOR3,19/07/2025,14:00,Vidar,Staal Jørpeland,3,0
+NOR3,19/07/2025,15:00,Fram Larvik,Odds Ballklubb 2,3,2
+NOR3,19/07/2025,15:00,Ørn Horten,Kvik Halden,1,1
+NOR3,19/07/2025,15:00,Pors 2,Oppsal,1,3
+NOR3,19/07/2025,15:00,Fana,Førde,0,0
+NOR3,19/07/2025,15:00,Fjøra,Os,0,6
+NOR3,19/07/2025,15:00,Sandefjord 2,Lyngbø,3,1
+NOR3,19/07/2025,15:00,Vindbjart,Våg,5,2
+NOR3,19/08/2025,18:00,Flint,Stabæk 2,1,1
+NOR3,19/08/2025,19:00,Pors 2,Odds Ballklubb 2,0,5
+NOR3,19/08/2025,20:00,Kongsvinger 2,Skjetten,4,4
+NOR3,19/09/2025,18:30,Hinna FK,Sola,7,1
+NOR3,19/10/2025,13:00,Ranheim 2,Molde 2,7,2
+NOR3,19/10/2025,14:00,Aalesund 2,Trygg/Lade,0,1
+NOR3,19/10/2025,14:00,Ulfstind,Junkeren,1,3
+NOR3,19/10/2025,14:00,Åssiden,Lillestrøm 2,3,4
+NOR3,19/10/2025,14:00,FK Fyllingsdalen,Loddefjord,6,0
+NOR3,19/10/2025,14:00,Fram Larvik,Stabæk 2,2,1
+NOR3,19/10/2025,14:30,Os,Lyn 2,3,1
+NOR3,19/10/2025,14:30,Sandefjord 2,Bjarg,1,4
+NOR3,19/10/2025,15:00,Fjøra,Gneist,3,1
+NOR3,19/10/2025,15:00,Odds Ballklubb 2,Kvik Halden,3,1
+NOR3,19/10/2025,15:00,Sandnes Ulf 2,Våg,2,5
+NOR3,19/10/2025,15:30,Brodd,Haugesund 2,5,5
+NOR3,19/10/2025,16:00,Gamle Oslo,Fløya,6,0
+NOR3,19/10/2025,20:00,KFUM 2,Bærum,0,4
+NOR3,20/07/2025,14:00,Bjarg,Lyn 2,2,0
+NOR3,20/09/2025,13:00,Frigg,Fløya,3,2
+NOR3,20/09/2025,13:00,Ulfstind,Sortland IL,3,2
+NOR3,20/09/2025,13:00,Tiller IL,Volda,2,3
+NOR3,20/09/2025,13:00,Fjøra,Bjarg,1,3
+NOR3,20/09/2025,14:00,Gneist,Førde,4,2
+NOR3,20/09/2025,14:00,Brodd,Våg,2,4
+NOR3,20/09/2025,14:00,Djerv 1919,Madla,3,0
+NOR3,20/09/2025,14:00,Torvastad,Stord,1,2
+NOR3,20/09/2025,14:00,Oppsal,Flint,0,3
+NOR3,20/09/2025,14:30,Ullern,Alta 2,5,3
+NOR3,20/09/2025,15:00,Byåsen,Surnadal,1,1
+NOR3,20/09/2025,15:00,Kristiansund BK 2,Melhus,1,1
+NOR3,20/09/2025,15:00,Molde 2,Kvik,2,2
+NOR3,20/09/2025,15:00,Spjelkavik,Trygg/Lade,2,2
+NOR3,20/09/2025,15:00,Loddefjord,Askøy,1,1
+NOR3,20/09/2025,15:00,Os,FK Fyllingsdalen,0,1
+NOR3,20/09/2025,15:00,Drøbak/Frogn,Lokomotiv Oslo FK,1,1
+NOR3,20/09/2025,15:00,Fram Larvik,Ørn Horten,2,0
+NOR3,20/09/2025,15:00,Elverum,Lillehammer FK,3,0
+NOR3,20/09/2025,15:00,Skjetten,Gjøvik-Lyn,1,1
+NOR3,20/09/2025,18:00,HamKam 2,Bjørkelangen,0,1
+NOR3,20/10/2025,13:30,Tromsø 2,Alta 2,4,0
+NOR3,20/10/2025,18:00,Elverum,HamKam 2,4,0
+NOR3,20/10/2025,18:00,Sola,Viking 2,4,5
+NOR3,20/10/2025,19:00,Rosenborg 2,Kvik,1,1
+NOR3,20/10/2025,19:00,Drøbak/Frogn,Sarpsborg 08 2,3,3
+NOR3,20/10/2025,19:00,Pors 2,Fredrikstad 2,0,2
+NOR3,20/10/2025,19:45,Ull/Kisa 2,Lørenskog,1,3
+NOR3,20/10/2025,20:00,Kongsvinger 2,Gjøvik-Lyn,1,2
+NOR3,21/07/2025,14:20,Stabæk 2,Fredrikstad 2,2,1
+NOR3,21/07/2025,17:00,Vålerenga 2,Åsane 2,7,1
+NOR3,21/07/2025,19:00,Lokomotiv Oslo FK,Sarpsborg 08 2,0,0
+NOR3,21/07/2025,19:00,Djerv 1919,Viking 2,2,0
+NOR3,21/07/2025,19:00,Madla,Sola,4,2
+NOR3,21/07/2025,19:00,Torvastad,Haugesund 2,1,3
+NOR3,21/09/2025,12:30,Skjervøy,Bærum,3,2
+NOR3,21/09/2025,12:30,Vålerenga 2,Lyngbø,4,2
+NOR3,21/09/2025,13:00,Nordstrand,Lillestrøm 2,4,2
+NOR3,21/09/2025,14:00,Funnefoss/Vormsund,Junkeren,0,4
+NOR3,21/09/2025,14:00,KFUM 2,Tromsø 2,4,0
+NOR3,21/09/2025,14:00,Pors 2,Ready,2,2
+NOR3,21/09/2025,15:30,Gamle Oslo,Harstad,2,4
+NOR3,21/09/2025,16:00,Kvik Halden,Fredrikstad 2,5,0
+NOR3,21/09/2025,16:00,Ranheim 2,Aalesund 2,2,0
+NOR3,21/09/2025,18:00,Åssiden,Skedsmo,0,2
+NOR3,21/09/2025,18:00,Sandnes Ulf 2,Vidar,2,4
+NOR3,22/07/2025,19:00,Loddefjord,Gneist,1,1
+NOR3,22/08/2025,18:00,Sola,Madla,1,3
+NOR3,22/08/2025,19:00,Torvastad,Djerv 1919,1,2
+NOR3,22/09/2025,16:30,Lyn 2,Åsane 2,1,2
+NOR3,22/09/2025,17:00,Fana,Sandefjord 2,3,1
+NOR3,22/09/2025,17:00,Odds Ballklubb 2,Stabæk 2,5,1
+NOR3,22/09/2025,18:00,Staal Jørpeland,Haugesund 2,3,2
+NOR3,22/09/2025,18:00,Vindbjart,Viking 2,5,1
+NOR3,22/09/2025,19:00,Sarpsborg 08 2,Grei,0,1
+NOR3,22/09/2025,19:00,Nardo,Rosenborg 2,1,1
+NOR3,22/09/2025,19:30,Strømsgodset 2,Ull/Kisa 2,2,1
+NOR3,22/09/2025,20:00,Kongsvinger 2,Lørenskog,1,3
+NOR3,23/08/2025,13:00,Trygg/Lade,Volda,2,0
+NOR3,23/08/2025,14:00,Gjøvik-Lyn,Lørenskog,2,0
+NOR3,23/08/2025,14:00,Gneist,Loddefjord,6,1
+NOR3,23/08/2025,14:00,Brodd,Vidar,5,2
+NOR3,23/08/2025,14:00,Staal Jørpeland,Våg,1,3
+NOR3,23/08/2025,14:00,Fredrikstad 2,Grei,1,3
+NOR3,23/08/2025,15:00,Byåsen,Kvik,2,0
+NOR3,23/08/2025,15:00,Tiller IL,Nardo,2,3
+NOR3,23/08/2025,15:00,Skjetten,Åssiden,2,1
+NOR3,23/08/2025,15:00,FK Fyllingsdalen,Askøy,2,0
+NOR3,23/08/2025,15:00,Os,Fjøra,7,0
+NOR3,23/08/2025,15:00,Drøbak/Frogn,Ready,4,1
+NOR3,23/08/2025,15:00,Funnefoss/Vormsund,Gamle Oslo,1,1
+NOR3,23/08/2025,15:00,Ulfstind,KFUM 2,3,0
+NOR3,23/08/2025,16:00,Vålerenga 2,Fana,5,2
+NOR3,24/08/2025,12:00,Fløya,Alta 2,6,1
+NOR3,24/08/2025,14:00,Lyn 2,Bjarg,1,4
+NOR3,24/08/2025,14:00,Fram Larvik,Pors 2,7,0
+NOR3,24/08/2025,15:00,Skjervøy,Tromsø 2,2,2
+NOR3,24/08/2025,15:00,Åsane 2,Førde,1,0
+NOR3,24/08/2025,15:00,Odds Ballklubb 2,Lokomotiv Oslo FK,1,2
+NOR3,24/08/2025,15:00,Sarpsborg 08 2,Flint,1,1
+NOR3,24/08/2025,15:00,Surnadal,Rosenborg 2,4,6
+NOR3,24/08/2025,15:00,Lillehammer FK,Lillestrøm 2,1,4
+NOR3,24/08/2025,15:00,Sandnes Ulf 2,Vindbjart,1,2
+NOR3,24/08/2025,16:00,Bærum,Junkeren,3,3
+NOR3,24/08/2025,16:00,Frigg,Sortland IL,10,0
+NOR3,24/08/2025,16:00,Ullern,Harstad,6,1
+NOR3,24/08/2025,16:00,Kvik Halden,Oppsal,6,0
+NOR3,24/08/2025,16:00,Stabæk 2,Ørn Horten,1,2
+NOR3,24/08/2025,16:00,Bjørkelangen,Ull/Kisa 2,4,1
+NOR3,24/08/2025,18:30,Kongsvinger 2,Skedsmo,3,1
+NOR3,24/09/2025,19:00,Drøbak/Frogn,Fredrikstad 2,2,2
+NOR3,25/07/2025,19:00,Sola,Torvastad,0,0
+NOR3,25/08/2025,17:00,Lyngbø,Sandefjord 2,1,2
+NOR3,25/08/2025,18:00,Kristiansund BK 2,Ranheim 2,0,5
+NOR3,25/08/2025,18:00,Melhus,Molde 2,3,5
+NOR3,25/08/2025,18:00,Elverum,Strømsgodset 2,10,0
+NOR3,25/08/2025,18:00,Viking 2,Hinna FK,0,1
+NOR3,25/08/2025,18:30,Spjelkavik,Aalesund 2,4,1
+NOR3,25/08/2025,19:00,Haugesund 2,Stord,2,1
+NOR3,25/08/2025,20:00,HamKam 2,Nordstrand,2,0
+NOR3,25/09/2025,17:00,Haugesund 2,Djerv 1919,0,3
+NOR3,25/10/2025,16:00,Kristiansund BK 2,Aalesund 2,1,1
+NOR3,26/07/2025,13:00,Staal Jørpeland,Stord,5,7
+NOR3,26/07/2025,14:00,Sandnes Ulf 2,Djerv 1919,1,3
+NOR3,26/07/2025,14:00,FK Fyllingsdalen,Bjarg,1,3
+NOR3,26/07/2025,14:00,Lyngbø,Fana,1,2
+NOR3,26/07/2025,14:00,Grei,Fram Larvik,1,2
+NOR3,26/07/2025,14:00,Kvik Halden,Flint,4,0
+NOR3,26/07/2025,15:00,Våg,Brodd,3,0
+NOR3,26/07/2025,15:00,Viking 2,Vindbjart,2,3
+NOR3,26/07/2025,15:00,Gneist,Fjøra,1,1
+NOR3,26/07/2025,15:00,Lyn 2,Loddefjord,8,0
+NOR3,26/07/2025,15:00,Drøbak/Frogn,Ørn Horten,0,1
+NOR3,26/09/2025,19:00,Madla,Torvastad,6,1
+NOR3,26/10/2025,12:00,Alta 2,Sortland IL,7,1
+NOR3,26/10/2025,12:00,Bærum,Ullern,4,2
+NOR3,26/10/2025,12:00,Fløya,Funnefoss/Vormsund,1,1
+NOR3,26/10/2025,12:00,Frigg,Gamle Oslo,9,3
+NOR3,26/10/2025,12:00,Harstad,Tromsø 2,0,4
+NOR3,26/10/2025,12:00,Junkeren,KFUM 2,4,1
+NOR3,26/10/2025,12:00,Skjervøy,Ulfstind,1,0
+NOR3,26/10/2025,12:00,Byåsen,Tiller IL,3,2
+NOR3,26/10/2025,12:00,Kvik,Nardo,2,2
+NOR3,26/10/2025,12:00,Molde 2,Rosenborg 2,2,1
+NOR3,26/10/2025,12:00,Surnadal,Spjelkavik,1,3
+NOR3,26/10/2025,12:00,Trygg/Lade,Melhus,3,0
+NOR3,26/10/2025,12:00,Volda,Ranheim 2,5,1
+NOR3,26/10/2025,12:00,Bjørkelangen,Strømsgodset 2,1,3
+NOR3,26/10/2025,12:00,Gjøvik-Lyn,Nordstrand,7,1
+NOR3,26/10/2025,12:00,HamKam 2,Kongsvinger 2,1,3
+NOR3,26/10/2025,12:00,Lillehammer FK,Åssiden,4,2
+NOR3,26/10/2025,12:00,Lillestrøm 2,Ull/Kisa 2,5,0
+NOR3,26/10/2025,12:00,Lørenskog,Skedsmo,3,1
+NOR3,26/10/2025,12:00,Skjetten,Elverum,0,3
+NOR3,26/10/2025,12:00,Åsane 2,Sandefjord 2,2,1
+NOR3,26/10/2025,12:00,Bjarg,Askøy,7,1
+NOR3,26/10/2025,12:00,Førde,Fjøra,3,1
+NOR3,26/10/2025,12:00,Gneist,Os,1,3
+NOR3,26/10/2025,12:00,Loddefjord,Fana,1,4
+NOR3,26/10/2025,12:00,Lyn 2,Vålerenga 2,4,3
+NOR3,26/10/2025,12:00,Lyngbø,FK Fyllingsdalen,1,2
+NOR3,26/10/2025,12:00,Haugesund 2,Torvastad,5,3
+NOR3,26/10/2025,12:00,Hinna FK,Brodd,3,4
+NOR3,26/10/2025,12:00,Staal Jørpeland,Sola,5,1
+NOR3,26/10/2025,12:00,Stord,Djerv 1919,1,1
+NOR3,26/10/2025,12:00,Våg,Vindbjart,1,1
+NOR3,26/10/2025,12:00,Vidar,Madla,3,4
+NOR3,26/10/2025,12:00,Viking 2,Sandnes Ulf 2,8,1
+NOR3,26/10/2025,12:00,Fredrikstad 2,Fram Larvik,4,1
+NOR3,26/10/2025,12:00,Grei,Flint,3,4
+NOR3,26/10/2025,12:00,Kvik Halden,Drøbak/Frogn,5,0
+NOR3,26/10/2025,12:00,Lokomotiv Oslo FK,Ørn Horten,2,0
+NOR3,26/10/2025,12:00,Ready,Oppsal,2,1
+NOR3,26/10/2025,12:00,Sarpsborg 08 2,Odds Ballklubb 2,1,0
+NOR3,26/10/2025,12:00,Stabæk 2,Pors 2,6,1
+NOR3,27/07/2025,13:00,Åsane 2,Askøy,1,2
+NOR3,27/07/2025,15:00,Odds Ballklubb 2,Oppsal,0,1
+NOR3,27/07/2025,16:00,Førde,Vålerenga 2,3,3
+NOR3,27/07/2025,17:00,Stabæk 2,Ready,5,1
+NOR3,27/09/2025,13:00,Sortland IL,Skjervøy,4,1
+NOR3,27/09/2025,13:00,Sandefjord 2,Fjøra,4,2
+NOR3,27/09/2025,13:00,Stord,Vindbjart,0,4
+NOR3,27/09/2025,14:00,Harstad,Ulfstind,1,3
+NOR3,27/09/2025,14:00,Junkeren,Frigg,3,0
+NOR3,27/09/2025,14:00,Askøy,Fana,3,3
+NOR3,27/09/2025,14:00,Lyngbø,Gneist,4,2
+NOR3,27/09/2025,14:00,Sola,Brodd,3,2
+NOR3,27/09/2025,14:00,Flint,Kvik Halden,0,3
+NOR3,27/09/2025,14:00,Grei,Drøbak/Frogn,2,0
+NOR3,27/09/2025,14:00,Ørn Horten,Oppsal,1,0
+NOR3,27/09/2025,14:00,Ready,Fram Larvik,1,3
+NOR3,27/09/2025,14:30,Tromsø 2,Gamle Oslo,2,3
+NOR3,27/09/2025,15:00,Bærum,Funnefoss/Vormsund,1,1
+NOR3,27/09/2025,15:00,Bjarg,Vålerenga 2,0,1
+NOR3,27/09/2025,15:00,Førde,FK Fyllingsdalen,2,0
+NOR3,27/09/2025,15:00,Våg,Vidar,1,3
+NOR3,27/09/2025,15:00,Lokomotiv Oslo FK,Pors 2,9,0
+NOR3,27/09/2025,15:00,Melhus,Spjelkavik,3,2
+NOR3,27/09/2025,15:00,Surnadal,Nardo,4,1
+NOR3,27/09/2025,15:00,Trygg/Lade,Tiller IL,1,0
+NOR3,27/09/2025,15:00,Lørenskog,Skjetten,1,0
+NOR3,27/09/2025,15:30,Bjørkelangen,Nordstrand,1,5
+NOR3,28/07/2025,17:00,Os,Sandefjord 2,6,3
+NOR3,28/07/2025,18:00,Haugesund 2,Madla,1,4
+NOR3,28/07/2025,18:30,Hinna FK,Vidar,0,4
+NOR3,28/07/2025,19:00,Sarpsborg 08 2,Pors 2,2,1
+NOR3,28/07/2025,19:30,Fredrikstad 2,Lokomotiv Oslo FK,3,1
+NOR3,28/09/2025,13:30,Åsane 2,Os,2,2
+NOR3,28/09/2025,14:00,Ull/Kisa 2,Åssiden,3,3
+NOR3,28/09/2025,14:00,Staal Jørpeland,Sandnes Ulf 2,5,2
+NOR3,28/09/2025,15:00,Loddefjord,Lyn 2,6,2
+NOR3,28/09/2025,15:00,Fløya,Ullern,0,2
+NOR3,28/09/2025,15:00,Volda,Molde 2,3,2
+NOR3,29/09/2025,14:00,Stabæk 2,Sarpsborg 08 2,3,2
+NOR3,29/09/2025,18:00,Byåsen,Kristiansund BK 2,1,0
+NOR3,29/09/2025,18:00,Gjøvik-Lyn,HamKam 2,1,0
+NOR3,29/09/2025,19:00,Rosenborg 2,Ranheim 2,6,0
+NOR3,29/09/2025,19:00,Skedsmo,Strømsgodset 2,2,1
+NOR3,29/09/2025,19:00,Alta 2,KFUM 2,0,3
+NOR3,29/09/2025,19:00,Viking 2,Djerv 1919,4,2
+NOR3,29/09/2025,19:30,Kvik,Aalesund 2,1,2
+NOR3,30/08/2025,13:00,Volda,Byåsen,2,1
+NOR3,30/08/2025,13:30,Gamle Oslo,Ulfstind,0,1
+NOR3,30/08/2025,14:00,Sortland IL,Funnefoss/Vormsund,2,4
+NOR3,30/08/2025,14:00,Tromsø 2,Ullern,1,2
+NOR3,30/08/2025,14:00,Askøy,Lyngbø,3,1
+NOR3,30/08/2025,14:00,Fana,Gneist,3,1
+NOR3,30/08/2025,14:00,Vidar,Torvastad,9,0
+NOR3,30/08/2025,14:00,Flint,Fram Larvik,1,5
+NOR3,30/08/2025,14:00,Grei,Kvik Halden,0,7
+NOR3,30/08/2025,14:00,Ørn Horten,Drøbak/Frogn,3,4
+NOR3,30/08/2025,15:00,Kvik,Surnadal,5,1
+NOR3,30/08/2025,15:00,Nardo,Spjelkavik,2,2
+NOR3,30/08/2025,15:00,Harstad,Bærum,3,3
+NOR3,30/08/2025,15:00,Bjarg,Os,2,0
+NOR3,30/08/2025,15:00,Førde,Loddefjord,8,1
+NOR3,30/08/2025,15:00,Stord,Sola,3,0
+NOR3,30/08/2025,15:00,Våg,Hinna FK,4,0
+NOR3,30/08/2025,15:00,Vindbjart,Brodd,4,3
+NOR3,30/08/2025,15:00,Åssiden,Gjøvik-Lyn,2,2
+NOR3,30/08/2025,15:00,Lørenskog,Bjørkelangen,2,2
+NOR3,30/08/2025,15:00,Nordstrand,Elverum,1,3
+NOR3,30/08/2025,16:00,Aalesund 2,Melhus,1,3
+NOR3,30/09/2025,18:30,Lillestrøm 2,Elverum,4,2
+NOR3,30/09/2025,19:00,Lillehammer FK,Kongsvinger 2,1,4
+NOR3,30/09/2025,19:00,Haugesund 2,Hinna FK,1,0
+NOR3,31/08/2025,10:00,Alta 2,Frigg,2,5
+NOR3,31/08/2025,13:15,KFUM 2,Skjervøy,3,3
+NOR3,31/08/2025,14:00,Ull/Kisa 2,Lillehammer FK,3,4
+NOR3,31/08/2025,15:00,Fjøra,Lyn 2,4,2
+NOR3,31/08/2025,16:30,Junkeren,Fløya,2,1
+NOR3,31/08/2025,17:00,Lillestrøm 2,Skjetten,1,3
+NOR3,31/08/2025,17:00,Ready,Stabæk 2,6,2
+NOR3,31/08/2025,18:00,Ranheim 2,Tiller IL,6,3
+NOR3,31/08/2025,19:00,Rosenborg 2,Trygg/Lade,1,2
+NOR3,31/08/2025,19:15,FK Fyllingsdalen,Åsane 2,0,7

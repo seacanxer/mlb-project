@@ -1,0 +1,841 @@
+Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG
+NOR3,01/04/2026,19:00,Varhaug,Åkra,2,0
+NOR3,01/05/2026,13:00,Djerv 1919,Førde,3,2
+NOR3,01/05/2026,13:00,Fana,Stord,2,0
+NOR3,01/05/2026,13:30,Varhaug,Flekkerøy,1,1
+NOR3,01/05/2026,14:00,Mandalskameratene,Åkra,2,0
+NOR3,01/05/2026,14:30,Varegg,Austevoll,2,2
+NOR3,01/05/2026,16:00,Herd,Byåsen,3,1
+NOR3,01/06/2026,13:00,Tromsø 2,Strømsgodset 2,4,1
+NOR3,01/06/2026,18:00,Brann 2,Askøy,7,1
+NOR3,01/06/2026,18:00,Vard Haugesund,Åsane 2,3,1
+NOR3,01/06/2026,18:30,Gneist,Sogndal 2,4,6
+NOR3,01/06/2026,20:00,Lyn 2,Gjøvik-Lyn,0,0
+NOR3,01/08/2026,12:30,Frigg,Ullern,2,2
+NOR3,01/08/2026,13:00,Konnerud,Nordstrand,2,3
+NOR3,01/08/2026,13:00,Flekkerøy,Haugesund 2,2,1
+NOR3,01/08/2026,13:00,Alta,Fløya,3,1
+NOR3,01/08/2026,13:00,Fauske/Sprint,Skjetten,4,5
+NOR3,01/08/2026,14:00,Heming,Bærum,3,1
+NOR3,01/08/2026,14:00,Vålerenga 2,Lokomotiv Oslo FK,3,2
+NOR3,01/08/2026,14:00,Staal Jørpeland,Åkra,3,4
+NOR3,01/08/2026,14:00,Askøy,FK Fyllingsdalen,1,0
+NOR3,01/08/2026,14:00,Austevoll,Os,1,5
+NOR3,01/08/2026,14:00,Gneist,Vard Haugesund,2,1
+NOR3,01/08/2026,15:00,Våg,Madla,2,3
+NOR3,01/08/2026,15:00,Byåsen,Spjelkavik,2,3
+NOR3,01/08/2026,15:00,Fram Larvik,Elverum,1,3
+NOR3,01/08/2026,15:00,Lillehammer FK,Drøbak/Frogn,2,1
+NOR3,01/08/2026,15:00,Ørn Horten,Rælingen,0,2
+NOR3,01/08/2026,15:00,Råde,Bjørkelangen,8,1
+NOR3,01/08/2026,15:00,Sandefjord 2,Gjøvik-Lyn,1,3
+NOR3,01/09/2026,18:30,Nordstrand,Grei,3,5
+NOR3,01/09/2026,19:00,Gjøvik-Lyn,Brumunddal,5,0
+NOR3,02/04/2026,13:00,Gneist,Fana,2,1
+NOR3,02/05/2026,11:00,Skjervøy,Skjetten,1,2
+NOR3,02/05/2026,13:00,Ulfstind,Kongsvinger 2,3,4
+NOR3,02/05/2026,13:00,Frigg,Asker,1,2
+NOR3,02/05/2026,13:00,Gamle Oslo,Vålerenga 2,8,3
+NOR3,02/05/2026,13:00,Heming,Grei,2,3
+NOR3,02/05/2026,13:00,Nordstrand,Union Carl Berner,2,1
+NOR3,02/05/2026,13:00,Ullern,Ready,2,2
+NOR3,02/05/2026,13:00,Viking 2,Hinna FK,8,0
+NOR3,02/05/2026,14:00,Skedsmo,Strømsgodset 2,3,0
+NOR3,02/05/2026,14:00,Bærum,Lokomotiv Oslo FK,2,1
+NOR3,02/05/2026,14:00,Staal Jørpeland,Brodd,3,2
+NOR3,02/05/2026,14:00,Våg,Haugesund 2,2,4
+NOR3,02/05/2026,14:00,Nardo,Orkla,3,0
+NOR3,02/05/2026,14:00,Ranheim 2,Strindheim,3,3
+NOR3,02/05/2026,14:00,Gneist,FK Fyllingsdalen,3,1
+NOR3,02/05/2026,14:00,Oppsal,Bjørkelangen,4,1
+NOR3,02/05/2026,14:00,Rælingen,Gjøvik-Lyn,2,1
+NOR3,02/05/2026,15:00,Odds Ballklubb 2,Vindbjart,2,3
+NOR3,02/05/2026,15:00,Kvik,Spjelkavik,1,2
+NOR3,02/05/2026,15:00,NTNUI,Rosenborg 2,2,3
+NOR3,02/05/2026,15:00,Os,Vard Haugesund,6,0
+NOR3,02/05/2026,15:00,Sogndal 2,Askøy,0,1
+NOR3,02/05/2026,15:00,Elverum,Råde,3,7
+NOR3,02/05/2026,15:00,Lillehammer FK,Fram Larvik,4,0
+NOR3,02/05/2026,15:00,Ørn Horten,Brumunddal,6,1
+NOR3,02/05/2026,16:00,Fløya,Harstad,2,1
+NOR3,02/05/2026,16:00,Stabæk 2,Madla,2,1
+NOR3,02/05/2026,16:00,Volda,Molde 2,5,0
+NOR3,02/08/2026,13:00,Bossekop,Harstad,2,3
+NOR3,02/08/2026,14:00,Varegg,Fana,4,2
+NOR3,02/08/2026,14:00,Viking 2,Mandalskameratene,4,0
+NOR3,02/08/2026,16:30,Skedsmo,Finnsnes,0,1
+NOR3,02/08/2026,17:00,Strømsgodset 2,Tromsø 2,0,2
+NOR3,02/08/2026,17:00,Asker,Ready,3,0
+NOR3,03/05/2026,12:00,Alta,Fauske/Sprint,4,4
+NOR3,03/05/2026,13:00,Brann 2,Åsane 2,2,1
+NOR3,03/05/2026,16:30,Lillestrøm 2,Finnsnes,3,2
+NOR3,03/05/2026,16:30,Tromsø 2,Bossekop,1,1
+NOR3,03/05/2026,17:00,Aalesund 2,Melhus,2,3
+NOR3,03/06/2026,19:00,NTNUI,Kvik,4,3
+NOR3,03/08/2026,16:00,Lillestrøm 2,Kongsvinger 2,4,5
+NOR3,03/08/2026,18:00,Nardo,Molde 2,3,0
+NOR3,03/08/2026,18:00,Strindheim,Aalesund 2,2,0
+NOR3,03/08/2026,18:00,Djerv 1919,Åsane 2,3,1
+NOR3,03/08/2026,18:00,Sogndal 2,Førde,3,3
+NOR3,03/08/2026,18:00,Brodd,Stabæk 2,2,2
+NOR3,03/08/2026,18:00,Vindbjart,Odds Ballklubb 2,2,1
+NOR3,03/08/2026,18:00,Brumunddal,Lyn 2,1,9
+NOR3,03/08/2026,18:00,Oppsal,Sarpsborg 08 2,2,2
+NOR3,03/08/2026,19:00,Kvik,Melhus,1,1
+NOR3,03/08/2026,19:00,Orkla,Rosenborg 2,1,2
+NOR3,03/08/2026,19:00,Brann 2,Stord,1,1
+NOR3,03/08/2026,19:00,KFUM 2,Grei,5,0
+NOR3,04/04/2026,13:00,Heming,Nordstrand,3,0
+NOR3,04/05/2026,18:00,Sandefjord 2,Lyn 2,3,0
+NOR3,04/05/2026,19:00,Sarpsborg 08 2,Drøbak/Frogn,1,0
+NOR3,04/05/2026,19:00,KFUM 2,Konnerud,4,2
+NOR3,04/09/2026,19:00,Gamle Oslo,Heming,2,1
+NOR3,05/04/2026,15:00,Tromsø 2,Skjetten,1,1
+NOR3,05/08/2026,19:00,Ranheim 2,NTNUI,4,1
+NOR3,05/09/2026,13:00,Frigg,Ready,5,2
+NOR3,05/09/2026,13:00,Grei,Union Carl Berner,0,1
+NOR3,05/09/2026,13:00,Ullern,Asker,2,6
+NOR3,05/09/2026,13:00,Stord,Fana,3,5
+NOR3,05/09/2026,13:00,Våg,Åkra,3,2
+NOR3,05/09/2026,13:00,Lillehammer FK,Rælingen,3,0
+NOR3,05/09/2026,14:00,Bærum,Nordstrand,1,0
+NOR3,05/09/2026,14:00,Djerv 1919,Askøy,3,2
+NOR3,05/09/2026,14:00,Varhaug,Brodd,3,0
+NOR3,05/09/2026,14:00,Byåsen,Strindheim,1,2
+NOR3,05/09/2026,14:00,Orkla,NTNUI,3,1
+NOR3,05/09/2026,14:00,Fløya,Skjetten,2,2
+NOR3,05/09/2026,14:00,Ulfstind,Fauske/Sprint,1,6
+NOR3,05/09/2026,14:45,Austevoll,Varegg,2,2
+NOR3,05/09/2026,15:00,Os,Førde,2,0
+NOR3,05/09/2026,15:00,Sogndal 2,FK Fyllingsdalen,7,0
+NOR3,05/09/2026,15:00,Flekkerøy,Madla,0,2
+NOR3,05/09/2026,15:00,Staal Jørpeland,Mandalskameratene,0,2
+NOR3,05/09/2026,15:00,Vindbjart,Hinna FK,2,0
+NOR3,05/09/2026,15:00,Brumunddal,Elverum,1,1
+NOR3,05/09/2026,15:00,Fram Larvik,Bjørkelangen,4,0
+NOR3,05/09/2026,15:00,Råde,Gjøvik-Lyn,2,0
+NOR3,05/09/2026,15:00,Herd,Melhus,1,4
+NOR3,05/09/2026,15:00,Nardo,Spjelkavik,4,2
+NOR3,05/09/2026,16:00,Vålerenga 2,Konnerud,2,1
+NOR3,05/09/2026,16:00,Sandefjord 2,Oppsal,2,1
+NOR3,06/04/2026,13:00,Djerv 1919,Stord,1,1
+NOR3,06/04/2026,13:00,Alta,Harstad,2,1
+NOR3,06/04/2026,13:00,Skedsmo,Bossekop,3,0
+NOR3,06/04/2026,14:00,Askøy,Vard Haugesund,1,1
+NOR3,06/04/2026,14:00,Gamle Oslo,KFUM 2,6,2
+NOR3,06/04/2026,14:00,Orkla,Strindheim,2,1
+NOR3,06/04/2026,14:00,Brodd,Madla,3,4
+NOR3,06/04/2026,14:00,Mandalskameratene,Hinna FK,1,2
+NOR3,06/04/2026,14:00,Oppsal,Lillehammer FK,0,2
+NOR3,06/04/2026,14:30,Fauske/Sprint,Ulfstind,3,3
+NOR3,06/04/2026,15:00,FK Fyllingsdalen,Førde,4,0
+NOR3,06/04/2026,15:00,Sogndal 2,Os,5,1
+NOR3,06/04/2026,15:00,Frigg,Union Carl Berner,1,3
+NOR3,06/04/2026,15:00,Ready,Lokomotiv Oslo FK,6,1
+NOR3,06/04/2026,15:00,Kvik,Nardo,2,1
+NOR3,06/04/2026,15:00,NTNUI,Spjelkavik,0,0
+NOR3,06/04/2026,15:00,Staal Jørpeland,Flekkerøy,1,1
+NOR3,06/04/2026,15:00,Fram Larvik,Gjøvik-Lyn,0,2
+NOR3,06/04/2026,15:00,Ørn Horten,Drøbak/Frogn,1,1
+NOR3,06/04/2026,15:30,Lillestrøm 2,Skjervøy,0,1
+NOR3,06/04/2026,16:00,Finnsnes,Fløya,2,2
+NOR3,06/04/2026,16:00,Ullern,Bærum,0,3
+NOR3,06/04/2026,16:00,Volda,Aalesund 2,4,3
+NOR3,06/04/2026,16:00,Brumunddal,Råde,2,1
+NOR3,06/04/2026,17:00,Sandefjord 2,Rælingen,5,2
+NOR3,06/04/2026,18:00,Asker,Konnerud,3,0
+NOR3,06/04/2026,19:30,Vålerenga 2,Grei,3,1
+NOR3,06/06/2026,13:00,Vålerenga 2,Nordstrand,3,2
+NOR3,06/06/2026,13:00,Bjørkelangen,Sandefjord 2,1,3
+NOR3,06/08/2026,19:00,Fløya,Ulfstind,7,0
+NOR3,06/09/2026,13:00,Odds Ballklubb 2,Haugesund 2,7,0
+NOR3,06/09/2026,13:00,Alta,Skedsmo,0,0
+NOR3,06/09/2026,13:00,Skjervøy,Kongsvinger 2,3,1
+NOR3,06/09/2026,13:30,Viking 2,Stabæk 2,3,1
+NOR3,06/09/2026,14:00,Lillestrøm 2,Bossekop,11,0
+NOR3,06/09/2026,14:00,Brann 2,Vard Haugesund,4,4
+NOR3,06/09/2026,15:00,Tromsø 2,Harstad,0,1
+NOR3,06/09/2026,17:30,Strømsgodset 2,Finnsnes,5,1
+NOR3,06/09/2026,19:00,Volda,Rosenborg 2,2,1
+NOR3,07/04/2026,13:00,Stabæk 2,Odds Ballklubb 2,2,3
+NOR3,07/04/2026,18:00,Våg,Vindbjart,1,0
+NOR3,07/04/2026,18:00,Viking 2,Haugesund 2,3,1
+NOR3,07/04/2026,18:00,Herd,Molde 2,3,3
+NOR3,07/04/2026,18:00,Austevoll,Åsane 2,1,1
+NOR3,07/04/2026,18:00,Bjørkelangen,Lyn 2,1,2
+NOR3,07/04/2026,18:00,Elverum,Sarpsborg 08 2,3,1
+NOR3,07/04/2026,19:00,Byåsen,Rosenborg 2,2,1
+NOR3,07/04/2026,19:00,Varegg,Brann 2,1,3
+NOR3,07/04/2026,20:00,Ranheim 2,Melhus,1,4
+NOR3,07/05/2026,17:00,Haugesund 2,Odds Ballklubb 2,1,2
+NOR3,07/05/2026,19:00,Åkra,Hinna FK,4,3
+NOR3,07/08/2026,19:00,Åkra,Varhaug,1,2
+NOR3,07/08/2026,19:30,Union Carl Berner,Konnerud,1,2
+NOR3,07/09/2026,18:00,Molde 2,Aalesund 2,3,2
+NOR3,07/09/2026,18:00,Drøbak/Frogn,Lyn 2,4,1
+NOR3,07/09/2026,19:00,Kvik,Ranheim 2,0,7
+NOR3,07/09/2026,19:00,Ørn Horten,Sarpsborg 08 2,3,4
+NOR3,07/09/2026,19:00,KFUM 2,Lokomotiv Oslo FK,0,3
+NOR3,07/09/2026,19:00,Gneist,Åsane 2,3,3
+NOR3,08/04/2026,18:00,Strømsgodset 2,Kongsvinger 2,0,3
+NOR3,08/08/2026,11:30,Skedsmo,Fauske/Sprint,5,3
+NOR3,08/08/2026,13:00,Finnsnes,Bossekop,2,3
+NOR3,08/08/2026,13:00,Lokomotiv Oslo FK,Grei,1,0
+NOR3,08/08/2026,13:00,Nordstrand,Frigg,2,3
+NOR3,08/08/2026,13:00,Ready,Heming,1,1
+NOR3,08/08/2026,13:00,Ullern,Gamle Oslo,2,5
+NOR3,08/08/2026,13:00,Volda,Nardo,2,0
+NOR3,08/08/2026,13:00,Odds Ballklubb 2,Staal Jørpeland,1,2
+NOR3,08/08/2026,14:00,Asker,Vålerenga 2,5,4
+NOR3,08/08/2026,14:00,Melhus,Orkla,8,3
+NOR3,08/08/2026,14:00,Fana,Gneist,4,0
+NOR3,08/08/2026,14:00,Os,Stord,8,2
+NOR3,08/08/2026,14:00,Vard Haugesund,Djerv 1919,1,3
+NOR3,08/08/2026,14:00,Bjørkelangen,Oppsal,0,1
+NOR3,08/08/2026,14:00,Gjøvik-Lyn,Lillehammer FK,0,2
+NOR3,08/08/2026,15:00,Tromsø 2,Alta,3,0
+NOR3,08/08/2026,15:00,Hinna FK,Flekkerøy,3,2
+NOR3,08/08/2026,15:00,Madla,Vindbjart,4,3
+NOR3,08/08/2026,15:00,Mandalskameratene,Brodd,2,1
+NOR3,08/08/2026,15:00,FK Fyllingsdalen,Varegg,0,4
+NOR3,08/08/2026,15:00,Førde,Brann 2,7,0
+NOR3,08/08/2026,15:00,Elverum,Ørn Horten,1,0
+NOR3,08/08/2026,16:00,Harstad,Skjervøy,7,0
+NOR3,08/08/2026,16:00,Spjelkavik,Strindheim,0,4
+NOR3,08/08/2026,19:00,NTNUI,Byåsen,0,0
+NOR3,09/05/2026,11:00,Grei,Lokomotiv Oslo FK,4,4
+NOR3,09/05/2026,12:00,Strømsgodset 2,Alta,3,2
+NOR3,09/05/2026,13:00,Ready,Nordstrand,3,0
+NOR3,09/05/2026,13:00,Strindheim,Volda,2,1
+NOR3,09/05/2026,13:30,Harstad,Lillestrøm 2,2,3
+NOR3,09/05/2026,13:30,Kongsvinger 2,Skjervøy,3,3
+NOR3,09/05/2026,14:00,Asker,Heming,5,0
+NOR3,09/05/2026,14:00,Konnerud,Gamle Oslo,2,4
+NOR3,09/05/2026,14:00,Bossekop,Ulfstind,2,1
+NOR3,09/05/2026,14:00,Melhus,Nardo,2,2
+NOR3,09/05/2026,14:00,Askøy,Varegg,2,1
+NOR3,09/05/2026,14:00,Austevoll,Djerv 1919,0,4
+NOR3,09/05/2026,14:00,Stord,Os,4,6
+NOR3,09/05/2026,14:00,Brumunddal,Oppsal,1,4
+NOR3,09/05/2026,14:00,Drøbak/Frogn,Lillehammer FK,2,2
+NOR3,09/05/2026,14:30,Skjetten,Fløya,1,3
+NOR3,09/05/2026,14:30,Orkla,Herd,1,3
+NOR3,09/05/2026,15:00,Byåsen,Ranheim 2,3,2
+NOR3,09/05/2026,15:00,Molde 2,NTNUI,2,2
+NOR3,09/05/2026,15:00,Spjelkavik,Aalesund 2,2,2
+NOR3,09/05/2026,15:00,Førde,Gneist,2,1
+NOR3,09/05/2026,15:00,Bjørkelangen,Elverum,0,5
+NOR3,09/05/2026,15:00,Vindbjart,Staal Jørpeland,3,3
+NOR3,09/08/2026,13:00,Molde 2,Kvik,6,3
+NOR3,09/08/2026,15:00,Stabæk 2,Våg,2,0
+NOR3,09/08/2026,16:00,Rælingen,Råde,1,1
+NOR3,09/08/2026,18:00,Sarpsborg 08 2,Brumunddal,11,0
+NOR3,10/04/2026,19:00,Union Carl Berner,Ready,0,2
+NOR3,10/05/2026,12:00,Union Carl Berner,Bærum,2,0
+NOR3,10/05/2026,14:00,Vålerenga 2,Ullern,3,1
+NOR3,10/05/2026,14:00,Fauske/Sprint,Skedsmo,1,3
+NOR3,10/05/2026,15:00,Finnsnes,Tromsø 2,3,1
+NOR3,10/05/2026,15:00,Brodd,Våg,4,1
+NOR3,10/05/2026,15:00,Varhaug,Mandalskameratene,3,3
+NOR3,10/05/2026,15:00,Fram Larvik,Ørn Horten,1,1
+NOR3,10/05/2026,15:00,Råde,Sandefjord 2,3,1
+NOR3,10/05/2026,16:00,Gjøvik-Lyn,Sarpsborg 08 2,1,0
+NOR3,10/08/2026,16:00,Kongsvinger 2,Strømsgodset 2,2,3
+NOR3,10/08/2026,18:00,Askøy,Sogndal 2,0,0
+NOR3,10/08/2026,18:00,Haugesund 2,Viking 2,4,2
+NOR3,10/08/2026,18:00,Drøbak/Frogn,Sandefjord 2,1,0
+NOR3,10/08/2026,18:00,Lyn 2,Fram Larvik,4,3
+NOR3,10/08/2026,18:30,Aalesund 2,Herd,3,0
+NOR3,10/08/2026,19:00,Skjetten,Lillestrøm 2,2,1
+NOR3,10/08/2026,19:00,Åsane 2,Austevoll,0,1
+NOR3,10/08/2026,19:00,Rosenborg 2,Ranheim 2,7,1
+NOR3,10/08/2026,19:00,Bærum,KFUM 2,5,1
+NOR3,11/04/2026,13:00,Grei,Frigg,2,5
+NOR3,11/04/2026,13:00,Nordstrand,Ullern,2,3
+NOR3,11/04/2026,13:00,Nardo,Volda,0,2
+NOR3,11/04/2026,13:00,Åkra,Våg,2,1
+NOR3,11/04/2026,14:00,Bærum,Gamle Oslo,5,1
+NOR3,11/04/2026,14:00,Strindheim,Byåsen,1,3
+NOR3,11/04/2026,14:00,Madla,Varhaug,1,1
+NOR3,11/04/2026,14:00,Fana,Varegg,4,2
+NOR3,11/04/2026,14:00,Os,Gneist,3,1
+NOR3,11/04/2026,14:00,Stord,Austevoll,4,4
+NOR3,11/04/2026,14:00,Drøbak/Frogn,Oppsal,1,0
+NOR3,11/04/2026,14:00,Gjøvik-Lyn,Bjørkelangen,3,0
+NOR3,11/04/2026,15:00,Aalesund 2,Kvik,3,4
+NOR3,11/04/2026,15:00,Vindbjart,Brodd,2,0
+NOR3,11/04/2026,15:00,Vard Haugesund,FK Fyllingsdalen,6,2
+NOR3,11/04/2026,15:00,Lillehammer FK,Ørn Horten,3,2
+NOR3,11/04/2026,15:00,Råde,Fram Larvik,6,0
+NOR3,11/04/2026,15:00,Rælingen,Elverum,3,2
+NOR3,11/04/2026,15:00,Fløya,Alta,0,0
+NOR3,11/04/2026,18:00,Lokomotiv Oslo FK,Heming,0,2
+NOR3,11/05/2026,18:00,Åsane 2,Fana,0,3
+NOR3,11/05/2026,18:00,Flekkerøy,Stabæk 2,6,0
+NOR3,11/05/2026,18:00,Madla,Viking 2,2,0
+NOR3,11/05/2026,19:00,FK Fyllingsdalen,Sogndal 2,0,6
+NOR3,11/05/2026,19:00,Vard Haugesund,Brann 2,3,0
+NOR3,11/05/2026,19:00,Frigg,KFUM 2,4,3
+NOR3,11/05/2026,19:00,Rosenborg 2,Kvik,0,3
+NOR3,11/05/2026,19:00,Lyn 2,Rælingen,3,1
+NOR3,11/06/2026,19:00,Ulfstind,Fløya,3,0
+NOR3,12/04/2026,11:30,Bossekop,Fauske/Sprint,2,3
+NOR3,12/04/2026,14:00,Skjetten,Strømsgodset 2,1,3
+NOR3,12/04/2026,14:00,Ulfstind,Skedsmo,5,2
+NOR3,12/04/2026,14:00,Spjelkavik,Herd,1,3
+NOR3,12/04/2026,14:00,Brann 2,Djerv 1919,2,4
+NOR3,12/04/2026,14:00,Haugesund 2,Staal Jørpeland,0,3
+NOR3,12/04/2026,14:00,Odds Ballklubb 2,Mandalskameratene,1,7
+NOR3,12/04/2026,14:00,Sarpsborg 08 2,Sandefjord 2,2,3
+NOR3,12/04/2026,15:00,Harstad,Finnsnes,5,1
+NOR3,12/04/2026,15:00,Førde,Sogndal 2,1,4
+NOR3,12/04/2026,15:00,Flekkerøy,Viking 2,3,2
+NOR3,12/04/2026,16:00,Skjervøy,Tromsø 2,2,0
+NOR3,12/04/2026,16:00,Lyn 2,Brumunddal,3,1
+NOR3,12/06/2026,18:30,Alta,Tromsø 2,3,3
+NOR3,12/06/2026,19:00,Varhaug,Viking 2,0,3
+NOR3,12/09/2026,13:00,Heming,Frigg,5,1
+NOR3,12/09/2026,13:00,Konnerud,Grei,3,2
+NOR3,12/09/2026,13:00,Ready,Ullern,4,3
+NOR3,12/09/2026,13:00,Vålerenga 2,Gamle Oslo,2,1
+NOR3,12/09/2026,13:00,Melhus,Volda,1,2
+NOR3,12/09/2026,13:00,Vard Haugesund,Førde,9,0
+NOR3,12/09/2026,13:00,Haugesund 2,Våg,0,3
+NOR3,12/09/2026,13:00,Finnsnes,Alta,1,2
+NOR3,12/09/2026,13:00,Rælingen,Drøbak/Frogn,2,2
+NOR3,12/09/2026,13:30,Djerv 1919,Austevoll,5,2
+NOR3,12/09/2026,14:00,Askøy,Stord,3,3
+NOR3,12/09/2026,14:00,Fana,Os,3,2
+NOR3,12/09/2026,14:00,Brodd,Staal Jørpeland,1,3
+NOR3,12/09/2026,14:00,Harstad,Ulfstind,6,1
+NOR3,12/09/2026,14:00,Bjørkelangen,Brumunddal,2,4
+NOR3,12/09/2026,14:00,Gjøvik-Lyn,Lyn 2,2,0
+NOR3,12/09/2026,14:00,Oppsal,Fram Larvik,6,3
+NOR3,12/09/2026,14:00,Sarpsborg 08 2,Lillehammer FK,3,1
+NOR3,12/09/2026,15:00,Union Carl Berner,Nordstrand,1,1
+NOR3,12/09/2026,15:00,Strindheim,Kvik,1,0
+NOR3,12/09/2026,15:00,FK Fyllingsdalen,Gneist,1,2
+NOR3,12/09/2026,15:00,Hinna FK,Madla,1,4
+NOR3,12/09/2026,15:00,Mandalskameratene,Flekkerøy,3,1
+NOR3,12/09/2026,15:00,Råde,Elverum,4,2
+NOR3,12/09/2026,15:00,Sandefjord 2,Ørn Horten,1,1
+NOR3,12/09/2026,15:30,Herd,Orkla,2,2
+NOR3,12/09/2026,16:00,NTNUI,Molde 2,4,4
+NOR3,12/09/2026,16:00,Varegg,Sogndal 2,2,0
+NOR3,13/04/2026,14:00,Molde 2,Ranheim 2,5,5
+NOR3,13/04/2026,16:00,Hinna FK,Stabæk 2,5,3
+NOR3,13/04/2026,19:00,Melhus,NTNUI,3,3
+NOR3,13/04/2026,19:00,Rosenborg 2,Orkla,3,0
+NOR3,13/04/2026,19:00,KFUM 2,Asker,1,6
+NOR3,13/04/2026,19:00,Åsane 2,Askøy,1,1
+NOR3,13/04/2026,19:30,Konnerud,Vålerenga 2,4,1
+NOR3,13/06/2026,12:00,Grei,Ready,3,5
+NOR3,13/06/2026,13:00,Asker,Lokomotiv Oslo FK,6,0
+NOR3,13/06/2026,13:00,Gamle Oslo,Ullern,2,3
+NOR3,13/06/2026,13:00,Konnerud,Union Carl Berner,0,1
+NOR3,13/06/2026,13:00,Førde,Vard Haugesund,0,1
+NOR3,13/06/2026,13:00,Sogndal 2,Djerv 1919,2,1
+NOR3,13/06/2026,13:00,Vindbjart,Haugesund 2,4,0
+NOR3,13/06/2026,14:00,Askøy,Os,3,0
+NOR3,13/06/2026,14:00,Varegg,Gneist,0,1
+NOR3,13/06/2026,14:00,Brodd,Mandalskameratene,1,3
+NOR3,13/06/2026,14:00,Madla,Åkra,3,1
+NOR3,13/06/2026,14:00,Orkla,Volda,2,5
+NOR3,13/06/2026,14:00,Strømsgodset 2,Harstad,2,2
+NOR3,13/06/2026,14:00,Gjøvik-Lyn,Drøbak/Frogn,0,0
+NOR3,13/06/2026,14:00,Oppsal,Sandefjord 2,4,3
+NOR3,13/06/2026,14:30,Skedsmo,Skjervøy,2,0
+NOR3,13/06/2026,15:00,FK Fyllingsdalen,Fana,0,2
+NOR3,13/06/2026,15:00,Rosenborg 2,Molde 2,4,0
+NOR3,13/06/2026,15:00,Strindheim,Spjelkavik,2,4
+NOR3,13/06/2026,15:00,Bjørkelangen,Lillehammer FK,1,2
+NOR3,13/06/2026,15:00,Brumunddal,Sarpsborg 08 2,3,3
+NOR3,13/06/2026,15:00,Ørn Horten,Elverum,0,3
+NOR3,13/06/2026,15:00,Råde,Rælingen,7,2
+NOR3,13/06/2026,15:30,Herd,Nardo,4,1
+NOR3,13/06/2026,16:00,Frigg,Heming,4,1
+NOR3,13/06/2026,18:30,NTNUI,Aalesund 2,0,1
+NOR3,13/09/2026,14:30,Kongsvinger 2,Fløya,1,5
+NOR3,13/09/2026,15:00,Rosenborg 2,Nardo,2,5
+NOR3,13/09/2026,17:00,Lokomotiv Oslo FK,Bærum,5,2
+NOR3,13/09/2026,17:30,Bossekop,Skjervøy,1,1
+NOR3,13/09/2026,18:00,Stabæk 2,Vindbjart,3,1
+NOR3,13/09/2026,20:00,Ranheim 2,Byåsen,1,4
+NOR3,14/04/2026,20:00,Kongsvinger 2,Lillestrøm 2,3,1
+NOR3,14/05/2026,13:00,Stord,Førde,2,3
+NOR3,14/05/2026,13:00,Skjervøy,Harstad,2,1
+NOR3,14/05/2026,13:30,Finnsnes,Skjetten,2,1
+NOR3,14/05/2026,14:00,Tromsø 2,Fauske/Sprint,1,3
+NOR3,14/05/2026,14:00,Nardo,Byåsen,2,4
+NOR3,14/05/2026,14:00,NTNUI,Orkla,1,5
+NOR3,14/05/2026,14:00,Hinna FK,Haugesund 2,2,2
+NOR3,14/05/2026,14:00,Odds Ballklubb 2,Madla,2,2
+NOR3,14/05/2026,14:00,Staal Jørpeland,Varhaug,1,4
+NOR3,14/05/2026,14:00,Stabæk 2,Brodd,1,2
+NOR3,14/05/2026,14:00,Viking 2,Åkra,1,1
+NOR3,14/05/2026,14:00,Oppsal,Råde,1,0
+NOR3,14/05/2026,15:00,Os,FK Fyllingsdalen,6,0
+NOR3,14/05/2026,15:00,Fløya,Kongsvinger 2,3,1
+NOR3,14/05/2026,15:00,Ulfstind,Strømsgodset 2,1,3
+NOR3,14/05/2026,15:00,Aalesund 2,Molde 2,0,6
+NOR3,14/05/2026,15:00,Kvik,Strindheim,2,3
+NOR3,14/05/2026,15:00,Spjelkavik,Melhus,0,0
+NOR3,14/05/2026,15:00,Elverum,Fram Larvik,3,2
+NOR3,14/05/2026,15:00,Lillehammer FK,Gjøvik-Lyn,3,1
+NOR3,14/05/2026,15:00,Rælingen,Brumunddal,4,1
+NOR3,14/05/2026,15:00,Lokomotiv Oslo FK,Union Carl Berner,0,8
+NOR3,14/05/2026,18:00,Sandefjord 2,Drøbak/Frogn,2,3
+NOR3,14/05/2026,18:00,Gamle Oslo,Grei,3,1
+NOR3,14/05/2026,19:00,Gneist,Austevoll,4,5
+NOR3,14/06/2026,14:00,Byåsen,Melhus,3,2
+NOR3,14/06/2026,14:00,Austevoll,Brann 2,2,2
+NOR3,14/06/2026,15:00,Flekkerøy,Hinna FK,4,3
+NOR3,14/06/2026,15:00,Fauske/Sprint,Lillestrøm 2,4,3
+NOR3,14/06/2026,16:00,KFUM 2,Bærum,1,4
+NOR3,14/06/2026,18:30,Bossekop,Finnsnes,1,1
+NOR3,14/09/2026,17:00,Åsane 2,Brann 2,1,2
+NOR3,14/09/2026,17:00,Fauske/Sprint,Strømsgodset 2,5,3
+NOR3,14/09/2026,18:00,Skjetten,Tromsø 2,3,2
+NOR3,14/09/2026,18:00,Aalesund 2,Spjelkavik,3,2
+NOR3,14/09/2026,18:00,Åkra,Odds Ballklubb 2,1,2
+NOR3,14/09/2026,19:00,Skedsmo,Lillestrøm 2,2,1
+NOR3,14/09/2026,19:00,Viking 2,Varhaug,4,0
+NOR3,14/09/2026,19:00,Asker,KFUM 2,7,2
+NOR3,15/05/2026,18:30,Djerv 1919,Vard Haugesund,1,1
+NOR3,15/05/2026,19:00,KFUM 2,Vålerenga 2,2,1
+NOR3,15/05/2026,19:00,Ranheim 2,Rosenborg 2,5,2
+NOR3,15/06/2026,18:00,Staal Jørpeland,Odds Ballklubb 2,5,2
+NOR3,15/06/2026,18:00,Våg,Stabæk 2,3,2
+NOR3,15/06/2026,18:00,Fram Larvik,Lyn 2,0,1
+NOR3,15/06/2026,19:00,Ranheim 2,Kvik,1,1
+NOR3,15/06/2026,19:00,Åsane 2,Stord,1,2
+NOR3,15/06/2026,20:00,Kongsvinger 2,Skjetten,3,5
+NOR3,15/08/2026,12:00,Gneist,Førde,1,2
+NOR3,15/08/2026,13:00,Frigg,Lokomotiv Oslo FK,2,2
+NOR3,15/08/2026,13:00,Grei,Bærum,1,7
+NOR3,15/08/2026,13:00,Heming,Asker,2,5
+NOR3,15/08/2026,13:00,Ullern,Union Carl Berner,4,1
+NOR3,15/08/2026,13:00,Byåsen,Volda,0,0
+NOR3,15/08/2026,13:15,Austevoll,Vard Haugesund,2,1
+NOR3,15/08/2026,14:00,Djerv 1919,FK Fyllingsdalen,3,0
+NOR3,15/08/2026,14:00,Varegg,Askøy,1,3
+NOR3,15/08/2026,14:00,Gamle Oslo,Konnerud,7,1
+NOR3,15/08/2026,14:00,Ulfstind,Skjetten,4,2
+NOR3,15/08/2026,14:00,Ørn Horten,Gjøvik-Lyn,1,0
+NOR3,15/08/2026,14:00,Oppsal,Elverum,0,4
+NOR3,15/08/2026,15:00,Sogndal 2,Fana,1,3
+NOR3,15/08/2026,15:00,Herd,Ranheim 2,9,0
+NOR3,15/08/2026,15:00,Nardo,Melhus,1,3
+NOR3,15/08/2026,15:00,Orkla,Spjelkavik,2,5
+NOR3,15/08/2026,15:00,Strindheim,NTNUI,4,0
+NOR3,15/08/2026,15:00,Skjervøy,Fløya,1,3
+NOR3,15/08/2026,15:00,Brumunddal,Rælingen,2,4
+NOR3,15/08/2026,15:00,Råde,Drøbak/Frogn,3,2
+NOR3,15/08/2026,15:00,Sandefjord 2,Bjørkelangen,4,1
+NOR3,15/08/2026,15:00,Flekkerøy,Brodd,0,1
+NOR3,15/08/2026,15:00,Våg,Mandalskameratene,1,2
+NOR3,15/08/2026,15:00,Vindbjart,Åkra,6,0
+NOR3,16/05/2026,13:00,Heming,Ready,0,0
+NOR3,16/05/2026,13:00,Nordstrand,Konnerud,2,0
+NOR3,16/05/2026,13:00,Ullern,Frigg,1,2
+NOR3,16/05/2026,13:00,Varegg,Åsane 2,0,2
+NOR3,16/05/2026,13:00,Våg,Flekkerøy,0,2
+NOR3,16/05/2026,14:00,Bærum,Asker,2,4
+NOR3,16/05/2026,14:00,Ørn Horten,Bjørkelangen,4,2
+NOR3,16/05/2026,15:00,Fana,Askøy,2,2
+NOR3,16/05/2026,15:00,Mandalskameratene,Vindbjart,2,0
+NOR3,16/05/2026,15:00,Alta,Bossekop,2,1
+NOR3,16/05/2026,15:00,Lillestrøm 2,Skedsmo,1,2
+NOR3,16/05/2026,16:00,Volda,Herd,0,1
+NOR3,16/08/2026,13:00,Fauske/Sprint,Finnsnes,1,3
+NOR3,16/08/2026,14:00,Strømsgodset 2,Skedsmo,0,1
+NOR3,16/08/2026,15:00,Alta,Kongsvinger 2,6,0
+NOR3,16/08/2026,15:00,Odds Ballklubb 2,Hinna FK,3,2
+NOR3,16/08/2026,16:00,Lillestrøm 2,Harstad,3,4
+NOR3,16/08/2026,19:00,Vålerenga 2,Ready,4,3
+NOR3,17/08/2026,15:00,Molde 2,Rosenborg 2,3,0
+NOR3,17/08/2026,16:00,Bossekop,Tromsø 2,3,3
+NOR3,17/08/2026,18:00,Brann 2,Os,1,3
+NOR3,17/08/2026,18:00,Stord,Åsane 2,2,2
+NOR3,17/08/2026,18:00,Staal Jørpeland,Haugesund 2,3,4
+NOR3,17/08/2026,18:00,Varhaug,Stabæk 2,2,0
+NOR3,17/08/2026,18:00,Viking 2,Madla,1,1
+NOR3,17/08/2026,18:00,Fram Larvik,Sarpsborg 08 2,3,0
+NOR3,17/08/2026,18:00,Lillehammer FK,Lyn 2,4,1
+NOR3,17/08/2026,18:30,Kvik,Aalesund 2,3,2
+NOR3,17/08/2026,19:00,KFUM 2,Nordstrand,7,2
+NOR3,17/09/2026,18:00,Stord,Djerv 1919,3,4
+NOR3,18/04/2026,13:00,Frigg,Vålerenga 2,3,3
+NOR3,18/04/2026,13:00,Heming,Konnerud,3,1
+NOR3,18/04/2026,13:00,Nordstrand,Bærum,1,5
+NOR3,18/04/2026,13:00,Ullern,Lokomotiv Oslo FK,2,5
+NOR3,18/04/2026,13:00,Volda,Melhus,2,4
+NOR3,18/04/2026,13:00,Mandalskameratene,Haugesund 2,1,1
+NOR3,18/04/2026,14:00,Asker,Grei,3,0
+NOR3,18/04/2026,14:00,Gamle Oslo,Ready,3,3
+NOR3,18/04/2026,14:00,Orkla,Byåsen,3,3
+NOR3,18/04/2026,14:00,Staal Jørpeland,Madla,0,3
+NOR3,18/04/2026,14:00,Fana,Vard Haugesund,1,2
+NOR3,18/04/2026,14:00,Gneist,Stord,3,4
+NOR3,18/04/2026,14:00,Varegg,FK Fyllingsdalen,1,0
+NOR3,18/04/2026,14:00,Oppsal,Gjøvik-Lyn,0,1
+NOR3,18/04/2026,15:00,NTNUI,Strindheim,2,2
+NOR3,18/04/2026,15:00,Ranheim 2,Spjelkavik,5,3
+NOR3,18/04/2026,15:00,Brodd,Flekkerøy,2,1
+NOR3,18/04/2026,15:00,Våg,Hinna FK,3,0
+NOR3,18/04/2026,15:00,Varhaug,Vindbjart,0,1
+NOR3,18/04/2026,15:00,Askøy,Austevoll,3,1
+NOR3,18/04/2026,15:00,Djerv 1919,Os,0,1
+NOR3,18/04/2026,15:00,Bjørkelangen,Råde,0,9
+NOR3,18/04/2026,15:00,Brumunddal,Fram Larvik,0,3
+NOR3,18/04/2026,15:00,Elverum,Drøbak/Frogn,1,0
+NOR3,18/04/2026,15:00,Alta,Ulfstind,4,0
+NOR3,18/04/2026,16:00,Skjervøy,Finnsnes,0,3
+NOR3,18/08/2026,19:00,Sogndal 2,Varegg,3,1
+NOR3,19/04/2026,13:30,Strømsgodset 2,Bossekop,5,0
+NOR3,19/04/2026,14:00,Fauske/Sprint,Kongsvinger 2,2,1
+NOR3,19/04/2026,14:30,Stabæk 2,Åkra,4,1
+NOR3,19/04/2026,15:00,Sandefjord 2,Lillehammer FK,4,3
+NOR3,19/04/2026,16:00,Skedsmo,Harstad,4,2
+NOR3,19/04/2026,16:00,Herd,Rosenborg 2,3,0
+NOR3,19/04/2026,17:00,Tromsø 2,Fløya,2,3
+NOR3,19/04/2026,17:15,Brann 2,Førde,4,0
+NOR3,19/04/2026,18:00,Nardo,Aalesund 2,5,1
+NOR3,19/05/2026,18:00,Brann 2,Sogndal 2,2,0
+NOR3,19/05/2026,19:00,Sarpsborg 08 2,Lyn 2,6,3
+NOR3,19/06/2026,18:00,Hinna FK,Brodd,3,3
+NOR3,19/06/2026,19:00,Melhus,Rosenborg 2,1,1
+NOR3,19/09/2026,13:00,Frigg,Konnerud,2,0
+NOR3,19/09/2026,13:00,Grei,Heming,1,4
+NOR3,19/09/2026,13:00,Nordstrand,Lokomotiv Oslo FK,5,0
+NOR3,19/09/2026,13:00,Ullern,Vålerenga 2,2,1
+NOR3,19/09/2026,14:00,Bærum,Union Carl Berner,1,2
+NOR3,19/09/2026,14:00,Gneist,Varegg,2,2
+NOR3,19/09/2026,14:00,Sogndal 2,Vard Haugesund,2,4
+NOR3,19/09/2026,14:00,Hinna FK,Åkra,2,2
+NOR3,19/09/2026,14:00,Harstad,Skjetten,3,1
+NOR3,19/09/2026,14:00,Ulfstind,Bossekop,3,4
+NOR3,19/09/2026,14:00,Drøbak/Frogn,Gjøvik-Lyn,3,2
+NOR3,19/09/2026,15:00,Austevoll,Askøy,1,3
+NOR3,19/09/2026,15:00,Førde,Fana,0,3
+NOR3,19/09/2026,15:00,Flekkerøy,Varhaug,1,1
+NOR3,19/09/2026,15:00,Våg,Brodd,2,2
+NOR3,19/09/2026,15:00,Vindbjart,Mandalskameratene,0,1
+NOR3,19/09/2026,15:00,Elverum,Rælingen,4,1
+NOR3,19/09/2026,15:00,Fram Larvik,Råde,1,1
+NOR3,19/09/2026,15:00,Lillehammer FK,Bjørkelangen,7,1
+NOR3,19/09/2026,15:00,Ørn Horten,Oppsal,0,2
+NOR3,19/09/2026,16:00,Skjervøy,Skedsmo,1,2
+NOR3,19/09/2026,16:00,Byåsen,Herd,6,1
+NOR3,19/09/2026,16:00,Volda,Strindheim,2,2
+NOR3,19/09/2026,17:00,Kvik,NTNUI,0,2
+NOR3,20/04/2026,17:00,Viking 2,Odds Ballklubb 2,4,0
+NOR3,20/04/2026,18:00,Kvik,Molde 2,4,1
+NOR3,20/04/2026,18:00,Sogndal 2,Åsane 2,1,3
+NOR3,20/04/2026,18:00,Rælingen,Sarpsborg 08 2,2,2
+NOR3,20/04/2026,19:00,KFUM 2,Union Carl Berner,0,1
+NOR3,20/04/2026,19:00,Lillestrøm 2,Skjetten,3,1
+NOR3,20/06/2026,11:00,Lillestrøm 2,Ulfstind,10,1
+NOR3,20/06/2026,13:00,Finnsnes,Fauske/Sprint,5,1
+NOR3,20/06/2026,13:00,Skjetten,Alta,1,1
+NOR3,20/06/2026,13:00,Heming,Gamle Oslo,1,0
+NOR3,20/06/2026,13:00,Nordstrand,Asker,0,2
+NOR3,20/06/2026,13:00,Ullern,KFUM 2,2,3
+NOR3,20/06/2026,13:00,Union Carl Berner,Grei,2,1
+NOR3,20/06/2026,13:00,Volda,Byåsen,3,2
+NOR3,20/06/2026,13:00,FK Fyllingsdalen,Djerv 1919,1,1
+NOR3,20/06/2026,13:00,Vard Haugesund,Austevoll,0,3
+NOR3,20/06/2026,14:00,Bærum,Konnerud,7,2
+NOR3,20/06/2026,14:00,Nardo,NTNUI,2,0
+NOR3,20/06/2026,14:00,Gneist,Askøy,0,2
+NOR3,20/06/2026,14:00,Os,Brann 2,5,2
+NOR3,20/06/2026,14:00,Stord,Varegg,1,1
+NOR3,20/06/2026,14:00,Drøbak/Frogn,Råde,1,2
+NOR3,20/06/2026,14:00,Elverum,Oppsal,2,1
+NOR3,20/06/2026,14:00,Gjøvik-Lyn,Ørn Horten,3,0
+NOR3,20/06/2026,14:00,Rælingen,Bjørkelangen,3,1
+NOR3,20/06/2026,14:00,Sarpsborg 08 2,Fram Larvik,2,1
+NOR3,20/06/2026,15:00,Skjervøy,Bossekop,3,8
+NOR3,20/06/2026,15:00,Lyn 2,Lillehammer FK,3,5
+NOR3,20/06/2026,15:30,Kvik,Herd,1,5
+NOR3,20/06/2026,15:30,Spjelkavik,Orkla,0,2
+NOR3,20/06/2026,20:00,Lokomotiv Oslo FK,Frigg,1,3
+NOR3,20/09/2026,13:00,Gamle Oslo,Asker,1,2
+NOR3,20/09/2026,14:00,Lillestrøm 2,Fauske/Sprint,2,4
+NOR3,20/09/2026,15:00,Fløya,Finnsnes,3,1
+NOR3,20/09/2026,15:00,Molde 2,Melhus,1,0
+NOR3,20/09/2026,15:00,Orkla,Aalesund 2,2,2
+NOR3,21/04/2026,19:00,Ørn Horten,Lyn 2,2,1
+NOR3,21/05/2026,19:10,NTNUI,Ranheim 2,1,0
+NOR3,21/06/2026,12:30,Tromsø 2,Skedsmo,2,3
+NOR3,21/06/2026,13:00,Ready,Vålerenga 2,1,2
+NOR3,21/06/2026,13:00,Molde 2,Strindheim,2,4
+NOR3,21/06/2026,13:00,Viking 2,Staal Jørpeland,5,2
+NOR3,21/06/2026,14:00,Stabæk 2,Varhaug,1,4
+NOR3,21/06/2026,15:00,Fløya,Strømsgodset 2,4,0
+NOR3,21/06/2026,15:00,Harstad,Kongsvinger 2,6,1
+NOR3,21/06/2026,15:00,Sandefjord 2,Brumunddal,2,2
+NOR3,21/06/2026,16:00,Åkra,Vindbjart,0,2
+NOR3,21/06/2026,16:00,Mandalskameratene,Våg,2,1
+NOR3,21/09/2026,14:30,Tromsø 2,Kongsvinger 2,6,0
+NOR3,21/09/2026,15:00,Odds Ballklubb 2,Stabæk 2,1,1
+NOR3,21/09/2026,18:00,Alta,Strømsgodset 2,2,0
+NOR3,21/09/2026,18:00,Madla,Haugesund 2,1,1
+NOR3,21/09/2026,18:00,Staal Jørpeland,Viking 2,2,2
+NOR3,21/09/2026,18:00,Spjelkavik,Rosenborg 2,0,4
+NOR3,21/09/2026,18:00,Brumunddal,Sandefjord 2,1,2
+NOR3,21/09/2026,18:00,Lyn 2,Sarpsborg 08 2,2,2
+NOR3,21/09/2026,18:30,Brann 2,FK Fyllingsdalen,7,0
+NOR3,21/09/2026,19:00,Nardo,Ranheim 2,4,1
+NOR3,21/09/2026,19:00,Os,Åsane 2,3,2
+NOR3,21/09/2026,19:00,KFUM 2,Ready,2,5
+NOR3,22/05/2026,16:00,Kongsvinger 2,Tromsø 2,2,1
+NOR3,22/05/2026,18:30,Vard Haugesund,Stord,4,1
+NOR3,22/05/2026,18:45,Austevoll,Fana,5,2
+NOR3,22/05/2026,19:00,Byåsen,Kvik,0,2
+NOR3,22/05/2026,19:00,Molde 2,Spjelkavik,3,1
+NOR3,22/05/2026,19:00,Orkla,Melhus,0,2
+NOR3,22/06/2026,17:00,Aalesund 2,Ranheim 2,2,5
+NOR3,22/06/2026,17:00,Odds Ballklubb 2,Flekkerøy,3,1
+NOR3,22/06/2026,18:00,Haugesund 2,Madla,3,2
+NOR3,22/06/2026,18:00,Fana,Sogndal 2,5,2
+NOR3,22/06/2026,18:00,Førde,Åsane 2,4,0
+NOR3,22/09/2026,17:30,Skjetten,Skjervøy,6,1
+NOR3,23/05/2026,13:00,Frigg,Nordstrand,1,2
+NOR3,23/05/2026,13:00,Grei,KFUM 2,2,3
+NOR3,23/05/2026,13:00,Ready,Bærum,4,2
+NOR3,23/05/2026,13:00,Rosenborg 2,Volda,2,2
+NOR3,23/05/2026,13:00,Bossekop,Fløya,2,5
+NOR3,23/05/2026,13:00,Skedsmo,Alta,2,0
+NOR3,23/05/2026,14:00,Oppsal,Ørn Horten,0,2
+NOR3,23/05/2026,15:00,Førde,Os,2,1
+NOR3,23/05/2026,15:00,Sogndal 2,Varegg,0,0
+NOR3,23/05/2026,15:00,Flekkerøy,Vindbjart,2,0
+NOR3,23/05/2026,15:00,Mandalskameratene,Viking 2,0,0
+NOR3,24/04/2026,19:00,Rosenborg 2,Aalesund 2,5,0
+NOR3,24/06/2026,19:00,Gamle Oslo,Lokomotiv Oslo FK,6,1
+NOR3,25/04/2026,12:30,Lokomotiv Oslo FK,Nordstrand,2,1
+NOR3,25/04/2026,12:30,Kongsvinger 2,Alta,1,1
+NOR3,25/04/2026,13:00,Grei,Ullern,3,2
+NOR3,25/04/2026,13:00,Konnerud,Frigg,2,1
+NOR3,25/04/2026,13:00,Skjetten,Ulfstind,5,3
+NOR3,25/04/2026,14:00,Bærum,Heming,1,4
+NOR3,25/04/2026,14:00,Union Carl Berner,Gamle Oslo,1,5
+NOR3,25/04/2026,14:00,Orkla,Ranheim 2,2,1
+NOR3,25/04/2026,14:00,Spjelkavik,Volda,1,1
+NOR3,25/04/2026,14:00,FK Fyllingsdalen,Askøy,1,2
+NOR3,25/04/2026,14:00,Os,Fana,5,3
+NOR3,25/04/2026,14:00,Vard Haugesund,Gneist,5,2
+NOR3,25/04/2026,14:00,Åkra,Staal Jørpeland,1,1
+NOR3,25/04/2026,14:00,Brodd,Varhaug,1,3
+NOR3,25/04/2026,14:00,Drøbak/Frogn,Rælingen,3,4
+NOR3,25/04/2026,14:00,Fram Larvik,Oppsal,2,2
+NOR3,25/04/2026,15:00,Byåsen,NTNUI,0,1
+NOR3,25/04/2026,15:00,Molde 2,Nardo,4,2
+NOR3,25/04/2026,15:00,Førde,Varegg,3,1
+NOR3,25/04/2026,15:00,Flekkerøy,Mandalskameratene,2,1
+NOR3,25/04/2026,15:00,Madla,Våg,2,1
+NOR3,25/04/2026,15:00,Råde,Ørn Horten,1,1
+NOR3,25/04/2026,15:30,Strindheim,Herd,4,2
+NOR3,25/04/2026,16:00,Vålerenga 2,Asker,1,4
+NOR3,25/04/2026,16:00,Fløya,Skjervøy,4,1
+NOR3,25/05/2026,14:00,Vålerenga 2,Heming,1,6
+NOR3,25/05/2026,14:00,Strindheim,Nardo,4,1
+NOR3,25/05/2026,14:00,Askøy,Djerv 1919,0,0
+NOR3,25/05/2026,14:00,Gjøvik-Lyn,Elverum,1,0
+NOR3,25/05/2026,15:00,Konnerud,Lokomotiv Oslo FK,4,3
+NOR3,25/05/2026,15:00,Brumunddal,Lillehammer FK,0,8
+NOR3,25/05/2026,15:00,Fram Larvik,Rælingen,5,1
+NOR3,25/05/2026,15:00,Varhaug,Våg,0,1
+NOR3,25/05/2026,15:00,Fauske/Sprint,Skjervøy,3,3
+NOR3,25/05/2026,15:00,Ulfstind,Finnsnes,1,3
+NOR3,25/05/2026,15:30,FK Fyllingsdalen,Brann 2,2,2
+NOR3,25/05/2026,16:00,Skjetten,Harstad,1,2
+NOR3,25/05/2026,18:00,Asker,Gamle Oslo,0,4
+NOR3,25/05/2026,18:00,Union Carl Berner,Ullern,1,0
+NOR3,25/05/2026,18:00,Madla,Hinna FK,3,0
+NOR3,25/06/2026,17:00,Bjørkelangen,Sarpsborg 08 2,2,0
+NOR3,25/06/2026,18:00,Åsane 2,Os,3,5
+NOR3,25/06/2026,18:00,Staal Jørpeland,Hinna FK,1,1
+NOR3,25/06/2026,18:00,Våg,Viking 2,3,2
+NOR3,25/06/2026,19:00,Austevoll,FK Fyllingsdalen,2,0
+NOR3,25/06/2026,19:00,Strindheim,Melhus,2,1
+NOR3,25/06/2026,19:30,Brumunddal,Gjøvik-Lyn,0,3
+NOR3,25/06/2026,19:30,Konnerud,Ready,0,1
+NOR3,25/07/2026,13:00,Grei,Konnerud,3,1
+NOR3,25/07/2026,13:00,Nordstrand,Gamle Oslo,1,2
+NOR3,25/07/2026,13:00,Ullern,Heming,1,3
+NOR3,25/07/2026,13:00,Førde,Austevoll,1,1
+NOR3,25/07/2026,14:00,Bærum,Vålerenga 2,6,3
+NOR3,25/07/2026,14:00,Fana,Djerv 1919,4,3
+NOR3,25/07/2026,14:00,Stord,Askøy,0,4
+NOR3,25/07/2026,14:00,Harstad,Fauske/Sprint,10,1
+NOR3,25/07/2026,14:00,Drøbak/Frogn,Brumunddal,7,1
+NOR3,25/07/2026,15:00,Finnsnes,Strømsgodset 2,2,1
+NOR3,25/07/2026,15:00,Skjervøy,Alta,4,2
+NOR3,25/07/2026,15:00,Tromsø 2,Ulfstind,1,3
+NOR3,25/07/2026,15:00,Bjørkelangen,Fram Larvik,0,2
+NOR3,25/07/2026,15:00,Elverum,Sandefjord 2,5,3
+NOR3,25/07/2026,15:00,Gjøvik-Lyn,Råde,0,3
+NOR3,25/07/2026,15:00,Rælingen,Lillehammer FK,2,4
+NOR3,25/07/2026,15:00,Aalesund 2,Orkla,4,2
+NOR3,25/07/2026,15:00,Molde 2,Byåsen,6,6
+NOR3,25/07/2026,15:00,Spjelkavik,Nardo,4,2
+NOR3,25/07/2026,15:00,Hinna FK,Vindbjart,0,7
+NOR3,25/07/2026,15:00,Madla,Flekkerøy,5,1
+NOR3,25/07/2026,15:00,Mandalskameratene,Staal Jørpeland,8,3
+NOR3,25/07/2026,15:30,Melhus,Herd,2,0
+NOR3,25/07/2026,16:00,Stabæk 2,Viking 2,1,1
+NOR3,25/07/2026,16:30,Fløya,Lillestrøm 2,3,2
+NOR3,26/04/2026,12:00,Bossekop,Lillestrøm 2,1,6
+NOR3,26/04/2026,12:30,Harstad,Tromsø 2,1,1
+NOR3,26/04/2026,14:00,Strømsgodset 2,Fauske/Sprint,3,3
+NOR3,26/04/2026,14:00,Åsane 2,Djerv 1919,1,1
+NOR3,26/04/2026,15:00,Finnsnes,Skedsmo,3,0
+NOR3,26/04/2026,15:00,Hinna FK,Odds Ballklubb 2,1,1
+NOR3,26/04/2026,15:00,Vindbjart,Viking 2,3,0
+NOR3,26/04/2026,16:00,Austevoll,Sogndal 2,0,4
+NOR3,26/04/2026,16:00,Stord,Brann 2,0,0
+NOR3,26/04/2026,19:00,Brumunddal,Bjørkelangen,3,0
+NOR3,26/05/2026,18:00,Herd,Aalesund 2,0,2
+NOR3,26/05/2026,18:00,Åkra,Haugesund 2,2,7
+NOR3,26/05/2026,18:00,Brodd,Odds Ballklubb 2,2,1
+NOR3,26/05/2026,18:00,Staal Jørpeland,Stabæk 2,1,2
+NOR3,26/05/2026,18:00,Strømsgodset 2,Lillestrøm 2,1,3
+NOR3,26/05/2026,18:00,Lyn 2,Drøbak/Frogn,1,2
+NOR3,26/05/2026,19:00,Råde,Sarpsborg 08 2,5,1
+NOR3,26/05/2026,19:00,Åsane 2,Gneist,3,3
+NOR3,26/06/2026,18:00,Vålerenga 2,Union Carl Berner,2,1
+NOR3,26/06/2026,18:00,Flekkerøy,Åkra,3,1
+NOR3,26/06/2026,18:00,Skedsmo,Skjetten,0,1
+NOR3,26/07/2026,12:00,Skjetten,Bossekop,6,0
+NOR3,26/07/2026,14:00,Os,Varegg,4,0
+NOR3,26/07/2026,14:00,Åkra,Brodd,1,4
+NOR3,26/07/2026,15:00,FK Fyllingsdalen,Åsane 2,2,4
+NOR3,26/07/2026,16:00,Rosenborg 2,Strindheim,1,1
+NOR3,27/04/2026,13:00,Haugesund 2,Stabæk 2,3,2
+NOR3,27/04/2026,16:15,Gjøvik-Lyn,Sandefjord 2,1,0
+NOR3,27/04/2026,18:00,Lillehammer FK,Sarpsborg 08 2,6,1
+NOR3,27/04/2026,19:00,Ready,KFUM 2,2,0
+NOR3,27/04/2026,19:00,Melhus,Kvik,4,0
+NOR3,27/04/2026,20:00,Lyn 2,Elverum,2,1
+NOR3,27/06/2026,12:00,Sogndal 2,Stord,0,2
+NOR3,27/06/2026,12:00,Fauske/Sprint,Fløya,3,1
+NOR3,27/06/2026,13:00,Brann 2,Fana,3,2
+NOR3,27/06/2026,13:00,Grei,Nordstrand,1,5
+NOR3,27/06/2026,13:00,Kvik,Volda,0,2
+NOR3,27/06/2026,14:00,Djerv 1919,Gneist,6,2
+NOR3,27/06/2026,14:00,Asker,Ullern,3,2
+NOR3,27/06/2026,14:00,Frigg,Bærum,1,1
+NOR3,27/06/2026,14:00,Lillehammer FK,Elverum,2,2
+NOR3,27/06/2026,14:00,Ørn Horten,Sandefjord 2,4,3
+NOR3,27/06/2026,14:00,Oppsal,Rælingen,3,1
+NOR3,27/06/2026,15:00,Askøy,Førde,2,0
+NOR3,27/06/2026,15:00,Herd,NTNUI,2,2
+NOR3,27/06/2026,15:00,Orkla,Molde 2,3,5
+NOR3,27/06/2026,15:00,Ranheim 2,Nardo,5,3
+NOR3,27/06/2026,15:00,Rosenborg 2,Spjelkavik,2,1
+NOR3,27/06/2026,15:00,Fram Larvik,Drøbak/Frogn,1,1
+NOR3,27/06/2026,15:00,Madla,Mandalskameratene,2,2
+NOR3,27/06/2026,16:00,Bossekop,Kongsvinger 2,0,2
+NOR3,27/06/2026,16:00,Ulfstind,Harstad,1,1
+NOR3,27/06/2026,17:00,Byåsen,Aalesund 2,2,1
+NOR3,27/07/2026,17:00,Gneist,Brann 2,0,3
+NOR3,27/07/2026,18:00,Vard Haugesund,Sogndal 2,4,4
+NOR3,27/07/2026,18:00,Volda,Ranheim 2,7,0
+NOR3,27/07/2026,18:00,Odds Ballklubb 2,Våg,1,1
+NOR3,27/07/2026,19:00,Haugesund 2,Varhaug,2,2
+NOR3,27/07/2026,19:00,Lokomotiv Oslo FK,KFUM 2,2,0
+NOR3,27/07/2026,19:00,Ready,Frigg,3,3
+NOR3,27/07/2026,19:00,Union Carl Berner,Asker,1,2
+NOR3,27/07/2026,19:00,Kongsvinger 2,Skedsmo,1,3
+NOR3,27/07/2026,19:00,Lyn 2,Oppsal,2,2
+NOR3,27/07/2026,19:00,Sarpsborg 08 2,Ørn Horten,2,3
+NOR3,28/06/2026,12:00,Strømsgodset 2,Skjervøy,5,1
+NOR3,28/06/2026,13:00,Alta,Finnsnes,3,0
+NOR3,28/06/2026,14:00,Varegg,Vard Haugesund,1,1
+NOR3,28/06/2026,14:00,Brodd,Haugesund 2,4,0
+NOR3,28/06/2026,15:00,Råde,Lyn 2,3,5
+NOR3,28/06/2026,16:00,Vindbjart,Stabæk 2,2,3
+NOR3,28/06/2026,16:00,KFUM 2,Heming,2,2
+NOR3,28/06/2026,17:00,Lillestrøm 2,Tromsø 2,5,3
+NOR3,28/06/2026,17:00,Varhaug,Odds Ballklubb 2,2,2
+NOR3,28/08/2026,19:15,Union Carl Berner,KFUM 2,0,0
+NOR3,29/05/2026,18:30,Hinna FK,Varhaug,0,1
+NOR3,29/05/2026,19:00,Os,Austevoll,4,2
+NOR3,29/08/2026,13:30,Skjetten,Skjervøy,0,0
+NOR3,30/05/2026,13:00,Heming,Union Carl Berner,2,0
+NOR3,30/05/2026,13:00,Nordstrand,KFUM 2,2,2
+NOR3,30/05/2026,13:00,Ready,Asker,2,2
+NOR3,30/05/2026,13:00,Ullern,Konnerud,2,1
+NOR3,30/05/2026,13:00,Harstad,Bossekop,5,1
+NOR3,30/05/2026,13:00,Lillestrøm 2,Alta,2,4
+NOR3,30/05/2026,14:00,Bærum,Grei,5,0
+NOR3,30/05/2026,14:00,Skjervøy,Ulfstind,2,0
+NOR3,30/05/2026,14:00,Kvik,Orkla,1,1
+NOR3,30/05/2026,14:00,Nardo,Rosenborg 2,1,1
+NOR3,30/05/2026,14:00,Djerv 1919,Varegg,3,2
+NOR3,30/05/2026,14:00,Stord,FK Fyllingsdalen,2,2
+NOR3,30/05/2026,14:00,Lillehammer FK,Råde,8,1
+NOR3,30/05/2026,15:00,Fløya,Skedsmo,2,3
+NOR3,30/05/2026,15:00,Melhus,Molde 2,3,0
+NOR3,30/05/2026,15:00,Spjelkavik,Byåsen,4,0
+NOR3,30/05/2026,15:00,Fana,Førde,1,2
+NOR3,30/05/2026,15:00,Haugesund 2,Flekkerøy,3,4
+NOR3,30/05/2026,15:00,Vindbjart,Madla,2,2
+NOR3,30/05/2026,15:30,Gamle Oslo,Frigg,1,3
+NOR3,30/05/2026,15:30,Ranheim 2,Herd,2,2
+NOR3,30/05/2026,16:00,Sarpsborg 08 2,Oppsal,0,2
+NOR3,30/05/2026,16:00,Våg,Staal Jørpeland,0,1
+NOR3,30/05/2026,16:15,Volda,NTNUI,3,1
+NOR3,30/07/2026,19:00,Ulfstind,Skjervøy,1,3
+NOR3,30/08/2026,12:00,Volda,Kvik,6,0
+NOR3,30/08/2026,13:00,Heming,Vålerenga 2,5,2
+NOR3,30/08/2026,13:00,Ready,Gamle Oslo,2,3
+NOR3,30/08/2026,13:00,Askøy,Gneist,2,0
+NOR3,30/08/2026,13:00,FK Fyllingsdalen,Austevoll,0,1
+NOR3,30/08/2026,13:00,Varegg,Djerv 1919,1,2
+NOR3,30/08/2026,13:00,Mandalskameratene,Varhaug,0,2
+NOR3,30/08/2026,13:00,Kongsvinger 2,Ulfstind,2,1
+NOR3,30/08/2026,14:00,Konnerud,Bærum,1,1
+NOR3,30/08/2026,14:00,Brodd,Viking 2,3,1
+NOR3,30/08/2026,14:00,Stabæk 2,Staal Jørpeland,2,1
+NOR3,30/08/2026,14:30,NTNUI,Herd,2,1
+NOR3,30/08/2026,15:00,Førde,Stord,1,1
+NOR3,30/08/2026,15:00,Vard Haugesund,Os,1,2
+NOR3,30/08/2026,15:00,Åkra,Flekkerøy,1,4
+NOR3,30/08/2026,15:00,Bjørkelangen,Ørn Horten,2,5
+NOR3,30/08/2026,15:00,Elverum,Lillehammer FK,4,3
+NOR3,30/08/2026,15:15,Fauske/Sprint,Alta,1,5
+NOR3,30/08/2026,16:00,Lokomotiv Oslo FK,Ullern,2,3
+NOR3,30/08/2026,16:00,Haugesund 2,Vindbjart,0,4
+NOR3,30/08/2026,16:15,Melhus,Strindheim,0,1
+NOR3,30/08/2026,17:00,Drøbak/Frogn,Fram Larvik,3,4
+NOR3,30/08/2026,17:15,Finnsnes,Lillestrøm 2,0,1
+NOR3,30/08/2026,18:00,Harstad,Fløya,3,2
+NOR3,30/08/2026,18:30,Rælingen,Oppsal,1,0
+NOR3,30/08/2026,19:00,Hinna FK,Våg,3,0
+NOR3,30/08/2026,19:00,Skedsmo,Tromsø 2,3,1
+NOR3,31/05/2026,12:00,Odds Ballklubb 2,Åkra,1,2
+NOR3,31/05/2026,13:00,Viking 2,Brodd,4,1
+NOR3,31/05/2026,14:00,Stabæk 2,Mandalskameratene,8,4
+NOR3,31/05/2026,14:00,Lokomotiv Oslo FK,Vålerenga 2,0,1
+NOR3,31/05/2026,15:00,Drøbak/Frogn,Bjørkelangen,3,0
+NOR3,31/05/2026,15:00,Elverum,Brumunddal,4,0
+NOR3,31/05/2026,15:00,Rælingen,Ørn Horten,0,0
+NOR3,31/05/2026,15:00,Sandefjord 2,Fram Larvik,4,0
+NOR3,31/05/2026,16:00,Aalesund 2,Strindheim,3,2
+NOR3,31/05/2026,17:00,Finnsnes,Kongsvinger 2,1,0
+NOR3,31/05/2026,17:00,Skjetten,Fauske/Sprint,2,3
+NOR3,31/07/2026,19:00,Gamle Oslo,Union Carl Berner,3,1
+NOR3,31/07/2026,19:00,Herd,Volda,0,1
+NOR3,31/07/2026,19:00,Varhaug,Hinna FK,3,5
+NOR3,31/08/2026,18:00,Spjelkavik,Molde 2,3,1
+NOR3,31/08/2026,18:00,Åsane 2,Sogndal 2,4,3
+NOR3,31/08/2026,18:00,Fana,Brann 2,2,2
+NOR3,31/08/2026,18:00,Madla,Odds Ballklubb 2,4,0
+NOR3,31/08/2026,18:00,Bossekop,Strømsgodset 2,2,1
+NOR3,31/08/2026,18:00,Lyn 2,Sandefjord 2,4,3
+NOR3,31/08/2026,18:30,Ranheim 2,Orkla,3,3
+NOR3,31/08/2026,19:00,Rosenborg 2,Byåsen,1,2
+NOR3,31/08/2026,19:00,Sarpsborg 08 2,Råde,3,2

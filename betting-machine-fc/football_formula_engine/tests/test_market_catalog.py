@@ -119,10 +119,13 @@ def test_scottish_division_codes_match_csv_and_known_club_names():
     assert scan.model_code('Scotland. League One') == 'SC2'
     assert scan.model_code('Scotland. League Two') == 'SC3'
     teams = scan.csv_teams('SC1')
-    assert scan.match_team('Arbroath', teams) == 'Arbroath'
-    assert scan.match_team("Queen's Park", teams) == 'Queens Park'
-    assert scan.match_team('Inverness', teams) == 'Inverness C'
-    assert scan.match_team('Greenock Morton', teams) == 'Morton'
+    # The current-season lane may come from football-data or the score feed,
+    # so assert the canonical team identity, not the upstream spelling.
+    for guess, canonical in (('Arbroath', 'arbroath'), ("Queen's Park", 'queens park'),
+                             ('Inverness', 'inverness c'), ('Greenock Morton', 'morton')):
+        matched = scan.match_team(guess, teams)
+        assert matched is not None, f'{guess} did not resolve'
+        assert scan.normalize_team_name(matched) == canonical, matched
 
 
 def test_scan_writes_four_market_catalog_and_clears_old_missing_team_picks(tmp_path, monkeypatch):

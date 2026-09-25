@@ -1,0 +1,51 @@
+Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG
+I2,05/09/2026,15:00,Sudtirol,Catanzaro,2,0
+I2,05/09/2026,17:15,Ascoli,Benevento,1,0
+I2,05/09/2026,19:30,Carrarese,Empoli,0,1
+I2,06/09/2026,15:00,Cesena,Mantova,1,1
+I2,06/09/2026,15:00,Juve Stabia,Pisa,0,3
+I2,06/09/2026,15:00,Modena,Avellino,0,1
+I2,06/09/2026,15:00,Virtus Entella,LR Vicenza,2,2
+I2,06/09/2026,17:15,Hellas Verona,Arezzo,5,0
+I2,06/09/2026,19:30,Cremonese,Padova,3,1
+I2,07/09/2026,20:30,Palermo,Sampdoria,3,1
+I2,11/09/2026,19:00,Empoli,Arezzo,0,1
+I2,11/09/2026,21:00,Benevento,Hellas Verona,3,1
+I2,11/09/2026,21:00,Pisa,Virtus Entella,1,4
+I2,12/09/2026,15:00,Padova,Ascoli,1,0
+I2,12/09/2026,15:00,LR Vicenza,Juve Stabia,1,1
+I2,12/09/2026,15:00,Sudtirol,Modena,1,1
+I2,12/09/2026,17:15,Catanzaro,Carrarese,1,0
+I2,12/09/2026,19:30,Cesena,Cremonese,2,2
+I2,13/09/2026,17:15,Avellino,Palermo,1,1
+I2,13/09/2026,17:15,Mantova,Sampdoria,2,0
+I2,18/09/2026,20:30,Juve Stabia,Cesena,1,1
+I2,19/09/2026,15:00,Carrarese,Benevento,0,1
+I2,19/09/2026,15:00,Cremonese,Virtus Entella,0,0
+I2,19/09/2026,15:00,Palermo,Padova,2,1
+I2,19/09/2026,17:15,Sampdoria,Catanzaro,2,1
+I2,19/09/2026,19:30,Ascoli,Avellino,3,1
+I2,20/09/2026,15:00,Hellas Verona,LR Vicenza,2,1
+I2,20/09/2026,15:00,Arezzo,Sudtirol,1,4
+I2,20/09/2026,17:15,Mantova,Pisa,2,2
+I2,20/09/2026,19:30,Modena,Empoli,2,1
+I2,21/08/2026,20:30,LR Vicenza,Catanzaro,3,2
+I2,22/08/2026,19:00,Carrarese,Mantova,1,2
+I2,22/08/2026,19:00,Sudtirol,Virtus Entella,1,0
+I2,22/08/2026,21:00,Avellino,Arezzo,1,2
+I2,22/08/2026,21:00,Benevento,Modena,1,2
+I2,22/08/2026,21:00,Empoli,Cremonese,1,0
+I2,23/08/2026,19:00,Hellas Verona,Ascoli,1,2
+I2,23/08/2026,19:00,Pisa,Padova,0,1
+I2,23/08/2026,21:00,Cesena,Sampdoria,1,1
+I2,23/08/2026,21:00,Palermo,Juve Stabia,1,0
+I2,28/08/2026,20:30,Cremonese,Modena,0,3
+I2,29/08/2026,19:00,Sampdoria,Juve Stabia,1,2
+I2,29/08/2026,19:00,Virtus Entella,Cesena,1,2
+I2,29/08/2026,21:00,Ascoli,Carrarese,1,1
+I2,29/08/2026,21:00,Avellino,LR Vicenza,3,0
+I2,29/08/2026,21:00,Padova,Hellas Verona,1,1
+I2,30/08/2026,19:00,Mantova,Empoli,3,1
+I2,30/08/2026,19:00,Arezzo,Palermo,2,3
+I2,30/08/2026,21:00,Benevento,Sudtirol,1,1
+I2,30/08/2026,21:00,Pisa,Catanzaro,2,1

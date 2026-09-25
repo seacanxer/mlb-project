@@ -1,0 +1,76 @@
+Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG
+IRL1,01/08/2025,20:45,Bray Wanderers,Treaty United,3,2
+IRL1,01/08/2025,20:45,Cobh Ramblers,Longford Town,3,1
+IRL1,01/08/2025,20:45,Kerry FC,Athlone Town,4,0
+IRL1,01/08/2025,20:45,UCD,Dundalk,0,1
+IRL1,01/08/2025,20:45,Wexford FC,Finn Harps,2,1
+IRL1,03/10/2025,20:45,Athlone Town,Dundalk,1,1
+IRL1,03/10/2025,20:45,Cobh Ramblers,Bray Wanderers,3,1
+IRL1,04/07/2025,20:45,Bray Wanderers,Wexford FC,1,0
+IRL1,04/07/2025,20:45,Cobh Ramblers,Athlone Town,2,1
+IRL1,04/07/2025,20:45,Finn Harps,Longford Town,0,0
+IRL1,04/07/2025,20:45,Kerry FC,Dundalk,0,4
+IRL1,04/07/2025,20:45,UCD,Treaty United,1,1
+IRL1,04/08/2025,18:00,Athlone Town,UCD,1,2
+IRL1,04/08/2025,18:00,Cobh Ramblers,Wexford FC,4,0
+IRL1,04/08/2025,18:00,Dundalk,Longford Town,4,1
+IRL1,04/08/2025,18:00,Finn Harps,Bray Wanderers,2,2
+IRL1,04/08/2025,18:00,Treaty United,Kerry FC,1,1
+IRL1,05/09/2025,20:45,Bray Wanderers,Athlone Town,3,1
+IRL1,05/09/2025,20:45,Kerry FC,Cobh Ramblers,1,1
+IRL1,05/09/2025,20:45,Longford Town,Finn Harps,1,1
+IRL1,05/09/2025,20:45,Treaty United,UCD,1,0
+IRL1,05/09/2025,20:45,Wexford FC,Dundalk,0,0
+IRL1,05/10/2025,17:00,Treaty United,Longford Town,1,2
+IRL1,05/10/2025,17:00,Wexford FC,UCD,0,3
+IRL1,08/08/2025,20:45,Bray Wanderers,Cobh Ramblers,0,2
+IRL1,08/08/2025,20:45,Dundalk,Athlone Town,6,1
+IRL1,08/08/2025,20:45,Kerry FC,Finn Harps,0,1
+IRL1,08/08/2025,20:45,UCD,Wexford FC,1,0
+IRL1,09/08/2025,20:30,Longford Town,Treaty United,2,0
+IRL1,10/10/2025,20:45,Dundalk,Finn Harps,3,0
+IRL1,10/10/2025,20:45,Kerry FC,Wexford FC,0,2
+IRL1,10/10/2025,20:45,Longford Town,Cobh Ramblers,3,1
+IRL1,10/10/2025,20:45,Treaty United,Bray Wanderers,2,1
+IRL1,10/10/2025,20:45,UCD,Athlone Town,2,2
+IRL1,11/07/2025,20:45,Bray Wanderers,Dundalk,2,0
+IRL1,11/07/2025,20:45,Treaty United,Cobh Ramblers,2,1
+IRL1,11/07/2025,20:45,UCD,Finn Harps,3,1
+IRL1,11/07/2025,20:45,Wexford FC,Athlone Town,0,0
+IRL1,12/07/2025,20:30,Longford Town,Kerry FC,3,1
+IRL1,12/09/2025,20:45,Cobh Ramblers,Treaty United,3,0
+IRL1,12/09/2025,20:45,Dundalk,Bray Wanderers,3,1
+IRL1,12/09/2025,20:45,UCD,Longford Town,2,1
+IRL1,13/10/2025,20:45,Finn Harps,Kerry FC,1,1
+IRL1,17/10/2025,20:45,Athlone Town,Longford Town,1,2
+IRL1,17/10/2025,20:45,Bray Wanderers,Kerry FC,5,1
+IRL1,17/10/2025,20:45,Cobh Ramblers,Dundalk,1,2
+IRL1,17/10/2025,20:45,Finn Harps,UCD,3,4
+IRL1,17/10/2025,20:45,Wexford FC,Treaty United,0,2
+IRL1,19/09/2025,20:45,Bray Wanderers,Finn Harps,3,2
+IRL1,19/09/2025,20:45,Treaty United,Athlone Town,3,2
+IRL1,19/09/2025,20:45,UCD,Kerry FC,2,1
+IRL1,19/09/2025,20:45,Wexford FC,Cobh Ramblers,3,2
+IRL1,20/09/2025,20:30,Longford Town,Dundalk,3,2
+IRL1,22/08/2025,20:45,Cobh Ramblers,UCD,2,2
+IRL1,22/08/2025,20:45,Finn Harps,Athlone Town,2,1
+IRL1,22/08/2025,20:45,Kerry FC,Longford Town,1,0
+IRL1,22/08/2025,20:45,Treaty United,Dundalk,0,7
+IRL1,22/08/2025,20:45,Wexford FC,Bray Wanderers,0,1
+IRL1,22/09/2025,20:45,Athlone Town,Kerry FC,0,0
+IRL1,22/09/2025,20:45,Finn Harps,Wexford FC,1,3
+IRL1,25/07/2025,20:45,Athlone Town,Treaty United,2,2
+IRL1,25/07/2025,20:45,Dundalk,Wexford FC,3,2
+IRL1,25/07/2025,20:45,Finn Harps,Cobh Ramblers,2,2
+IRL1,25/07/2025,20:45,Kerry FC,UCD,0,3
+IRL1,26/07/2025,20:30,Longford Town,Bray Wanderers,1,2
+IRL1,26/09/2025,20:45,Bray Wanderers,Longford Town,0,2
+IRL1,26/09/2025,20:45,Cobh Ramblers,Finn Harps,4,1
+IRL1,26/09/2025,20:45,Dundalk,UCD,3,2
+IRL1,26/09/2025,20:45,Kerry FC,Treaty United,1,1
+IRL1,26/09/2025,21:00,Athlone Town,Wexford FC,1,2
+IRL1,29/08/2025,20:45,Athlone Town,Cobh Ramblers,0,3
+IRL1,29/08/2025,20:45,Dundalk,Kerry FC,3,3
+IRL1,29/08/2025,20:45,Finn Harps,Treaty United,1,0
+IRL1,29/08/2025,20:45,UCD,Bray Wanderers,3,2
+IRL1,30/08/2025,20:30,Longford Town,Wexford FC,2,2

@@ -1,0 +1,381 @@
+Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG
+D3,01/02/2026,13:30,Ulm,MSV Duisburg,1,0
+D3,01/02/2026,16:30,SC Verl,VfB Stuttgart II,4,0
+D3,01/02/2026,19:30,RW Essen,Wehen Wiesbaden,1,1
+D3,01/03/2026,13:30,Waldhof Mannheim,Alemannia Aachen,2,1
+D3,01/03/2026,16:30,MSV Duisburg,TSV Havelse,1,1
+D3,01/03/2026,19:30,FC Schweinfurt,Saarbrücken,2,2
+D3,01/08/2025,19:00,RW Essen,1860 München,1,1
+D3,01/10/2025,19:00,1860 München,Viktoria Köln 1904,2,2
+D3,01/10/2025,19:00,VfL Osnabrück,Jahn Regensburg,2,0
+D3,01/10/2025,19:00,RW Essen,Hoffenheim II,3,1
+D3,01/10/2025,19:00,SC Verl,Ingolstadt,2,2
+D3,01/10/2025,19:00,Ulm,FC Schweinfurt,5,1
+D3,01/11/2025,14:00,1860 München,Energie Cottbus,3,0
+D3,01/11/2025,14:00,Erzgebirge Aue,Jahn Regensburg,4,3
+D3,01/11/2025,14:00,VfL Osnabrück,MSV Duisburg,0,0
+D3,01/11/2025,14:00,TSV Havelse,Wehen Wiesbaden,0,2
+D3,01/11/2025,14:00,Ulm,VfB Stuttgart II,1,3
+D3,01/11/2025,16:30,Hansa Rostock,SC Verl,2,2
+D3,02/05/2026,14:00,Alemannia Aachen,Hansa Rostock,1,1
+D3,02/05/2026,14:00,FC Schweinfurt,1860 München,1,1
+D3,02/05/2026,14:00,Jahn Regensburg,Hoffenheim II,2,1
+D3,02/05/2026,14:00,Saarbrücken,Waldhof Mannheim,2,0
+D3,02/05/2026,14:00,SC Verl,TSV Havelse,4,0
+D3,02/05/2026,16:30,Ulm,Viktoria Köln 1904,0,2
+D3,02/05/2026,16:30,VfB Stuttgart II,RW Essen,6,1
+D3,02/08/2025,14:00,Energie Cottbus,Saarbrücken,3,3
+D3,02/08/2025,14:00,Hoffenheim II,TSV Havelse,0,0
+D3,02/08/2025,14:00,Ingolstadt,Jahn Regensburg,1,1
+D3,02/08/2025,14:00,VfL Osnabrück,Alemannia Aachen,0,0
+D3,02/08/2025,14:00,Waldhof Mannheim,SC Verl,2,2
+D3,02/08/2025,16:30,MSV Duisburg,VfB Stuttgart II,2,1
+D3,02/11/2025,13:30,Hoffenheim II,Waldhof Mannheim,2,0
+D3,02/11/2025,16:30,RW Essen,FC Schweinfurt,2,1
+D3,02/11/2025,19:30,Alemannia Aachen,Saarbrücken,2,0
+D3,03/03/2026,19:00,1860 München,Erzgebirge Aue,2,1
+D3,03/03/2026,19:00,VfL Osnabrück,Viktoria Köln 1904,2,0
+D3,03/03/2026,19:00,SC Verl,Jahn Regensburg,1,2
+D3,03/03/2026,19:00,Ulm,Hoffenheim II,1,3
+D3,03/03/2026,19:00,VfB Stuttgart II,Energie Cottbus,1,2
+D3,03/05/2026,13:30,MSV Duisburg,Energie Cottbus,2,1
+D3,03/05/2026,16:30,Wehen Wiesbaden,VfL Osnabrück,2,3
+D3,03/05/2026,19:30,Ingolstadt,Erzgebirge Aue,3,5
+D3,03/08/2025,13:30,Erzgebirge Aue,Hansa Rostock,0,0
+D3,03/08/2025,16:30,Viktoria Köln 1904,FC Schweinfurt,2,0
+D3,03/08/2025,19:30,Wehen Wiesbaden,Ulm,3,1
+D3,03/10/2025,19:00,MSV Duisburg,Hansa Rostock,2,2
+D3,04/03/2026,19:00,Alemannia Aachen,FC Schweinfurt,1,0
+D3,04/03/2026,19:00,Ingolstadt,MSV Duisburg,0,0
+D3,04/03/2026,19:00,RW Essen,Waldhof Mannheim,1,0
+D3,04/03/2026,19:00,Saarbrücken,Wehen Wiesbaden,2,0
+D3,04/03/2026,19:00,TSV Havelse,Hansa Rostock,1,3
+D3,04/04/2026,14:00,1860 München,Waldhof Mannheim,1,1
+D3,04/04/2026,14:00,Erzgebirge Aue,Hoffenheim II,3,5
+D3,04/04/2026,14:00,Hansa Rostock,Viktoria Köln 1904,2,3
+D3,04/04/2026,14:00,VfL Osnabrück,FC Schweinfurt,4,0
+D3,04/04/2026,14:00,TSV Havelse,Energie Cottbus,0,3
+D3,04/04/2026,16:30,RW Essen,MSV Duisburg,1,0
+D3,04/04/2026,16:30,VfB Stuttgart II,Jahn Regensburg,3,1
+D3,04/10/2025,14:00,FC Schweinfurt,SC Verl,1,2
+D3,04/10/2025,14:00,Ingolstadt,Ulm,4,1
+D3,04/10/2025,14:00,Jahn Regensburg,Saarbrücken,1,1
+D3,04/10/2025,14:00,Viktoria Köln 1904,TSV Havelse,4,1
+D3,04/10/2025,14:00,Waldhof Mannheim,VfL Osnabrück,1,4
+D3,04/10/2025,16:30,Energie Cottbus,Alemannia Aachen,3,2
+D3,05/04/2026,13:30,Ulm,SC Verl,1,0
+D3,05/04/2026,16:30,Saarbrücken,Ingolstadt,1,0
+D3,05/04/2026,19:30,Alemannia Aachen,Wehen Wiesbaden,3,0
+D3,05/10/2025,13:30,Erzgebirge Aue,RW Essen,2,2
+D3,05/10/2025,16:30,Wehen Wiesbaden,1860 München,1,0
+D3,05/10/2025,19:30,Hoffenheim II,VfB Stuttgart II,1,3
+D3,05/12/2025,19:00,RW Essen,VfB Stuttgart II,1,1
+D3,06/02/2026,19:00,Waldhof Mannheim,Ulm,2,1
+D3,06/03/2026,19:00,Viktoria Köln 1904,1860 München,0,1
+D3,06/12/2025,14:00,Energie Cottbus,MSV Duisburg,3,2
+D3,06/12/2025,14:00,Hoffenheim II,Jahn Regensburg,1,0
+D3,06/12/2025,14:00,VfL Osnabrück,Wehen Wiesbaden,0,1
+D3,06/12/2025,14:00,TSV Havelse,SC Verl,2,2
+D3,06/12/2025,14:00,Viktoria Köln 1904,Ulm,0,1
+D3,06/12/2025,16:30,1860 München,FC Schweinfurt,3,1
+D3,07/02/2026,14:00,Erzgebirge Aue,Saarbrücken,0,0
+D3,07/02/2026,14:00,Ingolstadt,Energie Cottbus,0,0
+D3,07/02/2026,14:00,Jahn Regensburg,Viktoria Köln 1904,0,0
+D3,07/02/2026,14:00,VfL Osnabrück,TSV Havelse,2,0
+D3,07/02/2026,14:00,Wehen Wiesbaden,FC Schweinfurt,2,0
+D3,07/02/2026,16:30,VfB Stuttgart II,1860 München,2,1
+D3,07/03/2026,14:00,Energie Cottbus,Hansa Rostock,0,0
+D3,07/03/2026,14:00,Erzgebirge Aue,Alemannia Aachen,1,3
+D3,07/03/2026,14:00,FC Schweinfurt,Ulm,3,2
+D3,07/03/2026,14:00,Hoffenheim II,RW Essen,2,4
+D3,07/03/2026,14:00,Wehen Wiesbaden,VfB Stuttgart II,2,1
+D3,07/03/2026,16:30,Jahn Regensburg,VfL Osnabrück,0,2
+D3,07/04/2026,19:00,Energie Cottbus,1860 München,3,0
+D3,07/04/2026,19:00,FC Schweinfurt,RW Essen,1,3
+D3,07/04/2026,19:00,Jahn Regensburg,Erzgebirge Aue,1,0
+D3,07/04/2026,19:00,MSV Duisburg,VfL Osnabrück,1,0
+D3,07/04/2026,19:00,Waldhof Mannheim,Hoffenheim II,1,1
+D3,07/11/2025,19:00,MSV Duisburg,Waldhof Mannheim,2,1
+D3,07/12/2025,13:30,Waldhof Mannheim,Saarbrücken,2,1
+D3,07/12/2025,16:30,Hansa Rostock,Alemannia Aachen,2,2
+D3,07/12/2025,19:30,Erzgebirge Aue,Ingolstadt,2,2
+D3,08/02/2026,13:30,Hoffenheim II,Hansa Rostock,2,2
+D3,08/02/2026,16:30,Alemannia Aachen,RW Essen,3,3
+D3,08/02/2026,19:30,MSV Duisburg,SC Verl,4,2
+D3,08/03/2026,13:30,Waldhof Mannheim,TSV Havelse,3,1
+D3,08/03/2026,16:30,MSV Duisburg,Saarbrücken,4,2
+D3,08/03/2026,19:30,Ingolstadt,SC Verl,1,2
+D3,08/04/2026,19:00,Ingolstadt,Viktoria Köln 1904,1,2
+D3,08/04/2026,19:00,Saarbrücken,Alemannia Aachen,1,1
+D3,08/04/2026,19:00,SC Verl,Hansa Rostock,1,2
+D3,08/04/2026,19:00,VfB Stuttgart II,Ulm,1,1
+D3,08/04/2026,19:00,Wehen Wiesbaden,TSV Havelse,1,4
+D3,08/05/2026,19:00,Erzgebirge Aue,MSV Duisburg,0,0
+D3,08/08/2025,19:00,FC Schweinfurt,Energie Cottbus,0,2
+D3,08/11/2025,14:00,Energie Cottbus,VfL Osnabrück,0,1
+D3,08/11/2025,14:00,FC Schweinfurt,Hoffenheim II,2,1
+D3,08/11/2025,14:00,Ingolstadt,RW Essen,1,2
+D3,08/11/2025,14:00,SC Verl,Erzgebirge Aue,1,1
+D3,08/11/2025,14:00,Ulm,Hansa Rostock,0,5
+D3,08/11/2025,16:30,Saarbrücken,TSV Havelse,1,1
+D3,09/05/2026,14:00,1860 München,Ingolstadt,1,2
+D3,09/05/2026,14:00,Energie Cottbus,Wehen Wiesbaden,2,1
+D3,09/05/2026,14:00,Hansa Rostock,VfB Stuttgart II,5,3
+D3,09/05/2026,14:00,VfL Osnabrück,Ulm,1,1
+D3,09/05/2026,14:00,RW Essen,SC Verl,1,0
+D3,09/05/2026,16:30,Waldhof Mannheim,Jahn Regensburg,1,0
+D3,09/08/2025,14:00,1860 München,VfL Osnabrück,3,1
+D3,09/08/2025,14:00,Alemannia Aachen,Hoffenheim II,2,4
+D3,09/08/2025,14:00,Saarbrücken,Viktoria Köln 1904,2,1
+D3,09/08/2025,14:00,TSV Havelse,RW Essen,1,1
+D3,09/08/2025,14:00,Ulm,Erzgebirge Aue,1,0
+D3,09/08/2025,16:30,SC Verl,Wehen Wiesbaden,2,2
+D3,09/11/2025,13:30,VfB Stuttgart II,Alemannia Aachen,1,3
+D3,09/11/2025,16:30,Jahn Regensburg,1860 München,4,0
+D3,09/11/2025,19:30,Wehen Wiesbaden,Viktoria Köln 1904,0,1
+D3,10/04/2026,19:00,Hoffenheim II,FC Schweinfurt,1,1
+D3,10/05/2026,13:30,TSV Havelse,FC Schweinfurt,3,2
+D3,10/05/2026,16:30,Viktoria Köln 1904,Alemannia Aachen,0,3
+D3,10/05/2026,19:30,Hoffenheim II,Saarbrücken,3,2
+D3,10/08/2025,13:30,Jahn Regensburg,MSV Duisburg,0,4
+D3,10/08/2025,16:30,Hansa Rostock,Waldhof Mannheim,1,0
+D3,10/08/2025,19:30,VfB Stuttgart II,Ingolstadt,2,1
+D3,11/04/2026,14:00,Alemannia Aachen,VfB Stuttgart II,3,1
+D3,11/04/2026,14:00,RW Essen,Ingolstadt,4,1
+D3,11/04/2026,14:00,TSV Havelse,Saarbrücken,2,0
+D3,11/04/2026,14:00,Viktoria Köln 1904,Wehen Wiesbaden,2,1
+D3,11/04/2026,14:00,Waldhof Mannheim,MSV Duisburg,1,4
+D3,11/04/2026,16:30,Hansa Rostock,Ulm,5,1
+D3,12/04/2026,13:30,VfL Osnabrück,Energie Cottbus,1,0
+D3,12/04/2026,16:30,Erzgebirge Aue,SC Verl,1,1
+D3,12/04/2026,19:30,1860 München,Jahn Regensburg,2,2
+D3,12/09/2025,19:00,Jahn Regensburg,RW Essen,1,3
+D3,12/12/2025,19:00,Ulm,VfL Osnabrück,3,5
+D3,13/02/2026,19:00,Viktoria Köln 1904,Erzgebirge Aue,2,2
+D3,13/03/2026,19:00,Alemannia Aachen,Energie Cottbus,4,1
+D3,13/09/2025,14:00,Erzgebirge Aue,Viktoria Köln 1904,0,3
+D3,13/09/2025,14:00,Hoffenheim II,SC Verl,2,4
+D3,13/09/2025,14:00,Ingolstadt,FC Schweinfurt,2,3
+D3,13/09/2025,14:00,MSV Duisburg,Wehen Wiesbaden,3,1
+D3,13/09/2025,14:00,VfB Stuttgart II,Saarbrücken,1,3
+D3,13/09/2025,16:30,Alemannia Aachen,Ulm,1,3
+D3,13/12/2025,14:00,Alemannia Aachen,Viktoria Köln 1904,0,3
+D3,13/12/2025,14:00,Ingolstadt,1860 München,1,2
+D3,13/12/2025,14:00,MSV Duisburg,Erzgebirge Aue,0,0
+D3,13/12/2025,14:00,Saarbrücken,Hoffenheim II,2,2
+D3,13/12/2025,14:00,VfB Stuttgart II,Hansa Rostock,0,1
+D3,13/12/2025,16:30,SC Verl,RW Essen,0,0
+D3,14/02/2026,14:00,Hansa Rostock,VfL Osnabrück,2,2
+D3,14/02/2026,14:00,Saarbrücken,VfB Stuttgart II,2,0
+D3,14/02/2026,14:00,SC Verl,Hoffenheim II,3,1
+D3,14/02/2026,14:00,TSV Havelse,1860 München,0,5
+D3,14/02/2026,14:00,Wehen Wiesbaden,MSV Duisburg,6,1
+D3,14/02/2026,16:30,RW Essen,Jahn Regensburg,3,2
+D3,14/03/2026,14:00,Hansa Rostock,MSV Duisburg,5,1
+D3,14/03/2026,14:00,VfL Osnabrück,Waldhof Mannheim,4,1
+D3,14/03/2026,14:00,RW Essen,Erzgebirge Aue,4,2
+D3,14/03/2026,14:00,Saarbrücken,Jahn Regensburg,1,1
+D3,14/03/2026,14:00,TSV Havelse,Viktoria Köln 1904,3,2
+D3,14/03/2026,16:30,1860 München,Wehen Wiesbaden,0,0
+D3,14/09/2025,13:30,VfL Osnabrück,Hansa Rostock,0,0
+D3,14/09/2025,16:30,Waldhof Mannheim,Energie Cottbus,0,3
+D3,14/09/2025,19:30,1860 München,TSV Havelse,3,2
+D3,14/12/2025,13:30,Wehen Wiesbaden,Energie Cottbus,3,1
+D3,14/12/2025,16:30,Jahn Regensburg,Waldhof Mannheim,3,0
+D3,14/12/2025,19:30,FC Schweinfurt,TSV Havelse,2,3
+D3,15/02/2026,13:30,Energie Cottbus,Waldhof Mannheim,1,1
+D3,15/02/2026,16:30,Ulm,Alemannia Aachen,1,3
+D3,15/02/2026,19:30,FC Schweinfurt,Ingolstadt,1,1
+D3,15/03/2026,13:30,VfB Stuttgart II,Hoffenheim II,1,0
+D3,15/03/2026,16:30,SC Verl,FC Schweinfurt,4,0
+D3,15/03/2026,19:30,Ulm,Ingolstadt,1,3
+D3,16/01/2026,19:00,Jahn Regensburg,Ingolstadt,0,3
+D3,16/05/2026,13:30,Alemannia Aachen,TSV Havelse,6,1
+D3,16/05/2026,13:30,FC Schweinfurt,Erzgebirge Aue,2,4
+D3,16/05/2026,13:30,Ingolstadt,Waldhof Mannheim,5,1
+D3,16/05/2026,13:30,Jahn Regensburg,Energie Cottbus,0,1
+D3,16/05/2026,13:30,MSV Duisburg,Viktoria Köln 1904,1,1
+D3,16/05/2026,13:30,Saarbrücken,Hansa Rostock,3,4
+D3,16/05/2026,13:30,SC Verl,1860 München,3,0
+D3,16/05/2026,13:30,Ulm,RW Essen,2,3
+D3,16/05/2026,13:30,VfB Stuttgart II,VfL Osnabrück,3,4
+D3,16/05/2026,13:30,Wehen Wiesbaden,Hoffenheim II,2,0
+D3,16/09/2025,19:00,FC Schweinfurt,MSV Duisburg,0,3
+D3,16/09/2025,19:00,Saarbrücken,Ulm,3,1
+D3,16/09/2025,19:00,SC Verl,Alemannia Aachen,2,1
+D3,16/09/2025,19:00,Viktoria Köln 1904,Hoffenheim II,2,1
+D3,16/09/2025,19:00,Wehen Wiesbaden,Jahn Regensburg,2,0
+D3,17/01/2026,14:00,1860 München,RW Essen,1,1
+D3,17/01/2026,14:00,Hansa Rostock,Erzgebirge Aue,2,1
+D3,17/01/2026,14:00,Saarbrücken,Energie Cottbus,1,1
+D3,17/01/2026,14:00,SC Verl,Waldhof Mannheim,5,2
+D3,17/01/2026,14:00,Ulm,Wehen Wiesbaden,0,1
+D3,17/01/2026,16:30,Alemannia Aachen,VfL Osnabrück,0,3
+D3,17/04/2026,19:00,Jahn Regensburg,Alemannia Aachen,1,3
+D3,17/09/2025,19:00,Energie Cottbus,Erzgebirge Aue,2,1
+D3,17/09/2025,19:00,Hansa Rostock,1860 München,2,1
+D3,17/09/2025,19:00,RW Essen,VfL Osnabrück,1,1
+D3,17/09/2025,19:00,TSV Havelse,Ingolstadt,2,6
+D3,17/09/2025,19:00,Waldhof Mannheim,VfB Stuttgart II,0,1
+D3,17/10/2025,19:00,Erzgebirge Aue,Waldhof Mannheim,0,2
+D3,18/01/2026,13:30,VfB Stuttgart II,MSV Duisburg,0,4
+D3,18/01/2026,16:30,FC Schweinfurt,Viktoria Köln 1904,2,0
+D3,18/01/2026,19:30,TSV Havelse,Hoffenheim II,4,0
+D3,18/04/2026,14:00,FC Schweinfurt,Hansa Rostock,0,0
+D3,18/04/2026,14:00,Ingolstadt,VfL Osnabrück,0,1
+D3,18/04/2026,14:00,MSV Duisburg,Hoffenheim II,3,1
+D3,18/04/2026,14:00,Saarbrücken,1860 München,0,0
+D3,18/04/2026,14:00,SC Verl,Viktoria Köln 1904,2,0
+D3,18/04/2026,16:30,Ulm,TSV Havelse,2,1
+D3,18/10/2025,14:00,Alemannia Aachen,Ingolstadt,0,1
+D3,18/10/2025,14:00,Hansa Rostock,Wehen Wiesbaden,3,0
+D3,18/10/2025,14:00,VfL Osnabrück,Hoffenheim II,0,4
+D3,18/10/2025,14:00,Saarbrücken,SC Verl,2,4
+D3,18/10/2025,14:00,VfB Stuttgart II,FC Schweinfurt,3,0
+D3,18/10/2025,16:30,RW Essen,Viktoria Köln 1904,1,0
+D3,19/04/2026,13:30,Energie Cottbus,RW Essen,5,3
+D3,19/04/2026,16:30,VfB Stuttgart II,Erzgebirge Aue,2,2
+D3,19/04/2026,19:30,Wehen Wiesbaden,Waldhof Mannheim,3,3
+D3,19/09/2025,19:00,Saarbrücken,FC Schweinfurt,2,1
+D3,19/10/2025,13:30,Ulm,Energie Cottbus,1,2
+D3,19/10/2025,16:30,1860 München,MSV Duisburg,3,1
+D3,19/10/2025,19:30,TSV Havelse,Jahn Regensburg,1,2
+D3,19/12/2025,19:00,Energie Cottbus,Jahn Regensburg,2,2
+D3,20/02/2026,19:00,VfB Stuttgart II,Waldhof Mannheim,3,1
+D3,20/03/2026,19:00,Wehen Wiesbaden,Hansa Rostock,0,1
+D3,20/09/2025,14:00,Alemannia Aachen,Waldhof Mannheim,3,2
+D3,20/09/2025,14:00,Ingolstadt,Wehen Wiesbaden,0,0
+D3,20/09/2025,14:00,VfL Osnabrück,Erzgebirge Aue,3,1
+D3,20/09/2025,14:00,RW Essen,Hansa Rostock,3,0
+D3,20/09/2025,14:00,VfB Stuttgart II,Viktoria Köln 1904,2,1
+D3,20/09/2025,16:30,1860 München,Hoffenheim II,1,5
+D3,20/12/2025,14:00,Erzgebirge Aue,FC Schweinfurt,4,0
+D3,20/12/2025,14:00,Hansa Rostock,Saarbrücken,1,1
+D3,20/12/2025,14:00,VfL Osnabrück,VfB Stuttgart II,1,2
+D3,20/12/2025,14:00,RW Essen,Ulm,3,2
+D3,20/12/2025,14:00,Waldhof Mannheim,Ingolstadt,2,2
+D3,20/12/2025,16:30,1860 München,SC Verl,0,2
+D3,21/02/2026,14:00,Alemannia Aachen,SC Verl,3,1
+D3,21/02/2026,14:00,Ingolstadt,TSV Havelse,3,2
+D3,21/02/2026,14:00,Jahn Regensburg,Wehen Wiesbaden,2,1
+D3,21/02/2026,14:00,MSV Duisburg,FC Schweinfurt,3,1
+D3,21/02/2026,14:00,VfL Osnabrück,RW Essen,3,0
+D3,21/02/2026,16:30,Ulm,Saarbrücken,1,1
+D3,21/03/2026,14:00,Energie Cottbus,Ulm,1,1
+D3,21/03/2026,14:00,FC Schweinfurt,VfB Stuttgart II,3,1
+D3,21/03/2026,14:00,Ingolstadt,Alemannia Aachen,1,2
+D3,21/03/2026,14:00,Jahn Regensburg,TSV Havelse,5,2
+D3,21/03/2026,14:00,Waldhof Mannheim,Erzgebirge Aue,2,1
+D3,21/03/2026,16:30,SC Verl,Saarbrücken,3,0
+D3,21/09/2025,13:30,TSV Havelse,MSV Duisburg,1,1
+D3,21/09/2025,16:30,SC Verl,Energie Cottbus,2,1
+D3,21/09/2025,19:30,Ulm,Jahn Regensburg,2,1
+D3,21/11/2025,19:00,Hoffenheim II,MSV Duisburg,4,1
+D3,21/12/2025,13:30,TSV Havelse,Alemannia Aachen,1,1
+D3,21/12/2025,16:30,Hoffenheim II,Wehen Wiesbaden,3,1
+D3,21/12/2025,19:30,Viktoria Köln 1904,MSV Duisburg,0,0
+D3,22/02/2026,13:30,1860 München,Hansa Rostock,1,0
+D3,22/02/2026,16:30,Erzgebirge Aue,Energie Cottbus,1,2
+D3,22/02/2026,19:30,Hoffenheim II,Viktoria Köln 1904,1,3
+D3,22/03/2026,13:30,Hoffenheim II,VfL Osnabrück,0,1
+D3,22/03/2026,16:30,MSV Duisburg,1860 München,2,1
+D3,22/03/2026,19:30,Viktoria Köln 1904,RW Essen,1,2
+D3,22/08/2025,19:00,Wehen Wiesbaden,RW Essen,3,4
+D3,22/11/2025,14:00,Alemannia Aachen,Jahn Regensburg,0,2
+D3,22/11/2025,14:00,Hansa Rostock,FC Schweinfurt,2,0
+D3,22/11/2025,14:00,TSV Havelse,Ulm,2,1
+D3,22/11/2025,14:00,Viktoria Köln 1904,SC Verl,1,5
+D3,22/11/2025,14:00,Waldhof Mannheim,Wehen Wiesbaden,1,0
+D3,22/11/2025,16:30,VfL Osnabrück,Ingolstadt,1,0
+D3,23/01/2026,19:00,Viktoria Köln 1904,Saarbrücken,2,0
+D3,23/08/2025,14:00,Alemannia Aachen,1860 München,0,2
+D3,23/08/2025,14:00,Hoffenheim II,Energie Cottbus,4,1
+D3,23/08/2025,14:00,Jahn Regensburg,FC Schweinfurt,3,0
+D3,23/08/2025,14:00,VfL Osnabrück,Saarbrücken,2,0
+D3,23/08/2025,14:00,VfB Stuttgart II,SC Verl,1,1
+D3,23/08/2025,16:30,MSV Duisburg,Ulm,2,1
+D3,23/11/2025,13:30,1860 München,Saarbrücken,2,0
+D3,23/11/2025,16:30,Erzgebirge Aue,VfB Stuttgart II,0,0
+D3,23/11/2025,19:30,RW Essen,Energie Cottbus,2,3
+D3,24/01/2026,14:00,Energie Cottbus,FC Schweinfurt,2,1
+D3,24/01/2026,14:00,Erzgebirge Aue,Ulm,0,3
+D3,24/01/2026,14:00,Hoffenheim II,Alemannia Aachen,2,3
+D3,24/01/2026,14:00,Ingolstadt,VfB Stuttgart II,2,1
+D3,24/01/2026,14:00,RW Essen,TSV Havelse,4,1
+D3,24/01/2026,16:30,MSV Duisburg,Jahn Regensburg,2,0
+D3,24/04/2026,19:00,Alemannia Aachen,MSV Duisburg,3,1
+D3,24/08/2025,13:30,Ingolstadt,Hansa Rostock,1,1
+D3,24/08/2025,16:30,Erzgebirge Aue,TSV Havelse,2,1
+D3,24/08/2025,19:30,Waldhof Mannheim,Viktoria Köln 1904,2,0
+D3,24/10/2025,19:00,Wehen Wiesbaden,Alemannia Aachen,1,2
+D3,25/01/2026,13:30,Waldhof Mannheim,Hansa Rostock,0,4
+D3,25/01/2026,16:30,VfL Osnabrück,1860 München,1,1
+D3,25/01/2026,19:30,Wehen Wiesbaden,SC Verl,2,1
+D3,25/04/2026,14:00,1860 München,Ulm,3,2
+D3,25/04/2026,14:00,Erzgebirge Aue,Wehen Wiesbaden,2,2
+D3,25/04/2026,14:00,Hansa Rostock,Jahn Regensburg,2,5
+D3,25/04/2026,14:00,Hoffenheim II,Ingolstadt,0,3
+D3,25/04/2026,14:00,VfL Osnabrück,SC Verl,2,1
+D3,25/04/2026,16:30,Waldhof Mannheim,FC Schweinfurt,2,2
+D3,25/10/2025,14:00,Energie Cottbus,TSV Havelse,4,3
+D3,25/10/2025,14:00,Ingolstadt,Saarbrücken,2,1
+D3,25/10/2025,14:00,Jahn Regensburg,VfB Stuttgart II,3,2
+D3,25/10/2025,14:00,SC Verl,Ulm,5,0
+D3,25/10/2025,14:00,Waldhof Mannheim,1860 München,3,1
+D3,25/10/2025,16:30,FC Schweinfurt,VfL Osnabrück,1,2
+D3,26/04/2026,13:30,Viktoria Köln 1904,Energie Cottbus,0,2
+D3,26/04/2026,16:30,RW Essen,Saarbrücken,1,2
+D3,26/04/2026,19:30,TSV Havelse,VfB Stuttgart II,3,2
+D3,26/09/2025,19:00,Energie Cottbus,VfB Stuttgart II,5,0
+D3,26/10/2025,13:30,Hoffenheim II,Erzgebirge Aue,1,1
+D3,26/10/2025,16:30,Viktoria Köln 1904,Hansa Rostock,2,4
+D3,26/10/2025,19:30,MSV Duisburg,RW Essen,1,1
+D3,27/02/2026,19:00,Hoffenheim II,1860 München,1,2
+D3,27/09/2025,14:00,Erzgebirge Aue,1860 München,2,0
+D3,27/09/2025,14:00,FC Schweinfurt,Alemannia Aachen,1,5
+D3,27/09/2025,14:00,Hansa Rostock,TSV Havelse,1,1
+D3,27/09/2025,14:00,MSV Duisburg,Ingolstadt,2,1
+D3,27/09/2025,14:00,Wehen Wiesbaden,Saarbrücken,1,1
+D3,27/09/2025,16:30,Waldhof Mannheim,RW Essen,6,1
+D3,28/02/2026,14:00,Erzgebirge Aue,VfL Osnabrück,1,3
+D3,28/02/2026,14:00,Hansa Rostock,RW Essen,3,2
+D3,28/02/2026,14:00,Jahn Regensburg,Ulm,1,1
+D3,28/02/2026,14:00,Viktoria Köln 1904,VfB Stuttgart II,2,0
+D3,28/02/2026,14:00,Wehen Wiesbaden,Ingolstadt,2,1
+D3,28/02/2026,16:30,Energie Cottbus,SC Verl,0,0
+D3,28/09/2025,13:30,Jahn Regensburg,SC Verl,2,0
+D3,28/09/2025,16:30,Hoffenheim II,Ulm,1,1
+D3,28/09/2025,19:30,Viktoria Köln 1904,VfL Osnabrück,0,0
+D3,28/11/2025,19:00,Wehen Wiesbaden,Erzgebirge Aue,3,1
+D3,29/08/2025,19:00,Viktoria Köln 1904,Jahn Regensburg,1,0
+D3,29/11/2025,14:00,Energie Cottbus,Viktoria Köln 1904,3,2
+D3,29/11/2025,14:00,Ingolstadt,Hoffenheim II,3,2
+D3,29/11/2025,14:00,MSV Duisburg,Alemannia Aachen,3,1
+D3,29/11/2025,14:00,Saarbrücken,RW Essen,2,3
+D3,29/11/2025,14:00,Ulm,1860 München,0,1
+D3,29/11/2025,16:30,FC Schweinfurt,Waldhof Mannheim,2,3
+D3,30/01/2026,19:00,TSV Havelse,Erzgebirge Aue,3,1
+D3,30/08/2025,14:00,1860 München,VfB Stuttgart II,1,1
+D3,30/08/2025,14:00,Energie Cottbus,Ingolstadt,1,1
+D3,30/08/2025,14:00,Saarbrücken,Erzgebirge Aue,4,1
+D3,30/08/2025,14:00,SC Verl,MSV Duisburg,2,3
+D3,30/08/2025,14:00,TSV Havelse,VfL Osnabrück,0,2
+D3,30/08/2025,16:30,Hansa Rostock,Hoffenheim II,0,1
+D3,30/09/2025,19:00,Alemannia Aachen,Erzgebirge Aue,0,1
+D3,30/09/2025,19:00,Hansa Rostock,Energie Cottbus,1,3
+D3,30/09/2025,19:00,Saarbrücken,MSV Duisburg,0,0
+D3,30/09/2025,19:00,TSV Havelse,Waldhof Mannheim,2,3
+D3,30/09/2025,19:00,VfB Stuttgart II,Wehen Wiesbaden,0,0
+D3,30/11/2025,13:30,Jahn Regensburg,Hansa Rostock,0,3
+D3,30/11/2025,16:30,SC Verl,VfL Osnabrück,4,1
+D3,30/11/2025,19:30,VfB Stuttgart II,TSV Havelse,2,1
+D3,31/01/2026,14:00,1860 München,Alemannia Aachen,2,2
+D3,31/01/2026,14:00,Energie Cottbus,Hoffenheim II,3,1
+D3,31/01/2026,14:00,Hansa Rostock,Ingolstadt,0,3
+D3,31/01/2026,14:00,Viktoria Köln 1904,Waldhof Mannheim,1,3
+D3,31/01/2026,14:30,Saarbrücken,VfL Osnabrück,0,1
+D3,31/01/2026,16:30,FC Schweinfurt,Jahn Regensburg,0,1
+D3,31/08/2025,13:30,Ulm,Waldhof Mannheim,1,2
+D3,31/08/2025,16:30,FC Schweinfurt,Wehen Wiesbaden,0,1
+D3,31/08/2025,19:30,RW Essen,Alemannia Aachen,2,3
+D3,31/10/2025,19:00,Viktoria Köln 1904,Ingolstadt,3,1

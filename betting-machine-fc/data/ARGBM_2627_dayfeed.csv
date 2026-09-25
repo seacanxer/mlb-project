@@ -1,0 +1,408 @@
+Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG
+ARGBM,01/06/2026,00:00,San Martin Burzaco,Arsenal Sarandi,2,0
+ARGBM,01/06/2026,20:30,Argentino de Quilmes,Ituzaingo,2,0
+ARGBM,01/08/2026,01:00,Excursionistas,Deportivo Armenio,2,1
+ARGBM,01/08/2026,20:00,Argentino de Merlo,Laferrere,1,3
+ARGBM,01/08/2026,20:00,CA Talleres Remedios de Escalada,Ituzaingo,0,0
+ARGBM,01/08/2026,20:00,CD UAI Urquiza,Argentino de Quilmes,0,0
+ARGBM,01/08/2026,20:00,CS Deportivo Liniers,Comunicaciones,0,0
+ARGBM,01/08/2026,20:00,Real Pilar,CA Defensores Unidos,2,1
+ARGBM,01/08/2026,20:00,Sportivo Italiano,CASD Camioneros,1,1
+ARGBM,01/08/2026,20:00,Villa Dalmine,Flandria,2,1
+ARGBM,01/09/2026,00:00,Comunicaciones,Deportivo Merlo,1,0
+ARGBM,02/05/2026,20:30,CASD Camioneros,Flandria,0,0
+ARGBM,02/05/2026,20:30,CD UAI Urquiza,Arsenal Sarandi,0,1
+ARGBM,02/05/2026,20:30,Dock Sud,CA Defensores Unidos,2,0
+ARGBM,02/05/2026,20:30,Real Pilar,Argentino de Merlo,1,1
+ARGBM,02/05/2026,20:30,Sportivo Italiano,Deportivo Armenio,1,0
+ARGBM,02/05/2026,20:30,Villa Dalmine,Excursionistas,1,0
+ARGBM,02/05/2026,20:30,Villa San Carlos,Laferrere,0,2
+ARGBM,02/05/2026,23:00,San Martin Burzaco,Brown de Adrogue,0,0
+ARGBM,02/08/2026,20:00,San Martin Burzaco,Deportivo Merlo,1,1
+ARGBM,02/08/2026,20:00,Villa San Carlos,Dock Sud,1,1
+ARGBM,03/03/2026,21:00,Laferrere,Brown de Adrogue,0,1
+ARGBM,03/03/2026,21:00,Villa San Carlos,Sportivo Italiano,0,1
+ARGBM,03/04/2026,20:00,Brown de Adrogue,Villa Dalmine,1,4
+ARGBM,03/05/2026,01:00,Deportivo Merlo,Argentino de Quilmes,1,0
+ARGBM,03/05/2026,20:30,CS Deportivo Liniers,CA Talleres Remedios de Escalada,0,1
+ARGBM,03/06/2026,00:00,Deportivo Merlo,Laferrere,2,1
+ARGBM,04/03/2026,00:30,Argentino de Merlo,Flandria,2,0
+ARGBM,04/03/2026,00:30,CA Talleres Remedios de Escalada,Deportivo Armenio,2,1
+ARGBM,04/03/2026,00:30,San Martin Burzaco,Ituzaingo,3,0
+ARGBM,04/03/2026,21:00,Arsenal Sarandi,Argentino de Quilmes,0,1
+ARGBM,04/03/2026,21:00,CD UAI Urquiza,Dock Sud,0,0
+ARGBM,04/03/2026,21:00,CS Deportivo Liniers,CASD Camioneros,0,2
+ARGBM,04/03/2026,21:00,Villa Dalmine,Comunicaciones,0,0
+ARGBM,04/04/2026,00:00,Ituzaingo,Argentino de Merlo,0,1
+ARGBM,04/04/2026,19:00,CA Defensores Unidos,Villa San Carlos,2,0
+ARGBM,04/04/2026,19:00,CA Talleres Remedios de Escalada,Arsenal Sarandi,0,1
+ARGBM,04/04/2026,20:00,Flandria,Real Pilar,1,3
+ARGBM,04/04/2026,20:30,Deportivo Armenio,CD UAI Urquiza,2,1
+ARGBM,04/04/2026,20:30,Laferrere,Excursionistas,1,0
+ARGBM,04/04/2026,21:00,Argentino de Quilmes,CS Deportivo Liniers,1,2
+ARGBM,04/07/2026,18:00,CASD Camioneros,CD UAI Urquiza,4,0
+ARGBM,04/07/2026,19:30,Ituzaingo,Villa San Carlos,1,3
+ARGBM,04/07/2026,20:00,Comunicaciones,Arsenal Sarandi,1,2
+ARGBM,04/07/2026,20:00,Deportivo Merlo,Villa Dalmine,1,2
+ARGBM,04/07/2026,20:00,Dock Sud,Excursionistas,3,1
+ARGBM,04/07/2026,20:00,Flandria,Laferrere,1,2
+ARGBM,04/07/2026,20:30,Deportivo Armenio,Brown de Adrogue,0,0
+ARGBM,05/03/2026,00:30,Excursionistas,CA Defensores Unidos,1,0
+ARGBM,05/03/2026,00:30,Real Pilar,Deportivo Merlo,1,3
+ARGBM,05/04/2026,20:30,Comunicaciones,San Martin Burzaco,0,1
+ARGBM,05/04/2026,20:30,Dock Sud,Sportivo Italiano,1,3
+ARGBM,05/04/2026,23:00,Deportivo Merlo,CASD Camioneros,1,1
+ARGBM,05/05/2026,01:00,Comunicaciones,Ituzaingo,3,2
+ARGBM,05/06/2026,23:00,Ituzaingo,Real Pilar,2,0
+ARGBM,05/07/2026,18:00,Argentino de Quilmes,CA Talleres Remedios de Escalada,0,3
+ARGBM,05/07/2026,18:00,Sportivo Italiano,Real Pilar,1,1
+ARGBM,05/07/2026,20:00,CA Defensores Unidos,Argentino de Merlo,1,1
+ARGBM,05/07/2026,20:00,San Martin Burzaco,CS Deportivo Liniers,1,1
+ARGBM,05/09/2026,20:00,Real Pilar,CA Talleres Remedios de Escalada,0,2
+ARGBM,05/09/2026,20:00,San Martin Burzaco,Deportivo Armenio,0,0
+ARGBM,05/09/2026,20:00,Sportivo Italiano,Flandria,3,1
+ARGBM,05/09/2026,20:00,Villa Dalmine,Arsenal Sarandi,0,1
+ARGBM,06/06/2026,01:00,CA Talleres Remedios de Escalada,Deportivo Merlo,2,0
+ARGBM,06/06/2026,19:30,Arsenal Sarandi,Sportivo Italiano,1,3
+ARGBM,06/06/2026,20:00,Brown de Adrogue,Comunicaciones,1,2
+ARGBM,06/06/2026,20:30,Argentino de Merlo,CASD Camioneros,0,0
+ARGBM,06/06/2026,20:30,Deportivo Armenio,CA Defensores Unidos,3,0
+ARGBM,06/06/2026,20:30,Excursionistas,San Martin Burzaco,2,0
+ARGBM,06/06/2026,20:30,Flandria,Argentino de Quilmes,0,1
+ARGBM,06/06/2026,20:30,Villa Dalmine,Villa San Carlos,0,0
+ARGBM,06/09/2026,00:00,Deportivo Merlo,CA Defensores Unidos,0,0
+ARGBM,06/09/2026,18:00,CASD Camioneros,Argentino de Quilmes,1,0
+ARGBM,06/09/2026,18:00,Dock Sud,Comunicaciones,0,1
+ARGBM,06/09/2026,20:00,CD UAI Urquiza,Argentino de Merlo,2,0
+ARGBM,06/09/2026,20:00,CS Deportivo Liniers,Laferrere,2,2
+ARGBM,06/09/2026,20:00,Villa San Carlos,Brown de Adrogue,0,0
+ARGBM,07/03/2026,21:00,Sportivo Italiano,San Martin Burzaco,0,0
+ARGBM,07/03/2026,22:00,Argentino de Quilmes,Excursionistas,0,0
+ARGBM,07/03/2026,22:00,Brown de Adrogue,CA Talleres Remedios de Escalada,0,0
+ARGBM,07/03/2026,22:00,CA Defensores Unidos,Villa Dalmine,0,0
+ARGBM,07/03/2026,22:00,CASD Camioneros,Villa San Carlos,0,0
+ARGBM,07/03/2026,22:00,Comunicaciones,CD UAI Urquiza,0,0
+ARGBM,07/03/2026,22:00,Deportivo Armenio,Argentino de Merlo,0,0
+ARGBM,07/03/2026,22:00,Deportivo Merlo,CS Deportivo Liniers,0,0
+ARGBM,07/03/2026,22:00,Dock Sud,Real Pilar,0,0
+ARGBM,07/03/2026,22:00,Flandria,Arsenal Sarandi,0,0
+ARGBM,07/03/2026,22:00,Ituzaingo,Laferrere,0,0
+ARGBM,07/06/2026,19:30,Laferrere,Dock Sud,2,1
+ARGBM,08/06/2026,20:30,CD UAI Urquiza,CS Deportivo Liniers,2,1
+ARGBM,08/08/2026,00:00,Comunicaciones,Villa San Carlos,0,1
+ARGBM,08/08/2026,00:30,Ituzaingo,CASD Camioneros,0,1
+ARGBM,08/08/2026,20:00,Argentino de Quilmes,Real Pilar,0,0
+ARGBM,08/08/2026,20:00,Brown de Adrogue,Excursionistas,1,0
+ARGBM,08/08/2026,20:00,CA Defensores Unidos,CS Deportivo Liniers,2,3
+ARGBM,08/08/2026,20:00,CA Talleres Remedios de Escalada,Argentino de Merlo,1,2
+ARGBM,08/08/2026,20:00,Flandria,CD UAI Urquiza,1,1
+ARGBM,08/08/2026,20:30,Deportivo Armenio,Villa Dalmine,1,0
+ARGBM,08/09/2026,01:00,Excursionistas,Ituzaingo,2,1
+ARGBM,09/05/2026,01:00,Excursionistas,CD UAI Urquiza,0,0
+ARGBM,09/05/2026,20:00,Brown de Adrogue,Sportivo Italiano,0,0
+ARGBM,09/05/2026,20:30,Argentino de Merlo,CS Deportivo Liniers,0,1
+ARGBM,09/05/2026,20:30,CA Defensores Unidos,Comunicaciones,1,1
+ARGBM,09/05/2026,20:30,CA Talleres Remedios de Escalada,Villa San Carlos,1,0
+ARGBM,09/05/2026,20:30,Deportivo Armenio,CASD Camioneros,1,3
+ARGBM,09/05/2026,20:30,Flandria,Deportivo Merlo,2,0
+ARGBM,09/05/2026,20:30,Laferrere,San Martin Burzaco,0,2
+ARGBM,09/05/2026,23:00,Ituzaingo,Villa Dalmine,0,2
+ARGBM,09/08/2026,01:00,Deportivo Merlo,Sportivo Italiano,0,4
+ARGBM,09/08/2026,20:00,Dock Sud,San Martin Burzaco,4,1
+ARGBM,09/08/2026,20:00,Laferrere,Arsenal Sarandi,1,1
+ARGBM,10/04/2026,20:30,Arsenal Sarandi,Argentino de Merlo,3,0
+ARGBM,10/04/2026,20:30,CD UAI Urquiza,Brown de Adrogue,0,1
+ARGBM,10/04/2026,20:30,CS Deportivo Liniers,Flandria,0,1
+ARGBM,10/05/2026,20:30,Argentino de Quilmes,Dock Sud,0,2
+ARGBM,10/05/2026,20:30,Arsenal Sarandi,Real Pilar,2,1
+ARGBM,10/07/2026,18:00,Real Pilar,CASD Camioneros,2,1
+ARGBM,10/07/2026,18:00,Villa San Carlos,San Martin Burzaco,0,0
+ARGBM,10/07/2026,19:00,Arsenal Sarandi,CA Defensores Unidos,3,1
+ARGBM,10/07/2026,19:00,Laferrere,Deportivo Armenio,1,1
+ARGBM,10/07/2026,20:00,Argentino de Merlo,Argentino de Quilmes,3,0
+ARGBM,10/07/2026,20:00,Brown de Adrogue,Ituzaingo,0,0
+ARGBM,10/07/2026,20:00,CA Talleres Remedios de Escalada,Flandria,1,1
+ARGBM,10/07/2026,20:00,CD UAI Urquiza,Deportivo Merlo,0,0
+ARGBM,10/07/2026,20:00,CS Deportivo Liniers,Sportivo Italiano,0,1
+ARGBM,10/07/2026,20:00,Excursionistas,Comunicaciones,1,2
+ARGBM,10/07/2026,20:00,Villa Dalmine,Dock Sud,2,1
+ARGBM,11/04/2026,01:00,Excursionistas,CA Talleres Remedios de Escalada,1,1
+ARGBM,11/04/2026,20:30,San Martin Burzaco,CA Defensores Unidos,1,1
+ARGBM,11/04/2026,20:30,Sportivo Italiano,Comunicaciones,1,1
+ARGBM,11/04/2026,20:30,Villa Dalmine,Laferrere,2,2
+ARGBM,11/04/2026,20:30,Villa San Carlos,Argentino de Quilmes,1,1
+ARGBM,11/04/2026,20:40,Real Pilar,Deportivo Armenio,0,1
+ARGBM,11/04/2026,23:00,Deportivo Merlo,Ituzaingo,3,2
+ARGBM,12/04/2026,20:00,CASD Camioneros,Dock Sud,0,0
+ARGBM,12/09/2026,00:00,Ituzaingo,Comunicaciones,2,2
+ARGBM,12/09/2026,01:00,Argentino de Merlo,Real Pilar,0,1
+ARGBM,12/09/2026,20:00,Arsenal Sarandi,CD UAI Urquiza,2,0
+ARGBM,12/09/2026,20:00,CA Defensores Unidos,Dock Sud,3,0
+ARGBM,12/09/2026,20:00,CA Talleres Remedios de Escalada,CS Deportivo Liniers,0,2
+ARGBM,12/09/2026,20:00,Deportivo Armenio,Sportivo Italiano,1,0
+ARGBM,12/09/2026,20:00,Laferrere,Villa San Carlos,1,1
+ARGBM,12/09/2026,21:00,Brown de Adrogue,San Martin Burzaco,0,2
+ARGBM,13/06/2026,01:15,San Martin Burzaco,Villa Dalmine,0,2
+ARGBM,13/06/2026,19:30,Villa San Carlos,CD UAI Urquiza,0,0
+ARGBM,13/06/2026,20:30,CA Defensores Unidos,Brown de Adrogue,1,1
+ARGBM,13/06/2026,20:30,CASD Camioneros,Arsenal Sarandi,1,2
+ARGBM,13/06/2026,20:30,Comunicaciones,Laferrere,3,3
+ARGBM,13/06/2026,20:30,Dock Sud,CA Talleres Remedios de Escalada,1,1
+ARGBM,13/06/2026,20:30,Flandria,Ituzaingo,3,2
+ARGBM,13/06/2026,20:30,Sportivo Italiano,Excursionistas,0,1
+ARGBM,13/09/2026,01:00,Excursionistas,Villa Dalmine,3,0
+ARGBM,13/09/2026,20:00,Argentino de Quilmes,Deportivo Merlo,1,0
+ARGBM,13/09/2026,20:00,Flandria,CASD Camioneros,2,1
+ARGBM,14/02/2026,00:00,Ituzaingo,Deportivo Armenio,0,1
+ARGBM,14/02/2026,21:00,CASD Camioneros,Villa Dalmine,0,2
+ARGBM,14/02/2026,21:00,Flandria,Brown de Adrogue,3,1
+ARGBM,14/02/2026,21:00,San Martin Burzaco,Real Pilar,1,2
+ARGBM,14/02/2026,21:00,Villa San Carlos,CS Deportivo Liniers,0,1
+ARGBM,14/03/2026,18:00,Argentino de Merlo,Brown de Adrogue,0,0
+ARGBM,14/03/2026,18:00,Arsenal Sarandi,Deportivo Armenio,2,1
+ARGBM,14/03/2026,18:00,Villa San Carlos,Deportivo Merlo,1,1
+ARGBM,14/03/2026,20:00,Excursionistas,Flandria,2,0
+ARGBM,14/04/2026,20:30,Argentino de Merlo,Excursionistas,1,1
+ARGBM,14/04/2026,20:30,CA Defensores Unidos,Sportivo Italiano,2,0
+ARGBM,14/04/2026,20:30,CA Talleres Remedios de Escalada,Villa Dalmine,0,2
+ARGBM,14/04/2026,20:30,Flandria,Villa San Carlos,1,4
+ARGBM,14/04/2026,20:30,Ituzaingo,Arsenal Sarandi,0,0
+ARGBM,14/06/2026,19:00,Argentino de Quilmes,Deportivo Armenio,1,1
+ARGBM,14/06/2026,20:30,CS Deportivo Liniers,Real Pilar,0,1
+ARGBM,14/07/2026,20:00,Argentino de Quilmes,Arsenal Sarandi,1,0
+ARGBM,14/07/2026,20:00,CA Defensores Unidos,Excursionistas,0,2
+ARGBM,14/07/2026,20:00,CASD Camioneros,CS Deportivo Liniers,1,0
+ARGBM,14/07/2026,20:00,Dock Sud,CD UAI Urquiza,0,0
+ARGBM,14/07/2026,20:00,Flandria,Argentino de Merlo,1,0
+ARGBM,14/07/2026,20:00,Sportivo Italiano,Villa San Carlos,1,0
+ARGBM,14/07/2026,20:30,Deportivo Armenio,CA Talleres Remedios de Escalada,2,1
+ARGBM,15/02/2026,21:00,Argentino de Quilmes,Laferrere,1,1
+ARGBM,15/02/2026,21:00,CA Defensores Unidos,CA Talleres Remedios de Escalada,0,0
+ARGBM,15/02/2026,21:00,Dock Sud,Arsenal Sarandi,1,1
+ARGBM,15/02/2026,23:30,Sportivo Italiano,CD UAI Urquiza,0,0
+ARGBM,15/03/2026,18:00,CA Talleres Remedios de Escalada,Laferrere,2,0
+ARGBM,15/03/2026,18:00,CD UAI Urquiza,CA Defensores Unidos,2,2
+ARGBM,15/03/2026,18:00,CS Deportivo Liniers,Dock Sud,3,2
+ARGBM,15/03/2026,18:00,Sportivo Italiano,Ituzaingo,0,0
+ARGBM,15/03/2026,18:00,Villa Dalmine,Argentino de Quilmes,1,1
+ARGBM,15/03/2026,22:00,San Martin Burzaco,CASD Camioneros,0,0
+ARGBM,15/04/2026,01:00,Brown de Adrogue,Real Pilar,1,1
+ARGBM,15/04/2026,01:00,Laferrere,CD UAI Urquiza,0,0
+ARGBM,15/04/2026,20:30,Deportivo Armenio,CS Deportivo Liniers,1,0
+ARGBM,15/06/2026,00:00,Deportivo Merlo,Argentino de Merlo,2,2
+ARGBM,15/07/2026,00:00,Brown de Adrogue,Laferrere,0,1
+ARGBM,15/07/2026,00:00,Comunicaciones,Villa Dalmine,0,0
+ARGBM,15/07/2026,00:00,Deportivo Merlo,Real Pilar,3,2
+ARGBM,15/07/2026,00:00,Ituzaingo,San Martin Burzaco,1,2
+ARGBM,15/08/2026,18:00,CASD Camioneros,Deportivo Merlo,0,0
+ARGBM,15/08/2026,20:00,Argentino de Merlo,Ituzaingo,1,1
+ARGBM,15/08/2026,20:00,Arsenal Sarandi,CA Talleres Remedios de Escalada,0,1
+ARGBM,15/08/2026,20:00,Excursionistas,Laferrere,5,3
+ARGBM,15/08/2026,20:00,Real Pilar,Flandria,0,0
+ARGBM,15/08/2026,20:00,San Martin Burzaco,Comunicaciones,0,0
+ARGBM,15/08/2026,20:00,Sportivo Italiano,Dock Sud,4,0
+ARGBM,15/08/2026,20:00,Villa Dalmine,Brown de Adrogue,1,0
+ARGBM,16/02/2026,00:00,Deportivo Merlo,Excursionistas,1,2
+ARGBM,16/02/2026,21:00,Comunicaciones,Argentino de Merlo,1,0
+ARGBM,16/03/2026,00:00,Real Pilar,Comunicaciones,2,0
+ARGBM,16/04/2026,01:00,Argentino de Quilmes,San Martin Burzaco,3,0
+ARGBM,16/04/2026,20:30,Comunicaciones,CASD Camioneros,1,2
+ARGBM,16/04/2026,20:30,Dock Sud,Deportivo Merlo,1,1
+ARGBM,16/05/2026,20:00,CASD Camioneros,Brown de Adrogue,1,0
+ARGBM,16/05/2026,20:30,CA Defensores Unidos,Ituzaingo,2,1
+ARGBM,16/05/2026,20:30,CD UAI Urquiza,Villa Dalmine,0,0
+ARGBM,16/05/2026,20:30,CS Deportivo Liniers,Arsenal Sarandi,0,0
+ARGBM,16/05/2026,20:30,Dock Sud,Flandria,0,0
+ARGBM,16/05/2026,20:30,Real Pilar,Excursionistas,0,1
+ARGBM,16/05/2026,20:30,San Martin Burzaco,CA Talleres Remedios de Escalada,0,2
+ARGBM,16/05/2026,20:30,Villa San Carlos,Argentino de Merlo,0,0
+ARGBM,16/08/2026,20:00,CD UAI Urquiza,Deportivo Armenio,0,1
+ARGBM,16/08/2026,20:00,CS Deportivo Liniers,Argentino de Quilmes,0,1
+ARGBM,16/08/2026,20:00,Villa San Carlos,CA Defensores Unidos,1,0
+ARGBM,17/05/2026,00:00,Deportivo Merlo,Deportivo Armenio,3,2
+ARGBM,17/05/2026,20:30,Comunicaciones,Argentino de Quilmes,0,0
+ARGBM,18/04/2026,01:00,Excursionistas,Arsenal Sarandi,0,1
+ARGBM,18/04/2026,20:30,CD UAI Urquiza,CA Talleres Remedios de Escalada,0,2
+ARGBM,18/04/2026,20:30,Sportivo Italiano,Argentino de Quilmes,2,1
+ARGBM,18/04/2026,23:00,Real Pilar,Laferrere,1,0
+ARGBM,18/05/2026,20:30,Sportivo Italiano,Laferrere,1,1
+ARGBM,18/07/2026,18:00,Villa San Carlos,CASD Camioneros,0,2
+ARGBM,18/07/2026,20:00,Argentino de Merlo,Deportivo Armenio,2,2
+ARGBM,18/07/2026,20:00,Arsenal Sarandi,Flandria,1,0
+ARGBM,18/07/2026,20:00,CA Talleres Remedios de Escalada,Brown de Adrogue,1,0
+ARGBM,18/07/2026,20:00,CD UAI Urquiza,Comunicaciones,0,2
+ARGBM,18/07/2026,20:00,CS Deportivo Liniers,Deportivo Merlo,1,1
+ARGBM,18/07/2026,20:00,Excursionistas,Argentino de Quilmes,0,0
+ARGBM,18/07/2026,20:00,Laferrere,Ituzaingo,2,0
+ARGBM,18/07/2026,20:00,Real Pilar,Dock Sud,0,1
+ARGBM,18/07/2026,20:00,San Martin Burzaco,Sportivo Italiano,1,2
+ARGBM,18/07/2026,20:00,Villa Dalmine,CA Defensores Unidos,0,0
+ARGBM,18/09/2026,20:00,Comunicaciones,CA Defensores Unidos,2,0
+ARGBM,19/04/2026,01:00,San Martin Burzaco,Flandria,0,1
+ARGBM,19/04/2026,19:00,CS Deportivo Liniers,Brown de Adrogue,1,0
+ARGBM,19/04/2026,20:00,Dock Sud,Ituzaingo,3,0
+ARGBM,19/04/2026,20:00,Villa Dalmine,Argentino de Merlo,1,0
+ARGBM,19/04/2026,20:00,Villa San Carlos,Deportivo Armenio,4,1
+ARGBM,19/09/2026,19:00,CASD Camioneros,Deportivo Armenio,1,2
+ARGBM,19/09/2026,20:00,CD UAI Urquiza,Excursionistas,1,2
+ARGBM,19/09/2026,20:00,Real Pilar,Arsenal Sarandi,2,1
+ARGBM,19/09/2026,20:00,San Martin Burzaco,Laferrere,2,1
+ARGBM,19/09/2026,20:00,Sportivo Italiano,Brown de Adrogue,0,0
+ARGBM,19/09/2026,20:00,Villa Dalmine,Ituzaingo,3,1
+ARGBM,20/04/2026,20:30,CASD Camioneros,CA Defensores Unidos,1,0
+ARGBM,20/06/2026,00:00,Ituzaingo,CS Deportivo Liniers,1,1
+ARGBM,20/06/2026,19:30,CD UAI Urquiza,San Martin Burzaco,0,0
+ARGBM,20/06/2026,19:30,Laferrere,CA Defensores Unidos,1,0
+ARGBM,20/06/2026,20:00,Brown de Adrogue,Argentino de Quilmes,2,4
+ARGBM,20/06/2026,20:30,Deportivo Armenio,Flandria,2,1
+ARGBM,20/06/2026,20:30,Excursionistas,CASD Camioneros,1,1
+ARGBM,20/06/2026,20:30,Real Pilar,Villa San Carlos,1,1
+ARGBM,20/06/2026,20:30,Villa Dalmine,Sportivo Italiano,2,1
+ARGBM,20/09/2026,20:00,CS Deportivo Liniers,Argentino de Merlo,1,2
+ARGBM,20/09/2026,20:00,Dock Sud,Argentino de Quilmes,0,0
+ARGBM,20/09/2026,20:00,Villa San Carlos,CA Talleres Remedios de Escalada,0,0
+ARGBM,20/09/2026,22:00,Deportivo Merlo,Flandria,2,1
+ARGBM,21/02/2026,00:00,Excursionistas,Dock Sud,1,0
+ARGBM,21/02/2026,21:00,Argentino de Merlo,CA Defensores Unidos,1,0
+ARGBM,21/02/2026,21:00,Arsenal Sarandi,Comunicaciones,2,0
+ARGBM,21/02/2026,21:00,Laferrere,Flandria,3,2
+ARGBM,21/03/2026,00:30,Ituzaingo,CA Talleres Remedios de Escalada,0,0
+ARGBM,21/03/2026,18:00,Brown de Adrogue,Arsenal Sarandi,0,4
+ARGBM,21/03/2026,18:00,CA Defensores Unidos,Real Pilar,1,2
+ARGBM,21/03/2026,18:00,Flandria,Villa Dalmine,0,1
+ARGBM,21/03/2026,19:00,Deportivo Armenio,Excursionistas,0,2
+ARGBM,21/03/2026,22:00,Deportivo Merlo,San Martin Burzaco,0,4
+ARGBM,21/06/2026,19:30,Argentino de Merlo,Dock Sud,3,1
+ARGBM,21/06/2026,19:30,Arsenal Sarandi,Deportivo Merlo,4,2
+ARGBM,21/06/2026,19:30,CA Talleres Remedios de Escalada,Comunicaciones,0,0
+ARGBM,21/08/2026,20:30,Comunicaciones,Sportivo Italiano,1,0
+ARGBM,22/02/2026,00:00,Real Pilar,Sportivo Italiano,1,2
+ARGBM,22/02/2026,21:00,CA Talleres Remedios de Escalada,Argentino de Quilmes,1,0
+ARGBM,22/02/2026,21:00,CS Deportivo Liniers,San Martin Burzaco,0,0
+ARGBM,22/02/2026,21:00,Villa Dalmine,Deportivo Merlo,0,1
+ARGBM,22/02/2026,21:00,Villa San Carlos,Ituzaingo,3,1
+ARGBM,22/03/2026,18:00,Argentino de Quilmes,CD UAI Urquiza,1,1
+ARGBM,22/03/2026,18:00,CASD Camioneros,Sportivo Italiano,2,1
+ARGBM,22/03/2026,18:00,Laferrere,Argentino de Merlo,1,3
+ARGBM,22/04/2026,00:00,Deportivo Merlo,Comunicaciones,2,0
+ARGBM,22/05/2026,20:30,Arsenal Sarandi,Villa San Carlos,2,2
+ARGBM,22/08/2026,00:00,Brown de Adrogue,CD UAI Urquiza,1,1
+ARGBM,22/08/2026,00:00,Laferrere,Villa Dalmine,0,2
+ARGBM,22/08/2026,20:00,Argentino de Merlo,Arsenal Sarandi,0,0
+ARGBM,22/08/2026,20:00,CA Defensores Unidos,San Martin Burzaco,2,0
+ARGBM,22/08/2026,20:00,CA Talleres Remedios de Escalada,Excursionistas,1,2
+ARGBM,22/08/2026,20:00,Flandria,CS Deportivo Liniers,1,0
+ARGBM,22/08/2026,20:00,Ituzaingo,Deportivo Merlo,0,0
+ARGBM,22/08/2026,20:30,Deportivo Armenio,Real Pilar,0,1
+ARGBM,23/02/2026,00:00,Brown de Adrogue,Deportivo Armenio,0,0
+ARGBM,23/02/2026,21:00,CD UAI Urquiza,CASD Camioneros,0,0
+ARGBM,23/03/2026,19:30,Dock Sud,Villa San Carlos,2,0
+ARGBM,23/05/2026,00:00,Brown de Adrogue,Deportivo Merlo,0,1
+ARGBM,23/05/2026,00:30,Ituzaingo,CD UAI Urquiza,1,1
+ARGBM,23/05/2026,01:00,Excursionistas,CS Deportivo Liniers,4,1
+ARGBM,23/05/2026,01:00,Laferrere,CASD Camioneros,0,2
+ARGBM,23/05/2026,20:30,Argentino de Merlo,San Martin Burzaco,0,1
+ARGBM,23/05/2026,20:30,Argentino de Quilmes,CA Defensores Unidos,1,0
+ARGBM,23/05/2026,20:30,CA Talleres Remedios de Escalada,Sportivo Italiano,0,1
+ARGBM,23/05/2026,20:30,Deportivo Armenio,Dock Sud,1,1
+ARGBM,23/05/2026,20:30,Flandria,Comunicaciones,1,2
+ARGBM,23/05/2026,20:30,Villa Dalmine,Real Pilar,1,1
+ARGBM,23/08/2026,00:00,Argentino de Quilmes,Villa San Carlos,0,2
+ARGBM,23/08/2026,20:00,Dock Sud,CASD Camioneros,2,2
+ARGBM,24/03/2026,00:00,Comunicaciones,CS Deportivo Liniers,2,0
+ARGBM,25/04/2026,20:00,Brown de Adrogue,Villa San Carlos,2,1
+ARGBM,25/04/2026,20:30,Argentino de Merlo,CD UAI Urquiza,0,2
+ARGBM,25/04/2026,20:30,Argentino de Quilmes,CASD Camioneros,0,0
+ARGBM,25/04/2026,20:30,CA Defensores Unidos,Deportivo Merlo,1,1
+ARGBM,25/04/2026,20:30,Flandria,Sportivo Italiano,0,0
+ARGBM,25/04/2026,20:30,Ituzaingo,Excursionistas,1,3
+ARGBM,25/07/2026,18:00,Dock Sud,CS Deportivo Liniers,1,1
+ARGBM,25/07/2026,19:00,Ituzaingo,Sportivo Italiano,0,0
+ARGBM,25/07/2026,20:00,Argentino de Quilmes,Villa Dalmine,0,0
+ARGBM,25/07/2026,20:00,Brown de Adrogue,Argentino de Merlo,1,0
+ARGBM,25/07/2026,20:00,CA Defensores Unidos,CD UAI Urquiza,1,1
+ARGBM,25/07/2026,20:00,CASD Camioneros,San Martin Burzaco,2,0
+ARGBM,25/07/2026,20:00,Comunicaciones,Real Pilar,1,2
+ARGBM,25/07/2026,20:00,Flandria,Excursionistas,1,1
+ARGBM,25/07/2026,20:30,Deportivo Armenio,Arsenal Sarandi,0,0
+ARGBM,25/08/2026,20:00,Arsenal Sarandi,Ituzaingo,2,0
+ARGBM,25/08/2026,20:00,CD UAI Urquiza,Laferrere,0,2
+ARGBM,25/08/2026,20:00,Real Pilar,Brown de Adrogue,2,0
+ARGBM,25/08/2026,20:00,San Martin Burzaco,Argentino de Quilmes,3,2
+ARGBM,25/08/2026,20:00,Sportivo Italiano,CA Defensores Unidos,0,2
+ARGBM,25/08/2026,20:00,Villa Dalmine,CA Talleres Remedios de Escalada,0,0
+ARGBM,25/08/2026,20:00,Villa San Carlos,Flandria,3,2
+ARGBM,26/04/2026,18:00,Deportivo Armenio,San Martin Burzaco,1,1
+ARGBM,26/04/2026,20:30,Arsenal Sarandi,Villa Dalmine,1,1
+ARGBM,26/04/2026,20:30,CA Talleres Remedios de Escalada,Real Pilar,0,0
+ARGBM,26/04/2026,20:30,Comunicaciones,Dock Sud,2,0
+ARGBM,26/04/2026,20:30,Laferrere,CS Deportivo Liniers,0,0
+ARGBM,26/05/2026,20:30,CASD Camioneros,Villa San Carlos,3,0
+ARGBM,26/05/2026,20:30,Deportivo Armenio,Argentino de Merlo,2,0
+ARGBM,26/05/2026,20:30,Dock Sud,Real Pilar,2,0
+ARGBM,26/05/2026,20:30,Flandria,Arsenal Sarandi,0,0
+ARGBM,26/07/2026,00:00,Deportivo Merlo,Villa San Carlos,1,2
+ARGBM,26/07/2026,20:00,Laferrere,CA Talleres Remedios de Escalada,0,2
+ARGBM,26/08/2026,01:00,Excursionistas,Argentino de Merlo,2,0
+ARGBM,26/08/2026,18:00,CASD Camioneros,Comunicaciones,2,0
+ARGBM,26/08/2026,20:00,CS Deportivo Liniers,Deportivo Armenio,3,1
+ARGBM,27/02/2026,21:00,Argentino de Quilmes,Argentino de Merlo,0,1
+ARGBM,27/02/2026,21:00,CA Defensores Unidos,Arsenal Sarandi,1,1
+ARGBM,27/02/2026,21:00,Dock Sud,Villa Dalmine,0,1
+ARGBM,27/02/2026,21:00,Sportivo Italiano,CS Deportivo Liniers,2,1
+ARGBM,27/05/2026,00:00,Brown de Adrogue,CA Talleres Remedios de Escalada,1,2
+ARGBM,27/05/2026,00:00,Comunicaciones,CD UAI Urquiza,3,0
+ARGBM,27/05/2026,00:00,Deportivo Merlo,CS Deportivo Liniers,0,0
+ARGBM,27/05/2026,00:30,Ituzaingo,Laferrere,0,2
+ARGBM,27/05/2026,20:30,Argentino de Quilmes,Excursionistas,2,2
+ARGBM,27/05/2026,20:30,CA Defensores Unidos,Villa Dalmine,2,1
+ARGBM,27/05/2026,20:30,Sportivo Italiano,San Martin Burzaco,1,2
+ARGBM,27/06/2026,18:00,Real Pilar,San Martin Burzaco,0,0
+ARGBM,27/06/2026,18:00,Villa Dalmine,CASD Camioneros,0,1
+ARGBM,27/06/2026,20:00,Brown de Adrogue,Flandria,2,0
+ARGBM,27/06/2026,20:00,CA Talleres Remedios de Escalada,CA Defensores Unidos,1,0
+ARGBM,27/06/2026,20:00,Excursionistas,Deportivo Merlo,5,0
+ARGBM,27/06/2026,20:30,Deportivo Armenio,Ituzaingo,2,1
+ARGBM,27/08/2026,00:00,Deportivo Merlo,Dock Sud,1,2
+ARGBM,28/02/2026,00:30,Deportivo Merlo,CD UAI Urquiza,0,0
+ARGBM,28/02/2026,00:30,Ituzaingo,Brown de Adrogue,1,1
+ARGBM,28/02/2026,00:30,San Martin Burzaco,Villa San Carlos,3,3
+ARGBM,28/02/2026,21:00,CASD Camioneros,Real Pilar,0,1
+ARGBM,28/02/2026,21:00,Comunicaciones,Excursionistas,1,1
+ARGBM,28/02/2026,21:00,Deportivo Armenio,Laferrere,1,2
+ARGBM,28/02/2026,21:00,Flandria,CA Talleres Remedios de Escalada,1,0
+ARGBM,28/03/2026,18:00,Arsenal Sarandi,Laferrere,3,0
+ARGBM,28/03/2026,18:00,CASD Camioneros,Ituzaingo,2,1
+ARGBM,28/03/2026,18:00,Villa San Carlos,Comunicaciones,0,1
+ARGBM,28/03/2026,20:00,Villa Dalmine,Deportivo Armenio,2,0
+ARGBM,28/06/2026,18:00,CD UAI Urquiza,Sportivo Italiano,0,0
+ARGBM,28/06/2026,18:00,CS Deportivo Liniers,Villa San Carlos,1,1
+ARGBM,28/06/2026,18:00,Laferrere,Argentino de Quilmes,1,1
+ARGBM,28/06/2026,20:00,Argentino de Merlo,Comunicaciones,3,2
+ARGBM,28/06/2026,20:00,Arsenal Sarandi,Dock Sud,0,0
+ARGBM,29/03/2026,00:00,Excursionistas,Brown de Adrogue,1,0
+ARGBM,29/03/2026,19:00,CD UAI Urquiza,Flandria,2,0
+ARGBM,29/03/2026,19:00,CS Deportivo Liniers,CA Defensores Unidos,1,1
+ARGBM,29/03/2026,19:00,Sportivo Italiano,Deportivo Merlo,2,1
+ARGBM,29/03/2026,21:00,Argentino de Merlo,CA Talleres Remedios de Escalada,0,1
+ARGBM,29/03/2026,21:00,Real Pilar,Argentino de Quilmes,3,2
+ARGBM,29/03/2026,21:00,San Martin Burzaco,Dock Sud,1,1
+ARGBM,29/08/2026,20:00,Argentino de Quilmes,Sportivo Italiano,0,2
+ARGBM,29/08/2026,20:00,Arsenal Sarandi,Excursionistas,3,0
+ARGBM,29/08/2026,20:00,Brown de Adrogue,CS Deportivo Liniers,1,1
+ARGBM,29/08/2026,20:00,CA Defensores Unidos,CASD Camioneros,0,0
+ARGBM,29/08/2026,20:00,CA Talleres Remedios de Escalada,CD UAI Urquiza,1,0
+ARGBM,29/08/2026,20:00,Ituzaingo,Dock Sud,0,2
+ARGBM,29/08/2026,20:00,Laferrere,Real Pilar,1,1
+ARGBM,30/05/2026,19:30,Comunicaciones,Deportivo Armenio,0,1
+ARGBM,30/05/2026,19:30,Dock Sud,Brown de Adrogue,0,1
+ARGBM,30/05/2026,20:30,Real Pilar,CD UAI Urquiza,2,1
+ARGBM,30/08/2026,17:30,Deportivo Armenio,Villa San Carlos,1,0
+ARGBM,30/08/2026,20:00,Argentino de Merlo,Villa Dalmine,0,0
+ARGBM,30/08/2026,20:00,Flandria,San Martin Burzaco,2,0
+ARGBM,31/05/2026,17:30,CS Deportivo Liniers,Villa Dalmine,1,0
+ARGBM,31/05/2026,19:30,CASD Camioneros,CA Talleres Remedios de Escalada,1,4
+ARGBM,31/05/2026,19:30,Sportivo Italiano,Argentino de Merlo,0,2
+ARGBM,31/05/2026,20:30,CA Defensores Unidos,Flandria,1,0
+ARGBM,31/05/2026,20:30,Villa San Carlos,Excursionistas,0,2
+ARGBM,31/07/2026,20:00,Arsenal Sarandi,Brown de Adrogue,1,1

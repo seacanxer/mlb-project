@@ -1,0 +1,93 @@
+Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG
+CANP,01/07/2026,19:00,Forge FC,Vancouver FC,3,2
+CANP,01/07/2026,22:00,HFX Wanderers FC,Atlético Ottawa,1,3
+CANP,01/08/2026,04:00,Pacific FC,Supra du Quebec,1,2
+CANP,02/05/2026,01:30,Inter Toronto FC,Atlético Ottawa,4,1
+CANP,02/05/2026,20:00,HFX Wanderers FC,Forge FC,1,3
+CANP,02/08/2026,00:00,Vancouver FC,Atlético Ottawa,3,1
+CANP,02/08/2026,03:00,Cavalry FC,Inter Toronto FC,5,0
+CANP,03/05/2026,21:00,Supra du Quebec,Cavalry FC,0,1
+CANP,03/08/2026,00:00,HFX Wanderers FC,Forge FC,0,0
+CANP,04/04/2026,18:00,Forge FC,Atlético Ottawa,2,0
+CANP,04/05/2026,01:00,Pacific FC,Vancouver FC,1,3
+CANP,04/07/2026,22:00,Atlético Ottawa,Cavalry FC,0,3
+CANP,05/04/2026,01:00,Vancouver FC,HFX Wanderers FC,0,1
+CANP,05/07/2026,01:00,Vancouver FC,Inter Toronto FC,4,0
+CANP,05/07/2026,19:00,Supra du Quebec,Forge FC,1,2
+CANP,05/09/2026,22:00,Atlético Ottawa,Pacific FC,0,0
+CANP,06/04/2026,00:00,Pacific FC,Cavalry FC,1,2
+CANP,06/06/2026,04:00,Vancouver FC,Atlético Ottawa,2,1
+CANP,06/07/2026,00:25,Pacific FC,HFX Wanderers FC,1,2
+CANP,06/09/2026,01:00,Forge FC,Inter Toronto FC,1,1
+CANP,07/06/2026,01:00,Cavalry FC,HFX Wanderers FC,2,0
+CANP,07/06/2026,01:25,Supra du Quebec,Pacific FC,1,1
+CANP,07/06/2026,20:00,Inter Toronto FC,Forge FC,1,4
+CANP,07/09/2026,00:00,Vancouver FC,Supra du Quebec,3,2
+CANP,07/09/2026,21:00,HFX Wanderers FC,Cavalry FC,1,3
+CANP,08/08/2026,01:00,Forge FC,Vancouver FC,0,1
+CANP,08/08/2026,19:00,Atlético Ottawa,HFX Wanderers FC,2,1
+CANP,08/08/2026,23:00,Pacific FC,Inter Toronto FC,1,1
+CANP,09/08/2026,02:00,Supra du Quebec,Cavalry FC,1,1
+CANP,10/06/2026,01:00,Atlético Ottawa,Supra du Quebec,5,3
+CANP,10/09/2026,01:30,Inter Toronto FC,Pacific FC,3,3
+CANP,11/04/2026,21:00,Inter Toronto FC,HFX Wanderers FC,2,2
+CANP,11/06/2026,01:00,Forge FC,HFX Wanderers FC,1,0
+CANP,11/06/2026,01:30,Inter Toronto FC,Cavalry FC,1,5
+CANP,12/04/2026,00:00,Pacific FC,Supra du Quebec,2,3
+CANP,12/04/2026,22:00,Cavalry FC,Atlético Ottawa,3,1
+CANP,12/09/2026,22:00,Supra du Quebec,HFX Wanderers FC,0,2
+CANP,13/04/2026,01:00,Vancouver FC,Forge FC,0,1
+CANP,13/05/2026,17:00,Forge FC,Supra du Quebec,1,0
+CANP,13/09/2026,01:00,Forge FC,Atlético Ottawa,3,0
+CANP,13/09/2026,21:00,Inter Toronto FC,Vancouver FC,3,1
+CANP,14/09/2026,00:00,Pacific FC,Cavalry FC,0,1
+CANP,15/06/2026,00:00,Vancouver FC,Pacific FC,2,1
+CANP,15/08/2026,03:00,Vancouver FC,Pacific FC,1,1
+CANP,15/08/2026,23:00,Cavalry FC,Forge FC,2,1
+CANP,16/08/2026,18:00,Supra du Quebec,Atlético Ottawa,1,2
+CANP,16/08/2026,22:00,Inter Toronto FC,HFX Wanderers FC,4,3
+CANP,17/05/2026,19:00,Atlético Ottawa,HFX Wanderers FC,1,0
+CANP,17/05/2026,23:00,Pacific FC,Inter Toronto FC,0,1
+CANP,17/07/2026,02:10,Forge FC,Pacific FC,0,0
+CANP,18/04/2026,19:00,HFX Wanderers FC,Pacific FC,2,2
+CANP,18/04/2026,22:00,Forge FC,Cavalry FC,0,0
+CANP,18/05/2026,03:00,Vancouver FC,Cavalry FC,0,2
+CANP,18/07/2026,01:00,Atlético Ottawa,Inter Toronto FC,1,1
+CANP,18/07/2026,01:00,Supra du Quebec,Vancouver FC,1,5
+CANP,18/07/2026,21:00,Cavalry FC,HFX Wanderers FC,1,1
+CANP,19/04/2026,20:00,Supra du Quebec,Atlético Ottawa,0,1
+CANP,19/04/2026,23:00,Inter Toronto FC,Vancouver FC,1,0
+CANP,19/09/2026,23:00,Cavalry FC,Forge FC,1,1
+CANP,20/08/2026,01:00,Atlético Ottawa,Vancouver FC,4,0
+CANP,20/08/2026,01:00,Forge FC,Supra du Quebec,3,2
+CANP,20/09/2026,02:00,Pacific FC,Vancouver FC,1,1
+CANP,20/09/2026,18:00,Atlético Ottawa,Supra du Quebec,0,2
+CANP,20/09/2026,21:00,HFX Wanderers FC,Inter Toronto FC,4,1
+CANP,22/08/2026,20:00,HFX Wanderers FC,Vancouver FC,1,0
+CANP,22/08/2026,22:30,Cavalry FC,Atlético Ottawa,3,1
+CANP,23/05/2026,21:00,HFX Wanderers FC,Inter Toronto FC,1,1
+CANP,23/08/2026,01:30,Forge FC,Pacific FC,2,0
+CANP,23/08/2026,22:00,Inter Toronto FC,Supra du Quebec,1,1
+CANP,24/05/2026,00:00,Vancouver FC,Supra du Quebec,1,1
+CANP,24/05/2026,20:00,Atlético Ottawa,Forge FC,2,1
+CANP,24/05/2026,23:00,Cavalry FC,Pacific FC,3,0
+CANP,24/09/2026,04:00,Vancouver FC,Inter Toronto FC,3,3
+CANP,25/04/2026,01:00,Supra du Quebec,HFX Wanderers FC,2,1
+CANP,25/04/2026,23:00,Cavalry FC,Inter Toronto FC,1,1
+CANP,25/07/2026,00:00,HFX Wanderers FC,Supra du Quebec,2,3
+CANP,25/07/2026,04:00,Vancouver FC,Cavalry FC,1,0
+CANP,26/04/2026,19:00,Atlético Ottawa,Vancouver FC,1,1
+CANP,26/06/2026,23:30,HFX Wanderers FC,Pacific FC,5,2
+CANP,26/07/2026,20:30,Atlético Ottawa,Pacific FC,3,2
+CANP,26/07/2026,23:00,Inter Toronto FC,Forge FC,1,3
+CANP,27/04/2026,00:00,Pacific FC,Forge FC,0,1
+CANP,29/06/2026,01:00,Cavalry FC,Supra du Quebec,0,0
+CANP,29/07/2026,03:00,Cavalry FC,Supra du Quebec,2,1
+CANP,29/08/2026,01:00,Supra du Quebec,Forge FC,1,0
+CANP,29/08/2026,01:00,Atlético Ottawa,Inter Toronto FC,2,1
+CANP,29/08/2026,23:00,Cavalry FC,Vancouver FC,1,0
+CANP,30/05/2026,01:00,Supra du Quebec,Inter Toronto FC,3,1
+CANP,30/05/2026,21:00,HFX Wanderers FC,Vancouver FC,1,0
+CANP,31/05/2026,00:00,Pacific FC,Atlético Ottawa,2,2
+CANP,31/05/2026,22:00,Forge FC,Cavalry FC,1,0
+CANP,31/08/2026,00:00,Pacific FC,HFX Wanderers FC,4,3

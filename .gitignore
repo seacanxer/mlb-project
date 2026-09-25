@@ -38,5 +38,8 @@ betting-machine-fc/data/*_live_scores.csv
 betting-machine-fc/data/*_live_scores.source.json
 betting-machine-fc/odds_quotes.jsonl
 
+# FC score-feed raw cache (regenerable by scripts/fc-fetch-dayfeed.py)
+betting-machine-fc/data/.feed_cache/
+
 # Report temp charts
 reports/.*charts/

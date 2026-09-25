@@ -196,8 +196,9 @@ def normalize_quote_snapshot(*, fixture_id, market, side, line, decimal_odds,
 
 def normalize_football_data_row(row, *, competition_id, season, source_file,
                                 source_row, timezone_name, result_delay_hours=4,
-                                team_namespace=None):
+                                team_namespace=None, source='football-data.co.uk'):
     """Normalize one historical row without inventing quote timestamps."""
+    require(type(source) is str and bool(source) and source == source.strip(), 'Invalid source')
     home = canonical_name(row.get('HomeTeam'))
     away = canonical_name(row.get('AwayTeam'))
     require(home.casefold() != away.casefold(), 'Teams must differ')
@@ -221,10 +222,13 @@ def normalize_football_data_row(row, *, competition_id, season, source_file,
         home_goals=home_goals, away_goals=away_goals,
         result_available_at_utc=kickoff + int(timedelta(hours=result_delay_hours).total_seconds()) if complete else None,
         result_availability_basis=f'kickoff_plus_{result_delay_hours:g}h_assumption' if complete else None,
-        source='football-data.co.uk', source_file=Path(source_file).name,
+        source=source, source_file=Path(source_file).name,
         source_row=int(source_row), raw_sha256=_raw_hash(row),
     )
-    return match, _football_data_quotes(row, match)
+    # Odds columns only exist in football-data.co.uk files; a score-only feed
+    # must never emit quotes attributed to a bookmaker.
+    quotes = _football_data_quotes(row, match) if source == 'football-data.co.uk' else ()
+    return match, quotes
 
 
 def _football_data_quotes(row, match):
@@ -256,13 +260,14 @@ def _football_data_quotes(row, match):
     return tuple(quotes)
 
 
-def load_football_data_csv(path, *, competition_id, season, timezone_name):
+def load_football_data_csv(path, *, competition_id, season, timezone_name,
+                           source='football-data.co.uk'):
     import csv
     path = Path(path)
     matches, quotes = [], []
     seen = set()
-    with path.open(newline='', encoding='utf-8-sig') as source:
-        reader = csv.DictReader(source)
+    with path.open(newline='', encoding='utf-8-sig') as source_file:
+        reader = csv.DictReader(source_file)
         require(reader.fieldnames is not None, 'CSV header missing')
         for source_row, row in enumerate(reader, start=2):
             # Football-Data files can contain trailing blank rows.
@@ -270,7 +275,7 @@ def load_football_data_csv(path, *, competition_id, season, timezone_name):
                 continue
             match, row_quotes = normalize_football_data_row(
                 row, competition_id=competition_id, season=season, source_file=path.name,
-                source_row=source_row, timezone_name=timezone_name)
+                source_row=source_row, timezone_name=timezone_name, source=source)
             require(match.fixture_id not in seen, f'Duplicate fixture at row {source_row}')
             seen.add(match.fixture_id)
             matches.append(match); quotes.extend(row_quotes)

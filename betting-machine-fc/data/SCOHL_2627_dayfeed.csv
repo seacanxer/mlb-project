@@ -1,0 +1,103 @@
+Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG
+SCOHL,01/08/2026,16:00,Buckie Thistle,Banks O'Dee,7,2
+SCOHL,01/08/2026,16:00,Deveronvale,Turriff United,1,2
+SCOHL,01/08/2026,16:00,Formartine United,Brora Rangers,1,4
+SCOHL,01/08/2026,16:00,Huntly,Clachnacuddin,1,6
+SCOHL,01/08/2026,16:00,Invergordon,Lossiemouth,1,2
+SCOHL,01/08/2026,16:00,Inverurie Loco Works,Forres Mechanics,3,3
+SCOHL,01/08/2026,16:00,Keith,Nairn County,1,1
+SCOHL,01/08/2026,16:00,Rothes,Fraserburgh,0,7
+SCOHL,01/08/2026,16:00,Wick Academy,Strathspey Thistle,0,2
+SCOHL,05/08/2026,21:00,Banks O'Dee,Inverurie Loco Works,1,1
+SCOHL,05/08/2026,21:00,Brora Rangers,Wick Academy,8,0
+SCOHL,05/08/2026,21:00,Clachnacuddin,Invergordon,1,0
+SCOHL,05/08/2026,21:00,Fraserburgh,Keith,1,0
+SCOHL,05/08/2026,21:00,Huntly,Deveronvale,1,0
+SCOHL,05/08/2026,21:00,Lossiemouth,Rothes,4,1
+SCOHL,05/08/2026,21:00,Nairn County,Forres Mechanics,1,2
+SCOHL,05/08/2026,21:00,Strathspey Thistle,Buckie Thistle,0,2
+SCOHL,05/08/2026,21:00,Turriff United,Formartine United,1,0
+SCOHL,05/09/2026,15:00,Turriff United,Inverurie Loco Works,1,3
+SCOHL,05/09/2026,16:00,Clachnacuddin,Lossiemouth,4,0
+SCOHL,05/09/2026,16:00,Huntly,Brora Rangers,1,2
+SCOHL,05/09/2026,16:00,Deveronvale,Fraserburgh,3,1
+SCOHL,05/09/2026,16:00,Invergordon,Strathspey Thistle,0,2
+SCOHL,05/09/2026,16:00,Formartine United,Nairn County,1,1
+SCOHL,05/09/2026,16:00,Rothes,Banks O'Dee,0,5
+SCOHL,05/09/2026,16:00,Wick Academy,Forres Mechanics,1,0
+SCOHL,05/09/2026,16:00,Keith,Buckie Thistle,3,2
+SCOHL,08/08/2026,16:00,Banks O'Dee,Strathspey Thistle,1,1
+SCOHL,08/08/2026,16:00,Buckie Thistle,Brora Rangers,2,2
+SCOHL,08/08/2026,16:00,Formartine United,Huntly,2,2
+SCOHL,08/08/2026,16:00,Forres Mechanics,Fraserburgh,0,2
+SCOHL,08/08/2026,16:00,Invergordon,Deveronvale,3,0
+SCOHL,08/08/2026,16:00,Inverurie Loco Works,Nairn County,3,1
+SCOHL,08/08/2026,16:00,Keith,Lossiemouth,2,2
+SCOHL,08/08/2026,16:00,Rothes,Clachnacuddin,0,0
+SCOHL,08/08/2026,16:00,Wick Academy,Turriff United,0,2
+SCOHL,12/09/2026,16:00,Clachnacuddin,Formartine United,1,1
+SCOHL,12/09/2026,16:00,Nairn County,Banks O'Dee,2,2
+SCOHL,12/09/2026,16:00,Inverurie Loco Works,Strathspey Thistle,1,1
+SCOHL,12/09/2026,16:00,Buckie Thistle,Huntly,0,3
+SCOHL,12/09/2026,16:00,Keith,Deveronvale,2,0
+SCOHL,15/08/2026,16:00,Brora Rangers,Banks O'Dee,4,2
+SCOHL,15/08/2026,16:00,Clachnacuddin,Keith,1,1
+SCOHL,15/08/2026,16:00,Deveronvale,Rothes,3,0
+SCOHL,15/08/2026,16:00,Fraserburgh,Nairn County,2,0
+SCOHL,15/08/2026,16:00,Huntly,Wick Academy,3,0
+SCOHL,15/08/2026,16:00,Invergordon,Formartine United,1,2
+SCOHL,15/08/2026,16:00,Lossiemouth,Forres Mechanics,2,1
+SCOHL,15/08/2026,16:00,Strathspey Thistle,Inverurie Loco Works,1,3
+SCOHL,15/08/2026,16:00,Turriff United,Buckie Thistle,1,2
+SCOHL,16/09/2026,21:00,Turriff United,Huntly,2,1
+SCOHL,16/09/2026,21:00,Lossiemouth,Deveronvale,0,2
+SCOHL,16/09/2026,21:00,Brora Rangers,Invergordon,7,2
+SCOHL,16/09/2026,21:00,Fraserburgh,Formartine United,1,1
+SCOHL,16/09/2026,21:00,Strathspey Thistle,Rothes,7,1
+SCOHL,16/09/2026,21:00,Nairn County,Wick Academy,2,0
+SCOHL,16/09/2026,21:00,Banks O'Dee,Keith,4,1
+SCOHL,16/09/2026,21:00,Forres Mechanics,Buckie Thistle,2,1
+SCOHL,16/09/2026,21:15,Inverurie Loco Works,Clachnacuddin,1,0
+SCOHL,19/08/2026,21:00,Banks O'Dee,Turriff United,1,0
+SCOHL,19/08/2026,21:00,Forres Mechanics,Clachnacuddin,2,1
+SCOHL,19/08/2026,21:00,Inverurie Loco Works,Fraserburgh,2,1
+SCOHL,19/08/2026,21:00,Nairn County,Lossiemouth,1,1
+SCOHL,19/08/2026,21:00,Rothes,Formartine United,2,4
+SCOHL,19/08/2026,21:00,Strathspey Thistle,Brora Rangers,1,2
+SCOHL,19/08/2026,21:00,Wick Academy,Invergordon,1,2
+SCOHL,19/09/2026,16:00,Huntly,Inverurie Loco Works,2,2
+SCOHL,19/09/2026,16:00,Invergordon,Turriff United,3,1
+SCOHL,19/09/2026,16:00,Formartine United,Lossiemouth,3,0
+SCOHL,19/09/2026,16:00,Rothes,Brora Rangers,0,8
+SCOHL,19/09/2026,16:00,Wick Academy,Fraserburgh,2,3
+SCOHL,19/09/2026,16:00,Keith,Strathspey Thistle,2,3
+SCOHL,19/09/2026,16:00,Buckie Thistle,Nairn County,1,3
+SCOHL,19/09/2026,16:00,Forres Mechanics,Banks O'Dee,3,0
+SCOHL,19/09/2026,16:15,Deveronvale,Clachnacuddin,2,2
+SCOHL,22/08/2026,16:00,Brora Rangers,Inverurie Loco Works,0,0
+SCOHL,22/08/2026,16:00,Clachnacuddin,Nairn County,6,1
+SCOHL,22/08/2026,16:00,Deveronvale,Forres Mechanics,1,1
+SCOHL,22/08/2026,16:00,Formartine United,Keith,4,1
+SCOHL,22/08/2026,16:00,Huntly,Banks O'Dee,2,2
+SCOHL,22/08/2026,16:00,Invergordon,Buckie Thistle,0,6
+SCOHL,22/08/2026,16:00,Lossiemouth,Fraserburgh,0,4
+SCOHL,22/08/2026,16:00,Rothes,Wick Academy,3,2
+SCOHL,22/08/2026,16:00,Turriff United,Strathspey Thistle,1,2
+SCOHL,25/07/2026,16:00,Banks O'Dee,Wick Academy,2,0
+SCOHL,25/07/2026,16:00,Brora Rangers,Deveronvale,3,0
+SCOHL,25/07/2026,16:00,Buckie Thistle,Inverurie Loco Works,2,0
+SCOHL,25/07/2026,16:00,Clachnacuddin,Turriff United,0,0
+SCOHL,25/07/2026,16:00,Forres Mechanics,Keith,5,1
+SCOHL,25/07/2026,16:00,Fraserburgh,Invergordon,0,0
+SCOHL,25/07/2026,16:00,Lossiemouth,Huntly,1,0
+SCOHL,25/07/2026,16:00,Nairn County,Rothes,3,0
+SCOHL,25/07/2026,16:00,Strathspey Thistle,Formartine United,1,2
+SCOHL,29/08/2026,16:00,Banks O'Dee,Invergordon,6,3
+SCOHL,29/08/2026,16:00,Brora Rangers,Turriff United,3,1
+SCOHL,29/08/2026,16:00,Buckie Thistle,Rothes,5,0
+SCOHL,29/08/2026,16:00,Forres Mechanics,Formartine United,1,2
+SCOHL,29/08/2026,16:00,Fraserburgh,Clachnacuddin,2,2
+SCOHL,29/08/2026,16:00,Keith,Wick Academy,4,1
+SCOHL,29/08/2026,16:00,Inverurie Loco Works,Lossiemouth,3,1
+SCOHL,29/08/2026,16:00,Nairn County,Deveronvale,0,0
+SCOHL,29/08/2026,16:00,Strathspey Thistle,Huntly,3,0
