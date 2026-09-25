@@ -136,6 +136,7 @@ export interface TrackerSummary {
   pending_picks?: number;
   live_picks?: number;
   overdue_picks?: number;
+  manual_locked_picks?: number;
 }
 
 export type SettlementBucket = 'locked' | 'live' | 'overdue' | 'settled';
@@ -169,6 +170,7 @@ export interface TrackedBet {
   formula_version?: string;
   policy_version?: string;
   selection_status?: string;
+  lock_source?: 'manual' | 'legacy_auto';
 }
 
 export interface MarketPerformance {
@@ -196,6 +198,7 @@ export interface VersionPerformance {
 
 export interface TrackerResponse {
   summary: TrackerSummary;
+  manual_summary?: TrackerSummary;
   locked: TrackedBet[];
   live: TrackedBet[];
   overdue: TrackedBet[];

@@ -9,7 +9,7 @@ Pipeline (Phase 7 adapter):
   3. fetch live odds per fixture from 1xbit, price 1X2/O-U/AH/BTTS with the
      engine payout math, compute EV against the live price
   4. gate (odds >= 1.6, ev >= EV_GATE, conservative_ev >= 0), max 2 value picks
-     per match (different markets), auto-locked to bets.db for ROI tracking
+     per match (different markets); operator locks selections into bets.db
   5. atomic writes: picks.json, matches_detailed.json picks merge,
      config.json scan metadata
 
@@ -85,9 +85,13 @@ LEAGUES = {
     'T1': ([('T1_2526.csv', '2526')], 'Europe/Istanbul',
            ['Turkiye. Super Lig', 'Turkey. Super Lig']),
     'G1': ([('G1_2526.csv', '2526')], 'Europe/Athens', ['Greece. Super League']),
-    'SC1': ([('SC1_2526.csv', '2526')], 'Europe/London', ['Scotland. Premiership']),
-    'SC2': ([('SC2_2526.csv', '2526')], 'Europe/London', ['Scotland. Championship']),
-    'SC3': ([('SC3_2526.csv', '2526')], 'Europe/London', ['Scotland. League One']),
+    # football-data codes are SC0 Premiership, SC1 Championship,
+    # SC2 League One and SC3 League Two. SC0 has no local CSV yet.
+    'SC1': ([('historical/SC1_2324.csv', '2324'),
+             ('historical/SC1_2425.csv', '2425'),
+             ('SC1_2526.csv', '2526')], 'Europe/London', ['Scotland. Championship']),
+    'SC2': ([('SC2_2526.csv', '2526')], 'Europe/London', ['Scotland. League One']),
+    'SC3': ([('SC3_2526.csv', '2526')], 'Europe/London', ['Scotland. League Two']),
 }
 LEAGUE_BY_NAME = {}
 for code, (_csvs, _tz, names) in LEAGUES.items():
@@ -130,7 +134,10 @@ TEAM_ALIASES = {
     'leipzig': 'rb leipzig', 'rasenballsport leipzig': 'rb leipzig',
     'dortmund': 'borussia dortmund', 'bayern': 'bayern munich',
     'n e c': 'nijmegen', 'nec': 'nijmegen',
-    'inverness ct': 'inverness c', 'inverness caledonian thistle': 'inverness c',
+    'inverness ct': 'inverness c', 'inverness': 'inverness c',
+    'inverness caledonian thistle': 'inverness c',
+    'ayr united': 'ayr', 'greenock morton': 'morton',
+    'raith rovers': 'raith rvs', "queen's park": 'queens park',
     # extra 1xbit -> football-data (found via TEAM_UNMATCHED)
     'cagliari calcio': 'cagliari', 'angers sco': 'angers',
     'as saint etienne': 'st etienne', 'saint etienne': 'st etienne',
@@ -821,8 +828,9 @@ def main(argv=()):
             home_csv = match_team(info.get('home') or '', teams_by_code[code])
             away_csv = match_team(info.get('away') or '', teams_by_code[code])
         if not home_csv or not away_csv:
-            skipped['TEAM_UNMATCHED'] = skipped.get('TEAM_UNMATCHED', 0) + 1
-            m['analysis']['reason_codes'] = ['TEAM_UNMATCHED']
+            reason = 'TEAM_LOW_COVERAGE' if code == NATIONAL_CODE else 'TEAM_COVERAGE_MISSING'
+            skipped[reason] = skipped.get(reason, 0) + 1
+            m['analysis']['reason_codes'] = [reason]
             for name, matched in ((info.get('home'), home_csv), (info.get('away'), away_csv)):
                 if not matched and name:
                     key = f'{code}: {name}'
@@ -949,35 +957,9 @@ def main(argv=()):
     atomic_write(matches_path, ordered)
     atomic_write(os.path.join(FC_DIR, 'picks.json'), picks)
 
-    # Preserve the previous tracker exposure: at most one research watch pick
-    # per fixture. Other value candidates remain browseable in picks.json.
-    import sqlite3
+    # A scan only publishes candidates. A deliberate operator lock in
+    # /api/fc/locks creates the settlement exposure with frozen odds.
     locked_now = 0
-    db_path = os.path.join(FC_DIR, 'bets.db')
-    tracked_picks = [p for m in future for p in (m.get('qualified_picks') or [])]
-    if tracked_picks and os.path.exists(db_path):
-        conn = sqlite3.connect(db_path)
-        existing = set()
-        for r in conn.execute('SELECT source_match_id, market, pick FROM bets'):
-            existing.add((r[0], r[1], r[2]))
-        for pick in tracked_picks:
-            key = (str(pick['match_id']), pick['market'], pick['pick'])
-            if key in existing:
-                continue
-            conn.execute(
-                'INSERT INTO bets (match, home, away, league, start_ts, market, pick, odds, ev, probability, placed_at, settled, won, profit, settled_at, source_match_id, home_score, away_score, score_status, score_updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
-                (
-                    pick['match'], pick['home'], pick['away'], pick['league'],
-                    int(pick['start_ts']), pick['market'], pick['pick'],
-                    pick['odds'], pick['ev'], pick['probability'],
-                    datetime.fromtimestamp(now, tz=timezone.utc).isoformat(),
-                    0, None, None, None, str(pick['match_id']),
-                    None, None, None, None,
-                ),
-            )
-            locked_now += 1
-        conn.commit()
-        conn.close()
 
     config_path = os.path.join(FC_DIR, 'config.json')
     cfg = {}

@@ -114,6 +114,12 @@ body:has(.fc-shell) .main-content { max-width: 1460px; padding: 1.5rem 2rem 3rem
 .watchlist-lock-row { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-top: .6rem; padding-top: .55rem; border-top: 1px solid #244237; }
 .watchlist-lock-row span { color: #9fcbb4; font-size: .63rem; }
 .prediction-watchlist li .watchlist-lock-row button { float: none; flex-shrink: 0; padding: .3rem .55rem; border: 1px solid #326e4c; border-radius: 6px; color: #7ee0b8; font-size: .64rem; }
+.prediction-watchlist li .watchlist-legacy-remove { float: none; margin-top: .45rem; color: #b8aa89; font-size: .62rem; }
+.watchlist-token { margin: .75rem 0; }
+.watchlist-token label { display: block; margin-bottom: .35rem; color: #9fcbb4; font-size: .65rem; }
+.watchlist-token div { display: flex; gap: .4rem; }
+.watchlist-token input { min-width: 0; flex: 1; padding: .45rem; border: 1px solid #326e4c; border-radius: 6px; background: #13291f; color: #e4ede8; font-size: .7rem; }
+.watchlist-token button { padding: .4rem .6rem; border: 1px solid #326e4c; border-radius: 6px; background: #19382a; color: #7ee0b8; font-size: .65rem; }
 .prediction-data-summary { margin: 0 0 1rem; padding: .85rem 1rem; border: 1px solid #244237; border-radius: 10px; background: #10251c; color: #d5e8dc; font-size: .73rem; }
 .prediction-data-summary ul { display: flex; flex-wrap: wrap; gap: .35rem 1rem; margin: .55rem 0 0; padding-left: 1rem; }
 .prediction-data-summary li { max-width: 30rem; }

@@ -8,7 +8,7 @@ import { splitLeague } from '@/lib/fc/grouping';
 
 export type BoardView = 'all' | 'ready' | 'model' | 'value' | 'unavailable' | 'saved';
 type Choice = { match: DetailedMatch; pick: ForecastPick; id: string };
-type LockedChoice = Choice & { lockedAt: string };
+type LockedChoice = Choice & { lockedAt: string; settlementId?: number };
 const choiceId = (match: DetailedMatch, pick: ForecastPick) => `${matchKey(match)}|${pick.market}|${pick.pick}`;
 const STORAGE_KEY = 'fc-prediction-watchlist-v2';
 const LOCK_STORAGE_KEY = 'fc-prediction-locked-v1';
@@ -95,6 +95,8 @@ export function PredictionBoard({ matches, initialView = 'all', marketScope = 'a
   const [page, setPage] = useState(0);
   const [saved, setSaved] = useState<string[]>([]);
   const [lockedChoices, setLockedChoices] = useState<LockedChoice[]>([]);
+  const [operatorToken, setOperatorToken] = useState('');
+  const [tokenDraft, setTokenDraft] = useState('');
   const [message, setMessage] = useState('');
   useEffect(() => {
     try { const stored: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); if (Array.isArray(stored)) setSaved(stored.filter((v): v is string => typeof v === 'string')); } catch { /* Storage is optional. */ }
@@ -102,29 +104,54 @@ export function PredictionBoard({ matches, initialView = 'all', marketScope = 'a
       const stored: unknown = JSON.parse(localStorage.getItem(LOCK_STORAGE_KEY) || '[]');
       if (Array.isArray(stored)) setLockedChoices(stored.filter((v): v is LockedChoice => Boolean(v && typeof v.id === 'string' && v.match?.info && v.pick && typeof v.lockedAt === 'string')));
     } catch { /* Storage is optional. */ }
+    try { const token = sessionStorage.getItem('fc-lock-operator-token') || ''; setOperatorToken(token); setTokenDraft(token); } catch { /* Session storage is optional. */ }
   }, []);
+  useEffect(() => {
+    if (!operatorToken) return;
+    let active = true;
+    fetch('/api/fc/locks', { headers: { Authorization: `Bearer ${operatorToken}` }, cache: 'no-store' })
+      .then(async (response) => {
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || 'Gagal memuat lock settlement.');
+        if (!active) return;
+        const server = (result.locks || []) as LockedChoice[];
+        setLockedChoices((previous) => {
+          const ids = new Set(server.map((choice) => choice.id));
+          const next = [...previous.filter((choice) => !choice.settlementId && !ids.has(choice.id)), ...server];
+          try { localStorage.setItem(LOCK_STORAGE_KEY, JSON.stringify(next)); } catch { /* Session state remains visible. */ }
+          return next;
+        });
+      })
+      .catch((error) => { if (active) setMessage(error instanceof Error ? error.message : 'Gagal memuat lock settlement.'); });
+    return () => { active = false; };
+  }, [operatorToken]);
   const updateSaved = (next: string[]) => { setSaved(next); try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { setMessage('Pilihan tersimpan untuk sesi ini; penyimpanan perangkat tidak tersedia.'); } };
   const updateLocked = (next: LockedChoice[]) => { setLockedChoices(next); try { localStorage.setItem(LOCK_STORAGE_KEY, JSON.stringify(next)); } catch { setMessage('Lock hanya bertahan selama sesi ini; penyimpanan perangkat tidak tersedia.'); } };
-  const lockedIds = new Set(lockedChoices.map((choice) => choice.id));
+  const lockedIds = new Set(lockedChoices.filter((choice) => choice.settlementId).map((choice) => choice.id));
   const toggle = (m: DetailedMatch, p: ForecastPick) => {
     const id = choiceId(m, p);
     if (lockedIds.has(id)) { setMessage('Pilihan ini terkunci. Buka lock di daftar pilihan sebelum mengubahnya.'); return; }
     const prefix = `${matchKey(m)}|${p.market}|`;
-    if (lockedChoices.some((choice) => choice.id.startsWith(prefix))) { setMessage('Pasar ini sudah memiliki pilihan terkunci. Buka lock terlebih dahulu.'); return; }
+    if (lockedChoices.some((choice) => choice.settlementId && choice.id.startsWith(prefix))) { setMessage('Pasar ini sudah dikunci ke settlement.'); return; }
     updateSaved(saved.includes(id) ? saved.filter((v) => v !== id) : [...saved.filter((v) => !v.startsWith(prefix)), id]);
   };
-  const lock = (choice: Choice) => {
-    updateLocked([...lockedChoices, {
-      id: choice.id,
-      match: { info: { ...choice.match.info } },
-      pick: { ...choice.pick },
-      lockedAt: new Date().toISOString(),
-    }]);
-    setMessage('Pilihan dan odds saat ini dikunci di perangkat ini. Statusnya bukan Official.');
-  };
-  const unlock = (id: string) => {
-    updateLocked(lockedChoices.filter((choice) => choice.id !== id));
-    setMessage('Lock dibuka. Pilihan kembali mengikuti data terbaru.');
+  const lock = async (choice: Choice) => {
+    if (!operatorToken) { setMessage('Masukkan token operator sebelum mengunci pick ke settlement.'); return; }
+    const matchId = choice.match.info.match_id;
+    if (!matchId) { setMessage('Fixture tidak memiliki ID provider yang bisa diverifikasi.'); return; }
+    try {
+      const response = await fetch('/api/fc/locks', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${operatorToken}` },
+        body: JSON.stringify({ match_id: String(matchId), market: choice.pick.market, pick: choice.pick.pick, odds: choice.pick.odds }),
+      });
+      const result = await response.json();
+      if (!response.ok || result.status !== 'locked') throw new Error(result.message || 'Lock settlement gagal.');
+      updateLocked([...lockedChoices.filter((item) => item.id !== choice.id), {
+        id: choice.id, match: { info: { ...choice.match.info } }, pick: { ...choice.pick },
+        lockedAt: result.locked_at || new Date().toISOString(), settlementId: result.bet_id,
+      }]);
+      setMessage(`Pick masuk settlement sebagai #${result.bet_id}. Odds @${formatOdds(choice.pick.odds)} dikunci.`);
+    } catch (error) { setMessage(error instanceof Error ? error.message : 'Lock settlement gagal.'); }
   };
   const scopedMatches = marketScope === 'top' ? matches.filter(isTopMarketLeague) : matches;
   const savedChoices = useMemo(() => {
@@ -188,8 +215,9 @@ export function PredictionBoard({ matches, initialView = 'all', marketScope = 'a
       </section>
       <aside className="prediction-sidebar">
         <section className="prediction-watchlist"><header><div><span className="prediction-eyebrow">PILIHAN ANDA</span><h2>Watchlist pertandingan</h2></div><button type="button" disabled={!saved.some((id) => !lockedIds.has(id))} onClick={() => updateSaved(saved.filter((id) => lockedIds.has(id)))}>Reset</button></header>
-          {!savedChoices.length ? <div className="watchlist-empty"><span aria-hidden="true">☆</span><p>Mulai dari satu pilihan.</p><small>Klik pasar pada kartu pertandingan untuk menyimpannya di sini.</small></div> : <ul>{savedChoices.map((choice) => { const { match, pick, id } = choice; const locked = lockedChoices.find((item) => item.id === id); return <li key={id}>{!locked && <button type="button" className="watchlist-remove" aria-label={`Hapus ${pickLabel(pick, match)}`} onClick={() => updateSaved(saved.filter((v) => v !== id))}>×</button>}<strong>{match.info.home} vs {match.info.away}</strong><span>{pickLabel(pick, match)} <b>@{formatOdds(pick.odds)}</b></span><small>{formatKickoffWIB(match.info.start_ts)}</small><div className="watchlist-lock-row"><span>{locked ? `🔒 Dikunci ${new Date(locked.lockedAt).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })} WIB` : 'Belum dikunci'}</span><button type="button" onClick={() => locked ? unlock(id) : lock(choice)}>{locked ? 'Buka lock' : 'Kunci pilihan'}</button></div></li>; })}</ul>}
-          <div className="watchlist-total"><span>Total pilihan</span><strong>{savedChoices.length} · {lockedChoices.length} terkunci</strong></div><p className="watchlist-note">Lock menyimpan pilihan dan odds di perangkat ini saat dikunci; bukan Official dan belum masuk settlement. Beberapa pasar dari match yang sama saling berkorelasi.</p><button type="button" className="prediction-copy" disabled={!savedChoices.length} onClick={copy}>Salin ringkasan pilihan ↗</button><p role="status" className="prediction-feedback">{message}</p>
+          <form className="watchlist-token" onSubmit={(event) => { event.preventDefault(); const token = tokenDraft.trim(); setOperatorToken(token); try { sessionStorage.setItem('fc-lock-operator-token', token); } catch { /* Session state remains available. */ } }}><label htmlFor="fc-lock-token">Token operator settlement</label><div><input id="fc-lock-token" type="password" autoComplete="off" value={tokenDraft} onChange={(event) => setTokenDraft(event.target.value)} placeholder="Masukkan token operator" /><button type="submit">Hubungkan</button></div></form>
+          {!savedChoices.length ? <div className="watchlist-empty"><span aria-hidden="true">☆</span><p>Mulai dari satu pilihan.</p><small>Klik pasar pada kartu pertandingan untuk menyimpannya di sini.</small></div> : <ul>{savedChoices.map((choice) => { const { match, pick, id } = choice; const locked = lockedChoices.find((item) => item.id === id); const confirmed = Boolean(locked?.settlementId); return <li key={id}>{!locked && <button type="button" className="watchlist-remove" aria-label={`Hapus ${pickLabel(pick, match)}`} onClick={() => updateSaved(saved.filter((v) => v !== id))}>×</button>}<strong>{match.info.home} vs {match.info.away}</strong><span>{pickLabel(pick, match)} <b>@{formatOdds(pick.odds)}</b></span><small>{formatKickoffWIB(match.info.start_ts)}</small><div className="watchlist-lock-row"><span>{confirmed ? `🔒 Settlement #${locked?.settlementId} · ${new Date(locked!.lockedAt).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })} WIB` : locked ? 'Lock lama di perangkat · belum masuk settlement' : 'Belum dikunci'}</span>{!confirmed && <button type="button" onClick={() => void lock(choice)}>Kunci ke settlement</button>}</div>{locked && !confirmed && <button type="button" className="watchlist-legacy-remove" onClick={() => { updateLocked(lockedChoices.filter((item) => item.id !== id)); updateSaved(saved.filter((item) => item !== id)); }}>Hapus lock lama</button>}</li>; })}</ul>}
+          <div className="watchlist-total"><span>Total pilihan</span><strong>{savedChoices.length} · {lockedChoices.filter((choice) => choice.settlementId).length} settlement</strong></div><p className="watchlist-note">Lock settlement menyimpan pick dan odds di server sebelum kickoff. Lock bersifat final dan dihitung dalam hasil serta ROI setelah skor final tersedia. Proyeksi yang dikunci manual tetap bukan Official.</p><button type="button" className="prediction-copy" disabled={!savedChoices.length} onClick={copy}>Salin ringkasan pilihan ↗</button><p role="status" className="prediction-feedback">{message}</p>
         </section>
         <section className="prediction-guide"><span className="prediction-eyebrow">MEMBACA HASIL</span><h3>Analisis dan kandidat</h3><p><b>Kandidat value</b> memenuhi gate odds 1,60–2,50 dan EV konservatif positif. Kandidat ini belum tervalidasi sebagai Official.</p><p><b>Proyeksi</b> menampilkan arah model untuk pasar lain dan tidak otomatis menjadi pick.</p><p>Hingga dua kandidat dari market berbeda dapat muncul untuk satu match.</p><p className="prediction-guide-foot">Kandidat dicatat untuk evaluasi prospektif.</p></section>
       </aside>

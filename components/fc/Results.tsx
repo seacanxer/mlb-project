@@ -104,7 +104,7 @@ export function ResultsTable({ rows }: { rows: TrackedBet[] }) {
                   <div className="muted" style={{ fontSize: '0.75rem' }}>{b.league ?? NULL_GLYPH}</div>
                 </td>
                 <td><MarketBadge market={b.market} /></td>
-                <td>{b.pick ?? NULL_GLYPH}</td>
+                <td>{b.pick ?? NULL_GLYPH}{b.lock_source === 'manual' && <span className="muted"> · pilihan manual</span>}</td>
                 <td className="mono-val">{formatOdds(b.odds)}</td>
                 <td className="mono-val">{score}{b.score_status ? <span className="muted"> · {b.score_status}</span> : null}</td>
                 <td><span className={`chip ${r === 'W' ? 'chip-fc-win' : r === 'L' ? 'chip-fc-loss' : r === 'P' ? 'chip-fc-push' : ''}`}>{r ?? NULL_GLYPH}</span></td>

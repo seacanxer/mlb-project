@@ -17,7 +17,7 @@ SENIOR_COMPETITIONS = frozenset({
 TEAM_ALIASES = {'Comoros': 'Comoro Islands', 'DR Congo': 'DR Congo',
                 'Congo DR': 'DR Congo', 'South Korea': 'South Korea',
                 'Czechia': 'Czech Republic', 'Türkiye': 'Turkey',
-                'Curacao': 'Curaçao'}
+                'Curacao': 'Curaçao', 'Republic of the Gambia': 'Gambia'}
 MIN_TEAM_MATCHES = 12
 HISTORY_START = '2023-01-01'
 

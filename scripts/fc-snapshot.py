@@ -23,20 +23,22 @@ import time
 CANONICAL_CTE = """
     WITH ranked_bets AS (
         SELECT bets.*,
+               CASE WHEN ml.bet_id IS NOT NULL THEN 'manual' ELSE 'legacy_auto' END AS lock_source,
                ROW_NUMBER() OVER (
-                   PARTITION BY COALESCE(NULLIF(source_match_id, ''), LOWER(TRIM(match)), ''),
-                                COALESCE(date(start_ts, 'unixepoch'), ''),
-                                COALESCE(market, ''), COALESCE(pick, '')
-                   ORDER BY settled DESC, id ASC
+                   PARTITION BY COALESCE(NULLIF(bets.source_match_id, ''), LOWER(TRIM(bets.match)), ''),
+                                COALESCE(date(bets.start_ts, 'unixepoch'), ''),
+                                COALESCE(bets.market, ''), COALESCE(bets.pick, '')
+                   ORDER BY CASE WHEN ml.bet_id IS NOT NULL THEN 0 ELSE 1 END,
+                            settled DESC, bets.id ASC
                ) AS duplicate_rank
-        FROM bets
+        FROM bets LEFT JOIN manual_locks ml ON ml.bet_id=bets.id
     )
 """
 
 KEYS = ['id', 'match', 'home', 'away', 'league', 'start_ts', 'market', 'pick',
         'odds', 'ev', 'probability', 'placed_at', 'settled', 'won', 'profit',
         'settled_at', 'source_match_id', 'home_score', 'away_score',
-        'score_status', 'score_updated_at']
+        'score_status', 'score_updated_at', 'lock_source']
 
 
 def classify(bet, now):
@@ -61,6 +63,9 @@ def main():
         snap = {
             'summary': {'locked_picks': 0, 'settled_picks': 0, 'wins': 0, 'losses': 0,
                         'pushes': 0, 'profit_units': 0.0, 'roi_pct': 0.0, 'hit_rate_pct': 0.0},
+            'manual_summary': {'locked_picks': 0, 'settled_picks': 0, 'wins': 0,
+                               'losses': 0, 'pushes': 0, 'profit_units': 0.0,
+                               'roi_pct': 0.0, 'hit_rate_pct': 0.0},
             'locked': [], 'live': [], 'overdue': [], 'settled': [],
             'status_counts': {'locked': 0, 'live': 0, 'overdue': 0, 'settled': 0},
             'market_performance': [], 'by_version': [], 'unit_size': 1.0,
@@ -71,6 +76,11 @@ def main():
 
     conn = sqlite3.connect(args.db)
     conn.row_factory = sqlite3.Row
+    conn.execute('''CREATE TABLE IF NOT EXISTS manual_locks (
+        bet_id INTEGER PRIMARY KEY REFERENCES bets(id), source_match_id TEXT NOT NULL,
+        market TEXT NOT NULL, pick TEXT NOT NULL, locked_at TEXT NOT NULL,
+        formula_version TEXT, snapshot TEXT, UNIQUE(source_match_id, market))''')
+    conn.commit()
     now = time.time()
 
     rows = [dict(r) for r in conn.execute(
@@ -112,6 +122,22 @@ def main():
         'pending_picks': len(unsettled),
         'live_picks': len(buckets['live']),
         'overdue_picks': len(buckets['overdue']),
+        'manual_locked_picks': sum(b.get('lock_source') == 'manual' for b in bets),
+    }
+    manual_bets = [b for b in bets if b.get('lock_source') == 'manual']
+    manual_settled = [b for b in manual_bets if b.get('settled')]
+    manual_wins = sum(b.get('won') == 1 for b in manual_settled)
+    manual_losses = sum(b.get('won') == 0 for b in manual_settled)
+    manual_profit = sum(float(b.get('profit') or 0) for b in manual_settled)
+    manual_summary = {
+        'locked_picks': sum(not b.get('settled') for b in manual_bets),
+        'settled_picks': len(manual_settled),
+        'wins': manual_wins, 'losses': manual_losses,
+        'pushes': sum(b.get('won') is None for b in manual_settled),
+        'profit_units': round(manual_profit, 2),
+        'roi_pct': round(manual_profit / len(manual_settled) * 100, 2) if manual_settled else 0.0,
+        'hit_rate_pct': round(manual_wins / (manual_wins + manual_losses) * 100, 2)
+        if manual_wins + manual_losses else 0.0,
     }
 
     mkt_rows = conn.execute(
@@ -169,6 +195,7 @@ def main():
 
     snap = {
         'summary': summary,
+        'manual_summary': manual_summary,
         'locked': buckets['locked'], 'live': buckets['live'],
         'overdue': buckets['overdue'], 'settled': buckets['settled'],
         'status_counts': {k: len(v) for k, v in buckets.items()},

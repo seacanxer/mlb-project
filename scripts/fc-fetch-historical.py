@@ -63,9 +63,10 @@ LEAGUES = {
     'B1': 'Belgium Jupiler',
     'T1': 'Turkey SuperLiga',
     'G1': 'Greece Super League',
-    'SC1': 'Scotland Premiership',
-    'SC2': 'Scotland Championship',
-    'SC3': 'Scotland League One',
+    'SC0': 'Scotland Premiership',
+    'SC1': 'Scotland Championship',
+    'SC2': 'Scotland League One',
+    'SC3': 'Scotland League Two',
 }
 
 

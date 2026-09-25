@@ -14,6 +14,7 @@ import os
 import sys
 import time
 import sqlite3
+import subprocess
 from datetime import datetime, timezone, timedelta
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -45,12 +46,12 @@ def settle_bet(market, pick_label, odds, home_goals, away_goals):
     if market == 'ou':
         line_q = parse_line(pick_label, market)
         if line_q is None:
-            return None, 0.0
+            return None
         payout = settle_score('ou', 'over' if 'over' in side else 'under', line_q, home_goals, away_goals)
     elif market == 'ah':
         line_q = parse_line(pick_label, market)
         if line_q is None:
-            return None, 0.0
+            return None
         payout = settle_score('ah', 'home' if 'home' in side else 'away', line_q, home_goals, away_goals)
     elif market == '1x2':
         side_map = {'home': 'home', 'draw': 'draw', 'away': 'away'}
@@ -59,16 +60,13 @@ def settle_bet(market, pick_label, odds, home_goals, away_goals):
         side_map = {'btts yes': 'yes', 'btts no': 'no', 'yes': 'yes', 'no': 'no'}
         payout = settle_score('btts', side_map.get(side, side), None, home_goals, away_goals)
     else:
-        return None, 0.0
+        return None
 
     if payout.push == 1.0:
         return None, 0.0
-    win_prob = payout.full_win + 0.5 * payout.half_win
-    if win_prob > 0.5:
-        profit = odds - 1.0 if payout.half_win == 0.0 else (odds - 1.0) / 2.0
-        return 1, round(profit, 2)
-    profit = -1.0 if payout.half_loss == 0.0 else -0.5
-    return 0, profit
+    profit = ((payout.full_win + 0.5 * payout.half_win) * (odds - 1.0)
+              - payout.full_loss - 0.5 * payout.half_loss)
+    return (1 if profit > 0 else 0), round(profit, 2)
 
 
 def result_for_bet(home, away, kickoff_ts, lookup_fs, lookup_alt):
@@ -111,9 +109,10 @@ def main():
         if not result:
             continue
         home_goals, away_goals, source = result
-        won, profit = settle_bet(bet['market'], bet['pick'], bet['odds'], home_goals, away_goals)
-        if won is None:
+        outcome = settle_bet(bet['market'], bet['pick'], bet['odds'], home_goals, away_goals)
+        if outcome is None:
             continue
+        won, profit = outcome
         settled_at = datetime.now(timezone.utc).isoformat()
         conn.execute(
             'UPDATE bets SET settled=1, won=?, profit=?, settled_at=?, home_score=?, away_score=?, score_status=? WHERE id=?',
@@ -125,7 +124,7 @@ def main():
     remaining = conn.execute('SELECT COUNT(*) c FROM bets WHERE settled=0').fetchone()['c']
     conn.close()
 
-    os.system(f'{FC_DIR}/venv/bin/python {SNAPSHOT_SCRIPT}')
+    subprocess.run([sys.executable, SNAPSHOT_SCRIPT, '--db', DB_PATH], check=True)
 
     print(json.dumps({
         'status': 'ok', 'settled': settled_count,

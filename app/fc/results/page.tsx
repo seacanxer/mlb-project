@@ -52,6 +52,7 @@ export default function FcResults() {
       </div>
 
       {error && <ErrorBanner message={error} onRetry={refresh} />}
+      {data?.manual_summary && <div className="card card-sm" style={{ marginBottom: '1rem' }}><strong>Pilihan manual</strong><p className="muted">{data.manual_summary.locked_picks} menunggu hasil · {data.manual_summary.settled_picks} settled · ROI {data.manual_summary.roi_pct.toFixed(2)}%</p></div>}
 
       {loading && !data ? (
         <SkeletonRows rows={6} label="Memuat hasil…" />

@@ -114,6 +114,17 @@ def test_team_matching_does_not_choose_ambiguous_short_name_or_reserve():
     assert scan.match_team('Man City', {'Man City', 'Man United'}) == 'Man City'
 
 
+def test_scottish_division_codes_match_csv_and_known_club_names():
+    assert scan.model_code('Scotland. Championship') == 'SC1'
+    assert scan.model_code('Scotland. League One') == 'SC2'
+    assert scan.model_code('Scotland. League Two') == 'SC3'
+    teams = scan.csv_teams('SC1')
+    assert scan.match_team('Arbroath', teams) == 'Arbroath'
+    assert scan.match_team("Queen's Park", teams) == 'Queens Park'
+    assert scan.match_team('Inverness', teams) == 'Inverness C'
+    assert scan.match_team('Greenock Morton', teams) == 'Morton'
+
+
 def test_scan_writes_four_market_catalog_and_clears_old_missing_team_picks(tmp_path, monkeypatch):
     monkeypatch.setattr(scan, 'FC_DIR', str(tmp_path))
     monkeypatch.setenv('FC_QUOTES_DB', str(tmp_path / 'quotes.db'))
@@ -139,5 +150,5 @@ def test_scan_writes_four_market_catalog_and_clears_old_missing_team_picks(tmp_p
     assert len(matches[0]['qualified_picks']) >= 2
     assert all(not p['official_eligible'] for p in matches[0]['market_options'])
     assert matches[1]['picks'] == []
-    assert matches[1]['analysis']['reason_codes'] == ['TEAM_UNMATCHED']
+    assert matches[1]['analysis']['reason_codes'] == ['TEAM_COVERAGE_MISSING']
     assert not (tmp_path / 'bets.db').exists()
