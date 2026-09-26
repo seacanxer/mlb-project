@@ -26,6 +26,7 @@ interface SettleSummary {
   message?: string;
   settled?: number;
   parlay_settled?: number;
+  pending_parlays?: number;
   remaining?: number;
   pending?: number;
 }
@@ -52,9 +53,15 @@ function settlePython(): string {
 function summaryMessage(summary: SettleSummary): string {
   const singles = summary.settled ?? 0;
   const parlays = summary.parlay_settled ?? 0;
+  const pendingParlays = summary.pending_parlays ?? 0;
   const remaining = summary.remaining ?? summary.pending ?? 0;
-  if (singles + parlays > 0) return `${singles} pick dan ${parlays} parlay diselesaikan.`;
-  if (remaining > 0) return `Belum ada skor final — ${remaining} pick masih menunggu skor.`;
+  if (singles + parlays > 0) {
+    const settled = `${singles} pick dan ${parlays} parlay diselesaikan.`;
+    return remaining > 0 || pendingParlays > 0
+      ? `${settled} ${remaining} pick dan ${pendingParlays} parlay masih menunggu skor.`
+      : settled;
+  }
+  if (remaining > 0 || pendingParlays > 0) return `Belum ada skor final yang cocok — ${remaining} pick dan ${pendingParlays} parlay masih menunggu skor.`;
   return 'Tidak ada settlement tertunda.';
 }
 
@@ -128,6 +135,7 @@ export async function POST(request: Request) {
     const base = {
       settled: summary.settled ?? 0,
       parlay_settled: summary.parlay_settled ?? 0,
+      pending_parlays: summary.pending_parlays ?? 0,
       remaining: summary.remaining ?? summary.pending ?? 0,
     };
     if (settleError) {

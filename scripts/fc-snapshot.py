@@ -143,6 +143,7 @@ def main():
     parlay_summary = {'pending_slips': 0, 'settled_slips': 0, 'wins': 0, 'losses': 0,
                       'pushes': 0, 'profit_units': 0.0, 'roi_pct': 0.0, 'hit_rate_pct': 0.0}
     manual_parlays = []
+    settled_parlay_rows = []
     if conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='parlay_slips'").fetchone():
         slips = [dict(r) for r in conn.execute(
             "SELECT id,combined_odds,generated_at,status,profit,settled_at FROM parlay_slips WHERE source='manual_lock' ORDER BY id DESC")]
@@ -172,6 +173,45 @@ def main():
         parlay_summary['roi_pct'] = round(parlay_summary['profit_units'] / n * 100, 2) if n else 0.0
         parlay_summary['hit_rate_pct'] = round(parlay_summary['wins'] / decided * 100, 2) if decided else 0.0
 
+        for slip in finished:
+            won = 1 if slip['status'] == 'won' else 0 if slip['status'] == 'lost' else None
+            timestamp = slip.get('settled_at') or slip.get('generated_at') or ''
+            try:
+                start_ts = int(datetime.datetime.fromisoformat(timestamp.replace('Z', '+00:00')).timestamp())
+            except (TypeError, ValueError):
+                start_ts = 0
+            settled_parlay_rows.append({
+                'id': -int(slip['id']), 'match_id': f"parlay-{slip['id']}",
+                'match': f"Parlay #{slip['id']} · {len(slip['legs'])} leg",
+                'home': 'Parlay', 'away': str(slip['id']), 'league': 'Manual parlay',
+                'start_ts': start_ts, 'market': 'parlay', 'pick': f"{len(slip['legs'])} leg",
+                'odds': slip['combined_odds'], 'placed_at': slip['generated_at'],
+                'settled': 1, 'won': won, 'profit': float(slip['profit'] or 0.0),
+                'settled_at': slip['settled_at'], 'home_score': None, 'away_score': None,
+                'score_status': None, 'settlement_status': 'settled', 'timing_status': 'settled',
+                'lock_source': 'manual', 'settlement_kind': 'parlay', 'parlay_id': slip['id'],
+            })
+
+    # A flat 1-unit parlay is one wager. Include every settled manual slip in
+    # headline ROI, hit rate, settled count, equity curve and settled rows.
+    parlay_wins = parlay_summary['wins']
+    parlay_losses = parlay_summary['losses']
+    parlay_pushes = parlay_summary['pushes']
+    parlay_profit = parlay_summary['profit_units']
+    combined_count = total + len(settled_parlay_rows)
+    combined_wins, combined_losses = wins + parlay_wins, losses + parlay_losses
+    combined_profit = profit + parlay_profit
+    summary.update({
+        'settled_picks': combined_count,
+        'wins': combined_wins, 'losses': combined_losses, 'pushes': pushes + parlay_pushes,
+        'profit_units': round(combined_profit, 2),
+        'roi_pct': round(combined_profit / combined_count * 100, 2) if combined_count else 0.0,
+        'hit_rate_pct': round(combined_wins / (combined_wins + combined_losses) * 100, 2)
+        if combined_wins + combined_losses else 0.0,
+    })
+    settled = sorted([*settled, *settled_parlay_rows], key=lambda row: (row.get('start_ts') or 0, row.get('id') or 0))
+    buckets['settled'] = settled
+
     mkt_rows = conn.execute(
         CANONICAL_CTE + """SELECT market, COUNT(*) AS bets,
                SUM(CASE WHEN won=1 THEN 1 ELSE 0 END) AS wins,
@@ -192,6 +232,17 @@ def main():
             'loss_rate_pct': round(l / dec * 100, 2) if dec else 0.0,
             'profit_units': round(p, 2),
             'roi_pct': round(p / b * 100, 2) if b else 0.0,
+        })
+    if parlay_summary['settled_slips']:
+        b, w, l = parlay_summary['settled_slips'], parlay_wins, parlay_losses
+        decided = w + l
+        market_performance.append({
+            'market': 'parlay', 'bets': b, 'wins': w, 'losses': l,
+            'pushes': parlay_pushes,
+            'win_rate_pct': round(w / decided * 100, 2) if decided else 0.0,
+            'loss_rate_pct': round(l / decided * 100, 2) if decided else 0.0,
+            'profit_units': round(parlay_profit, 2),
+            'roi_pct': round(parlay_profit / b * 100, 2) if b else 0.0,
         })
 
     has_audit = conn.execute(

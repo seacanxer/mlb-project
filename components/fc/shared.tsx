@@ -31,7 +31,7 @@ export function Disclaimer({ compact = false }: { compact?: boolean }) {
   );
 }
 
-const MARKET_LABEL: Record<string, string> = { ah: 'AH', ou: 'O/U', btts: 'BTTS', '1x2': '1X2' };
+const MARKET_LABEL: Record<string, string> = { ah: 'AH', ou: 'O/U', btts: 'BTTS', '1x2': '1X2', parlay: 'Parlay' };
 
 export function MarketBadge({ market }: { market: string }) {
   return <span className="chip chip-fc-market">{MARKET_LABEL[market?.toLowerCase()] ?? market ?? '—'}</span>;

@@ -72,12 +72,28 @@ def settle_bet(market, pick_label, odds, home_goals, away_goals):
 
 def result_for_bet(home, away, kickoff_ts, lookup_fs, lookup_alt):
     kickoff_date = datetime.fromtimestamp(kickoff_ts, tz=timezone.utc).date()
-    row = scores_flashscore.find_result(home, away, lookup_fs, kickoff_date)
-    if row and row.get('score_status') == 'final':
-        return row['home_score'], row['away_score'], 'flashscore'
-    row = scores_alt.find_result(home, away, lookup_alt, kickoff_date)
-    if row and row.get('score_status') == 'final':
-        return row['home_score'], row['away_score'], 'alt'
+    for source, finder, lookup in (
+        ('flashscore', scores_flashscore.find_result, lookup_fs),
+        ('alt', scores_alt.find_result, lookup_alt),
+    ):
+        row = finder(home, away, lookup, kickoff_date)
+        if not row:
+            continue
+        # These feeds return completed games only, but use different field names:
+        # FlashScore/TheSportsDB/OpenLigaDB provide home_goals/away_goals and
+        # do not include score_status. Accept explicit statuses only when final.
+        status = str(row.get('score_status') or row.get('status') or '').strip().lower()
+        if status and status not in ('final', 'ft', 'aet', 'pen', 'finished', 'match finished'):
+            continue
+        home_goals = row.get('home_score', row.get('home_goals'))
+        away_goals = row.get('away_score', row.get('away_goals'))
+        try:
+            home_goals, away_goals = int(home_goals), int(away_goals)
+        except (TypeError, ValueError):
+            continue
+        if home_goals < 0 or away_goals < 0:
+            continue
+        return home_goals, away_goals, source
     return None
 
 
@@ -118,6 +134,16 @@ def settle_manual_parlays(conn, now, lookup_fs, lookup_alt):
     return count
 
 
+def due_pending_parlays(conn, now):
+    if not conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='parlay_slips'").fetchone():
+        return 0
+    return conn.execute('''SELECT COUNT(*) FROM parlay_slips p
+        WHERE p.source='manual_lock' AND p.status='pending'
+          AND EXISTS (SELECT 1 FROM parlay_legs l WHERE l.parlay_id=p.id)
+          AND NOT EXISTS (SELECT 1 FROM parlay_legs l WHERE l.parlay_id=p.id AND l.start_ts > ?)''',
+        (now - SETTLE_DELAY_S,)).fetchone()[0]
+
+
 def main():
     if not os.path.exists(DB_PATH):
         print(json.dumps({'status': 'error', 'message': 'bets.db missing'}))
@@ -132,9 +158,9 @@ def main():
         (now - SETTLE_DELAY_S,),
     ).fetchall()
 
-    pending_parlays = conn.execute("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='parlay_slips'").fetchone()[0] and conn.execute("SELECT COUNT(*) FROM parlay_slips WHERE source='manual_lock' AND status='pending'").fetchone()[0]
+    pending_parlays = due_pending_parlays(conn, now)
     if not unsettled and not pending_parlays:
-        print(json.dumps({'status': 'ok', 'settled': 0, 'pending': 0}))
+        print(json.dumps({'status': 'ok', 'settled': 0, 'pending': 0, 'parlay_settled': 0, 'pending_parlays': 0}))
         return 0
 
     lookup_fs = scores_flashscore.fetch_recent_results(days=14)
@@ -160,6 +186,7 @@ def main():
         settled_count += 1
 
     parlay_settled = settle_manual_parlays(conn, now, lookup_fs_idx, lookup_alt_idx)
+    pending_parlays = due_pending_parlays(conn, now)
     conn.commit()
     remaining = conn.execute('SELECT COUNT(*) c FROM bets WHERE settled=0').fetchone()['c']
     conn.close()
@@ -168,7 +195,8 @@ def main():
 
     print(json.dumps({
         'status': 'ok', 'settled': settled_count,
-        'to_settle': len(unsettled), 'remaining': remaining, 'parlay_settled': parlay_settled,
+        'to_settle': len(unsettled), 'remaining': remaining,
+        'parlay_settled': parlay_settled, 'pending_parlays': pending_parlays,
     }))
     return 0
 

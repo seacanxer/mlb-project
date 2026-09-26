@@ -171,6 +171,8 @@ export interface TrackedBet {
   policy_version?: string;
   selection_status?: string;
   lock_source?: 'manual' | 'legacy_auto';
+  settlement_kind?: 'pick' | 'parlay';
+  parlay_id?: number;
 }
 
 export interface MarketPerformance {

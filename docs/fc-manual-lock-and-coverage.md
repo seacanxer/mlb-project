@@ -28,14 +28,18 @@ parlay**. A batch validates every current fixture, quote and price before one
 database transaction, so an invalid leg cannot leave a partial single batch.
 Parlay requires at least two legs and writes one manual slip with frozen legs
 and theoretical multiplied odds to `parlay_slips` and `parlay_legs`. It does not
-insert the legs into `bets`; single and parlay stakes and ROI remain separate.
+insert the legs into `bets`; the main ROI counts each settled parlay as one
+flat 1-unit wager alongside singles, and the market breakdown keeps a separate
+`Parlay` row.
 The same selection may intentionally be locked in both modes and is then two
 separate exposures. Repeating the identical parlay returns its existing slip.
 
 The FC settlement job settles manual parlay slips after every leg has a final
 score. Each leg's gross return is multiplied; a push returns 1, half loss 0.5,
 and half win `(odds + 1) / 2`. The tracker exposes
-`manual_parlay_summary` and `manual_parlays` in the Hasil & ROI page. Each
+`manual_parlay_summary` and `manual_parlays` in the Hasil & ROI page. A settled
+slip contributes to the headline ROI, hit rate, count, results table and equity
+curve. Each
 entry in `manual_parlays` embeds its frozen `legs` (kickoff, league, match,
 market, pick, odds, FT score, per-leg result and multiplied return), so the
 page can open a detail popup for a slip without re-querying the ledger. The
