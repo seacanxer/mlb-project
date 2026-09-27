@@ -62,14 +62,12 @@ def test_p0_reproduces_token_matcher_false_positive():
     lookup = scores_flashscore.build_lookup({('manchester united', 'west brom'): row})
     found = scores_flashscore.find_result('Manchester City', 'West Ham', lookup, date(2026, 9, 25))
     # Evidence of the CURRENT defect; P1 must replace this behavior.
-    assert found is row
-    assert found['home'] != 'Manchester City' and found['away'] != 'West Ham'
+    assert found is None
 
 
 def test_p0_reproduces_legacy_1x2_label_failure():
     settle = runpy.run_path(str(ROOT / 'scripts/fc-settle-live.py'))['settle_bet']
-    with pytest.raises(KeyError):
-        settle('1x2', 'Home (Example Home)', 2.07, 1, 0)
+    assert settle('1x2', 'Home (Example Home)', 2.07, 1, 0) == (1, 1.07)
 
 
 def test_provider_adapter_preserves_declared_sides_and_quarter_lines():

@@ -38,28 +38,42 @@ def parse_line(pick_str, market):
     m = re.search(r'(-?\d+(?:\.\d+)?)$', pick_str)
     if not m:
         return None
-    return int(round(float(m.group(1)) * 4))
+    quarters = float(m.group(1)) * 4
+    return int(quarters) if quarters.is_integer() else None
 
 
 def settle_bet(market, pick_label, odds, home_goals, away_goals):
     """Return (won: int|None, profit: float). won=None -> push/void."""
-    side = pick_label.lower()
+    side = pick_label.strip().lower()
+    if not math.isfinite(odds) or odds <= 1:
+        raise ValueError('Invalid decimal odds')
     if market == 'ou':
         line_q = parse_line(pick_label, market)
         if line_q is None:
             return None
-        payout = settle_score('ou', 'over' if 'over' in side else 'under', line_q, home_goals, away_goals)
+        token = side.split(' ', 1)[0]
+        if token not in ('over', 'under'):
+            raise ValueError('Unknown OU side')
+        payout = settle_score('ou', token, line_q, home_goals, away_goals)
     elif market == 'ah':
         line_q = parse_line(pick_label, market)
         if line_q is None:
             return None
-        payout = settle_score('ah', 'home' if 'home' in side else 'away', line_q, home_goals, away_goals)
+        tokens = side.split()
+        token = tokens[1] if tokens and tokens[0] == 'ah' and len(tokens) > 1 else tokens[0]
+        if token not in ('home', 'away'):
+            raise ValueError('Unknown AH side')
+        payout = settle_score('ah', token, line_q, home_goals, away_goals)
     elif market == '1x2':
-        side_map = {'home': 'home', 'draw': 'draw', 'away': 'away'}
-        payout = settle_score('1x2', side_map.get(side, side), None, home_goals, away_goals)
+        token = side.split(' ', 1)[0]
+        if token not in ('home', 'draw', 'away'):
+            raise ValueError('Unknown 1X2 side')
+        payout = settle_score('1x2', token, None, home_goals, away_goals)
     elif market == 'btts':
         side_map = {'btts yes': 'yes', 'btts no': 'no', 'yes': 'yes', 'no': 'no'}
-        payout = settle_score('btts', side_map.get(side, side), None, home_goals, away_goals)
+        if side not in side_map:
+            raise ValueError('Unknown BTTS side')
+        payout = settle_score('btts', side_map[side], None, home_goals, away_goals)
     else:
         return None
 
@@ -67,7 +81,7 @@ def settle_bet(market, pick_label, odds, home_goals, away_goals):
         return None, 0.0
     profit = ((payout.full_win + 0.5 * payout.half_win) * (odds - 1.0)
               - payout.full_loss - 0.5 * payout.half_loss)
-    return (1 if profit > 0 else 0), round(profit, 2)
+    return (1 if profit > 0 else 0), round(profit, 8)
 
 
 def result_for_bet(home, away, kickoff_ts, lookup_fs, lookup_alt):
@@ -79,11 +93,13 @@ def result_for_bet(home, away, kickoff_ts, lookup_fs, lookup_alt):
         row = finder(home, away, lookup, kickoff_date)
         if not row:
             continue
+        if row.get('period') != '90min':
+            continue
         # These feeds return completed games only, but use different field names:
         # FlashScore/TheSportsDB/OpenLigaDB provide home_goals/away_goals and
         # do not include score_status. Accept explicit statuses only when final.
         status = str(row.get('score_status') or row.get('status') or '').strip().lower()
-        if status and status not in ('final', 'ft', 'aet', 'pen', 'finished', 'match finished'):
+        if status and status not in ('final', 'ft', 'finished', 'match finished'):
             continue
         home_goals = row.get('home_score', row.get('home_goals'))
         away_goals = row.get('away_score', row.get('away_goals'))
@@ -105,19 +121,27 @@ def settle_manual_parlays(conn, now, lookup_fs, lookup_alt):
     count = 0
     for slip in slips:
         legs = conn.execute('SELECT * FROM parlay_legs WHERE parlay_id=? ORDER BY id', (slip['id'],)).fetchall()
-        if not legs or any(leg['start_ts'] > now - SETTLE_DELAY_S for leg in legs):
+        if not legs:
             continue
         outcomes = []
         for leg in legs:
+            if leg['start_ts'] > now - SETTLE_DELAY_S:
+                continue
             score = result_for_bet(leg['home'], leg['away'], leg['start_ts'], lookup_fs, lookup_alt)
             if not score:
-                break
+                continue
             home_goals, away_goals, _ = score
-            outcome = settle_bet(leg['market'], leg['pick'], leg['odds'], home_goals, away_goals)
+            try:
+                outcome = settle_bet(leg['market'], leg['pick'], leg['odds'], home_goals, away_goals)
+            except (KeyError, TypeError, ValueError):
+                continue
             if outcome is None:
-                break
+                continue
             won, profit = outcome
             outcomes.append((leg['id'], won, profit, home_goals, away_goals))
+            conn.execute('''UPDATE parlay_legs SET result=?,leg_return=?,home_score=?,away_score=?,settled_at=? WHERE id=?''',
+                         ('push' if won is None else 'won' if won else 'lost', 1 + profit,
+                          home_goals, away_goals, datetime.now(timezone.utc).isoformat(), leg['id']))
         if len(outcomes) != len(legs):
             continue
         gross = math.prod(1 + item[2] for item in outcomes)
@@ -174,13 +198,16 @@ def main():
         if not result:
             continue
         home_goals, away_goals, source = result
-        outcome = settle_bet(bet['market'], bet['pick'], bet['odds'], home_goals, away_goals)
+        try:
+            outcome = settle_bet(bet['market'], bet['pick'], bet['odds'], home_goals, away_goals)
+        except (KeyError, TypeError, ValueError):
+            continue
         if outcome is None:
             continue
         won, profit = outcome
         settled_at = datetime.now(timezone.utc).isoformat()
         conn.execute(
-            'UPDATE bets SET settled=1, won=?, profit=?, settled_at=?, home_score=?, away_score=?, score_status=? WHERE id=?',
+            'UPDATE bets SET settled=1, won=?, profit=?, settled_at=?, home_score=?, away_score=?, score_status=? WHERE id=? AND settled=0',
             (won, profit, settled_at, home_goals, away_goals, 'final', bet['id']),
         )
         settled_count += 1
