@@ -83,7 +83,7 @@ def _fetch_thesportsdb():
             if hg is None or ag is None:
                 continue
             status = (e.get("strStatus") or "").upper()
-            if status and status not in ("FT", "MATCH FINISHED", "FIN", "AET", "PEN"):
+            if status not in ("FT", "MATCH FINISHED", "FIN"):
                 continue
             key = (norm(home), norm(away))
             row = {
@@ -94,6 +94,8 @@ def _fetch_thesportsdb():
                 "date_key": e.get("dateEvent") or "",
                 "league": e.get("strLeague") or "",
                 "source": "thesportsdb",
+                "status": "ft",
+                "period": "90min",
             }
             index.setdefault(key, []).append(row)
         time.sleep(0.3)
@@ -189,18 +191,10 @@ def find_result(home, away, lookup, kickoff_date=None):
     Returns the row matching the kickoff date (±1 day window). If no
     date-proximate row exists among exact-name candidates, returns None.
     """
-    hn = norm(home)
-    an = norm(away)
-    cands = lookup.get((hn, an)) or []
-    if not cands:
-        return None
-    if kickoff_date:
-        allowed = {
-            (kickoff_date + timedelta(days=i)).isoformat()
-            for i in (-1, 0, 1)
-        }
-        for row in cands:
-            if row.get("date_key") in allowed:
-                return row
-        return None
-    return cands[0]
+    # Use the same complete-name alias policy as the primary feed.
+    import scores_flashscore
+    from football_formula_engine.fixture_matching import unique_result
+    candidates = [row for h in scores_flashscore.name_keys(home)
+                  for a in scores_flashscore.name_keys(away)
+                  for row in lookup.get((h, a), [])]
+    return unique_result(candidates, kickoff_date)

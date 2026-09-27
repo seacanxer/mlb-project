@@ -47,3 +47,5 @@ reports/.*charts/
 # P0 audit inputs and per-record output remain local; PR includes aggregate report.
 reports/fc-p0-audit/input_snapshot.json
 reports/fc-p0-audit/reliability.json
+
+reports/fc-p0-audit/p1-results.local.json

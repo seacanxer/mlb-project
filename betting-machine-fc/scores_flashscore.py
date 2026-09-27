@@ -583,23 +583,21 @@ def norm(s):
     return s
 
 
+_COMPLETE_ALIAS_INDEX = None
+
+
 def name_keys(name):
+    global _COMPLETE_ALIAS_INDEX
+    if _COMPLETE_ALIAS_INDEX is None:
+        alias_index = {}
+        for canon, aliases in ALIASES.items():
+            group = {norm(canon), *(norm(a) for a in aliases)}
+            for member in group:
+                alias_index.setdefault(member, set()).update(group)
+        _COMPLETE_ALIAS_INDEX = alias_index
     n = norm(name)
-    keys = {n}
-    for canon, al in ALIASES.items():
-        if n == norm(canon):
-            keys.update(norm(a) for a in al)
-    if n in keys:
-        for canon, al in ALIASES.items():
-            for a in al:
-                if n == norm(a):
-                    keys.add(norm(canon))
-    # Generate single-token keys, but exclude age-suffix tokens (u17-u23)
-    # to prevent cross-matching different youth teams that share only the
-    # age suffix (e.g. "Al-Nassr U21" matching "Bournemouth U21").
-    toks = [t for t in n.split() if len(t) > 2 and not _YOUTH_RE.match(t)]
-    keys.update(toks)
-    return keys
+    # Complete names only; shared tokens cannot establish team identity.
+    return {n} | _COMPLETE_ALIAS_INDEX.get(n, set())
 
 
 def fetch_recent_results(days=14, sleep_s=0.4, use_cache=True):
@@ -630,8 +628,10 @@ def fetch_recent_results(days=14, sleep_s=0.4, use_cache=True):
                 parts = [p.strip() for p in teams.split(" - ")]
                 if len(parts) >= 2:
                     key = (norm(parts[0]), norm(parts[1]))
-                    index[key] = {"home": parts[0], "away": parts[1], "home_goals": hg,
-                                  "away_goals": ag, "fs_id": fsid, "date_key": date_key}
+                    index.setdefault(key, []).append({"home": parts[0], "away": parts[1], "home_goals": hg,
+                                  "away_goals": ag, "fs_id": fsid, "date_key": date_key,
+                                  "league": re.sub(r"<[^>]+>", "", m.group(1)).strip(),
+                                  "period": "unknown"})
         time.sleep(sleep_s)
     if failed:
         print(f"[scores_flashscore] WARN {failed}/{days} day-pages failed to fetch", flush=True)
@@ -645,10 +645,11 @@ def fetch_recent_results(days=14, sleep_s=0.4, use_cache=True):
 
 def build_lookup(index):
     lookup = {}
-    for (hn, an), row in index.items():
-        for hk in name_keys(row["home"]):
-            for ak in name_keys(row["away"]):
-                lookup.setdefault((hk, ak), []).append(row)
+    for value in index.values():
+        for row in value if isinstance(value, list) else [value]:
+            for hk in name_keys(row["home"]):
+                for ak in name_keys(row["away"]):
+                    lookup.setdefault((hk, ak), []).append(row)
     return lookup
 
 
@@ -790,39 +791,7 @@ def find_result(home, away, lookup, kickoff_date=None):
     league AND the base team name (without age suffix) must overlap. This
     prevents the "U21 matches U21" false-positive problem.
     """
-    target_date = kickoff_date
-    allowed_dates = None
-    if target_date:
-        allowed_dates = {
-            (target_date + timedelta(days=i)).isoformat()
-            for i in (-2, -1, 0, 1, 2)
-        }
-
-    age_suffix = is_youth_bet(home, away)
-
-    # Step 1: Try exact key match via name_keys (includes aliases)
-    best_date_match = None
-    for h in name_keys(home):
-        for a in name_keys(away):
-            cands = lookup.get((h, a)) or []
-            if not cands:
-                continue
-            for row in cands:
-                # --- YOUTH MATCH VALIDATION ---
-                if age_suffix:
-                    if not _validate_youth_match(home, away, row, age_suffix):
-                        continue  # skip wrong youth match
-                if allowed_dates:
-                    if row.get('date_key') in allowed_dates:
-                        return row
-                    if best_date_match is None:
-                        best_date_match = row
-                else:
-                    return row
-
-    # Step 2: No exact name match found.
-    # Previously: fuzzy fallback. Now: return None to avoid fabricated data.
-    if best_date_match and allowed_dates:
-        # Already checked — no date match among exact-name candidates
-        return None
-    return None
+    from football_formula_engine.fixture_matching import unique_result
+    candidates = [row for h in name_keys(home) for a in name_keys(away)
+                  for row in lookup.get((h, a), [])]
+    return unique_result(candidates, kickoff_date)
