@@ -21,6 +21,16 @@ const run = promisify(execFile);
 const TIMEOUT_MS = 180000;
 const SNAPSHOT_TIMEOUT_MS = 60000;
 
+interface ManualParlaySnapshot {
+  id: number;
+  combined_odds: number;
+  generated_at: string;
+  status: string;
+  profit: number | null;
+  settled_at: string | null;
+  legs?: unknown[];
+}
+
 interface SettleSummary {
   status?: string;
   message?: string;
@@ -32,6 +42,7 @@ interface SettleSummary {
 }
 
 let running = false;
+let startedAt: number | null = null;
 let last: { at: string; status: string; message?: string } | null = null;
 
 function authorized(request: Request): boolean {
@@ -65,10 +76,11 @@ function summaryMessage(summary: SettleSummary): string {
   return 'Tidak ada settlement tertunda.';
 }
 
-async function settle(): Promise<{ status: string; message: string; summary: SettleSummary }> {
+async function settle(parlayId: string | null): Promise<{ status: string; message: string; summary: SettleSummary }> {
   const script = path.join(process.cwd(), 'scripts', 'fc-settle-live.py');
   try {
-    const { stdout } = await run(settlePython(), [script], { timeout: TIMEOUT_MS, maxBuffer: 1024 * 1024 });
+    const args = parlayId ? [script, '--parlay-id', parlayId] : [script];
+    const { stdout } = await run(settlePython(), args, { timeout: TIMEOUT_MS, maxBuffer: 1024 * 1024 });
     const line = stdout.trim().split('\n').at(-1) ?? '';
     if (!line) throw new Error('Settlement tidak menghasilkan keluaran.');
     const summary = JSON.parse(line) as SettleSummary;
@@ -97,23 +109,62 @@ async function refreshSnapshot(): Promise<void> {
   }
 }
 
-export async function GET() {
-  return NextResponse.json({ running, last });
+export async function GET(request: Request) {
+  const url = new URL(request.url);
+  const parlayId = url.searchParams.get('parlay_id');
+  if (parlayId) {
+    const slips = await readSnapshotParlays();
+    const slip = slips.find((s) => s.id === Number(parlayId));
+    if (!slip) return NextResponse.json({ status: 'error', message: 'Parlay tidak ditemukan.' }, { status: 404 });
+    return NextResponse.json({ running, last, parlay: slip });
+  }
+  return NextResponse.json({ running, elapsed_ms: startedAt ? Date.now() - startedAt : null, last });
+}
+
+async function readSnapshotParlays(): Promise<ManualParlaySnapshot[]> {
+  const snapshot = path.join(process.cwd(), 'betting-machine-fc', 'tracker_snapshot.json');
+  try {
+    const raw = await fs.promises.readFile(snapshot, 'utf8');
+    const parsed = JSON.parse(raw) as { manual_parlays?: ManualParlaySnapshot[] };
+    return parsed.manual_parlays ?? [];
+  } catch {
+    return [];
+  }
 }
 
 export async function POST(request: Request) {
   if (!authorized(request)) {
     return NextResponse.json({ status: 'error', message: 'Token operator tidak valid atau belum dikonfigurasi.' }, { status: 401 });
   }
+  const url = new URL(request.url);
+  const parlayId = url.searchParams.get('parlay_id');
   if (running) {
     return NextResponse.json({ status: 'busy', message: 'Settlement sedang berjalan.' }, { status: 409 });
   }
   running = true;
+  startedAt = Date.now();
+  last = { at: new Date().toISOString(), status: 'running' };
+
+  // The settle script fetches 14 day-pages of results (~90s), past the 100s edge
+  // timeout of the tunnel proxy, so the work runs detached and GET polls it.
+  void runSettleInBackground(parlayId);
+  return NextResponse.json(
+    {
+      status: 'accepted',
+      message: parlayId
+        ? `Settlement parlay #${parlayId} dimulai, hasil akan muncul otomatis.`
+        : 'Settlement dimulai, hasil akan muncul otomatis.',
+    },
+    { status: 202 },
+  );
+}
+
+async function runSettleInBackground(parlayId: string | null) {
   try {
     let settleError: Error | null = null;
     let summary: SettleSummary = {};
     try {
-      const result = await settle();
+      const result = await settle(parlayId);
       summary = result.summary;
     } catch (error) {
       settleError = error instanceof Error ? error : new Error('Settlement gagal.');
@@ -129,7 +180,7 @@ export async function POST(request: Request) {
     if (settleError && snapshotError) {
       const message = `${settleError.message} ${snapshotError.message}`;
       last = { at: new Date().toISOString(), status: 'error', message };
-      return NextResponse.json({ status: 'error', message }, { status: 502 });
+      return;
     }
 
     const base = {
@@ -139,16 +190,21 @@ export async function POST(request: Request) {
       remaining: summary.remaining ?? summary.pending ?? 0,
     };
     if (settleError) {
-      // Snapshot rebuilt anyway: parlay legs and cards are fresh, scores are not.
       const message = `Snapshot tracker diperbarui, tetapi settlement gagal: ${settleError.message}`;
       last = { at: new Date().toISOString(), status: 'partial', message };
-      return NextResponse.json({ status: 'partial', message, ...base });
+      return;
     }
-    const warning = snapshotError ? ` ⚠ ${snapshotError.message}` : '';
-    const message = `${summaryMessage(summary)}${warning}`;
+    const warning = snapshotError ? ` ${snapshotError.message}` : '';
+    const message = snapshotError
+      ? `${summaryMessage(summary)}${warning}`
+      : parlayId
+        ? base.parlay_settled > 0
+          ? `Parlay #${parlayId} diselesaikan.`
+          : `Parlay #${parlayId} masih menunggu skor final.`
+        : summaryMessage(summary);
     last = { at: new Date().toISOString(), status: 'done', message };
-    return NextResponse.json({ status: 'done', message, ...base });
   } finally {
     running = false;
+    startedAt = null;
   }
 }

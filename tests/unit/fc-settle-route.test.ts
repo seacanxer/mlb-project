@@ -15,7 +15,7 @@ describe('FC settle route safeguards', () => {
   });
 
   it('reports idle settlement status without spawning the job', async () => {
-    const response = await GET();
+    const response = await GET(request());
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toMatchObject({ running: false });
   });

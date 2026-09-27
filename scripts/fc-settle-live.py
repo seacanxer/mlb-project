@@ -9,6 +9,7 @@ Flow:
 
 Run: betting-machine-fc/venv/bin/python scripts/fc-settle-live.py
 """
+import argparse
 import json
 import math
 import os
@@ -113,15 +114,24 @@ def result_for_bet(home, away, kickoff_ts, lookup_fs, lookup_alt):
     return None
 
 
-def settle_manual_parlays(conn, now, lookup_fs, lookup_alt):
-    """Settle each manual slip as one unit; leg payouts multiply, including half results."""
+def settle_manual_parlays(conn, now, lookup_fs, lookup_alt, parlay_id=None):
+    """Settle each manual slip as one unit; leg payouts multiply, including half results.
+
+    With parlay_id, ignore the start_ts gate and settle that single slip if every
+    leg has a final score in the feeds (operator-triggered refresh).
+    """
     if not conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='parlay_slips'").fetchone():
         return 0
-    slips = conn.execute("SELECT id FROM parlay_slips WHERE source='manual_lock' AND status='pending'").fetchall()
+    if parlay_id is None:
+        slips = conn.execute("SELECT id FROM parlay_slips WHERE source='manual_lock' AND status='pending'").fetchall()
+    else:
+        slips = conn.execute("SELECT id FROM parlay_slips WHERE id=? AND status='pending'", (int(parlay_id),)).fetchall()
     count = 0
     for slip in slips:
         legs = conn.execute('SELECT * FROM parlay_legs WHERE parlay_id=? ORDER BY id', (slip['id'],)).fetchall()
         if not legs:
+            continue
+        if parlay_id is None and any(leg['start_ts'] > now - SETTLE_DELAY_S for leg in legs):
             continue
         outcomes = []
         for leg in legs:
@@ -169,6 +179,11 @@ def due_pending_parlays(conn, now):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--parlay-id', type=int, default=None,
+                        help='force-settle one manual parlay, ignoring the start_ts gate')
+    args = parser.parse_args()
+
     if not os.path.exists(DB_PATH):
         print(json.dumps({'status': 'error', 'message': 'bets.db missing'}))
         return 1
@@ -212,7 +227,7 @@ def main():
         )
         settled_count += 1
 
-    parlay_settled = settle_manual_parlays(conn, now, lookup_fs_idx, lookup_alt_idx)
+    parlay_settled = settle_manual_parlays(conn, now, lookup_fs_idx, lookup_alt_idx, parlay_id=args.parlay_id)
     pending_parlays = due_pending_parlays(conn, now)
     conn.commit()
     remaining = conn.execute('SELECT COUNT(*) c FROM bets WHERE settled=0').fetchone()['c']

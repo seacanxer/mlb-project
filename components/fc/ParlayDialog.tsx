@@ -37,6 +37,31 @@ function LegRow({ leg }: { leg: ParlayLeg }) {
   );
 }
 
+function LegCard({ leg }: { leg: ParlayLeg }) {
+  const outcome = legOutcome(leg.result);
+  const score = leg.home_score !== null && leg.home_score !== undefined &&
+    leg.away_score !== null && leg.away_score !== undefined
+    ? `${leg.home_score}–${leg.away_score}`
+    : NULL_GLYPH;
+  return (
+    <div className="fc-leg-card">
+      <div className="fc-leg-top">
+        <span className="muted" style={{ fontSize: '0.72rem' }}>{leg.start_ts ? formatKickoffWIB(leg.start_ts) : NULL_GLYPH}</span>
+        <span className={`chip ${outcomeChipClass(outcome)}`}>{outcome ?? '…'}</span>
+      </div>
+      <div className="fc-leg-match">{legMatchLabel(leg)}</div>
+      {leg.league && <div className="muted" style={{ fontSize: '0.72rem', marginBottom: '0.35rem' }}>{leg.league}</div>}
+      <div className="fc-leg-grid">
+        <div><span className="fc-leg-k">Market</span><span className="fc-leg-v"><MarketBadge market={leg.market} /></span></div>
+        <div><span className="fc-leg-k">Pick</span><span className="fc-leg-v">{leg.pick || NULL_GLYPH}</span></div>
+        <div><span className="fc-leg-k">Odds</span><span className="fc-leg-v mono-val">{formatOdds(leg.odds)}</span></div>
+        <div><span className="fc-leg-k">Skor FT</span><span className="fc-leg-v mono-val">{score}</span></div>
+        <div><span className="fc-leg-k">Ret.</span><span className="fc-leg-v mono-val">{typeof leg.leg_return === 'number' ? `×${leg.leg_return.toFixed(2)}` : NULL_GLYPH}</span></div>
+      </div>
+    </div>
+  );
+}
+
 export function ParlayDialog({ slip, onClose }: { slip: ManualParlay | null; onClose: () => void }) {
   const ref = useRef<HTMLDialogElement>(null);
 
@@ -84,17 +109,22 @@ export function ParlayDialog({ slip, onClose }: { slip: ManualParlay | null; onC
           {legs.length === 0 ? (
             <p className="muted">Isi parlay tidak ada di snapshot ini — jalankan ulang <strong>Refresh settlement</strong> (atau <code>python scripts/fc-snapshot.py</code>) di VPS.</p>
           ) : (
-            <div className="fc-table-wrap">
-              <table className="data-table" aria-label={`Leg parlay ${slip.id}`}>
-                <thead>
-                  <tr>
-                    <th>Kickoff</th><th>Liga</th><th>Pertandingan</th><th>Market</th>
-                    <th>Pick</th><th>Odds</th><th>Skor FT</th><th>Hasil</th><th>Ret.</th>
-                  </tr>
-                </thead>
-                <tbody>{legs.map((leg, i) => <LegRow key={leg.id ?? i} leg={leg} />)}</tbody>
-              </table>
-            </div>
+            <>
+              <div className="fc-table-wrap">
+                <table className="data-table" aria-label={`Leg parlay ${slip.id}`}>
+                  <thead>
+                    <tr>
+                      <th>Kickoff</th><th>Liga</th><th>Pertandingan</th><th>Market</th>
+                      <th>Pick</th><th>Odds</th><th>Skor FT</th><th>Hasil</th><th>Ret.</th>
+                    </tr>
+                  </thead>
+                  <tbody>{legs.map((leg, i) => <LegRow key={leg.id ?? i} leg={leg} />)}</tbody>
+                </table>
+              </div>
+              <div className="fc-slip-cards">
+                {legs.map((leg, i) => <LegCard key={leg.id ?? i} leg={leg} />)}
+              </div>
+            </>
           )}
 
           <footer className="muted" style={{ fontSize: '0.75rem' }}>

@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { fetchAllMatches } from '@/lib/fc/allMatches';
-import { fcPost } from '@/lib/fc/client';
+import { fcGet, fcPost } from '@/lib/fc/client';
 import { FC_UI_VERSION } from '@/lib/fc/predictions';
 import type { DetailedMatch } from '@/lib/fc/types';
 import { PredictionBoard, type BoardView } from './PredictionBoard';
@@ -36,8 +36,22 @@ export function ForecastDashboard({ view = 'all', title = 'Prediksi Pertandingan
   const scan = async () => {
     setScanning(true); setMessage('Memperbarui fixture, odds, dan model liga. Proses dapat memerlukan beberapa menit.');
     try {
-      const data = await fcPost<{ message?: string }>('/api/fc/scan', undefined, {}, SCAN_TIMEOUT_MS);
-      setMessage(data.message || 'Analisis diperbarui.'); setRefresh((n) => n + 1);
+      const start = await fcPost<{ status?: string; message?: string }>('/api/fc/scan', undefined, {}, 20000);
+      if (start.status === 'busy') { setMessage(start.message || 'Scan sedang berjalan, tunggu sebentar.'); }
+      else {
+        let elapsed = 0;
+        while (elapsed < SCAN_TIMEOUT_MS) {
+          await new Promise((r) => setTimeout(r, 3000));
+          elapsed += 3000;
+          const status = await fcGet<{ running: boolean; last: { status: string; message?: string } | null }>('/api/fc/scan');
+          if (!status.running && status.last) {
+            if (status.last.status === 'done') { setMessage(status.last.message || 'Analisis diperbarui.'); setRefresh((n) => n + 1); }
+            else if (status.last.status === 'error') { setMessage(status.last.message || 'Scan gagal.'); }
+            break;
+          }
+        }
+        if (elapsed >= SCAN_TIMEOUT_MS) setMessage('Scan melebihi batas waktu, coba lagi.');
+      }
     } catch (err) { setMessage(err instanceof Error ? err.message : 'Scan gagal.'); }
     finally { setScanning(false); }
   };
