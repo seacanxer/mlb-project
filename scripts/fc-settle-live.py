@@ -26,6 +26,7 @@ sys.path.insert(0, FC_DIR)
 from football_formula_engine.markets import settle_score  # noqa: E402
 import scores_flashscore  # noqa: E402
 import scores_alt  # noqa: E402
+import scores_espn  # noqa: E402
 
 SETTLE_DELAY_S = 6300  # 1h45m after kickoff
 DB_PATH = os.path.join(FC_DIR, 'bets.db')
@@ -85,16 +86,18 @@ def settle_bet(market, pick_label, odds, home_goals, away_goals):
     return (1 if profit > 0 else 0), round(profit, 8)
 
 
-def result_for_bet(home, away, kickoff_ts, lookup_fs, lookup_alt):
+def result_for_bet(home, away, kickoff_ts, lookup_fs, lookup_alt, lookup_espn=None):
     kickoff_date = datetime.fromtimestamp(kickoff_ts, tz=timezone.utc).date()
     for source, finder, lookup in (
         ('flashscore', scores_flashscore.find_result, lookup_fs),
         ('alt', scores_alt.find_result, lookup_alt),
+        ('espn', scores_espn.find_result, lookup_espn or {}),
     ):
         row = finder(home, away, lookup, kickoff_date)
         if not row:
             continue
-        if row.get('period') != '90min':
+        period = str(row.get('period') or '').strip().lower()
+        if period not in ('90min', 'unknown'):
             continue
         # These feeds return completed games only, but use different field names:
         # FlashScore/TheSportsDB/OpenLigaDB provide home_goals/away_goals and
@@ -114,7 +117,7 @@ def result_for_bet(home, away, kickoff_ts, lookup_fs, lookup_alt):
     return None
 
 
-def settle_manual_parlays(conn, now, lookup_fs, lookup_alt, parlay_id=None):
+def settle_manual_parlays(conn, now, lookup_fs, lookup_alt, lookup_espn=None, parlay_id=None):
     """Settle each manual slip as one unit; leg payouts multiply, including half results.
 
     With parlay_id, ignore the start_ts gate and settle that single slip if every
@@ -137,7 +140,7 @@ def settle_manual_parlays(conn, now, lookup_fs, lookup_alt, parlay_id=None):
         for leg in legs:
             if leg['start_ts'] > now - SETTLE_DELAY_S:
                 continue
-            score = result_for_bet(leg['home'], leg['away'], leg['start_ts'], lookup_fs, lookup_alt)
+            score = result_for_bet(leg['home'], leg['away'], leg['start_ts'], lookup_fs, lookup_alt, lookup_espn)
             if not score:
                 continue
             home_goals, away_goals, _ = score
@@ -206,10 +209,15 @@ def main():
     lookup_fs_idx = scores_flashscore.build_lookup(lookup_fs)
     lookup_alt = scores_alt.fetch_recent_results(days=14)
     lookup_alt_idx = scores_alt.build_lookup(lookup_alt)
+    lookup_espn_idx = None
+    try:
+        lookup_espn_idx = scores_espn.build_lookup(scores_espn.fetch_recent_results(days=3))
+    except Exception as exc:
+        print(f"[settle] WARN espn feed unavailable: {exc}", flush=True)
 
     settled_count = 0
     for bet in unsettled:
-        result = result_for_bet(bet['home'], bet['away'], bet['start_ts'], lookup_fs_idx, lookup_alt_idx)
+        result = result_for_bet(bet['home'], bet['away'], bet['start_ts'], lookup_fs_idx, lookup_alt_idx, lookup_espn_idx)
         if not result:
             continue
         home_goals, away_goals, source = result
@@ -227,7 +235,7 @@ def main():
         )
         settled_count += 1
 
-    parlay_settled = settle_manual_parlays(conn, now, lookup_fs_idx, lookup_alt_idx, parlay_id=args.parlay_id)
+    parlay_settled = settle_manual_parlays(conn, now, lookup_fs_idx, lookup_alt_idx, lookup_espn_idx, parlay_id=args.parlay_id)
     pending_parlays = due_pending_parlays(conn, now)
     conn.commit()
     remaining = conn.execute('SELECT COUNT(*) c FROM bets WHERE settled=0').fetchone()['c']
