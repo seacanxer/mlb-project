@@ -1,0 +1,14 @@
+{
+  "half_life_team_matches": 8.0,
+  "pseudo_matches": 8.0,
+  "minimum_effective_team_side": 3.0,
+  "minimum_effective_league": 30.0,
+  "minimum_referee_matches": 3,
+  "yellow_points": 1,
+  "red_points": 2,
+  "dispersion_min": 2.0,
+  "dispersion_max": 100.0,
+  "dominance_log_slope": 0.035,
+  "dominance_clip": 2.0,
+  "probability_tail": 1e-9
+}

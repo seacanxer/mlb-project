@@ -35,6 +35,11 @@ import scraper_1xbit as sc  # noqa: E402
 import odds_flashscore  # noqa: E402
 from football_formula_engine.data import load_football_data_csv, stable_id  # noqa: E402
 from football_formula_engine.markets import asian_handicap, btts, match_odds, over_under  # noqa: E402
+from football_formula_engine.score_matrix import build_score_matrix  # noqa: E402
+from football_formula_engine.market_goals import (infer_market_goals,
+    blend_goal_projection)  # noqa: E402
+from football_formula_engine.secondary_markets import (load_stat_rows as load_secondary_rows,
+    project_fixture as project_secondary_fixture)  # noqa: E402
 from football_formula_engine.model import (FitConfig, fit_dixon_coles,
     build_ratio_baseline_artifact, project_fixture)  # noqa: E402
 from football_formula_engine.value import expected_value, fair_odds, proportional_no_vig  # noqa: E402
@@ -50,6 +55,7 @@ from football_formula_engine.national_teams import (MODEL_CODE as NATIONAL_CODE,
     nonneutral_baseline_coverage)  # noqa: E402
 
 FORMULA_VERSION = 'dc-loglink-time-decay-v1'
+DECISION_FORMULA_VERSION = 'fc-market-goal-blend-v2'
 UNCERTAINTY_PENALTY = 0.02
 EV_GATE = 0.01
 ODDS_FLOOR = 1.6
@@ -57,6 +63,7 @@ ODDS_CAP = 2.5
 MAX_VALUE_PICKS_PER_MATCH = 2
 SECOND_PICK_MIN_CEV = 0.02
 NATIONAL_MAX_MARKET_GAP = 0.20
+MARKET_GOAL_WEIGHT = 0.65
 WINDOW_HOURS = 24
 MODELS_CACHE = os.path.join(FC_DIR, 'models_cache')
 MODEL_DATA_INFO = {}
@@ -757,6 +764,7 @@ def main(argv=()):
             second_mappings = {str(row['fixture']['match_id']): row for row in json.load(handle)}
         second_status = 'CONFIGURED_NOT_YET_VALIDATED'
     seen_national_fixtures = set()
+    secondary_data = {}
     for m in sorted(future, key=lambda x: float(x['info']['start_ts'])):
         info = m['info']
         m.update(picks=[], qualified_picks=[], projections=[], market_options=[])
@@ -863,7 +871,32 @@ def main(argv=()):
             skipped['QUOTE_EXPIRED'] = skipped.get('QUOTE_EXPIRED', 0) + 1
             m['analysis']['reason_codes'] = ['QUOTE_EXPIRED']
             continue
-        opportunities = price_fixture(proj.distribution, mk, gated=False)
+        market_goals = infer_market_goals(mk)
+        blended_home, blended_away = blend_goal_projection(
+            proj.lambda_home, proj.lambda_away, market_goals,
+            market_weight=MARKET_GOAL_WEIGHT)
+        # The market component already represents low-score pricing, so do not
+        # apply the historical Dixon-Coles rho a second time after pooling.
+        decision_distribution = build_score_matrix(blended_home, blended_away, 0.0)
+        opportunities = price_fixture(decision_distribution, mk, gated=False)
+        if code != NATIONAL_CODE and code in LEAGUES:
+            if code not in secondary_data:
+                secondary_paths = [os.path.join(FC_DIR, 'data', name)
+                                   for name, _season in training_files(code, now)]
+                secondary_data[code] = load_secondary_rows(secondary_paths)
+                for historical_row in secondary_data[code]:
+                    historical_row['home'] = (match_team(historical_row['home'], teams_by_code[code])
+                                              or historical_row['home'])
+                    historical_row['away'] = (match_team(historical_row['away'], teams_by_code[code])
+                                              or historical_row['away'])
+            secondary = project_secondary_fixture(
+                secondary_data[code], home_csv, away_csv,
+                info['start_ts'], goal_projection={'home': blended_home, 'away': blended_away},
+                referee=info.get('referee'))
+        else:
+            secondary = {'availability': 'C', 'reason': 'NO_HISTORICAL_MATCH_STATS',
+                         'markets': [], 'limited': True}
+        m['analysis']['secondary_markets'] = secondary
         if code == NATIONAL_CODE:
             reason = national_market_reason(opportunities)
             if reason:
@@ -887,11 +920,16 @@ def main(argv=()):
             status='ready' if forecasts else 'unavailable',
             reason_codes=model_reasons if forecasts else ['COMPLETE_MARKET_UNAVAILABLE'],
             model_data_as_of=last_result,
-            model_goals={'home': proj.lambda_home, 'away': proj.lambda_away},
+            model_goals={'home': blended_home, 'away': blended_away},
+            raw_model_goals={'home': proj.lambda_home, 'away': proj.lambda_away},
+            market_goal_anchor=market_goals,
+            goal_blend={'market_weight': MARKET_GOAL_WEIGHT,
+                        'method': 'geometric_pool_v1'},
             model_artifact_id=artifact.get('artifact_id'),
             model_training_cutoff=artifact['training']['cutoff_utc'],
             league_model=code, quote_captured_at=captured_at,
-            formula_version=artifact.get('formula_version', FORMULA_VERSION),
+            formula_version=DECISION_FORMULA_VERSION,
+            base_formula_version=artifact.get('formula_version', FORMULA_VERSION),
             direction_counts=direction_counts(forecasts),
         )
         if not value_rows:
@@ -917,9 +955,10 @@ def main(argv=()):
                 'fair_odds': round(o['fair_odds'], 3),
                 'market_probability': round(o['market_probability'], 4),
                 'edge_pct': round(1 / o['fair_odds'] - o['market_probability'], 4),
-                'formula_version': artifact.get('formula_version', FORMULA_VERSION),
+                'formula_version': DECISION_FORMULA_VERSION,
+                'base_formula_version': artifact.get('formula_version', FORMULA_VERSION),
                 'policy_version': POLICY_VERSION,
-                'lambda_source': ('intl-ratio-baseline' if code == NATIONAL_CODE else 'engine-dc-csv'),
+                'lambda_source': 'historical-market-geometric-pool',
                 'coverage_status': info['coverage_status'],
                 'league_model': code, 'selection_status': 'watch', 'decision': 'watch',
                 'tier': 'watch', 'is_top_pick': False, 'calibrated_prob': None,

@@ -75,11 +75,15 @@ def extract_markets(v):
         t, c, g, p = e.get("T"), e.get("C"), e.get("G"), e.get("P")
         if g == 1 and t in (1, 2, 3):
             out["odds_1x2"][t] = c
-        elif g == 17 and t in (9, 10) and p is not None:
-            out["odds_ou"].setdefault(p, {})[t] = c
-        elif g == 2 and t == 7 and p is not None:
+        # 1xbit exposes whole/half and split-quarter lines in separate groups.
+        # Normalize both groups into the same contract shape used by the engine.
+        elif ((g == 17 and t in (9, 10)) or
+              (g == 99 and t in (3827, 3828))) and p is not None:
+            side = 9 if t in (9, 3827) else 10
+            out["odds_ou"].setdefault(p, {})[side] = c
+        elif ((g == 2 and t == 7) or (g == 2854 and t == 3829)) and p is not None:
             out["odds_ah"].setdefault("home", []).append((p, c))
-        elif g == 2 and t == 8 and p is not None:
+        elif ((g == 2 and t == 8) or (g == 2854 and t == 3830)) and p is not None:
             out["odds_ah"].setdefault("away", []).append((p, c))
         elif g == 19 and t in (180, 181):
             # Both teams to score: 180=Yes, 181=No.
