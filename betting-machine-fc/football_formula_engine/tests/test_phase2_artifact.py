@@ -15,4 +15,7 @@ def test_e0_2526_manifest_reproduces_from_tracked_csv():
     generated = dataset_manifest(matches, quotes)
     for key, value in generated.items():
         assert artifact[key] == value
-    assert artifact['source_sha256'] == hashlib.sha256(source.read_bytes()).hexdigest()
+    # Git may check this tracked CSV out with CRLF on Windows; the manifest
+    # hashes the canonical LF source bytes committed to the repository.
+    canonical_source = source.read_bytes().replace(bytes((13, 10)), bytes((10,)))
+    assert artifact['source_sha256'] == hashlib.sha256(canonical_source).hexdigest()

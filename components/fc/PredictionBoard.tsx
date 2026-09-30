@@ -61,6 +61,43 @@ function PredictionCard({ match, market, valueOnly, saved, lockedIds, onToggle }
         })}
       </div>
     </div>
+    {match.analysis?.secondary_markets && match.analysis.secondary_markets.availability !== 'C' && <div className="prediction-secondary" aria-label="Proyeksi corner dan kartu">
+      <div className="prediction-secondary-heading"><strong>Corners & kartu</strong>
+        <span>{match.analysis?.secondary_markets?.limited ? 'Data terbatas' : 'Model tersedia'}</span></div>
+      <div className="prediction-market-grid prediction-secondary-grid">
+        {(['corners_ou', 'cards_ou'] as const).map((key) => {
+          const projection = match.analysis?.secondary_markets?.markets.find((row) => row.market === key);
+          const title = key === 'corners_ou' ? 'Total corners' : 'Total kartu';
+          const data = key === 'corners_ou' ? match.analysis?.secondary_markets?.corners : match.analysis?.secondary_markets?.cards;
+          return <div className="prediction-market" key={key}><div className="prediction-market-heading">{title}</div>
+            {data && <small>{key === 'corners_ou'
+              ? `Ekspektasi ${data.home.toFixed(1)} – ${data.away.toFixed(1)} (total ${data.total.toFixed(1)})`
+              : `Kuning ${data.home.toFixed(1)} – ${data.away.toFixed(1)}; poin kartu total ${data.total.toFixed(1)}`}</small>}
+            {projection ? <div className="prediction-secondary-pick"><strong>{projection.pick}</strong>
+              <small>P(model) {formatProb(projection.probability)}</small><span className="prediction-tag">Proyeksi</span>
+            </div> : <div className="prediction-no-market"><strong>—</strong><small>Data belum cukup</small></div>}
+          </div>;
+        })}
+        {(['corner_hdp', 'team_cards_ou'] as const).map((key) => {
+          const projection = match.analysis?.secondary_markets?.markets.find((row) => row.market === key);
+          const title = key === 'corner_hdp' ? 'Corner HDP' : 'Kartu per tim';
+          return <div className="prediction-market" key={key}><div className="prediction-market-heading">{title}</div>
+            {projection ? <div className="prediction-secondary-pick"><strong>{projection.pick}</strong>
+              <small>P(model) {formatProb(projection.probability)}</small><span className="prediction-tag">Proyeksi</span>
+            </div> : <div className="prediction-no-market"><strong>—</strong><small>Data belum cukup</small></div>}
+          </div>;
+        })}
+        {match.analysis.secondary_markets.markets.find((row) => row.market === 'red_card') && (() => {
+          const projection = match.analysis!.secondary_markets!.markets.find((row) => row.market === 'red_card')!;
+          return <div className="prediction-market"><div className="prediction-market-heading">Kartu merah</div>
+            <div className="prediction-secondary-pick"><strong>{projection.pick}</strong>
+              <small>P(model) {formatProb(projection.probability)}</small><span className="prediction-tag">Proyeksi</span>
+            </div></div>;
+        })()}
+      </div>
+      <small className="prediction-secondary-note">Odds sekunder belum tersedia; proyeksi ini belum dapat dikunci sebagai pick value.
+        {match.analysis?.secondary_markets?.referee_status === 'unknown' ? ' Wasit belum diumumkan; variasi prediksi kartu diperlebar.' : ''}</small>
+    </div>}
     <div className="prediction-footer">
       {available ? <span>Gol model <b>{goals ? `${goals.home.toFixed(2)} – ${goals.away.toFixed(2)}` : '—'}</b><span className="prediction-divider">/</span>{match.analysis?.league_model || projections[0]?.league_model || 'Model liga'}<span className="prediction-divider">/</span><span>Belum tervalidasi</span></span> : <span>{reasonLabel(reasons[0])}</span>}
       {available && <span className="prediction-hint">Klik pilihan untuk menyimpan</span>}

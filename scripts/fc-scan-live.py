@@ -38,6 +38,8 @@ from football_formula_engine.markets import asian_handicap, btts, match_odds, ov
 from football_formula_engine.score_matrix import build_score_matrix  # noqa: E402
 from football_formula_engine.market_goals import (infer_market_goals,
     blend_goal_projection)  # noqa: E402
+from football_formula_engine.secondary_markets import (load_stat_rows as load_secondary_rows,
+    project_fixture as project_secondary_fixture)  # noqa: E402
 from football_formula_engine.model import (FitConfig, fit_dixon_coles,
     build_ratio_baseline_artifact, project_fixture)  # noqa: E402
 from football_formula_engine.value import expected_value, fair_odds, proportional_no_vig  # noqa: E402
@@ -762,6 +764,7 @@ def main(argv=()):
             second_mappings = {str(row['fixture']['match_id']): row for row in json.load(handle)}
         second_status = 'CONFIGURED_NOT_YET_VALIDATED'
     seen_national_fixtures = set()
+    secondary_data = {}
     for m in sorted(future, key=lambda x: float(x['info']['start_ts'])):
         info = m['info']
         m.update(picks=[], qualified_picks=[], projections=[], market_options=[])
@@ -876,6 +879,24 @@ def main(argv=()):
         # apply the historical Dixon-Coles rho a second time after pooling.
         decision_distribution = build_score_matrix(blended_home, blended_away, 0.0)
         opportunities = price_fixture(decision_distribution, mk, gated=False)
+        if code != NATIONAL_CODE and code in LEAGUES:
+            if code not in secondary_data:
+                secondary_paths = [os.path.join(FC_DIR, 'data', name)
+                                   for name, _season in training_files(code, now)]
+                secondary_data[code] = load_secondary_rows(secondary_paths)
+                for historical_row in secondary_data[code]:
+                    historical_row['home'] = (match_team(historical_row['home'], teams_by_code[code])
+                                              or historical_row['home'])
+                    historical_row['away'] = (match_team(historical_row['away'], teams_by_code[code])
+                                              or historical_row['away'])
+            secondary = project_secondary_fixture(
+                secondary_data[code], home_csv, away_csv,
+                info['start_ts'], goal_projection={'home': blended_home, 'away': blended_away},
+                referee=info.get('referee'))
+        else:
+            secondary = {'availability': 'C', 'reason': 'NO_HISTORICAL_MATCH_STATS',
+                         'markets': [], 'limited': True}
+        m['analysis']['secondary_markets'] = secondary
         if code == NATIONAL_CODE:
             reason = national_market_reason(opportunities)
             if reason:

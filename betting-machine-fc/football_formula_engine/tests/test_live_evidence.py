@@ -109,7 +109,7 @@ def test_scan_prices_integer_ou_keys():
     scan = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(scan)
     offers = scan.price_fixture(build_score_matrix(1.5, 1.5, 0),
-                                {'odds_ou': {2.5: {9: 3.0, 10: 3.0}}})
+                                {'odds_ou': {2.5: {9: 3.0, 10: 3.0}}}, gated=False)
     assert any(market == 'ou' for market, _, _ in offers)
 
 

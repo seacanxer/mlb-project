@@ -293,6 +293,20 @@ export interface MatchAnalysis {
   league_model?: string;
   quote_captured_at?: number;
   formula_version?: string;
+  secondary_markets?: {
+    availability: 'A' | 'B' | 'C';
+    reason?: string | null;
+    limited?: boolean;
+    referee?: string | null;
+    referee_status?: string;
+    corners?: { home: number; away: number; total: number; n_eff: number; dispersion: number };
+    cards?: { home: number; away: number; total: number; home_points?: number; away_points?: number;
+      n_eff: number; dispersion: number; referee_status: string };
+    markets: { market: string; side: string; line: number | null; pick: string; probability: number;
+      odds: number | null; p_market_novig: number | null; edge: number | null;
+      availability: 'A' | 'B'; status: 'projection' | 'value'; label: string }[];
+    market_odds_available?: boolean;
+  };
 }
 
 export interface MatchesResponse {

@@ -63,6 +63,12 @@ body:has(.fc-shell) .main-content { max-width: 1460px; padding: 1.5rem 2rem 3rem
 .team-away { color: #b6ccd9; background: #203834; border-color: #355852; }
 .prediction-versus { margin-left: 40px; font-size: .55rem; letter-spacing: .16em; color: #779d88; }
 .prediction-market-grid { display: grid; grid-template-columns: repeat(var(--market-count,4),minmax(0,1fr)); border: 1px solid #234332; background: #0d2017; border-radius: 10px; padding: .65rem .4rem; }
+.prediction-secondary { margin-top: .65rem; border: 1px solid #234332; background: #0d2017; border-radius: 10px; padding: .75rem; }
+.prediction-secondary-heading { display: flex; justify-content: space-between; color: #9ab6a7; font-size: .68rem; margin: 0 0 .55rem; }
+.prediction-secondary-grid { grid-template-columns: repeat(4,minmax(0,1fr)); }
+.prediction-secondary-pick { display: grid; gap: .3rem; min-height: 86px; align-content: center; padding: .6rem; color: #e9f4ee; }
+.prediction-secondary-pick small,.prediction-secondary-note { color: #8eab9b; font-size: .65rem; }
+.prediction-secondary-note { display: block; padding: .5rem .2rem 0; }
 .prediction-market { min-width: 0; border-right: 1px solid #1e392b; padding: 0 .4rem; }
 .prediction-market:last-child { border-right: none; }
 .prediction-market-heading { font-size: .64rem; font-weight: 600; color: #91a99f; padding-bottom: .5rem; margin-bottom: .4rem; border-bottom: 1px solid #234332; }
