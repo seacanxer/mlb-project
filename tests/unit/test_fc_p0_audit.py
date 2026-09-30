@@ -80,3 +80,15 @@ def test_provider_adapter_preserves_declared_sides_and_quarter_lines():
     assert (parsed['home'], parsed['away']) == ('Home FC', 'Away FC')
     assert parsed['odds_ah'] == {'home': [(-.25, 1.9)], 'away': [(.25, 2.0)]}
     assert parsed['odds_ou'][2.25] == {9: 1.8, 10: 2.1}
+
+
+def test_provider_adapter_ingests_split_quarter_groups():
+    raw = {'I': 2, 'O1': 'Spain', 'O2': 'Croatia', 'E': [
+        {'G': 99, 'T': 3827, 'P': 3.25, 'C': 1.986},
+        {'G': 99, 'T': 3828, 'P': 3.25, 'C': 1.954},
+        {'G': 2854, 'T': 3829, 'P': -1.75, 'C': 1.782},
+        {'G': 2854, 'T': 3830, 'P': 1.75, 'C': 2.202}]}
+    parsed = scraper_1xbit.extract_markets(raw)
+    assert parsed['odds_ou'][3.25] == {9: 1.986, 10: 1.954}
+    assert parsed['odds_ah'] == {'home': [(-1.75, 1.782)],
+                                 'away': [(1.75, 2.202)]}

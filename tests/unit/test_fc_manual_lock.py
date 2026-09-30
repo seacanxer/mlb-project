@@ -153,7 +153,9 @@ def test_manual_parlay_settlement_multiplies_leg_returns(tmp_path):
         settle = runpy.run_path(str(ROOT / 'scripts' / 'fc-settle-live.py'))['settle_manual_parlays']
         import scores_flashscore
         old = scores_flashscore.find_result
-        scores_flashscore.find_result = lambda *args: {'score_status': 'final', 'home_score': 2, 'away_score': 1}
+        scores_flashscore.find_result = lambda *args: {
+            'score_status': 'final', 'period': '90min',
+            'home_score': 2, 'away_score': 1}
         try:
             assert settle(conn, time.time(), {}, {}) == 1
         finally:
