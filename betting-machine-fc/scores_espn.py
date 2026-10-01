@@ -27,6 +27,20 @@ LEAGUE_SLUGS = {
     'uefa nations league': 'uefa.nations.league',
     'spain. segunda division': 'esp.2',
     'segunda division': 'esp.2',
+    'spain. la liga': 'esp.1',
+    'england. premier league': 'eng.1',
+    'england. championship': 'eng.2',
+    'england. league one': 'eng.3',
+    'england. league two': 'eng.4',
+    'germany. bundesliga': 'ger.1',
+    'germany. 2. bundesliga': 'ger.2',
+    'italy. serie a': 'ita.1',
+    'italy. serie b': 'ita.2',
+    'france. ligue 1': 'fra.1',
+    'france. ligue 2': 'fra.2',
+    'netherlands. eredivisie': 'ned.1',
+    'portugal. primeira liga': 'por.1',
+    'brazil. campeonato brasileiro. serie a': 'bra.1',
 }
 
 _SLUGS = sorted(set(LEAGUE_SLUGS.values()))
@@ -61,7 +75,7 @@ def _fetch_day(slug, day):
         return None
 
 
-def fetch_recent_results(days=3, use_cache=True):
+def fetch_recent_results(days=7, use_cache=True):
     now = time.time()
     if use_cache and _CACHE['index'] is not None and now - _CACHE['ts'] < _CACHE['ttl']:
         return _CACHE['index']

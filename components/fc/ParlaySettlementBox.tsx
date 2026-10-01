@@ -128,7 +128,7 @@ export function ParlaySettlementBox({ parlays, onSettled }: ParlaySettlementBoxP
                 {slip.legs ? `${slip.legs.length} leg · ` : ''}odds {formatOdds(slip.combined_odds)}
               </span>
               <span className="mono-val" style={{ fontSize: '0.85rem', fontWeight: 600 }}>
-                {settled ? `profit ${formatProfit(slip.profit)}u` : 'menunggu skor'}
+                {settled ? `profit ${formatProfit(slip.profit)}` : 'menunggu skor'}
               </span>
               {settled && slip.legs ? (
                 <span className="muted" style={{ fontSize: '0.78rem' }}>

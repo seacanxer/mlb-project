@@ -600,7 +600,7 @@ def name_keys(name):
     return {n} | _COMPLETE_ALIAS_INDEX.get(n, set())
 
 
-def fetch_recent_results(days=14, sleep_s=0.4, use_cache=True):
+def fetch_recent_results(days=7, sleep_s=0.4, use_cache=True):
     now = time.time()
     if use_cache and _CACHE["index"] is not None and now - _CACHE["ts"] < _CACHE["ttl"]:
         return _CACHE["index"]

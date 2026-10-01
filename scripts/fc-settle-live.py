@@ -27,6 +27,7 @@ from football_formula_engine.markets import settle_score  # noqa: E402
 import scores_flashscore  # noqa: E402
 import scores_alt  # noqa: E402
 import scores_espn  # noqa: E402
+import scores_fotmob  # noqa: E402
 
 SETTLE_DELAY_S = 6300  # 1h45m after kickoff
 DB_PATH = os.path.join(FC_DIR, 'bets.db')
@@ -86,11 +87,12 @@ def settle_bet(market, pick_label, odds, home_goals, away_goals):
     return (1 if profit > 0 else 0), round(profit, 8)
 
 
-def result_for_bet(home, away, kickoff_ts, lookup_fs, lookup_alt, lookup_espn=None):
+def result_for_bet(home, away, kickoff_ts, lookup_fs, lookup_alt, lookup_espn=None, lookup_fotmob=None):
     kickoff_date = datetime.fromtimestamp(kickoff_ts, tz=timezone.utc).date()
     for source, finder, lookup in (
         ('flashscore', scores_flashscore.find_result, lookup_fs),
         ('alt', scores_alt.find_result, lookup_alt),
+        ('fotmob', scores_fotmob.find_result, lookup_fotmob),
         ('espn', scores_espn.find_result, lookup_espn or {}),
     ):
         row = finder(home, away, lookup, kickoff_date)
@@ -117,7 +119,7 @@ def result_for_bet(home, away, kickoff_ts, lookup_fs, lookup_alt, lookup_espn=No
     return None
 
 
-def settle_manual_parlays(conn, now, lookup_fs, lookup_alt, lookup_espn=None, parlay_id=None):
+def settle_manual_parlays(conn, now, lookup_fs, lookup_alt, lookup_espn=None, parlay_id=None, lookup_fotmob=None):
     """Settle each manual slip as one unit; leg payouts multiply, including half results.
 
     With parlay_id, ignore the start_ts gate and settle that single slip if every
@@ -140,7 +142,7 @@ def settle_manual_parlays(conn, now, lookup_fs, lookup_alt, lookup_espn=None, pa
         for leg in legs:
             if leg['start_ts'] > now - SETTLE_DELAY_S:
                 continue
-            score = result_for_bet(leg['home'], leg['away'], leg['start_ts'], lookup_fs, lookup_alt, lookup_espn)
+            score = result_for_bet(leg['home'], leg['away'], leg['start_ts'], lookup_fs, lookup_alt, lookup_espn, lookup_fotmob)
             if not score:
                 continue
             home_goals, away_goals, _ = score
@@ -205,19 +207,24 @@ def main():
         print(json.dumps({'status': 'ok', 'settled': 0, 'pending': 0, 'parlay_settled': 0, 'pending_parlays': 0}))
         return 0
 
-    lookup_fs = scores_flashscore.fetch_recent_results(days=14)
+    lookup_fs = scores_flashscore.fetch_recent_results(days=7)
     lookup_fs_idx = scores_flashscore.build_lookup(lookup_fs)
-    lookup_alt = scores_alt.fetch_recent_results(days=14)
+    lookup_alt = scores_alt.fetch_recent_results(days=3)
     lookup_alt_idx = scores_alt.build_lookup(lookup_alt)
     lookup_espn_idx = None
     try:
-        lookup_espn_idx = scores_espn.build_lookup(scores_espn.fetch_recent_results(days=3))
+        lookup_espn_idx = scores_espn.build_lookup(scores_espn.fetch_recent_results(days=7))
     except Exception as exc:
         print(f"[settle] WARN espn feed unavailable: {exc}", flush=True)
+    lookup_fotmob_idx = None
+    try:
+        lookup_fotmob_idx = scores_fotmob.build_lookup(scores_fotmob.fetch_recent_results(days=3))
+    except Exception as exc:
+        print(f"[settle] WARN fotmob feed unavailable: {exc}", flush=True)
 
     settled_count = 0
     for bet in unsettled:
-        result = result_for_bet(bet['home'], bet['away'], bet['start_ts'], lookup_fs_idx, lookup_alt_idx, lookup_espn_idx)
+        result = result_for_bet(bet['home'], bet['away'], bet['start_ts'], lookup_fs_idx, lookup_alt_idx, lookup_espn_idx, lookup_fotmob_idx)
         if not result:
             continue
         home_goals, away_goals, source = result
@@ -235,7 +242,7 @@ def main():
         )
         settled_count += 1
 
-    parlay_settled = settle_manual_parlays(conn, now, lookup_fs_idx, lookup_alt_idx, lookup_espn_idx, parlay_id=args.parlay_id)
+    parlay_settled = settle_manual_parlays(conn, now, lookup_fs_idx, lookup_alt_idx, lookup_espn_idx, parlay_id=args.parlay_id, lookup_fotmob=lookup_fotmob_idx)
     pending_parlays = due_pending_parlays(conn, now)
     conn.commit()
     remaining = conn.execute('SELECT COUNT(*) c FROM bets WHERE settled=0').fetchone()['c']
