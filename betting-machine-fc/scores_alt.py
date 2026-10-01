@@ -13,6 +13,7 @@ import re
 import time
 import unicodedata
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date, timedelta
 
 UA = {"User-Agent": "Mozilla/5.0"}
@@ -65,14 +66,29 @@ def _fetch_thesportsdb():
     for a fallback that only runs on bets FlashScore could not match.
     """
     index = {}
-    for lid in _THESPORTSDB_LEAGUES:
+
+    def fetch_league(lid):
         url = f"https://www.thesportsdb.com/api/v1/json/3/eventspastleague.php?id={lid}"
-        try:
-            req = urllib.request.Request(url, headers=UA)
-            with urllib.request.urlopen(req, timeout=15) as r:
-                data = json.loads(r.read().decode())
-        except Exception as exc:
-            print(f"[scores_alt] WARN thesportsdb league {lid}: {exc}", flush=True)
+        last_error = None
+        for attempt in range(2):
+            try:
+                req = urllib.request.Request(url, headers=UA)
+                with urllib.request.urlopen(req, timeout=10) as r:
+                    return lid, json.loads(r.read().decode()), None
+            except Exception as exc:
+                last_error = exc
+                if attempt == 0:
+                    time.sleep(.2)
+        return lid, None, last_error
+
+    payloads = []
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        futures = [pool.submit(fetch_league, lid) for lid in _THESPORTSDB_LEAGUES]
+        for future in as_completed(futures):
+            payloads.append(future.result())
+    for lid, data, error in payloads:
+        if data is None:
+            print(f"[scores_alt] WARN thesportsdb league {lid}: {error}", flush=True)
             continue
         events = data.get("events") or []
         for e in events:
@@ -98,7 +114,6 @@ def _fetch_thesportsdb():
                 "period": "90min",
             }
             index.setdefault(key, []).append(row)
-        time.sleep(0.3)
     return index
 
 
@@ -108,14 +123,29 @@ def _fetch_thesportsdb():
 def _fetch_openligadb():
     """Fetch recent finished matchdays from OpenLigaDB (German leagues)."""
     index = {}
-    for league in _OPENLIGADB_LEAGUES:
+
+    def fetch_league(league):
         url = f"https://api.openligadb.de/getmatchdata/{league}"
-        try:
-            req = urllib.request.Request(url, headers=UA)
-            with urllib.request.urlopen(req, timeout=15) as r:
-                data = json.loads(r.read().decode())
-        except Exception as exc:
-            print(f"[scores_alt] WARN openligadb {league}: {exc}", flush=True)
+        last_error = None
+        for attempt in range(2):
+            try:
+                req = urllib.request.Request(url, headers=UA)
+                with urllib.request.urlopen(req, timeout=10) as r:
+                    return league, json.loads(r.read().decode()), None
+            except Exception as exc:
+                last_error = exc
+                if attempt == 0:
+                    time.sleep(.2)
+        return league, None, last_error
+
+    payloads = []
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        futures = [pool.submit(fetch_league, league) for league in _OPENLIGADB_LEAGUES]
+        for future in as_completed(futures):
+            payloads.append(future.result())
+    for league, data, error in payloads:
+        if data is None:
+            print(f"[scores_alt] WARN openligadb {league}: {error}", flush=True)
             continue
         for m in data:
             if not m.get("matchIsFinished"):
@@ -160,18 +190,16 @@ def fetch_recent_results(days=3, use_cache=True):
     if use_cache and _CACHE["index"] is not None and now - _CACHE["ts"] < _CACHE["ttl"]:
         return _CACHE["index"]
     index = {}
-    try:
-        tsdb = _fetch_thesportsdb()
-        for key, rows in tsdb.items():
-            index.setdefault(key, []).extend(rows)
-    except Exception as exc:
-        print(f"[scores_alt] WARN thesportsdb fetch failed: {exc}", flush=True)
-    try:
-        oldb = _fetch_openligadb()
-        for key, rows in oldb.items():
-            index.setdefault(key, []).extend(rows)
-    except Exception as exc:
-        print(f"[scores_alt] WARN openligadb fetch failed: {exc}", flush=True)
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        ts_future = pool.submit(_fetch_thesportsdb)
+        oldb_future = pool.submit(_fetch_openligadb)
+        for name, future in (('thesportsdb', ts_future), ('openligadb', oldb_future)):
+            try:
+                provider = future.result()
+                for key, rows in provider.items():
+                    index.setdefault(key, []).extend(rows)
+            except Exception as exc:
+                print(f"[scores_alt] WARN {name} fetch failed: {exc}", flush=True)
     _CACHE["ts"] = time.time()
     _CACHE["index"] = index
     return index

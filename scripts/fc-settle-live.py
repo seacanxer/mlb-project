@@ -2,18 +2,22 @@
 """Settle FC picks that have kicked off using results feeds.
 
 Flow:
-  1. load bets.db — find unsettled bets with start_ts <= now - SETTLE_DELAY
-  2. for each, fetch result from FlashScore (primary) then TheSportsDB/OpenLigaDB
+  1. load bets.db — find due singles and parlay legs
+  2. fetch only their kickoff-date pages from FlashScore, FotMob and league-scoped
+     ESPN in parallel; query TheSportsDB/OpenLigaDB only for unresolved fixtures
   3. settle via the same payout math as the engine (markets.settle_score)
   4. write back to bets.db (locked->settled) and refresh tracker_snapshot.json
 
 Run: betting-machine-fc/venv/bin/python scripts/fc-settle-live.py
 """
 import argparse
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from functools import wraps
 import json
 import math
 import os
 import sys
+import tempfile
 import time
 import sqlite3
 import subprocess
@@ -32,6 +36,46 @@ import scores_fotmob  # noqa: E402
 SETTLE_DELAY_S = 6300  # 1h45m after kickoff
 DB_PATH = os.path.join(FC_DIR, 'bets.db')
 SNAPSHOT_SCRIPT = os.path.join(BASE_DIR, 'scripts', 'fc-snapshot.py')
+FETCH_WORKERS = 4
+
+
+def serialize_settlement(func):
+    """Prevent cron, API refreshes and operator retries from overlapping."""
+    @wraps(func)
+    def wrapped(*args, **kwargs):
+        lock_path = os.environ.get('FC_SETTLE_LOCK_PATH',
+                                   os.path.join(tempfile.gettempdir(), 'fc-settle-live.lock'))
+        os.makedirs(os.path.dirname(os.path.abspath(lock_path)), exist_ok=True)
+        handle = open(lock_path, 'a+b')
+        try:
+            if os.name == 'nt':
+                import msvcrt
+                handle.seek(0, os.SEEK_END)
+                if handle.tell() == 0:
+                    handle.write(b'0')
+                    handle.flush()
+                handle.seek(0)
+                try:
+                    msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+                except OSError:
+                    print(json.dumps({'status': 'busy', 'message': 'Settlement lain sedang berjalan.'}))
+                    return 0
+                unlock = lambda: (handle.seek(0), msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1))
+            else:
+                import fcntl
+                try:
+                    fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                except BlockingIOError:
+                    print(json.dumps({'status': 'busy', 'message': 'Settlement lain sedang berjalan.'}))
+                    return 0
+                unlock = lambda: fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+            try:
+                return func(*args, **kwargs)
+            finally:
+                unlock()
+        finally:
+            handle.close()
+    return wrapped
 
 
 def parse_line(pick_str, market):
@@ -90,9 +134,9 @@ def settle_bet(market, pick_label, odds, home_goals, away_goals):
 def result_for_bet(home, away, kickoff_ts, lookup_fs, lookup_alt, lookup_espn=None, lookup_fotmob=None):
     kickoff_date = datetime.fromtimestamp(kickoff_ts, tz=timezone.utc).date()
     for source, finder, lookup in (
-        ('flashscore', scores_flashscore.find_result, lookup_fs),
-        ('alt', scores_alt.find_result, lookup_alt),
-        ('fotmob', scores_fotmob.find_result, lookup_fotmob),
+        ('flashscore', scores_flashscore.find_result, lookup_fs or {}),
+        ('alt', scores_alt.find_result, lookup_alt or {}),
+        ('fotmob', scores_fotmob.find_result, lookup_fotmob or {}),
         ('espn', scores_espn.find_result, lookup_espn or {}),
     ):
         row = finder(home, away, lookup, kickoff_date)
@@ -140,7 +184,7 @@ def settle_manual_parlays(conn, now, lookup_fs, lookup_alt, lookup_espn=None, pa
             continue
         outcomes = []
         for leg in legs:
-            if leg['start_ts'] > now - SETTLE_DELAY_S:
+            if parlay_id is None and leg['start_ts'] > now - SETTLE_DELAY_S:
                 continue
             score = result_for_bet(leg['home'], leg['away'], leg['start_ts'], lookup_fs, lookup_alt, lookup_espn, lookup_fotmob)
             if not score:
@@ -183,6 +227,67 @@ def due_pending_parlays(conn, now):
         (now - SETTLE_DELAY_S,)).fetchone()[0]
 
 
+def pending_parlay_ids(conn, now, parlay_id=None):
+    tables = {row[0] for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+    if not {'parlay_slips', 'parlay_legs'}.issubset(tables):
+        return []
+    if parlay_id is not None:
+        rows = conn.execute("SELECT id FROM parlay_slips WHERE id=? AND source='manual_lock' AND status='pending'", (int(parlay_id),)).fetchall()
+        return [row['id'] for row in rows]
+    rows = conn.execute('''SELECT p.id FROM parlay_slips p
+        WHERE p.source='manual_lock' AND p.status='pending'
+          AND EXISTS (SELECT 1 FROM parlay_legs l WHERE l.parlay_id=p.id)
+          AND NOT EXISTS (SELECT 1 FROM parlay_legs l WHERE l.parlay_id=p.id AND l.start_ts > ?)
+        ORDER BY p.id''', (now - SETTLE_DELAY_S,)).fetchall()
+    return [row['id'] for row in rows]
+
+
+def fetch_result_feeds(target_dates, leagues, league_dates=None, required_fixtures=None):
+    """Fetch only the dates and (for ESPN) competitions required by due rows."""
+    feeds = {
+        'flashscore': lambda: scores_flashscore.fetch_recent_results(
+            days=0, use_cache=False, target_dates=target_dates),
+        'fotmob': lambda: scores_fotmob.fetch_recent_results(
+            days=0, use_cache=False, target_dates=target_dates),
+        'espn': lambda: scores_espn.fetch_recent_results(
+            days=0, use_cache=False, target_dates=target_dates, leagues=leagues,
+            league_dates=league_dates),
+    }
+    results = {}
+    with ThreadPoolExecutor(max_workers=FETCH_WORKERS) as pool:
+        futures = {pool.submit(fetch): name for name, fetch in feeds.items()}
+        for future in as_completed(futures):
+            name = futures[future]
+            try:
+                results[name] = future.result()
+                rows = sum(len(value) for value in results[name].values()) if isinstance(results[name], dict) else len(results[name] or [])
+                print(f'[settle] feed={name} rows={rows}', flush=True)
+            except Exception as exc:
+                results[name] = {} if name != 'espn' else []
+                print(f'[settle] WARN feed={name} failed: {exc}', flush=True)
+    lookup_fs = scores_flashscore.build_lookup(results.get('flashscore') or {})
+    lookup_fotmob = scores_fotmob.build_lookup(results.get('fotmob') or {})
+    lookup_espn = scores_espn.build_lookup(results.get('espn') or [])
+    unresolved = []
+    for fixture in required_fixtures or ():
+        if result_for_bet(fixture['home'], fixture['away'], fixture['start_ts'],
+                          lookup_fs, {}, lookup_espn, lookup_fotmob) is None:
+            unresolved.append(fixture)
+    if unresolved or required_fixtures is None:
+        try:
+            results['alt'] = scores_alt.fetch_recent_results(use_cache=False)
+            row_count = sum(len(value) for value in results['alt'].values())
+            print(f'[settle] feed=alt rows={row_count} fallback_fixtures={len(unresolved)}', flush=True)
+        except Exception as exc:
+            results['alt'] = {}
+            print(f'[settle] WARN feed=alt failed: {exc}', flush=True)
+    else:
+        results['alt'] = {}
+        print('[settle] feed=alt skipped; primary feeds covered all due fixtures', flush=True)
+    return results
+
+
+@serialize_settlement
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--parlay-id', type=int, default=None,
@@ -194,7 +299,8 @@ def main():
         return 1
 
     now = time.time()
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=30)
+    conn.execute('PRAGMA busy_timeout=30000')
     conn.row_factory = sqlite3.Row
 
     unsettled = conn.execute(
@@ -203,24 +309,33 @@ def main():
     ).fetchall()
 
     pending_parlays = due_pending_parlays(conn, now)
-    if not unsettled and not pending_parlays:
+    due_slip_ids = pending_parlay_ids(conn, now, args.parlay_id)
+    if not unsettled and not due_slip_ids:
+        conn.close()
         print(json.dumps({'status': 'ok', 'settled': 0, 'pending': 0, 'parlay_settled': 0, 'pending_parlays': 0}))
         return 0
 
-    lookup_fs = scores_flashscore.fetch_recent_results(days=7)
-    lookup_fs_idx = scores_flashscore.build_lookup(lookup_fs)
-    lookup_alt = scores_alt.fetch_recent_results(days=3)
-    lookup_alt_idx = scores_alt.build_lookup(lookup_alt)
-    lookup_espn_idx = None
-    try:
-        lookup_espn_idx = scores_espn.build_lookup(scores_espn.fetch_recent_results(days=7))
-    except Exception as exc:
-        print(f"[settle] WARN espn feed unavailable: {exc}", flush=True)
-    lookup_fotmob_idx = None
-    try:
-        lookup_fotmob_idx = scores_fotmob.build_lookup(scores_fotmob.fetch_recent_results(days=3))
-    except Exception as exc:
-        print(f"[settle] WARN fotmob feed unavailable: {exc}", flush=True)
+    parlay_legs = []
+    if due_slip_ids and conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='parlay_legs'").fetchone():
+        marks = ','.join('?' for _ in due_slip_ids)
+        parlay_legs = conn.execute(
+            f'SELECT * FROM parlay_legs WHERE parlay_id IN ({marks})', due_slip_ids).fetchall()
+    target_rows = [*unsettled, *parlay_legs]
+    target_dates = sorted({datetime.fromtimestamp(float(row['start_ts']), timezone.utc).date().isoformat()
+                           for row in target_rows if row['start_ts'] is not None})
+    target_leagues = sorted({row['league'] for row in target_rows
+                             if 'league' in row.keys() and row['league']})
+    league_dates = sorted({(datetime.fromtimestamp(float(row['start_ts']), timezone.utc).date().isoformat(),
+                            row['league'])
+                           for row in target_rows
+                           if row['start_ts'] is not None and 'league' in row.keys() and row['league']})
+    print(f'[settle] scanning {len(unsettled)} singles, {len(due_slip_ids)} parlays '
+          f'across {len(target_dates)} kickoff dates', flush=True)
+    feeds = fetch_result_feeds(target_dates, target_leagues, league_dates, target_rows)
+    lookup_fs_idx = scores_flashscore.build_lookup(feeds['flashscore'])
+    lookup_alt_idx = scores_alt.build_lookup(feeds['alt'])
+    lookup_espn_idx = scores_espn.build_lookup(feeds['espn'])
+    lookup_fotmob_idx = scores_fotmob.build_lookup(feeds['fotmob'])
 
     settled_count = 0
     for bet in unsettled:
@@ -242,7 +357,9 @@ def main():
         )
         settled_count += 1
 
-    parlay_settled = settle_manual_parlays(conn, now, lookup_fs_idx, lookup_alt_idx, lookup_espn_idx, parlay_id=args.parlay_id, lookup_fotmob=lookup_fotmob_idx)
+    parlay_settled = settle_manual_parlays(
+        conn, now, lookup_fs_idx, lookup_alt_idx, lookup_espn_idx,
+        parlay_id=args.parlay_id, lookup_fotmob=lookup_fotmob_idx)
     pending_parlays = due_pending_parlays(conn, now)
     conn.commit()
     remaining = conn.execute('SELECT COUNT(*) c FROM bets WHERE settled=0').fetchone()['c']
@@ -254,6 +371,7 @@ def main():
         'status': 'ok', 'settled': settled_count,
         'to_settle': len(unsettled), 'remaining': remaining,
         'parlay_settled': parlay_settled, 'pending_parlays': pending_parlays,
+        'kickoff_dates_checked': target_dates,
     }))
     return 0
 

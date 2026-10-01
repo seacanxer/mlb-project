@@ -13,6 +13,7 @@ import re
 import subprocess
 import time
 import unicodedata
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date, timedelta
 
 SCOREBOARD_URL = ('https://site.api.espn.com/apis/site/v2/sports/soccer/'
@@ -65,57 +66,96 @@ def name_keys(name):
 
 def _fetch_day(slug, day):
     url = SCOREBOARD_URL.format(slug=slug, day=day)
-    try:
-        r = subprocess.run(['curl', '-s', '-m', '25', '--compressed', url],
-                           capture_output=True, timeout=30)
-        if not r.stdout:
-            return None
-        return json.loads(r.stdout.decode('utf-8', 'replace'))
-    except Exception:
-        return None
+    for attempt in range(2):
+        try:
+            r = subprocess.run(['curl', '-s', '-m', '12', '--compressed', url],
+                               capture_output=True, timeout=15)
+            if r.stdout:
+                return json.loads(r.stdout.decode('utf-8', 'replace'))
+        except Exception:
+            pass
+        if attempt == 0:
+            time.sleep(.2)
+    return None
 
 
-def fetch_recent_results(days=7, use_cache=True):
+def fetch_recent_results(days=7, use_cache=True, target_dates=None, leagues=None, league_dates=None):
     now = time.time()
-    if use_cache and _CACHE['index'] is not None and now - _CACHE['ts'] < _CACHE['ttl']:
+    if use_cache and not target_dates and leagues is None and league_dates is None and _CACHE['index'] is not None and now - _CACHE['ts'] < _CACHE['ttl']:
         return _CACHE['index']
     index = []
     today = date.today()
-    for d in range(0, -days, -1):
-        day = (today + timedelta(days=d)).strftime('%Y%m%d')
-        for slug in _SLUGS:
-            data = _fetch_day(slug, day)
-            if not data:
+    requested_dates = {today + timedelta(days=d) for d in range(0, -max(0, int(days)), -1)}
+    for value in target_dates or ():
+        try:
+            requested_dates.add(value if isinstance(value, date) else date.fromisoformat(str(value)[:10]))
+        except (TypeError, ValueError):
+            continue
+    if leagues is None:
+        requested_slugs = _SLUGS
+    else:
+        normalized = {norm(league) for league in leagues if league}
+        slug_map = {norm(name): slug for name, slug in LEAGUE_SLUGS.items()}
+        requested_slugs = sorted({slug_map[name] for name in normalized if name in slug_map})
+    slug_map = {norm(name): slug for name, slug in LEAGUE_SLUGS.items()}
+    if league_dates is None:
+        targets = {(slug, day) for day in requested_dates for slug in requested_slugs}
+    else:
+        targets = set()
+        for day_value, league in league_dates:
+            try:
+                day_date = day_value if isinstance(day_value, date) else date.fromisoformat(str(day_value)[:10])
+            except (TypeError, ValueError):
                 continue
-            for ev in data.get('events') or []:
-                try:
-                    comp = (ev.get('competitions') or [{}])[0]
-                    competitors = comp.get('competitors') or []
-                    if len(competitors) < 2:
-                        continue
-                    status = str((ev.get('status') or {}).get('type', {}).get('name') or '').strip().lower()
-                    if status not in ('status_full_time', 'full_time', 'final'):
-                        continue
-                    home = competitors[0]
-                    away = competitors[1]
-                    league = ((data.get('leagues') or [{}])[0]).get('name') or slug
-                    index.append({
-                        'home': home.get('team', {}).get('displayName', ''),
-                        'away': away.get('team', {}).get('displayName', ''),
-                        'home_goals': int(home.get('score')),
-                        'away_goals': int(away.get('score')),
-                        'date_key': (today + timedelta(days=d)).isoformat(),
-                        'league': league,
-                        'period': '90min',
-                        'status': 'final',
-                        'espn_id': comp.get('id'),
-                    })
-                except (TypeError, ValueError, KeyError):
+            slug = slug_map.get(norm(league or ''))
+            if slug:
+                targets.add((slug, day_date))
+    pages = []
+    tasks = [(slug, day.strftime('%Y%m%d'), day) for slug, day in targets]
+    with ThreadPoolExecutor(max_workers=min(6, max(1, len(tasks)))) as pool:
+        futures = {pool.submit(_fetch_day, slug, day): (slug, day, day_date)
+                   for slug, day, day_date in tasks}
+        for future in as_completed(futures):
+            slug, day, day_date = futures[future]
+            try:
+                pages.append((slug, day, day_date, future.result()))
+            except Exception:
+                pages.append((slug, day, day_date, None))
+    for slug, day, day_date, data in sorted(pages, key=lambda row: (row[2], row[0])):
+        if not data:
+            continue
+        for ev in data.get('events') or []:
+            try:
+                comp = (ev.get('competitions') or [{}])[0]
+                competitors = comp.get('competitors') or []
+                if len(competitors) < 2:
                     continue
-            time.sleep(0.2)
-        time.sleep(0.3)
-    _CACHE['ts'] = time.time()
-    _CACHE['index'] = index
+                home = next((item for item in competitors
+                             if str(item.get('homeAway') or '').lower() == 'home'), None)
+                away = next((item for item in competitors
+                             if str(item.get('homeAway') or '').lower() == 'away'), None)
+                if home is None or away is None:
+                    continue
+                status = str((ev.get('status') or {}).get('type', {}).get('name') or '').strip().lower()
+                if status not in ('status_full_time', 'full_time', 'final'):
+                    continue
+                league = ((data.get('leagues') or [{}])[0]).get('name') or slug
+                index.append({
+                    'home': home.get('team', {}).get('displayName', ''),
+                    'away': away.get('team', {}).get('displayName', ''),
+                    'home_goals': int(home.get('score')),
+                    'away_goals': int(away.get('score')),
+                    'date_key': day_date.isoformat(),
+                    'league': league,
+                    'period': '90min',
+                    'status': 'final',
+                    'espn_id': comp.get('id'),
+                })
+            except (TypeError, ValueError, KeyError):
+                continue
+    if not target_dates and leagues is None and league_dates is None:
+        _CACHE['ts'] = time.time()
+        _CACHE['index'] = index
     return index
 
 

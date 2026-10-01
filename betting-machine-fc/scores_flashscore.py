@@ -3,6 +3,7 @@ import time
 import unicodedata
 import urllib.request
 import difflib
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date, timedelta
 
 UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"}
@@ -600,22 +601,55 @@ def name_keys(name):
     return {n} | _COMPLETE_ALIAS_INDEX.get(n, set())
 
 
-def fetch_recent_results(days=7, sleep_s=0.4, use_cache=True):
+def _requested_offsets(days, target_dates, today):
+    offsets = set(range(0, -max(0, int(days)), -1))
+    for value in target_dates or ():
+        try:
+            target = value if isinstance(value, date) else date.fromisoformat(str(value)[:10])
+        except (TypeError, ValueError):
+            continue
+        offsets.add((target - today).days)
+    return sorted(offsets, reverse=True)
+
+
+def fetch_recent_results(days=7, sleep_s=0.4, use_cache=True, target_dates=None):
+    """Fetch recent results plus the exact dates needed by the settlement backlog.
+
+    Supplying target_dates bypasses the short-lived broad cache: an old overdue
+    fixture must never be hidden by a cache that only contains the last week.
+    Day pages are fetched concurrently with bounded workers and one retry.
+    """
     now = time.time()
-    if use_cache and _CACHE["index"] is not None and now - _CACHE["ts"] < _CACHE["ttl"]:
+    if use_cache and not target_dates and _CACHE["index"] is not None and now - _CACHE["ts"] < _CACHE["ttl"]:
         return _CACHE["index"]
     index = {}
     failed = 0
     today = date.today()
-    for d in range(0, -days, -1):
+    offsets = _requested_offsets(days, target_dates, today)
+
+    def fetch_page(d):
         url = f"https://www.flashscore.mobi/?d={d}"
-        try:
-            req = urllib.request.Request(url, headers=UA)
-            with urllib.request.urlopen(req, timeout=25) as r:
-                html = r.read().decode("utf-8", "ignore")
-        except Exception as exc:
+        last_error = None
+        for attempt in range(2):
+            try:
+                req = urllib.request.Request(url, headers=UA)
+                with urllib.request.urlopen(req, timeout=12) as r:
+                    return d, r.read().decode("utf-8", "ignore"), None
+            except Exception as exc:
+                last_error = exc
+                if attempt == 0:
+                    time.sleep(.2)
+        return d, None, last_error
+
+    pages = []
+    with ThreadPoolExecutor(max_workers=min(4, max(1, len(offsets)))) as pool:
+        futures = [pool.submit(fetch_page, d) for d in offsets]
+        for future in as_completed(futures):
+            pages.append(future.result())
+    for d, html, error in sorted(pages, key=lambda item: item[0], reverse=True):
+        if html is None:
             failed += 1
-            print(f"[scores_flashscore] WARN fetch failed d={d}: {exc}", flush=True)
+            print(f"[scores_flashscore] WARN fetch failed d={d}: {error}", flush=True)
             continue
         date_key = (today + timedelta(days=d)).isoformat()
         for m in re.finditer(r'<h4>(.*?)</h4>(.*?)(?=<h4>|$)', html, re.S):
@@ -632,14 +666,16 @@ def fetch_recent_results(days=7, sleep_s=0.4, use_cache=True):
                                   "away_goals": ag, "fs_id": fsid, "date_key": date_key,
                                   "league": re.sub(r"<[^>]+>", "", m.group(1)).strip(),
                                   "period": "unknown"})
-        time.sleep(sleep_s)
+    # Keep the legacy argument accepted for call compatibility; concurrent
+    # requests are bounded above, so per-page sleeps are no longer needed.
     if failed:
-        print(f"[scores_flashscore] WARN {failed}/{days} day-pages failed to fetch", flush=True)
-    if not index and failed == days:
+        print(f"[scores_flashscore] WARN {failed}/{len(offsets)} requested day-pages failed to fetch", flush=True)
+    if not index and offsets and failed == len(offsets):
         print("[scores_flashscore] ERROR results feed empty — flashscore.mobi unreachable or blocked from this host", flush=True)
         return index
-    _CACHE["ts"] = time.time()
-    _CACHE["index"] = index
+    if not target_dates:
+        _CACHE["ts"] = time.time()
+        _CACHE["index"] = index
     return index
 
 

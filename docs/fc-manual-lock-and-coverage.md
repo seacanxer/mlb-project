@@ -63,16 +63,31 @@ the engine is offline (`picks.json` and `matches_detailed.json` both missing)
 and requires the same `FC_LOCK_TOKEN` bearer token as the lock API when that
 token is configured.
 
-Nothing in the repository schedules settlement, so refresh it manually or add
-a cron job on the VPS:
+The web application does not schedule settlement by itself. On the VPS,
+install the repository cron entry once as the same Unix user that owns
+`betting-machine-fc/bets.db`:
 
 ```bash
-*/10 * * * * cd /path/to/repo && ./betting-machine-fc/venv/bin/python scripts/fc-settle-live.py >> /tmp/fc-settle.log 2>&1
+bash scripts/install-fc-settlement-cron.sh
+crontab -l | grep fc-settle-live
+tail -f /tmp/fc-settle-live.log
 ```
 
+It runs every five minutes, recovers the exact kickoff dates of currently due
+singles and parlays, and queries those dates instead of losing old overdue
+fixtures outside a rolling seven-day window. Feed requests use bounded
+concurrency/retries; ESPN is restricted to leagues it supports. Cron and API
+refreshes share a process lock so two runs cannot race the ledger. The script
+also writes provider row counts and attempted kickoff dates to its log.
+
+After installation, verify `crontab -l` and `/tmp/fc-settle-live.log`; the app
+deploy alone cannot install a VPS user's scheduler. The UI Refresh button
+remains available for an immediate retry.
+
 A slip stays `pending` ("Menunggu skor") until every leg reports a final score
-and at least 1h45m have passed since kickoff; feeds are FlashScore first, then
-TheSportsDB/OpenLigaDB for major leagues.
+and at least 1h45m have passed since kickoff. FlashScore, FotMob and supported
+ESPN leagues are checked in parallel; TheSportsDB/OpenLigaDB are fallback feeds
+for fixtures the primary feeds do not resolve.
 
 ## Why the 2026-09-25 scan showed 401 unsupported fixtures
 

@@ -8,8 +8,8 @@ import { promisify } from 'node:util';
 /**
  * POST /api/fc/settle — refresh settlement from the results feeds.
  *
- * Runs scripts/fc-settle-live.py (FlashScore → TheSportsDB/OpenLigaDB, then
- * payout math), then ALWAYS rebuilds tracker_snapshot.json with
+ * Runs scripts/fc-settle-live.py (targeted parallel result feeds with fallback,
+ * then payout math), then ALWAYS rebuilds tracker_snapshot.json with
  * scripts/fc-snapshot.py — so `manual_parlays[].legs` and the KPI cards stay
  * fresh even when a score feed fails (the settle script only rebuilds the
  * snapshot on its own success path). Same operator token gate as
@@ -76,7 +76,7 @@ function summaryMessage(summary: SettleSummary): string {
   return 'Tidak ada settlement tertunda.';
 }
 
-async function settle(parlayId: string | null): Promise<{ status: string; message: string; summary: SettleSummary }> {
+async function settle(parlayId: string | null): Promise<{ status: 'done' | 'busy'; message: string; summary: SettleSummary }> {
   const script = path.join(process.cwd(), 'scripts', 'fc-settle-live.py');
   try {
     const args = parlayId ? [script, '--parlay-id', parlayId] : [script];
@@ -84,6 +84,9 @@ async function settle(parlayId: string | null): Promise<{ status: string; messag
     const line = stdout.trim().split('\n').at(-1) ?? '';
     if (!line) throw new Error('Settlement tidak menghasilkan keluaran.');
     const summary = JSON.parse(line) as SettleSummary;
+    if (summary.status === 'busy') {
+      return { status: 'busy', message: summary.message ?? 'Settlement lain sedang berjalan.', summary };
+    }
     if (summary.status !== 'ok') throw new Error(summary.message ?? 'Settlement gagal.');
     return { status: 'done', message: summaryMessage(summary), summary };
   } catch (error) {
@@ -145,8 +148,8 @@ export async function POST(request: Request) {
   startedAt = Date.now();
   last = { at: new Date().toISOString(), status: 'running' };
 
-  // The settle script fetches 14 day-pages of results (~90s), past the 100s edge
-  // timeout of the tunnel proxy, so the work runs detached and GET polls it.
+  // The settle job can outlive the reverse-proxy request, so it runs detached
+  // and GET polls its status. A VPS cron job provides durable automatic retries.
   void runSettleInBackground(parlayId);
   return NextResponse.json(
     {
@@ -162,12 +165,19 @@ export async function POST(request: Request) {
 async function runSettleInBackground(parlayId: string | null) {
   try {
     let settleError: Error | null = null;
+    let busyMessage: string | null = null;
     let summary: SettleSummary = {};
     try {
       const result = await settle(parlayId);
       summary = result.summary;
+      if (result.status === 'busy') busyMessage = result.message;
     } catch (error) {
       settleError = error instanceof Error ? error : new Error('Settlement gagal.');
+    }
+
+    if (busyMessage) {
+      last = { at: new Date().toISOString(), status: 'busy', message: busyMessage };
+      return;
     }
 
     let snapshotError: Error | null = null;

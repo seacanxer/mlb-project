@@ -8,6 +8,8 @@ import time
 import unicodedata
 import urllib.request
 import zlib
+import html as html_lib
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from collections import defaultdict
 from datetime import date, timedelta
 
@@ -53,28 +55,50 @@ def _alias(name):
     return variants
 
 
-def fetch_recent_results(days=3, use_cache=True):
+def fetch_recent_results(days=3, use_cache=True, target_dates=None):
     now = time.time()
-    if use_cache and _CACHE['index'] is not None and now - _CACHE['ts'] < _CACHE['ttl']:
+    if use_cache and not target_dates and _CACHE['index'] is not None and now - _CACHE['ts'] < _CACHE['ttl']:
         return _CACHE['index']
     index = defaultdict(list)
     today = date.today()
-    for back in range(0, -days, -1):
-        day = (today + timedelta(days=back)).strftime('%Y%m%d')
+    requested = {today + timedelta(days=back) for back in range(0, -max(0, int(days)), -1)}
+    for value in target_dates or ():
         try:
-            req = urllib.request.Request(FEED_URL.format(day=day), headers=UA)
-            with urllib.request.urlopen(req, timeout=25) as r:
-                raw = r.read()
+            requested.add(value if isinstance(value, date) else date.fromisoformat(str(value)[:10]))
+        except (TypeError, ValueError):
+            continue
+
+    def fetch_day(day_date):
+        day = day_date.strftime('%Y%m%d')
+        req = urllib.request.Request(FEED_URL.format(day=day), headers=UA)
+        last_error = None
+        for attempt in range(2):
+            try:
+                with urllib.request.urlopen(req, timeout=12) as r:
+                    raw = r.read()
                 try:
                     raw = zlib.decompress(raw, 16 + zlib.MAX_WBITS)
                 except zlib.error:
                     pass
-                xml = raw.decode('utf-8', 'ignore')
-        except Exception as exc:
-            print(f'[scores_fotmob] WARN day={day}: {exc}', flush=True)
+                return day_date, raw.decode('utf-8', 'ignore'), None
+            except Exception as exc:
+                last_error = exc
+                if attempt == 0:
+                    time.sleep(.2)
+        return day_date, None, last_error
+
+    pages = []
+    with ThreadPoolExecutor(max_workers=min(4, max(1, len(requested)))) as pool:
+        futures = [pool.submit(fetch_day, day_date) for day_date in sorted(requested)]
+        for future in as_completed(futures):
+            pages.append(future.result())
+    for day_date, xml, error in sorted(pages):
+        day = day_date.strftime('%Y%m%d')
+        if xml is None:
+            print(f'[scores_fotmob] WARN day={day}: {error}', flush=True)
             continue
         for m in MATCH_RE.finditer(xml):
-            home, away = m.group('home'), m.group('away')
+            home, away = html_lib.unescape(m.group('home')), html_lib.unescape(m.group('away'))
             status = m.group('status')
             try:
                 hg, ag = int(m.group('hg')), int(m.group('ag'))
@@ -97,8 +121,9 @@ def fetch_recent_results(days=3, use_cache=True):
             for h in _alias(home):
                 for a in _alias(away):
                     index[(h, a)].append(row)
-    _CACHE['index'] = index
-    _CACHE['ts'] = time.time()
+    if not target_dates:
+        _CACHE['index'] = index
+        _CACHE['ts'] = time.time()
     return index
 
 
