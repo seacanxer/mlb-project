@@ -42,22 +42,30 @@ def _outcome(row, market, pick):
         if row['home_corners'] is None or row['away_corners'] is None:
             return None
         actual = row['home_corners'] + row['away_corners']
+        if actual == pick['line']:
+            return None  # push = void, never a win/loss
         return int(actual > pick['line'] if pick['side'] == 'over' else actual < pick['line'])
     if market == 'cards_ou':
         if any(row.get(key) is None for key in ('home_yellow', 'away_yellow', 'home_red', 'away_red')):
             return None
         actual = row['home_yellow'] + row['away_yellow'] + 2 * (row['home_red'] + row['away_red'])
+        if actual == pick['line']:
+            return None  # push = void, never a win/loss
         return int(actual > pick['line'] if pick['side'] == 'over' else actual < pick['line'])
     if market == 'team_cards_ou':
         side = pick['team']
         if row.get(f'{side}_yellow') is None or row.get(f'{side}_red') is None:
             return None
         actual = row[f'{side}_yellow'] + 2 * row[f'{side}_red']
+        if actual == pick['line']:
+            return None  # push = void, never a win/loss
         return int(actual > pick['line'] if pick['side'] == 'over' else actual < pick['line'])
     if row['home_corners'] is None or row['away_corners'] is None:
         return None
     diff = row['home_corners'] - row['away_corners']
     margin = diff + pick['line'] if pick['side'] == 'home' else -diff + pick['line']
+    if margin == 0:
+        return None  # push = void, never a win/loss
     return int(margin > 0)
 
 
@@ -67,7 +75,7 @@ def _baseline(rows, target, market, pick):
     return (sum(outcomes) + 1) / (len(outcomes) + 2) if outcomes else None
 
 
-def backtest(rows):
+def backtest(rows, *, keep_records=False):
     records = {'corners_ou': [], 'corner_hdp': [], 'cards_ou': [], 'team_cards_ou': []}
     skipped = {'insufficient_prior_stats': 0, 'missing_target_stats': 0}
     for target in rows:
@@ -90,10 +98,18 @@ def backtest(rows):
                 continue
             probability = pick['probability']
             records[market].append({'probability': probability, 'outcome': outcome,
-                                    'baseline_probability': _baseline(rows, target, market, pick)})
+                                    'baseline_probability': _baseline(rows, target, market, pick),
+                                    'date': target['date'].isoformat(),
+                                    'home': target['home'], 'away': target['away'],
+                                    'line': pick['line'], 'side': pick['side']})
+    by_market = {}
+    for market, values in records.items():
+        metrics = _metrics(values)
+        if keep_records:
+            metrics['records'] = values
+        by_market[market] = metrics
     return {'mode': 'walk_forward_pre_kickoff', 'model_version': 'fc-secondary-counts-v1',
-            'rows': len(rows), 'skipped': skipped,
-            'by_market': {market: _metrics(values) for market, values in records.items()},
+            'rows': len(rows), 'skipped': skipped, 'by_market': by_market,
             'roi_claim': 'unavailable_no_historical_secondary_market_odds'}
 
 
@@ -101,9 +117,22 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('csv', type=Path, nargs='+')
     parser.add_argument('--out', type=Path)
+    parser.add_argument('--keep-records', action='store_true',
+                        help='embed per-offer walk-forward records (for calibration fitting)')
     args = parser.parse_args()
-    report = backtest(load_stat_rows(args.csv))
-    rendered = json.dumps(report, indent=2, allow_nan=False)
+    merged = {'mode': 'walk_forward_pre_kickoff', 'model_version': 'fc-secondary-counts-v1',
+              'by_market': {}, 'roi_claim': 'unavailable_no_historical_secondary_market_odds'}
+    for csv_path in args.csv:
+        report = backtest(load_stat_rows([csv_path]), keep_records=args.keep_records)
+        merged.setdefault('inputs', []).append(
+            {'csv': str(csv_path), 'rows': report['rows'], 'skipped': report['skipped']})
+        for market, metrics in report['by_market'].items():
+            bucket = merged['by_market'].setdefault(market, {'records': []})
+            bucket['records'].extend(metrics.pop('records', []))
+    if not args.keep_records:
+        for bucket in merged['by_market'].values():
+            bucket.pop('records', None)
+    rendered = json.dumps(merged, indent=2, allow_nan=False)
     if args.out:
         args.out.parent.mkdir(parents=True, exist_ok=True)
         args.out.write_text(rendered, encoding='utf-8')

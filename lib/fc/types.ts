@@ -71,6 +71,8 @@ export interface FcPick {
   probability: number;
   ev: number | null;
   conservative_ev: number | null;
+  /** 'home' | 'away' for team_cards_ou only; settled via settle_secondary_bet. */
+  team?: string | null;
   market_probability?: number;
   edge_pct?: number;
   suggested_stake?: number;
@@ -306,7 +308,7 @@ export interface MatchAnalysis {
       n_eff: number; dispersion: number; referee_status: string };
     markets: { market: string; side: string; line: number | null; pick: string; probability: number;
       odds: number | null; p_market_novig: number | null; edge: number | null;
-      availability: 'A' | 'B'; status: 'projection' | 'value'; label: string }[];
+      availability: 'A' | 'B'; status: 'projection' | 'value'; label: string; team?: string | null }[];
     market_odds_available?: boolean;
   };
 }

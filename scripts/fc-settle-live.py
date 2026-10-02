@@ -131,6 +131,95 @@ def settle_bet(market, pick_label, odds, home_goals, away_goals):
     return (1 if profit > 0 else 0), round(profit, 8)
 
 
+# ---- Secondary (corner/card) settlement ------------------------------------
+# House-rules mapping (1xbit FT sub-games TI=2/8/10; FotMob actuals):
+#   corners_ou   total = HC + AC (all corners, incl. injury time; extra-time
+#                excluded — regulation only). Push (actual == line) = void.
+#   corner_hdp   diff = HC - AC plus the handicap line, settled with the same
+#                Asian math as goals AH (settle_score 'ah'). Push = void.
+#   cards_ou     booking POINTS total = home_points + away_points where
+#                points = yellows*1 + reds*2 per side (football-data
+#                convention HY+AY+2*(HR+AR), same as the model and backtest).
+#                A second yellow therefore counts 1 (yellow) + 2 (red) = 3,
+#                matching 1xbit "booking points" convention; books that count
+#                cards (not points) need a different total and must NOT reuse
+#                this path. Push = void.
+#   team_cards_ou  same points convention, one side only (team='home'/'away').
+#   red_card     yes wins iff (HR + AR) > 0, i.e. any direct red or second
+#                yellow shown in regulation. No line, no push.
+# Actuals source: FotMob match_stats() (scripts/fc-fetch-match-stats.py) via
+# {code}_stat_history.csv — HC/AC/HY/AY/HR/AR + Referee. Live auto-wiring is
+# intentionally NOT done here yet: secondary picks are still projection-only
+# (locked=False, never in bets.db), so there is nothing to settle. These pure
+# functions exist so EV/settlement is ready when a verified quote source
+# promotes a secondary market to lockable.
+def settle_secondary_bet(market, side, line_quarters, odds, home_corners=None,
+                         away_corners=None, home_points=None, away_points=None,
+                         red_total=None, team=None):
+    """Settle one secondary leg. Returns (won|None, profit); None = skip.
+
+    side: 'over'/'under' for *_ou, 'home'/'away' for corner_hdp,
+          'yes'/'no' for red_card. team: required 'home'/'away' for
+    team_cards_ou. line_quarters: int quarter-units (None only for red_card).
+    Missing actuals -> None (unresolved, never a loss).
+    """
+    if not math.isfinite(odds) or odds <= 1:
+        raise ValueError('Invalid decimal odds')
+    norm_side = str(side or '').strip().lower()
+    if market in ('corners_ou', 'cards_ou'):
+        if norm_side not in ('over', 'under'):
+            raise ValueError('Unknown secondary O/U side')
+        if line_quarters is None or line_quarters < 0:
+            return None
+        if market == 'corners_ou':
+            if home_corners is None or away_corners is None:
+                return None
+            home_value, away_value = int(home_corners), int(away_corners)
+        else:
+            if home_points is None or away_points is None:
+                return None
+            home_value, away_value = int(home_points), int(away_points)
+        payout = settle_score('ou', norm_side, int(line_quarters), home_value, away_value)
+    elif market == 'corner_hdp':
+        if norm_side not in ('home', 'away'):
+            raise ValueError('Unknown corner handicap side')
+        if line_quarters is None:
+            return None
+        if home_corners is None or away_corners is None:
+            return None
+        payout = settle_score('ah', norm_side, int(line_quarters),
+                              int(home_corners), int(away_corners))
+    elif market == 'team_cards_ou':
+        if norm_side not in ('over', 'under'):
+            raise ValueError('Unknown secondary O/U side')
+        if team not in ('home', 'away'):
+            return None
+        if home_points is None or away_points is None:
+            return None
+        if line_quarters is None or line_quarters < 0:
+            return None
+        # Reuse total math with the other side zeroed: total == side points.
+        other = 0
+        mine = int(home_points) if team == 'home' else int(away_points)
+        payout = settle_score('ou', norm_side, int(line_quarters), mine, other)
+    elif market == 'red_card':
+        if norm_side not in ('yes', 'no'):
+            raise ValueError('Unknown red-card side')
+        if red_total is None:
+            return None
+        won_side = 'yes' if int(red_total) > 0 else 'no'
+        if norm_side != won_side:
+            return 0, round(-1.0, 8)
+        return 1, round(odds - 1.0, 8)
+    else:
+        return None
+    if payout.push == 1.0:
+        return None, 0.0
+    profit = ((payout.full_win + 0.5 * payout.half_win) * (odds - 1.0)
+              - payout.full_loss - 0.5 * payout.half_loss)
+    return (1 if profit > 0 else 0), round(profit, 8)
+
+
 def result_for_bet(home, away, kickoff_ts, lookup_fs, lookup_alt, lookup_espn=None, lookup_fotmob=None):
     kickoff_date = datetime.fromtimestamp(kickoff_ts, tz=timezone.utc).date()
     for source, finder, lookup in (

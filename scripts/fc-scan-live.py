@@ -596,6 +596,10 @@ def secondary_pick_payload(info, offer, observation, captured_at, decision_at, c
         'market': offer.get('market') or 'secondary',
         'pick': offer.get('pick') or offer.get('side') or '',
         'side': offer.get('side'),
+        # 'home'/'away' for team_cards_ou only; None otherwise. Required by
+        # settle_secondary_bet(team=...) — without it a team-cards leg can
+        # never be settled (see scripts/fc-settle-live.py).
+        'team': offer.get('team'),
         'line_quarters': None if line is None else int(round(float(line) * 4)),
         'probability': round(probability, 4),
         'effective_win_probability': round(probability, 4),

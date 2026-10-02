@@ -57,6 +57,145 @@ def get_match(mid, country=169):
     return j.get("Value", {})
 
 
+# Sub-game type IDs seen in GetGameZip?SG (GroupEvents=true):
+#   TI=2  -> Corners (full-time OU/AH mirror the goal-market G/T codes)
+#   TI=8  -> Yellow Cards (count OU)
+#   TI=10 -> Cards / booking points (points OU, yellow=1 + red=2 per house rules)
+# Verified 2026-10-03 against a live Nations League fixture: corner OU lines
+# 6.5-10.5 sit in G=17/G=99, handicap in G=2 — same T codes as goals.
+SECONDARY_TI = {'corners': 2, 'yellow_cards': 8, 'cards': 10}
+
+# Contract keys added for secondary markets. Main extract_markets() always
+# carries them (empty by default) so downstream code never KeyErrors;
+# population is opt-in via extract_secondary_markets() to avoid 3-4x API
+# calls on every scan.
+SECONDARY_KEYS = ('odds_corners_ou', 'odds_corner_ah',
+                  'odds_yellow_ou', 'odds_cards_ou')
+
+
+def get_match_grouped(mid, country=169):
+    """GetGameZip with sub-game grouping so SG/GE are populated."""
+    url = (f"{BASE}GetGameZip?id={mid}&lng=en&country={country}"
+           "&cfview=0&isSubGames=true&GroupEvents=true&countevents=500")
+    j = fetch(url)
+    return j.get("Value", {}) if isinstance(j, dict) else {}
+
+
+def get_subgame_ids(mid, country=169):
+    """Return {'corners': id, 'yellow_cards': id, 'cards': id} for FT only.
+
+    FT = no period (P absent) and empty PN. Half sub-games (P=1/2) are
+    ignored: the secondary model is full-time only. Never raises — a
+    missing/renamed sub-game yields a missing key, not a crash.
+    """
+    try:
+        v = get_match_grouped(mid, country=country)
+    except Exception:
+        return {}
+    out = {}
+    for sg in v.get("SG", []) or []:
+        try:
+            if sg.get("P") is not None or (sg.get("PN") or "") != "":
+                continue
+            ti = sg.get("TI")
+            sid = sg.get("I")
+            if sid is None:
+                continue
+            for name, want in SECONDARY_TI.items():
+                if ti == want and name not in out:
+                    out[name] = sid
+        except (AttributeError, TypeError):
+            continue
+    return out
+
+
+def _parse_ou_ah(entries):
+    """Shared goal/corner/card OU+AH parser over flat or grouped entries."""
+    odds_ou, odds_ah = {}, {"home": [], "away": []}
+    stack = list(entries)
+    while stack:
+        e = stack.pop()
+        if isinstance(e, list):
+            stack.extend(e)
+            continue
+        if not isinstance(e, dict):
+            continue
+        t, c, g, p = e.get("T"), e.get("C"), e.get("G"), e.get("P")
+        if ((g == 17 and t in (9, 10)) or
+                (g == 99 and t in (3827, 3828))) and p is not None:
+            try:
+                price = float(c)
+            except (TypeError, ValueError):
+                continue
+            if not (price > 1):
+                continue
+            side = 9 if t in (9, 3827) else 10
+            try:
+                line = float(p)
+            except (TypeError, ValueError):
+                continue
+            odds_ou.setdefault(line, {})[side] = price
+        elif ((g == 2 and t == 7) or (g == 2854 and t == 3829)) and p is not None:
+            try:
+                odds_ah["home"].append((float(p), float(c)))
+            except (TypeError, ValueError):
+                continue
+        elif ((g == 2 and t == 8) or (g == 2854 and t == 3830)) and p is not None:
+            try:
+                odds_ah["away"].append((float(p), float(c)))
+            except (TypeError, ValueError):
+                continue
+    for side in ("home", "away"):
+        odds_ah[side] = sorted(odds_ah[side])
+    if not odds_ah["home"] and not odds_ah["away"]:
+        odds_ah = {}
+    return odds_ou, odds_ah
+
+
+def get_subgame_markets(sub_id, country=169):
+    """Fetch one FT sub-game and return {'odds_ou': {...}, 'odds_ah': {...}}."""
+    v = get_match_grouped(sub_id, country=country)
+    groups = v.get("GE") or []
+    entries = []
+    for g in groups:
+        entries.extend(g.get("E", []) or [])
+    if not entries and v.get("E"):
+        entries = v.get("E")
+    odds_ou, odds_ah = _parse_ou_ah(entries)
+    return {"odds_ou": odds_ou, "odds_ah": odds_ah}
+
+
+def extract_secondary_markets(mid, country=169):
+    """Opt-in secondary fetch. Returns SECONDARY_KEYS + subgame_ids.
+
+    Never raises: every failure degrades to an empty book for that market,
+    which the engine must treat as unavailable (state C), never as a price.
+    """
+    out = {key: {} for key in SECONDARY_KEYS}
+    out["secondary_subgame_ids"] = {}
+    try:
+        ids = get_subgame_ids(mid, country=country)
+    except Exception:
+        return out
+    out["secondary_subgame_ids"] = dict(ids)
+    mapping = (("corners", "odds_corners_ou", "odds_corner_ah"),
+               ("yellow_cards", "odds_yellow_ou", None),
+               ("cards", "odds_cards_ou", None))
+    for name, ou_key, ah_key in mapping:
+        sid = ids.get(name)
+        if sid is None:
+            continue
+        try:
+            mk = get_subgame_markets(sid, country=country)
+        except Exception:
+            continue
+        if mk.get("odds_ou"):
+            out[ou_key] = mk["odds_ou"]
+        if ah_key and mk.get("odds_ah"):
+            out[ah_key] = mk["odds_ah"]
+    return out
+
+
 def extract_markets(v):
     odds = v.get("E", []) or []
     out = {
@@ -70,6 +209,12 @@ def extract_markets(v):
         "odds_ou": {},
         "odds_ah": {},
         "odds_btts": {},
+        # Secondary books live in FT sub-games (see SECONDARY_TI). Populated
+        # only by extract_secondary_markets(); empty here means unavailable.
+        "odds_corners_ou": {},
+        "odds_corner_ah": {},
+        "odds_yellow_ou": {},
+        "odds_cards_ou": {},
     }
     for e in odds:
         t, c, g, p = e.get("T"), e.get("C"), e.get("G"), e.get("P")

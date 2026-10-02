@@ -194,12 +194,97 @@ def _best_total(distribution, mean, market, *, minimum=0.5):
                             'p_market_novig': None, 'edge': None,
                             'payout': payout, 'availability': 'B',
                             'status': 'projection', 'label': 'Proyeksi',
+                            'line_source': 'model-central',
                             'model_version': CONFIG['version']})
     # Show the central line and the more probable side; avoid shopping a noisy
     # tail line whose probability merely looks high.
     at_center = [row for row in choices if abs(row['line'] - center) <= .25]
     return max(at_center, key=lambda row: (row['probability'], abs(row['line'] - center),
                                             row['side'] == 'under'))
+
+
+def _book_price(value):
+    try:
+        price = float(value)
+    except (TypeError, ValueError):
+        return None
+    return price if math.isfinite(price) and price > 1 else None
+
+
+def price_offered_totals(distribution, market, book_lines, *, max_lines=24):
+    """Evaluate every bookmaker-offered total line — no line shopping.
+
+    book_lines mirrors the scraper OU shape: {line: {9: over, 10: under}}.
+    Units must match the model count (corners) or points (cards) market;
+    this function does no unit conversion. Malformed lines are skipped,
+    never fabricated. Status stays 'projection': EV gating happens at scan
+    time once no-vig can be computed from the full quote.
+    """
+    lines = []
+    for raw_line, prices in (book_lines or {}).items():
+        try:
+            line = float(raw_line)
+        except (TypeError, ValueError):
+            continue
+        if not math.isfinite(line) or not 0 <= line <= 40:
+            continue
+        prices = prices if isinstance(prices, dict) else {}
+        lines.append((line, _book_price(prices.get(9)), _book_price(prices.get(10))))
+    offers = []
+    for line, over, under in sorted(lines)[:max_lines]:
+        for side in ('over', 'under'):
+            payout = _payout(distribution, line, side)
+            offers.append({'market': market, 'side': side, 'line': line,
+                           'pick': f'{side.title()} {line:g}',
+                           'probability': payout['full_win'] + payout['half_win'],
+                           'odds': None, 'p_market_novig': None, 'edge': None,
+                           'book_over': over, 'book_under': under,
+                           'payout': payout, 'availability': 'B',
+                           'status': 'projection', 'label': 'Proyeksi',
+                           'line_source': 'book',
+                           'model_version': CONFIG['version']})
+    return offers
+
+
+def price_offered_handicap(home_distribution, away_distribution, home, away, book_legs,
+                           *, max_legs=16):
+    """Evaluate every bookmaker-offered corner handicap leg — no shopping.
+
+    book_legs mirrors the scraper AH shape: {'home': [(line, price)],
+    'away': [(line, price)]} with lines in team-perspective sign (home -1.5,
+    away +1.5), the same convention _best_corner_handicap stores. Same
+    difference-distribution math, only the candidate lines come from the
+    book instead of the model's fair line.
+    """
+    difference = np.convolve(home_distribution, away_distribution[::-1])
+    offset = len(away_distribution) - 1
+    legs = []
+    for side in ('home', 'away'):
+        entries = (book_legs or {}).get(side) or []
+        for entry in entries:
+            try:
+                line, price = entry
+                line, price = float(line), float(price)
+            except (TypeError, ValueError):
+                continue
+            if not math.isfinite(line) or abs(line) > 20:
+                continue
+            if not math.isfinite(price) or price <= 1:
+                continue
+            legs.append((side, line, price))
+    offers = []
+    for side, line, price in legs[:max_legs]:
+        shifted_line = line - offset if side == 'home' else line + offset
+        payout = _payout(difference, shifted_line, side)
+        name = home if side == 'home' else away
+        offers.append({'market': 'corner_hdp', 'side': side,
+            'line': line, 'pick': f'{name} {line:+g}',
+            'probability': payout['full_win'] + payout['half_win'],
+            'odds': None, 'p_market_novig': None, 'edge': None,
+            'book_odds': price, 'payout': payout, 'availability': 'B',
+            'status': 'projection', 'label': 'Proyeksi',
+            'line_source': 'book', 'model_version': CONFIG['version']})
+    return offers
 
 
 def _best_corner_handicap(home_distribution, away_distribution, home, away,
@@ -220,14 +305,31 @@ def _best_corner_handicap(home_distribution, away_distribution, home, away,
                 'probability': probability, 'odds': None, 'p_market_novig': None,
                 'edge': None, 'payout': p, 'availability': 'B',
                 'status': 'projection', 'label': 'Proyeksi',
+                'line_source': 'model-central',
                 'model_version': CONFIG['version']})
     at_center = [row for row in candidates if row['line'] in (fair_home_line, -fair_home_line)]
     return max(at_center or candidates, key=lambda row: row['probability'])
 
 
 def project_fixture(rows, home, away, kickoff_utc, *, goal_projection=None,
-                    referee=None, config=None):
-    """Return secondary-market predictions or explicit C/unavailable states."""
+                    referee=None, config=None, book=None):
+    """Return secondary-market predictions or explicit C/unavailable states.
+
+    book (optional) prices bookmaker-offered lines instead of shopping the
+    model's central line. Shape mirrors the 1xbit scraper contract:
+      {'corners_ou': {line: {9: over, 10: under}},
+       'corner_hdp': {'home': [(line, price)], 'away': [(line, price)]},
+       'cards_ou': {line: {9: over, 10: under}}}
+    Unit mapping (verified 2026-10-03 on live 1xbit sub-games TI=2):
+    corners OU/AH are counts/differences, same units as the model. Cards
+    are booking POINTS in the model (yellow=1 + red=2) while the TI=10
+    'Cards' book is unverified (points vs count), so a cards_ou book is
+    only honored with explicit opt-in: book['cards_units'] == 'points'.
+    Without a book (or without opt-in) behavior is unchanged: a single
+    shopped central projection per market with line_source 'model-central'.
+    Book-priced offers carry line_source 'book' plus the offered prices so
+    scan-time EV gating can consume them without re-shopping.
+    """
     cfg = load_config()
     if config:
         cfg.update(config)
@@ -362,14 +464,26 @@ def project_fixture(rows, home, away, kickoff_utc, *, goal_projection=None,
 
     corner = project_count(corner_rows, 'corners', 'home_corners', 'away_corners', 'corners') if corner_rows else None
     cards = project_count(card_rows, 'yellow', 'home_yellow', 'away_yellow', 'cards') if card_rows else None
+    book = book if isinstance(book, dict) else {}
     if corner:
         result['corners'] = {key: value for key, value in corner.items() if 'distribution' not in key}
-        result['markets'].append(_best_total(corner['distribution'], corner['total'], 'corners_ou'))
-        result['markets'].append(_best_corner_handicap(corner['home_distribution'],
-            corner['away_distribution'], home, away, corner['home'] - corner['away']))
+        corner_totals = price_offered_totals(
+            corner['distribution'], 'corners_ou', book.get('corners_ou'))
+        result['markets'].extend(corner_totals if corner_totals else
+            [_best_total(corner['distribution'], corner['total'], 'corners_ou')])
+        corner_spreads = price_offered_handicap(
+            corner['home_distribution'], corner['away_distribution'],
+            home, away, book.get('corner_hdp'))
+        result['markets'].extend(corner_spreads if corner_spreads else
+            [_best_corner_handicap(corner['home_distribution'],
+                corner['away_distribution'], home, away, corner['home'] - corner['away'])])
     if cards:
         result['cards'] = {key: value for key, value in cards.items() if 'distribution' not in key}
-        result['markets'].append(_best_total(cards['distribution'], cards['total'], 'cards_ou'))
+        card_totals = (price_offered_totals(
+            cards['distribution'], 'cards_ou', book.get('cards_ou'))
+            if book.get('cards_units') == 'points' else [])
+        result['markets'].extend(card_totals if card_totals else
+            [_best_total(cards['distribution'], cards['total'], 'cards_ou')])
         team_options = []
         for name, side, mean in ((home, 'home', cards['home_points']), (away, 'away', cards['away_points'])):
             projection = _best_total(cards[f'{side}_distribution'], mean, 'team_cards_ou')
@@ -384,7 +498,8 @@ def project_fixture(rows, home, away, kickoff_utc, *, goal_projection=None,
                 'line': None, 'pick': 'Red card yes' if yes_probability >= .5 else 'Red card no',
                 'probability': max(yes_probability, 1 - yes_probability), 'odds': None,
                 'p_market_novig': None, 'edge': None, 'availability': 'B',
-                'status': 'projection', 'label': 'Proyeksi', 'model_version': cfg['version']})
+                'status': 'projection', 'label': 'Proyeksi',
+                'line_source': 'model-central', 'model_version': cfg['version']})
     result['availability'] = 'B' if result['markets'] else 'C'
     result['limited'] = result['availability'] == 'B'
     if not result['markets']:
