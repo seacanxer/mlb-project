@@ -1,0 +1,220 @@
+Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG,HC,AC,HY,AY,HR,AR,HF,AF,Referee
+I1,01/07/2026,00:00,LDU de Quito,Orense,3,0,7,1,0,0,0,0,19,4,
+I1,01/08/2026,02:00,Libertad,Orense,3,0,2,4,0,0,0,0,20,7,
+I1,01/08/2026,21:00,Manta,Mushuc Runa,1,2,1,6,0,0,1,0,9,12,
+I1,01/08/2026,23:30,Universidad Catolica,Tecnico Universitario,5,0,3,7,0,0,0,1,9,16,
+I1,01/09/2026,23:30,Delfin,Tecnico Universitario,1,0,7,2,0,0,0,1,16,12,Gorky Araujo Zambrano
+I1,02/08/2026,22:30,CSD Macara,Guayaquil City,2,1,7,0,0,0,1,1,16,10,
+I1,02/08/2026,02:00,Emelec,Aucas,0,2,4,3,0,0,0,0,13,13,
+I1,02/08/2026,20:00,Independiente del Valle,Deportivo Cuenca,1,0,7,1,0,0,0,1,10,5,
+I1,02/08/2026,01:10,Leones del Norte,Barcelona SC,1,1,6,4,0,0,0,0,18,8,
+I1,02/09/2026,21:00,CSD Macara,Manta,4,3,3,2,0,0,1,0,8,13,Augusto Aragon
+I1,02/09/2026,23:30,Deportivo Cuenca,Guayaquil City,1,0,4,2,0,0,0,0,12,8,Anthony Yamil Diaz
+I1,02/09/2026,02:00,LDU de Quito,Mushuc Runa,0,0,3,7,0,0,1,0,16,15,Yerson Zambrano
+I1,03/09/2026,02:00,Barcelona SC,Independiente del Valle,2,1,5,3,0,0,0,1,10,8,Oswaldo Contreras
+I1,03/09/2026,23:30,Leones del Norte,Orense,1,0,6,3,0,0,0,0,14,11,Gabriel Ismael Gonzalez Cordero
+I1,03/09/2026,21:00,Universidad Catolica,Aucas,1,1,1,7,0,0,0,0,11,16,Bryan Loayza
+I1,04/07/2026,02:00,Independiente del Valle,Manta,4,0,6,1,0,0,0,1,9,7,
+I1,04/07/2026,21:00,Libertad,Leones del Norte,1,3,2,7,0,0,1,0,16,10,
+I1,04/08/2026,02:00,LDU de Quito,Delfin,2,1,8,1,0,0,0,0,11,11,
+I1,04/09/2026,20:45,Genoa,Como,1,4,5,4,2,1,0,0,8,7,Marco Guida
+I1,04/09/2026,02:00,Libertad,Emelec,1,1,6,5,0,0,0,0,10,12,Lenin Quinonez
+I1,05/07/2026,02:00,Barcelona SC,Deportivo Cuenca,2,0,4,5,0,0,0,0,11,6,
+I1,05/07/2026,20:00,CSD Macara,LDU de Quito,1,0,4,6,0,0,0,0,10,13,
+I1,05/07/2026,00:00,Delfin,Emelec,1,1,7,6,0,0,0,0,15,15,
+I1,05/09/2026,15:00,Fiorentina,Torino,1,2,3,5,0,0,0,0,13,9,Davide Massa
+I1,05/09/2026,01:00,Independiente del Valle,CSD Macara,3,1,4,6,0,0,0,0,5,11,Yerson Zambrano
+I1,05/09/2026,18:00,Inter,Napoli,3,2,10,5,1,2,0,0,7,7,Simone Sozza
+I1,05/09/2026,20:45,Roma,Atalanta,2,1,14,1,0,1,0,1,9,10,Andrea Colombo
+I1,05/09/2026,02:30,Tecnico Universitario,LDU de Quito,1,3,4,6,0,0,0,0,9,14,Gabriel Ismael Gonzalez Cordero
+I1,06/07/2026,23:30,Universidad Catolica,Mushuc Runa,2,3,7,1,0,0,0,0,17,12,
+I1,06/09/2026,18:00,Bologna,Sassuolo,2,2,10,7,2,1,0,0,14,8,Marco Di Bello
+I1,06/09/2026,23:00,Delfin,Universidad Catolica,0,1,8,4,0,0,0,0,4,14,Anthony Yamil Diaz
+I1,06/09/2026,15:00,Frosinone,Venezia,3,2,5,2,2,4,0,0,18,14,Mario Perri
+I1,06/09/2026,20:45,Juventus,Milan,1,1,7,1,1,3,0,0,10,11,Maurizio Mariani
+I1,06/09/2026,15:00,Parma,Monza,1,1,6,3,2,2,0,0,16,16,Federico La Penna
+I1,07/07/2026,02:00,Orense,Tecnico Universitario,1,2,11,2,0,0,0,0,13,15,
+I1,07/09/2026,02:00,Aucas,Barcelona SC,1,1,2,10,0,0,1,0,18,4,Lenin Quinonez
+I1,07/09/2026,18:30,Cagliari,Lecce,1,0,7,5,1,3,0,0,9,13,Juan Luca Sacchi
+I1,07/09/2026,02:00,Deportivo Cuenca,Libertad,0,1,12,2,0,0,0,0,8,9,Gorky Araujo Zambrano
+I1,07/09/2026,20:45,Udinese,Lazio,1,2,2,8,5,1,0,0,13,9,Paride Tremolada
+I1,08/07/2026,02:00,Aucas,Guayaquil City,1,0,3,2,0,0,0,0,17,12,
+I1,08/08/2026,23:30,Aucas,Leones del Norte,3,0,4,6,0,0,0,0,12,5,
+I1,08/08/2026,01:30,Coritiba,Chapecoense AF,2,1,5,6,0,0,0,0,14,11,
+I1,08/08/2026,21:00,Gremio,Sao Paulo,2,1,7,7,0,0,0,0,12,19,
+I1,08/08/2026,02:00,LDU de Quito,Independiente del Valle,0,2,7,2,0,0,0,0,15,11,
+I1,08/08/2026,23:30,Remo,Atletico MG,2,2,5,2,0,0,0,0,13,13,
+I1,08/09/2026,02:00,Emelec,Manta,1,0,5,4,0,0,1,1,13,13,Bryan Loayza
+I1,08/09/2026,02:00,Mushuc Runa,Leones del Norte,1,1,6,5,0,0,0,0,9,13,Oswaldo Contreras
+I1,08/09/2026,02:00,Orense,Guayaquil City,4,3,6,1,0,0,0,0,14,9,Cristhian Gutierrez
+I1,09/08/2026,21:00,Bahia,Vasco da Gama,0,0,4,6,0,0,0,0,13,10,
+I1,09/08/2026,02:00,Barcelona SC,CSD Macara,1,2,6,2,0,0,0,0,12,7,
+I1,09/08/2026,02:00,Botafogo RJ,Fluminense,1,1,7,7,0,0,1,0,16,18,
+I1,09/08/2026,16:00,Cruzeiro,Mirassol,3,1,4,1,0,0,0,0,14,18,
+I1,09/08/2026,23:00,Delfin,Orense,1,1,3,4,0,0,1,1,17,13,
+I1,09/08/2026,00:30,Flamengo,Vitoria,2,0,8,1,0,0,0,0,13,8,
+I1,09/08/2026,21:00,Palmeiras,Internacional,0,0,5,2,0,0,0,0,12,16,
+I1,09/08/2026,23:30,Red Bull Bragantino,Corinthians,0,2,3,2,0,0,0,0,12,14,
+I1,09/08/2026,23:30,Santos FC,Athletico Paranaense,0,2,10,2,0,0,0,0,12,11,
+I1,10/07/2026,00:00,Leones del Norte,Universidad Catolica,1,0,3,4,0,0,0,0,18,17,
+I1,10/08/2026,02:00,Guayaquil City,Emelec,0,0,5,1,0,0,0,0,10,17,
+I1,10/08/2026,23:30,Libertad,Universidad Catolica,2,1,5,5,0,0,2,0,11,6,
+I1,10/08/2026,21:00,Tecnico Universitario,Mushuc Runa,0,3,3,5,0,0,1,0,16,11,
+I1,11/07/2026,01:00,Guayaquil City,Delfin,2,1,6,4,0,0,0,0,8,14,
+I1,11/07/2026,19:00,Manta,Orense,0,0,4,4,0,0,0,0,21,18,
+I1,11/07/2026,21:10,Mushuc Runa,Independiente del Valle,1,4,6,6,0,0,0,0,8,9,
+I1,11/07/2026,02:15,Tecnico Universitario,CSD Macara,0,2,4,4,0,0,1,0,18,11,
+I1,11/08/2026,02:00,Deportivo Cuenca,Manta,1,2,8,1,0,0,0,0,8,11,
+I1,11/09/2026,20:45,Venezia,Fiorentina,2,4,2,4,2,1,0,0,11,6,Francesco Fourneau
+I1,12/07/2026,21:15,Deportivo Cuenca,Aucas,0,1,5,4,0,0,0,0,11,17,
+I1,12/07/2026,19:00,LDU de Quito,Libertad,0,0,7,4,0,0,0,0,12,13,
+I1,12/09/2026,20:45,Atalanta,Cagliari,1,2,3,2,0,0,0,0,9,8,Alberto Arena
+I1,12/09/2026,15:00,Genoa,Frosinone,1,1,8,9,1,2,1,0,12,12,Antonio Rapuano
+I1,12/09/2026,23:30,Guayaquil City,Mushuc Runa,3,1,4,4,0,0,0,1,10,12,Gorky Araujo Zambrano
+I1,12/09/2026,18:00,Lazio,Milan,2,2,2,5,2,3,0,0,15,14,Matteo Marcenaro
+I1,12/09/2026,21:00,Manta,Aucas,0,0,4,2,0,0,0,0,7,15,Guillermo Guerrero
+I1,13/07/2026,02:10,Emelec,Barcelona SC,0,0,6,2,0,0,0,0,5,9,
+I1,13/09/2026,01:00,Barcelona SC,Delfin,1,1,8,3,0,0,0,1,11,17,Gabriel Ismael Gonzalez Cordero
+I1,13/09/2026,22:30,CSD Macara,Emelec,1,0,7,4,0,0,0,0,15,8,Eloy Beltran
+I1,13/09/2026,02:00,LDU de Quito,Deportivo Cuenca,1,1,3,3,0,0,0,0,18,6,Lenin Quinonez
+I1,13/09/2026,15:00,Lecce,Monza,3,2,4,6,2,0,0,0,14,13,Valerio Crezzini
+I1,13/09/2026,20:00,Leones del Norte,Tecnico Universitario,0,1,4,2,0,0,1,0,8,13,Cristhian Gutierrez
+I1,13/09/2026,01:00,Libertad,Independiente del Valle,2,3,4,6,0,0,0,1,13,13,Bryan Loayza
+I1,13/09/2026,18:00,Napoli,Bologna,1,0,10,0,0,1,0,0,15,10,Kevin Bonacina
+I1,13/09/2026,20:45,Sassuolo,Juventus,3,2,3,10,2,2,0,0,8,13,Juan Luca Sacchi
+I1,14/07/2026,23:30,CSD Macara,Mushuc Runa,2,1,4,4,0,0,0,0,19,13,
+I1,14/09/2026,18:30,Como,Parma,2,1,11,4,1,0,0,0,8,4,Giuseppe Mucera
+I1,14/09/2026,20:45,Inter,Udinese,5,3,10,1,1,1,0,0,9,9,Luca Pairetto
+I1,14/09/2026,18:30,Torino,Roma,0,2,1,8,0,2,0,0,7,20,Fabio Maresca
+I1,15/07/2026,00:00,Leones del Norte,Deportivo Cuenca,1,1,5,4,0,0,0,1,21,9,
+I1,15/07/2026,19:00,Libertad,Tecnico Universitario,1,0,5,4,0,0,0,0,13,14,
+I1,15/07/2026,02:00,Manta,Delfin,0,1,6,5,0,0,0,0,15,15,
+I1,15/07/2026,00:00,Universidad Catolica,LDU de Quito,1,0,2,7,0,0,0,1,6,16,
+I1,15/08/2026,23:30,Athletico Paranaense,Red Bull Bragantino,1,1,8,5,0,0,0,0,7,8,
+I1,15/08/2026,21:30,Fluminense,Palmeiras,3,2,5,5,0,0,0,0,16,17,
+I1,15/08/2026,23:30,Guayaquil City,Libertad,2,2,1,3,0,0,0,0,8,14,
+I1,15/08/2026,02:00,Independiente del Valle,Delfin,3,2,9,5,0,0,0,0,5,7,
+I1,15/08/2026,21:00,Manta,Leones del Norte,0,2,6,3,0,0,0,0,8,17,
+I1,15/09/2026,02:00,Universidad Catolica,Orense,2,1,5,3,0,0,0,0,8,8,Juan Carlos Andrade Arreaga
+I1,16/07/2026,23:30,Aucas,Independiente del Valle,0,3,2,3,0,0,0,0,9,7,
+I1,16/07/2026,02:30,Barcelona SC,Guayaquil City,1,1,5,5,0,0,0,0,15,9,
+I1,16/07/2026,00:30,Botafogo RJ,Santos FC,2,1,5,6,0,0,0,0,10,13,
+I1,16/07/2026,00:30,Vitoria,Vasco da Gama,1,0,3,2,0,0,0,0,12,15,
+I1,16/08/2026,21:00,Atletico MG,Gremio,3,0,8,6,0,0,0,0,14,11,
+I1,16/08/2026,16:00,Chapecoense AF,Bahia,3,3,3,5,0,0,0,0,16,9,
+I1,16/08/2026,00:30,Corinthians,Cruzeiro,1,2,3,8,0,0,0,0,16,14,
+I1,16/08/2026,23:15,Emelec,Tecnico Universitario,2,1,4,8,0,0,0,0,7,12,
+I1,16/08/2026,23:30,Mirassol,Flamengo,1,5,4,3,0,0,0,0,12,4,
+I1,16/08/2026,02:00,Mushuc Runa,Barcelona SC,0,0,2,3,0,0,1,0,13,12,
+I1,16/08/2026,21:00,Orense,Deportivo Cuenca,2,0,4,4,0,0,0,0,15,8,
+I1,16/08/2026,02:00,Sao Paulo,Coritiba,1,1,6,3,0,0,0,0,15,10,
+I1,16/08/2026,21:00,Vasco da Gama,Santos FC,0,3,4,2,0,0,0,0,14,11,
+I1,16/08/2026,23:30,Vitoria,Botafogo RJ,1,0,8,4,0,0,0,1,19,18,
+I1,17/07/2026,00:30,Bahia,Chapecoense AF,2,0,10,6,0,0,0,0,17,17,
+I1,17/07/2026,01:00,Fluminense,Red Bull Bragantino,1,1,11,4,0,0,1,2,6,9,
+I1,17/07/2026,01:00,Mirassol,Gremio,2,1,5,4,0,0,0,0,14,9,
+I1,17/07/2026,02:00,Orense,Emelec,0,2,5,1,0,0,1,1,19,13,
+I1,17/08/2026,02:00,Aucas,LDU de Quito,0,1,7,3,0,0,0,0,13,18,Juan Carlos Andrade Arreaga
+I1,17/08/2026,01:00,Internacional,Remo,1,1,4,5,0,0,0,0,13,12,Edina Alves Batista
+I1,18/07/2026,02:00,Delfin,CSD Macara,2,1,4,4,0,0,0,0,14,16,
+I1,18/07/2026,21:00,Deportivo Cuenca,Universidad Catolica,0,2,4,4,0,0,0,0,6,10,
+I1,18/07/2026,23:30,LDU de Quito,Leones del Norte,0,1,9,4,0,0,0,0,9,7,
+I1,18/08/2026,02:00,CSD Macara,Universidad Catolica,1,1,5,3,0,0,0,0,16,8,Yerson Zambrano
+I1,18/09/2026,20:45,Monza,Sassuolo,2,1,7,5,4,1,0,0,13,6,Daniele Perenzoni
+I1,19/07/2026,02:00,Barcelona SC,Libertad,1,0,5,4,0,0,0,0,20,17,
+I1,19/07/2026,23:45,Guayaquil City,Manta,1,0,5,4,0,0,0,0,9,12,
+I1,19/07/2026,18:45,Tecnico Universitario,Aucas,0,1,10,6,0,0,0,1,14,19,
+I1,19/09/2026,02:30,Aucas,CSD Macara,1,2,5,1,0,0,0,1,8,17,Gabriel Ismael Gonzalez Cordero
+I1,19/09/2026,15:00,Bologna,Torino,1,1,1,6,0,3,0,0,18,12,Marco Guida
+I1,19/09/2026,23:30,Guayaquil City,Leones del Norte,1,1,3,2,0,0,0,1,11,13,Alex Cajas Torres
+I1,19/09/2026,18:00,Roma,Inter,2,2,4,2,3,3,0,0,13,7,Davide Massa
+I1,19/09/2026,15:00,Udinese,Cagliari,0,1,16,1,2,0,0,0,10,8,Gianluca Manganiello
+I1,19/09/2026,20:45,Venezia,Lazio,0,2,7,2,6,0,0,0,14,8,Simone Sozza
+I1,20/07/2026,02:15,Independiente del Valle,Emelec,6,1,6,0,0,0,0,0,7,8,
+I1,20/07/2026,21:00,Mushuc Runa,Orense,2,1,5,4,0,0,0,0,16,11,
+I1,20/09/2026,23:00,Deportivo Cuenca,Mushuc Runa,1,1,7,5,0,0,0,0,8,14,Eloy Beltran
+I1,20/09/2026,02:00,Emelec,Libertad,1,2,7,8,0,0,1,0,12,13,Kevin Tilson Poveda Montanero
+I1,20/09/2026,12:30,Fiorentina,Napoli,1,1,4,5,3,0,0,0,11,9,Daniele Doveri
+I1,20/09/2026,15:00,Frosinone,Como,2,0,7,8,3,2,0,0,21,8,Daniele Chiffi
+I1,20/09/2026,18:00,Juventus,Atalanta,2,0,4,5,1,2,0,0,10,10,Luca Zufferli
+I1,20/09/2026,01:30,LDU de Quito,Universidad Catolica,2,1,6,6,0,0,0,0,18,10,Bryan Loayza
+I1,20/09/2026,20:45,Milan,Lecce,3,0,2,3,0,1,0,0,9,15,Federico La Penna
+I1,20/09/2026,15:00,Parma,Genoa,2,1,2,5,3,3,0,0,17,14,Maurizio Mariani
+I1,20/09/2026,20:30,Tecnico Universitario,Delfin,1,1,6,7,0,0,0,0,11,10,Parra Leon Patricio Javier
+I1,21/07/2026,00:30,Atletico MG,Bahia,1,1,6,4,0,0,0,0,4,12,
+I1,21/07/2026,23:30,Libertad,Delfin,1,0,4,5,0,0,0,0,13,16,
+I1,21/09/2026,21:00,Manta,Orense,2,1,4,5,0,0,0,0,20,14,Lenin Quinonez
+I1,22/07/2026,21:00,CSD Macara,Deportivo Cuenca,3,0,4,3,0,0,0,1,9,11,
+I1,22/07/2026,00:30,Coritiba,Palmeiras,1,3,8,4,0,0,0,0,10,16,
+I1,22/07/2026,23:30,Independiente del Valle,Tecnico Universitario,3,0,5,4,0,0,0,0,11,20,
+I1,22/07/2026,02:00,Universidad Catolica,Barcelona SC,2,1,8,2,0,0,0,0,11,14,
+I1,22/08/2026,02:00,Deportivo Cuenca,Mushuc Runa,0,0,2,4,0,0,1,0,6,13,Parra Leon Patricio Javier
+I1,22/08/2026,20:45,Genoa,Napoli,0,2,5,5,2,1,0,0,10,8,Marco Di Bello
+I1,22/08/2026,18:30,Inter,Monza,4,1,3,3,2,2,0,0,5,14,Livio Marinelli
+I1,22/08/2026,02:00,Leones del Norte,Independiente del Valle,2,3,4,9,0,0,0,1,11,5,Jennifer Canchingre
+I1,22/08/2026,20:45,Parma,Cagliari,0,1,3,2,0,2,0,0,6,20,Daniele Perenzoni
+I1,22/08/2026,23:30,Tecnico Universitario,Guayaquil City,2,3,4,6,0,0,0,0,18,7,Alex Cajas Torres
+I1,22/08/2026,18:30,Udinese,Como,1,1,1,10,3,0,0,0,13,11,Alberto Arena
+I1,22/08/2026,21:00,Universidad Catolica,Manta,5,1,6,1,0,0,0,0,11,6,Russell Macario Teran Leon
+I1,23/07/2026,00:30,Botafogo RJ,Vitoria,0,0,9,3,0,0,0,0,16,14,
+I1,23/07/2026,02:30,Chapecoense AF,Flamengo,0,4,5,3,0,0,0,0,9,8,
+I1,23/07/2026,00:30,Corinthians,Remo,3,0,3,4,0,0,0,0,13,9,
+I1,23/07/2026,02:30,Internacional,Cruzeiro,1,2,5,7,0,0,1,0,18,14,
+I1,23/07/2026,23:30,Leones del Norte,Guayaquil City,1,1,9,1,0,0,0,0,11,6,
+I1,23/07/2026,02:00,Manta,LDU de Quito,1,1,10,7,0,0,0,1,15,14,
+I1,23/07/2026,23:30,Orense,Aucas,2,1,6,3,0,0,0,0,13,10,
+I1,23/07/2026,02:30,Sao Paulo,Athletico Paranaense,1,2,7,3,0,0,0,0,7,15,
+I1,23/08/2026,20:45,Atalanta,Sassuolo,2,1,4,4,0,0,0,0,9,10,Valerio Crezzini
+I1,23/08/2026,02:00,Barcelona SC,Orense,3,0,5,6,0,0,0,0,10,9,Yerson Zambrano
+I1,23/08/2026,22:30,Delfin,Aucas,0,1,6,0,0,0,0,0,19,19,Gabriel Ismael Gonzalez Cordero
+I1,23/08/2026,18:30,Frosinone,Juventus,0,1,3,12,2,2,0,0,15,18,Giovanni Ayroldi
+I1,23/08/2026,20:45,Torino,Milan,1,2,2,4,0,1,0,0,10,9,Luca Zufferli
+I1,23/08/2026,18:30,Venezia,Lecce,0,2,5,3,1,3,0,0,8,12,Antonio Rapuano
+I1,24/07/2026,02:00,Emelec,Mushuc Runa,1,1,11,7,0,0,0,0,6,11,
+I1,24/08/2026,18:30,Bologna,Lazio,0,1,8,6,4,4,0,0,18,19,Fabio Maresca
+I1,24/08/2026,02:00,LDU de Quito,Emelec,2,0,10,3,0,0,1,0,10,9,Guillermo Guerrero
+I1,24/08/2026,20:45,Roma,Fiorentina,4,0,2,3,2,2,0,0,15,11,Matteo Marcenaro
+I1,25/07/2026,23:30,Athletico Paranaense,Internacional,2,0,3,7,0,0,0,0,13,8,
+I1,25/07/2026,23:30,Santos FC,Chapecoense AF,2,2,12,1,0,0,0,0,11,13,
+I1,25/07/2026,01:30,Vasco da Gama,Mirassol,1,1,9,5,0,0,0,0,12,7,
+I1,25/08/2026,02:00,Libertad,CSD Macara,1,0,6,4,0,0,0,0,13,11,Franklin Congo
+I1,26/07/2026,20:15,Aucas,CSD Macara,1,4,6,2,0,0,0,0,12,15,
+I1,26/07/2026,21:00,Bahia,Corinthians,1,1,7,2,0,0,0,0,17,18,
+I1,26/07/2026,21:00,Cruzeiro,Botafogo RJ,0,1,9,1,0,0,0,0,14,18,
+I1,26/07/2026,20:15,Delfin,Leones del Norte,0,1,2,3,0,0,0,0,12,12,
+I1,26/07/2026,23:30,Flamengo,Sao Paulo,1,1,5,2,0,0,0,0,15,19,
+I1,26/07/2026,23:30,Gremio,Fluminense,1,1,9,2,0,0,0,0,12,9,
+I1,26/07/2026,22:45,Orense,Independiente del Valle,2,3,11,4,0,0,0,0,13,11,
+I1,26/07/2026,00:30,Palmeiras,Atletico MG,1,2,10,5,0,0,0,0,7,11,
+I1,26/07/2026,23:30,Red Bull Bragantino,Coritiba,0,0,8,1,0,0,0,0,16,3,
+I1,26/07/2026,00:30,Remo,Vitoria,2,0,4,9,0,0,0,0,16,8,
+I1,26/07/2026,02:00,Tecnico Universitario,Manta,1,0,8,1,0,0,0,0,18,11,
+I1,27/07/2026,02:15,Barcelona SC,LDU de Quito,0,1,8,3,0,0,0,1,3,20,
+I1,27/07/2026,23:30,Guayaquil City,Universidad Catolica,0,0,3,4,0,0,0,0,10,12,
+I1,27/07/2026,21:00,Mushuc Runa,Libertad,0,2,13,3,0,0,0,0,9,11,
+I1,28/07/2026,02:00,Deportivo Cuenca,Emelec,2,1,12,4,0,0,0,0,11,10,
+I1,28/08/2026,20:45,Milan,Venezia,2,0,2,3,1,3,0,0,8,11,Gianluca Manganiello
+I1,28/08/2026,22:30,Mushuc Runa,Delfin,1,0,5,2,0,0,0,0,23,13,Augusto Aragon
+I1,29/07/2026,02:00,Botafogo RJ,Gremio,0,0,3,3,0,0,0,0,13,11,Edina Alves Batista
+I1,29/07/2026,00:30,Internacional,Flamengo,1,1,2,3,0,0,0,0,11,14,
+I1,29/07/2026,00:30,Mirassol,Remo,2,1,6,3,0,0,0,0,15,5,
+I1,29/08/2026,18:30,Fiorentina,Frosinone,0,3,8,5,3,3,0,0,14,21,Giuseppe Collu
+I1,29/08/2026,23:00,Guayaquil City,LDU de Quito,2,1,4,7,0,0,0,0,10,20,Oswaldo Contreras
+I1,29/08/2026,20:00,Independiente del Valle,Universidad Catolica,2,2,5,3,0,0,0,0,8,13,Gabriel Ismael Gonzalez Cordero
+I1,29/08/2026,20:45,Juventus,Parma,2,0,10,2,2,3,0,0,23,12,Francesco Fourneau
+I1,29/08/2026,18:30,Monza,Udinese,2,3,3,3,1,0,0,0,10,12,Claudio Giuseppe Allegretta
+I1,29/08/2026,18:30,Sassuolo,Torino,2,1,4,3,3,1,0,0,12,9,Davide Di Marco
+I1,29/08/2026,02:00,Tecnico Universitario,Deportivo Cuenca,3,1,4,7,0,0,0,0,20,12,Juan Carlos Andrade Arreaga
+I1,30/07/2026,00:30,Corinthians,Athletico Paranaense,0,0,6,2,0,0,0,0,16,16,
+I1,30/07/2026,02:30,Fluminense,Bahia,0,0,8,1,0,0,0,0,7,9,
+I1,30/07/2026,02:30,Vitoria,Palmeiras,0,4,6,1,0,0,2,0,10,15,
+I1,30/08/2026,20:00,Aucas,Libertad,1,0,2,2,0,0,0,0,13,9,Russell Macario Teran Leon
+I1,30/08/2026,20:45,Cagliari,Inter,0,1,8,6,2,1,0,0,6,5,Michael Fabbri
+I1,30/08/2026,01:00,Emelec,Leones del Norte,2,1,4,4,0,0,0,0,15,14,Yerson Zambrano
+I1,30/08/2026,20:45,Lazio,Genoa,1,0,4,2,1,2,0,0,18,6,Ermanno Feliciani
+I1,30/08/2026,02:00,Manta,Barcelona SC,2,0,2,5,0,0,0,0,14,11,Alex Cajas Torres
+I1,30/08/2026,18:30,Napoli,Como,1,2,2,7,1,0,0,0,9,5,Luca Pairetto
+I1,30/08/2026,22:30,Orense,CSD Macara,1,2,5,3,0,0,0,0,7,13,Gorky Araujo Zambrano
+I1,31/07/2026,02:30,Coritiba,Cruzeiro,0,1,4,2,0,0,0,0,13,18,
+I1,31/08/2026,20:45,Atalanta,Bologna,1,0,1,2,1,0,0,0,10,13,Daniele Doveri
+I1,31/08/2026,18:30,Lecce,Roma,0,4,2,1,1,1,0,0,9,8,Daniele Chiffi

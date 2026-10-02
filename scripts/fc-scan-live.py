@@ -519,6 +519,28 @@ def training_files(code, now=None):
     return files
 
 
+def secondary_stat_files(code):
+    """Stat CSVs for corner/card projections.
+
+    The goal model prefers `*_live_scores.csv`, but that lane only carries
+    goals (Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG) — no HC/HY/HR/Referee.
+    Picking it here starves the count model of every stat column. Instead
+    gather every lane that can contribute match statistics: the football-data
+    archives (full stats) plus the current-season archive/dayfeed, and skip
+    the stat-free live_scores lane entirely.
+    """
+    season = current_season_for(code, time.time())
+    data_dir = os.path.join(FC_DIR, 'data')
+    names = [file for file, _season in LEAGUES[code][0]]
+    stat_lanes = [
+        f'{code}_{season}.csv',
+        f'{code}_{season}_dayfeed.csv',
+        f'{code}_stat_history.csv',
+    ]
+    return [os.path.join(data_dir, name) for name in names + stat_lanes
+            if os.path.exists(os.path.join(data_dir, name))]
+
+
 def csv_teams(code):
     csvs = training_files(code)
     names = set()
@@ -534,6 +556,56 @@ def csv_teams(code):
                     if v:
                         names.add(v)
     return names
+
+
+def secondary_pick_payload(info, offer, observation, captured_at, decision_at, code,
+                           model_version, referee_status):
+    """Wrap a corner/card projection as a pick.
+
+    These are model projections without a bookmaker price (odds is null), so
+    they can never carry an EV or a value-gate verdict. They are published as
+    research-only cards: coverage_status 'projection', no odds-derived fields,
+    never official.
+    """
+    probability = float(offer.get('probability') or 0.0)
+    line = offer.get('line')
+    return {
+        'match_id': str(info['match_id']),
+        'match': f"{info.get('home')} vs {info.get('away')}",
+        'home': info.get('home'), 'away': info.get('away'),
+        'league': info.get('league'), 'start_ts': int(float(info['start_ts'])),
+        'quote_observation_id': observation['artifact_id'],
+        'quote_captured_at': captured_at, 'decision_at': decision_at,
+        'uncertainty_status': 'SECONDARY_MARKET_NO_ODDS',
+        'market': offer.get('market') or 'secondary',
+        'pick': offer.get('pick') or offer.get('side') or '',
+        'side': offer.get('side'),
+        'line_quarters': None if line is None else int(round(float(line) * 4)),
+        'probability': round(probability, 4),
+        'effective_win_probability': round(probability, 4),
+        'payout': offer.get('payout'),
+        'odds': None, 'ev': None, 'conservative_ev': None,
+        'uncertainty_penalty': 0.0, 'fair_odds': None, 'market_probability': None,
+        'edge_pct': None,
+        'formula_version': model_version,
+        'base_formula_version': model_version,
+        'policy_version': POLICY_VERSION,
+        'lambda_source': 'secondary-count-historical',
+        'coverage_status': 'projection',
+        'league_model': code,
+        'selection_status': 'watch', 'decision': 'watch', 'tier': 'watch',
+        'is_top_pick': False, 'calibrated_prob': None,
+        'rank_score': round(probability * 100, 2), 'locked': False,
+        'analysis_status': 'projection',
+        'gate_reasons': ['SECONDARY_MARKET_NO_ODDS'],
+        'official_eligible': False,
+        'quote_provider': '1xbit', 'quote_is_closing': False,
+        'secondary_provider': None,
+        'secondary_status': 'unavailable',
+        'secondary_match_verified': False,
+        'primary_source': '1xbit',
+        'projection_referee_status': referee_status,
+    }
 
 
 def opp(payout, odds, no_vig_probs, *, gated=True):
@@ -881,8 +953,7 @@ def main(argv=()):
         opportunities = price_fixture(decision_distribution, mk, gated=False)
         if code != NATIONAL_CODE and code in LEAGUES:
             if code not in secondary_data:
-                secondary_paths = [os.path.join(FC_DIR, 'data', name)
-                                   for name, _season in training_files(code, now)]
+                secondary_paths = secondary_stat_files(code)
                 secondary_data[code] = load_secondary_rows(secondary_paths)
                 for historical_row in secondary_data[code]:
                     historical_row['home'] = (match_team(historical_row['home'], teams_by_code[code])
@@ -991,6 +1062,18 @@ def main(argv=()):
             picks.append(item)
             m['qualified_picks'].append(item)
         m['picks'] = list(m['qualified_picks'])
+
+        secondary_result = m.get('analysis', {}).get('secondary_markets') or {}
+        if secondary_result.get('availability') == 'B':
+            for offer in secondary_result.get('markets', []):
+                secondary_pick = secondary_pick_payload(
+                    info, offer, observation, captured_at, decision_at, code,
+                    secondary_result.get('model_version', 'fc-secondary-counts-v1'),
+                    secondary_result.get('referee_status'))
+                picks.append(secondary_pick)
+                m['qualified_picks'].append(secondary_pick)
+                m['projections'].append(secondary_pick)
+            m['picks'] = list(m['qualified_picks'])
 
     # 4. atomic writes
     def atomic_write(path, data):

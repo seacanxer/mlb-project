@@ -31,7 +31,11 @@ export function Disclaimer({ compact = false }: { compact?: boolean }) {
   );
 }
 
-const MARKET_LABEL: Record<string, string> = { ah: 'AH', ou: 'O/U', btts: 'BTTS', '1x2': '1X2', parlay: 'Parlay' };
+const MARKET_LABEL: Record<string, string> = {
+  ah: 'AH', ou: 'O/U', btts: 'BTTS', '1x2': '1X2', parlay: 'Parlay',
+  corners_ou: 'Corner O/U', corner_hdp: 'Corner HDP', cards_ou: 'Kartu O/U',
+  team_cards_ou: 'Kartu Tim', red_card: 'Cartu Merah',
+};
 
 export function MarketBadge({ market }: { market: string }) {
   return <span className="chip chip-fc-market">{MARKET_LABEL[market?.toLowerCase()] ?? market ?? '—'}</span>;

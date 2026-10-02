@@ -1,0 +1,71 @@
+Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG,HC,AC,HY,AY,HR,AR,HF,AF,Referee
+D3,04/09/2026,19:00,Ingolstadt,Alemannia Aachen,0,3,1,7,1,2,1,0,11,15,Florian Lechner
+D3,05/09/2026,14:00,Hansa Rostock,Wehen Wiesbaden,1,1,12,3,4,3,0,0,15,8,Jonah Besong
+D3,05/09/2026,14:00,Jahn Regensburg,MSV Duisburg,1,2,6,5,4,4,0,1,9,16,Ryo Tanimoto
+D3,05/09/2026,14:00,Meppen,Saarbrucken,1,6,9,6,1,1,0,0,17,11,Koji Takasaki
+D3,05/09/2026,14:00,Preussen Munster,TSV Havelse,2,1,3,2,1,3,0,0,12,17,Martin Wilke
+D3,05/09/2026,16:30,RW Essen,Viktoria Koln 1904,1,0,5,6,3,1,0,0,15,15,Simon Schreiner
+D3,05/09/2026,14:00,Waldhof Mannheim,SC Verl,0,1,4,2,1,5,0,0,10,10,Assad Nouhoum
+D3,06/09/2026,19:30,Fortuna Koln,Fortuna Dusseldorf,0,0,4,8,1,1,0,0,7,11,Cengiz Kabalakli
+D3,06/09/2026,16:30,Sonnenhof Großaspach,Hoffenheim II,1,0,3,9,5,3,0,0,14,19,Henry Schroder
+D3,06/09/2026,13:30,Wurzburger Kickers,VfB Stuttgart II,1,2,6,4,2,5,0,1,14,15,Timon Oliver Schulz
+D3,07/08/2026,19:00,Waldhof Mannheim,Fortuna Dusseldorf,2,1,5,4,3,5,0,0,13,18,Fabienne Michel
+D3,08/08/2026,14:00,Ingolstadt,Wurzburger Kickers,2,2,4,3,2,1,0,0,14,16,Leonidas Exuzidis
+D3,08/08/2026,14:00,MSV Duisburg,Meppen,3,0,10,7,1,3,0,0,14,12,Sebastian Hilsberg
+D3,08/08/2026,16:30,Sonnenhof Großaspach,Fortuna Koln,1,0,5,5,2,2,0,0,9,18,Simon Schreiner
+D3,08/08/2026,14:00,TSV Havelse,VfB Stuttgart II,2,3,6,5,3,2,0,0,13,16,Ben Henry Uhrig
+D3,08/08/2026,14:00,Viktoria Koln 1904,Jahn Regensburg,2,5,5,0,2,4,0,0,20,16,Lennart Kernchen
+D3,08/08/2026,14:00,Wehen Wiesbaden,Preussen Munster,1,3,7,2,5,4,0,0,12,11,Assad Nouhoum
+D3,09/08/2026,19:30,Alemannia Aachen,SC Verl,4,1,1,1,0,2,0,0,21,11,Justin Joel Hasmann
+D3,09/08/2026,13:30,Hoffenheim II,Hansa Rostock,2,3,6,4,1,2,0,0,15,15,Felix Grund
+D3,09/08/2026,16:30,Saarbrucken,RW Essen,5,2,4,3,2,5,0,0,13,16,Patrick Schwengers
+D3,11/09/2026,19:00,Viktoria Koln 1904,Hansa Rostock,4,0,7,5,3,3,0,0,8,7,Sebastian Hilsberg
+D3,12/09/2026,16:30,Alemannia Aachen,Jahn Regensburg,2,2,4,3,4,4,0,0,12,18,Ben Henry Uhrig
+D3,12/09/2026,14:00,Fortuna Dusseldorf,MSV Duisburg,2,1,1,6,3,0,0,0,14,11,Patrick Schwengers
+D3,12/09/2026,14:00,RW Essen,Wurzburger Kickers,6,2,6,5,4,2,0,0,8,13,Maximilian Lotz
+D3,12/09/2026,14:00,SC Verl,Meppen,2,1,4,6,1,2,0,2,9,15,Franziska Wildfeuer
+D3,12/09/2026,14:00,Saarbrucken,Ingolstadt,0,1,7,2,1,4,0,0,10,12,Michael Nather
+D3,12/09/2026,14:00,TSV Havelse,Sonnenhof Großaspach,2,2,3,6,7,1,0,0,25,6,Yannick Sager
+D3,13/09/2026,19:30,Hoffenheim II,Fortuna Koln,2,2,6,4,1,1,0,0,10,10,Christian Ballweg
+D3,13/09/2026,13:30,VfB Stuttgart II,Preussen Munster,1,2,1,4,0,3,0,0,12,11,Niclas Rose
+D3,13/09/2026,16:30,Wehen Wiesbaden,Waldhof Mannheim,0,1,7,5,4,2,0,0,10,12,Lennart Kernchen
+D3,14/08/2026,19:00,Wurzburger Kickers,Wehen Wiesbaden,4,0,3,5,2,4,0,0,14,10,Cengiz Kabalakli
+D3,15/08/2026,14:00,Fortuna Dusseldorf,Hoffenheim II,0,2,8,1,2,3,1,0,15,14,Martin Wilke
+D3,15/08/2026,14:00,Fortuna Koln,Alemannia Aachen,1,1,4,4,1,4,0,1,19,17,Davina Lutz
+D3,15/08/2026,14:00,Meppen,Sonnenhof Großaspach,2,0,6,4,4,3,0,0,18,8,Maximilian Lotz
+D3,15/08/2026,14:00,Preussen Munster,Ingolstadt,1,1,4,4,1,1,0,0,9,14,Jonah Samuel Njie Besong
+D3,15/08/2026,14:00,RW Essen,TSV Havelse,1,0,10,3,3,1,0,0,8,17,Michael Nather
+D3,15/08/2026,16:30,SC Verl,MSV Duisburg,2,4,3,11,2,1,1,0,16,12,Felix Wagner
+D3,15/09/2026,19:00,Jahn Regensburg,Fortuna Dusseldorf,1,2,9,3,3,2,0,0,11,14,Timo Gansloweit
+D3,15/09/2026,19:00,MSV Duisburg,TSV Havelse,2,1,7,1,1,1,0,1,14,14,Davina Lutz
+D3,15/09/2026,19:00,Meppen,Viktoria Koln 1904,1,3,6,2,5,3,0,0,18,7,Max Kluge
+D3,15/09/2026,19:00,Sonnenhof Großaspach,SC Verl,1,1,8,5,1,2,0,0,10,9,Felix Grund
+D3,15/09/2026,19:00,Wurzburger Kickers,Alemannia Aachen,1,0,2,7,4,2,0,1,11,16,Martin Wilke
+D3,16/08/2026,13:30,Hansa Rostock,Waldhof Mannheim,3,3,5,2,2,6,0,0,17,13,Felix Weller
+D3,16/08/2026,16:30,Jahn Regensburg,Saarbrucken,0,1,4,10,2,3,0,0,13,8,Timon Oliver Schulz
+D3,16/08/2026,19:30,VfB Stuttgart II,Viktoria Koln 1904,1,3,9,5,4,0,0,0,15,20,Henry Schroder
+D3,16/09/2026,19:00,Fortuna Koln,Wehen Wiesbaden,0,2,9,1,5,0,0,1,10,12,Timon Oliver Schulz
+D3,16/09/2026,19:00,Hansa Rostock,VfB Stuttgart II,3,2,3,4,1,1,0,0,15,10,Leonidas Exuzidis
+D3,16/09/2026,19:00,Ingolstadt,Hoffenheim II,1,2,4,9,0,2,0,0,8,17,Luca Sambill
+D3,16/09/2026,19:00,Preussen Munster,Saarbrucken,3,3,2,11,0,1,0,0,10,4,Simon Schreiner
+D3,16/09/2026,19:00,Waldhof Mannheim,RW Essen,1,2,5,4,2,2,0,0,12,9,Jarno Wienefeld
+D3,18/09/2026,19:00,SC Verl,Wurzburger Kickers,2,1,8,3,1,1,0,0,11,13,Lennart Kernchen
+D3,19/09/2026,14:00,Alemannia Aachen,Fortuna Dusseldorf,1,0,6,4,3,1,0,1,15,14,Konrad Oldhafer
+D3,19/09/2026,14:00,Hoffenheim II,Meppen,1,0,3,4,2,3,0,0,13,10,Jonah Besong
+D3,19/09/2026,16:30,Saarbrucken,Sonnenhof Großaspach,2,1,9,2,3,3,0,0,9,12,Assad Nouhoum
+D3,19/09/2026,14:00,VfB Stuttgart II,Jahn Regensburg,3,3,1,4,2,3,0,0,17,21,Yannick Sager
+D3,19/09/2026,14:00,Viktoria Koln 1904,Ingolstadt,3,0,7,5,1,4,0,0,10,10,Fabienne Michel
+D3,20/09/2026,13:30,RW Essen,Hansa Rostock,1,1,7,3,2,5,0,0,11,14,Lukas Benen
+D3,20/09/2026,16:30,Waldhof Mannheim,Preussen Munster,2,0,3,4,1,3,0,0,10,16,Ben Henry Uhrig
+D3,20/09/2026,19:30,Wehen Wiesbaden,MSV Duisburg,1,4,1,8,2,0,1,0,10,10,Cengiz Kabalakli
+D3,25/09/2026,19:00,TSV Havelse,Fortuna Koln,1,3,5,1,2,2,0,0,10,11,Franziska Wildfeuer
+D3,28/08/2026,19:00,Fortuna Dusseldorf,VfB Stuttgart II,1,0,7,3,3,4,0,0,19,21,Tom Bauer
+D3,29/08/2026,14:00,Alemannia Aachen,Meppen,0,3,4,5,2,5,0,0,14,27,Felix Grund
+D3,29/08/2026,16:30,Hoffenheim II,Jahn Regensburg,5,1,1,3,0,3,0,0,13,20,Fabienne Michel
+D3,29/08/2026,14:00,MSV Duisburg,Wurzburger Kickers,3,0,2,1,4,3,0,0,12,14,Niclas Rose
+D3,29/08/2026,14:00,SC Verl,Fortuna Koln,1,2,6,1,3,2,0,1,14,9,Luca Sambill
+D3,29/08/2026,14:00,Sonnenhof Großaspach,Ingolstadt,0,2,14,2,0,0,0,1,8,16,Max Kluge
+D3,29/08/2026,14:00,Wehen Wiesbaden,RW Essen,0,0,5,5,4,1,0,0,9,8,Leonidas Exuzidis
+D3,30/08/2026,13:30,Saarbrucken,Hansa Rostock,2,4,5,4,3,4,0,0,12,16,Michael Bacher
+D3,30/08/2026,16:30,TSV Havelse,Waldhof Mannheim,3,2,5,5,3,4,0,0,18,14,Koji Takasaki
+D3,30/08/2026,19:30,Viktoria Koln 1904,Preussen Munster,4,1,4,5,3,4,0,0,11,15,Ryo Tanimoto

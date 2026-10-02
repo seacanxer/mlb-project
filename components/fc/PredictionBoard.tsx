@@ -127,7 +127,7 @@ function PredictionCard({ match, market, valueOnly, saved, lockedIds, onToggle }
         {available && match.analysis?.reason_codes.map((code) => <p key={code}>{reasonLabel(code)}</p>)}
       </div>
       {options.length > 0 && <div className="prediction-options-wrap"><table className="prediction-options"><thead><tr><th>Pasar / pilihan</th><th>Odds</th><th>P(menang)</th><th>Fair odds</th><th>EV</th><th>Status</th><th>Simpan</th></tr></thead><tbody>{options.map((p, i) => <tr key={`${p.market}-${p.pick}-${i}`}>
-        <td>{p.market.toUpperCase()} · {pickLabel(p, match)}</td><td>{formatOdds(p.odds)}</td><td>{formatProb(p.probability)}</td><td>{formatOdds(p.fair_odds)}</td><td className={p.ev > 0 ? 'positive' : ''}>{formatEv(p.ev)}</td>
+        <td>{p.market.toUpperCase()} · {pickLabel(p, match)}</td><td>{formatOdds(p.odds)}</td><td>{formatProb(p.probability)}</td><td>{formatOdds(p.fair_odds)}</td><td className={(p.ev ?? 0) > 0 ? 'positive' : ''}>{formatEv(p.ev)}</td>
         <td>{isValue(p) ? 'Kandidat value' : p.gate_reasons?.map(reasonLabel).join(' ') || 'Proyeksi model'}</td>
         <td><button type="button" onClick={() => onToggle(match, p)} aria-label={`${lockedIds.has(choiceId(match, p)) ? 'Terkunci' : 'Simpan alternatif'} ${pickLabel(p, match)}`} aria-pressed={saved.includes(choiceId(match, p))}>{lockedIds.has(choiceId(match, p)) ? '🔒' : saved.includes(choiceId(match, p)) ? '✓' : '+'}</button></td>
       </tr>)}</tbody></table></div>}
@@ -266,7 +266,7 @@ export function PredictionBoard({ matches, initialView = 'all', marketScope = 'a
     if (market !== 'all' && !picks.some((p) => p.market === market)) return false;
     const hay = `${m.info.home} ${m.info.away} ${m.info.league}`.toLowerCase();
     return hay.includes(search.trim().toLowerCase());
-  }).sort((a, b) => sort === 'value' ? Math.max(0, ...(b.qualified_picks ?? []).map((p) => p.ev)) - Math.max(0, ...(a.qualified_picks ?? []).map((p) => p.ev)) : Number(a.info.start_ts || 0) - Number(b.info.start_ts || 0));
+  }).sort((a, b) => sort === 'value' ? Math.max(0, ...(b.qualified_picks ?? []).map((p) => p.ev ?? 0)) - Math.max(0, ...(a.qualified_picks ?? []).map((p) => p.ev ?? 0)) : Number(a.info.start_ts || 0) - Number(b.info.start_ts || 0));
   const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const activePage = Math.min(page, pages - 1);
   const changeView = (next: BoardView) => { setView(next); setPage(0); };

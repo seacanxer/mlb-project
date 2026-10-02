@@ -10,7 +10,7 @@ const fixture = (id: string, home: string, away: string, league: string, project
     analysis_status: ev > .03 ? 'value_candidate' : 'forecast', gate_reasons: ev > .03 ? [] : ['EV_BELOW_VALUE_THRESHOLD'],
   }));
   return { info: { match_id: id, home, away, league, start_ts: start, coverage_status: projections ? 'full' : 'market_only' }, projections: projections ? picks : [],
-    qualified_picks: projections ? picks.filter((p) => p.ev > .03) : [], market_options: projections ? picks : [],
+    qualified_picks: projections ? picks.filter((p) => (p.ev ?? 0) > .03) : [], market_options: projections ? picks : [],
     analysis: { status: projections ? 'ready' : 'unavailable', reason_codes: projections ? [] : ['TEAM_UNMATCHED'], official_enabled: false, official_reason: 'MODEL_NOT_VALIDATED', model_goals: projections ? { home: 1.92, away: 1.28 } : undefined, league_model: 'E0' } };
 };
 const matches = [fixture('101', 'Arsenal', 'Brighton & Hove Albion', 'England. Premier League'), fixture('102', 'Internazionale Milano', 'Fiorentina', 'Italy. Serie A'), fixture('103', 'Unknown United', 'Example City', 'Japan. J1 League', false)];

@@ -1,0 +1,55 @@
+Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG,HC,AC,HY,AY,HR,AR,HF,AF,Referee
+D2,04/09/2026,18:30,Arminia Bielefeld,St. Pauli,2,2,3,5,2,3,0,0,12,14,Felix Prigan
+D2,04/09/2026,18:30,Hannover 96,Karlsruher SC,2,2,1,5,4,2,0,0,12,12,Tom Bauer
+D2,05/09/2026,20:30,Dynamo Dresden,Bochum,1,2,8,4,1,7,0,0,10,15,Harm Osmers
+D2,05/09/2026,13:00,Holstein Kiel,1. FC Nurnberg,2,2,10,8,4,3,0,0,17,14,Tobias Stieler
+D2,05/09/2026,13:00,Kaiserslautern,Darmstadt,3,0,9,3,3,2,0,0,19,14,Michael Bacher
+D2,05/09/2026,13:00,Wolfsburg,Energie Cottbus,4,4,4,8,1,4,1,0,13,11,Lukas Benen
+D2,06/09/2026,13:30,Greuther Furth,FC Heidenheim,0,1,7,2,1,1,0,0,7,11,Konrad Oldhafer
+D2,06/09/2026,13:30,Hertha BSC,Magdeburg,2,1,5,7,1,1,1,1,17,10,Florian Exner
+D2,06/09/2026,13:30,VfL Osnabruck,Eintracht Braunschweig,3,1,5,5,1,5,0,0,11,13,Wolfgang Haslberger
+D2,07/08/2026,20:30,Bochum,Hertha BSC,0,1,5,2,2,5,0,0,18,13,Wolfgang Haslberger
+D2,08/08/2026,13:00,Darmstadt,Holstein Kiel,2,2,8,4,2,3,0,0,15,16,Felix Bickel
+D2,08/08/2026,13:00,FC Heidenheim,VfL Osnabruck,4,3,4,6,1,2,0,0,6,6,Eric-Dominic Weisbach
+D2,08/08/2026,13:00,Karlsruher SC,Arminia Bielefeld,2,1,6,6,2,1,0,0,15,12,Michael Bacher
+D2,08/08/2026,13:00,Magdeburg,Eintracht Braunschweig,1,6,5,5,4,1,1,0,14,9,Felix Prigan
+D2,08/08/2026,20:30,Wolfsburg,Kaiserslautern,0,0,9,2,0,1,0,0,17,10,Florian Exner
+D2,09/08/2026,13:30,1. FC Nurnberg,Dynamo Dresden,3,0,5,5,0,2,0,0,6,11,Jarno Wienefeld
+D2,09/08/2026,13:30,Energie Cottbus,Hannover 96,3,1,2,6,0,2,0,0,11,11,Lars Erbst
+D2,09/08/2026,13:30,St. Pauli,Greuther Furth,1,1,9,2,1,0,0,0,4,5,Harm Osmers
+D2,11/09/2026,18:30,1. FC Nurnberg,Hannover 96,2,1,7,2,3,1,0,0,10,12,Florian Lechner
+D2,11/09/2026,18:30,Darmstadt,Arminia Bielefeld,2,1,4,8,3,2,0,0,17,17,Eric-Dominic Weisbach
+D2,12/09/2026,13:00,Bochum,Greuther Furth,1,1,3,7,0,0,1,0,7,7,Felix Bickel
+D2,12/09/2026,13:15,Eintracht Braunschweig,Dynamo Dresden,2,2,2,5,3,2,0,0,8,13,Lars Erbst
+D2,12/09/2026,13:00,Magdeburg,Kaiserslautern,3,0,4,3,1,2,0,0,9,5,Marc Philip Eckermann
+D2,12/09/2026,20:30,St. Pauli,Wolfsburg,1,0,10,4,2,2,0,0,12,8,Soren Storks
+D2,13/09/2026,13:30,FC Heidenheim,Holstein Kiel,1,0,6,8,1,0,0,1,11,12,Justin Hasmann
+D2,13/09/2026,13:30,Karlsruher SC,Energie Cottbus,0,3,5,8,1,2,0,0,13,16,Robert Hartmann
+D2,13/09/2026,13:30,VfL Osnabruck,Hertha BSC,1,3,4,5,2,2,0,0,12,12,Felix Weller
+D2,14/08/2026,18:30,Eintracht Braunschweig,Bochum,0,1,5,6,2,3,0,0,11,13,Marc-Philipp Eckermann
+D2,14/08/2026,18:30,Holstein Kiel,St. Pauli,2,2,5,5,3,3,0,0,14,19,Max Burda
+D2,15/08/2026,13:00,Greuther Furth,1. FC Nurnberg,2,4,5,3,1,4,0,0,9,15,Tom Bauer
+D2,15/08/2026,13:00,Hertha BSC,FC Heidenheim,4,1,5,3,1,2,1,0,12,17,Lukas Benen
+D2,15/08/2026,20:30,Kaiserslautern,Karlsruher SC,0,0,4,11,3,3,0,0,12,19,Richard Hempel
+D2,15/08/2026,13:00,VfL Osnabruck,Magdeburg,0,3,3,10,1,1,0,0,12,11,Justin Joel Hasmann
+D2,16/08/2026,13:30,Arminia Bielefeld,Energie Cottbus,3,0,7,10,2,2,0,0,12,18,Florian Lechner
+D2,16/08/2026,13:30,Dynamo Dresden,Darmstadt,1,0,7,5,1,1,0,1,12,12,Konrad Oldhfer
+D2,16/08/2026,13:30,Hannover 96,Wolfsburg,0,1,8,6,1,2,0,0,9,9,Timo Gansloweit
+D2,18/09/2026,18:30,Greuther Furth,Magdeburg,1,1,3,5,3,1,0,0,9,9,Christian Ballweg
+D2,18/09/2026,18:30,Wolfsburg,Darmstadt,5,1,8,5,3,2,0,0,19,9,Martin Petersen
+D2,19/09/2026,20:30,Dynamo Dresden,Hertha BSC,1,2,6,5,2,2,0,0,11,9,Christian Dingert
+D2,19/09/2026,13:00,Holstein Kiel,VfL Osnabruck,1,1,10,1,2,3,1,0,11,15,Tom Bauer
+D2,19/09/2026,13:00,Kaiserslautern,Eintracht Braunschweig,1,0,7,5,1,2,0,0,11,6,Jarno Wienefeld
+D2,19/09/2026,13:00,Karlsruher SC,1. FC Nurnberg,0,1,3,4,3,1,0,0,16,11,Timo Gansloweit
+D2,20/09/2026,13:30,Arminia Bielefeld,FC Heidenheim,2,2,5,6,3,4,0,0,13,9,Felix Wagner
+D2,20/09/2026,13:30,Energie Cottbus,St. Pauli,1,1,9,3,2,2,0,1,13,7,Michael Bacher
+D2,20/09/2026,13:30,Hannover 96,Bochum,2,1,2,12,3,2,0,0,12,9,Patrick Schwengers
+D2,28/08/2026,18:30,Bochum,VfL Osnabruck,0,1,6,1,3,4,0,0,15,12,Felix Wagner
+D2,28/08/2026,18:30,Eintracht Braunschweig,Hertha BSC,3,5,5,12,2,4,0,0,9,15,Richard Hempel
+D2,29/08/2026,20:30,1. FC Nurnberg,Arminia Bielefeld,4,1,3,8,2,0,0,0,9,11,Patrick Schwengers
+D2,29/08/2026,13:00,Energie Cottbus,Greuther Furth,3,4,10,6,2,2,0,0,11,16,Felix Weller
+D2,29/08/2026,13:00,FC Heidenheim,Dynamo Dresden,5,3,6,9,2,1,0,1,8,6,Felix Bickel
+D2,29/08/2026,13:00,Karlsruher SC,Wolfsburg,2,5,10,8,0,1,0,0,13,14,Lars Erbst
+D2,30/08/2026,13:30,Darmstadt,Hannover 96,0,1,2,11,1,2,1,0,8,12,Timo Gerach
+D2,30/08/2026,13:30,Magdeburg,Holstein Kiel,2,0,3,3,5,4,0,0,14,17,Jarno Wienefeld
+D2,30/08/2026,13:30,St. Pauli,Kaiserslautern,1,2,4,5,3,4,0,0,9,13,Eric-Dominic Weisbach

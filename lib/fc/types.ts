@@ -45,8 +45,9 @@
  */
 
 // ---- Enum & base types (verified: main.py select_top_picks + gate_reason) ----
-export type Market = 'ah' | 'ou' | 'btts' | '1x2';
-export type CoverageStatus = 'full' | 'shadow' | 'market_only';
+export type Market = 'ah' | 'ou' | 'btts' | '1x2'
+  | 'corners_ou' | 'corner_hdp' | 'cards_ou' | 'team_cards_ou' | 'red_card';
+export type CoverageStatus = 'full' | 'shadow' | 'market_only' | 'projection';
 // NOTE: brief §7 listed tier as full|shadow|watch|blocked|market_only.
 // Real engine sets tier = "watch" for shadow coverage, "top_pick"|"official"
 // for full coverage. "blocked"/"market_only" never reach published picks.
@@ -65,10 +66,11 @@ export interface FcPick {
   start_ts: number;
   market: Market;
   pick: string;
-  odds: number;
+  /** Null for corner/card projections (no bookmaker price — research card). */
+  odds: number | null;
   probability: number;
-  ev: number;
-  conservative_ev: number;
+  ev: number | null;
+  conservative_ev: number | null;
   market_probability?: number;
   edge_pct?: number;
   suggested_stake?: number;

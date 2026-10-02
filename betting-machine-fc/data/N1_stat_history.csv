@@ -1,0 +1,65 @@
+Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG,HC,AC,HY,AY,HR,AR,HF,AF,Referee
+N1,04/09/2026,20:00,Sparta Rotterdam,PEC Zwolle,2,2,15,4,0,2,0,0,12,11,Stan Teuben
+N1,05/09/2026,20:00,Ajax,PSV Eindhoven,1,3,1,1,4,6,0,0,6,13,Sander van der Eijk
+N1,05/09/2026,16:30,NEC Nijmegen,Feyenoord,1,3,1,1,1,2,0,0,9,15,Allard Lindhout
+N1,05/09/2026,21:00,Willem II,Excelsior,0,3,7,6,2,1,0,0,10,14,Robin Hensgens
+N1,06/09/2026,16:45,ADO Den Haag,Fortuna Sittard,2,3,2,0,0,4,0,0,17,16,Ingmar Oostrom
+N1,06/09/2026,12:15,FC Groningen,FC Twente,2,2,8,2,1,1,0,0,6,9,Danny Makkelie
+N1,06/09/2026,14:30,SC Heerenveen,AZ Alkmaar,2,3,4,3,1,2,0,0,9,12,Jeroen Manschot
+N1,06/09/2026,14:30,Telstar,Cambuur,2,2,4,2,3,4,1,0,7,20,Joey Kooij
+N1,07/08/2026,20:00,Cambuur,Excelsior,0,4,5,8,0,0,0,0,6,11,Allard Lindhout
+N1,08/08/2026,21:00,AZ Alkmaar,ADO Den Haag,2,0,9,7,0,1,0,0,9,14,Erwin Blank
+N1,08/08/2026,18:45,Go Ahead Eagles,Willem II,4,1,6,2,2,1,0,0,6,14,Robin Hensgens
+N1,08/08/2026,16:30,NEC Nijmegen,Telstar,1,2,13,3,2,2,0,0,12,14,Martijn Vos
+N1,08/08/2026,20:00,PSV Eindhoven,Fortuna Sittard,2,2,9,0,1,1,0,0,9,6,Alex Bos
+N1,08/09/2026,14:00,FC Utrecht,Go Ahead Eagles,3,3,7,5,2,1,0,0,16,8,Martin van den Kerkhof
+N1,08/09/2026,18:45,NEC Nijmegen,Excelsior,2,2,2,4,1,3,0,0,5,16,Erwin Blank
+N1,09/08/2026,14:30,FC Groningen,FC Utrecht,2,1,5,1,0,2,0,0,12,17,Joey Kooij
+N1,09/08/2026,14:30,PEC Zwolle,Ajax,0,2,2,10,2,2,1,0,12,10,Jannick van der Laan
+N1,09/08/2026,16:45,SC Heerenveen,FC Twente,1,0,4,8,2,1,0,0,7,7,Marc Nagtegaal
+N1,09/08/2026,12:15,Sparta Rotterdam,Feyenoord,0,1,5,10,3,1,0,0,11,8,Sander van der Eijk
+N1,09/09/2026,18:45,FC Twente,Telstar,1,0,9,2,1,3,0,0,10,11,Richard Martens
+N1,11/09/2026,20:00,AZ Alkmaar,Willem II,1,1,11,2,0,1,0,0,7,8,Martin van den Kerkhof
+N1,12/09/2026,21:00,Cambuur,NEC Nijmegen,3,0,4,5,2,4,0,0,16,18,Ingmar Oostrom
+N1,12/09/2026,16:30,FC Twente,ADO Den Haag,2,0,12,2,1,3,0,0,10,11,Jannick van der Laan
+N1,12/09/2026,20:00,Fortuna Sittard,Ajax,1,5,3,11,1,5,0,0,5,12,Jeroen Manschot
+N1,12/09/2026,18:45,Go Ahead Eagles,FC Groningen,1,1,9,0,1,0,0,0,8,10,Dennis Higler
+N1,13/09/2026,12:15,Excelsior,FC Utrecht,1,2,5,2,2,0,0,0,9,8,Sander van der Eijk
+N1,13/09/2026,16:45,PEC Zwolle,Feyenoord,0,7,5,6,0,0,0,0,9,8,Alex Bos
+N1,13/09/2026,20:00,PSV Eindhoven,Sparta Rotterdam,4,1,9,5,1,1,0,0,6,3,Danny Makkelie
+N1,13/09/2026,14:30,SC Heerenveen,Telstar,0,0,8,6,2,0,0,0,13,8,Serdar Gozubuyuk
+N1,14/08/2026,20:00,Telstar,Sparta Rotterdam,1,3,7,5,1,1,0,0,13,17,Ingmar Oostrom
+N1,15/08/2026,20:00,Excelsior,PSV Eindhoven,1,2,1,7,1,0,0,0,9,3,Marc Nagtegaal
+N1,15/08/2026,18:45,FC Utrecht,AZ Alkmaar,1,4,3,9,4,2,0,0,23,14,Danny Desmond Makkelie
+N1,15/08/2026,21:00,Fortuna Sittard,Cambuur,3,1,6,7,0,2,0,0,10,9,Martin van den Kerkhof
+N1,15/08/2026,16:30,Willem II,NEC Nijmegen,1,4,1,2,1,0,0,0,10,14,Serdar Gozubuyuk
+N1,15/09/2026,20:00,Ajax,Willem II,5,1,14,2,0,0,0,0,6,3,Allard Lindhout
+N1,16/08/2026,12:15,ADO Den Haag,FC Groningen,1,4,5,2,0,1,0,0,11,11,Jeroen Manschot
+N1,16/08/2026,16:45,Ajax,SC Heerenveen,2,2,7,2,3,1,0,0,8,10,Alex Bos
+N1,16/08/2026,14:30,FC Twente,PEC Zwolle,3,1,6,3,0,0,0,0,11,6,Allard Lindhout
+N1,16/08/2026,14:30,Feyenoord,Go Ahead Eagles,2,2,6,6,0,0,0,0,3,8,Joey Kooij
+N1,18/09/2026,20:00,FC Groningen,PEC Zwolle,3,0,5,6,0,2,0,0,7,11,Martin van den Kerkhof
+N1,19/09/2026,16:30,ADO Den Haag,Cambuur,1,1,6,3,3,2,0,0,22,14,Allard Lindhout
+N1,19/09/2026,20:00,Ajax,Excelsior,2,2,9,0,1,2,0,0,6,12,Jannick van der Laan
+N1,19/09/2026,18:45,Sparta Rotterdam,SC Heerenveen,0,4,3,6,2,0,0,0,11,9,Ingmar Oostrom
+N1,19/09/2026,21:00,Willem II,Fortuna Sittard,0,1,5,3,3,1,0,0,9,10,Dennis Higler
+N1,20/09/2026,14:30,AZ Alkmaar,Telstar,1,0,5,2,1,1,0,0,15,12,Sander van der Eijk
+N1,20/09/2026,14:30,FC Twente,PSV Eindhoven,3,2,6,5,1,3,0,0,10,12,Serdar Gozubuyuk
+N1,20/09/2026,12:15,Feyenoord,FC Utrecht,5,0,6,3,2,2,0,0,11,23,Joey Kooij
+N1,20/09/2026,16:45,NEC Nijmegen,Go Ahead Eagles,1,1,5,7,0,2,0,0,8,6,Martijn Vos
+N1,22/08/2026,16:30,Fortuna Sittard,AZ Alkmaar,0,2,1,15,0,1,1,0,9,11,Serdar Gozubuyuk
+N1,22/08/2026,20:00,NEC Nijmegen,Excelsior,0,0,2,4,1,3,0,0,5,16,Erwin Blank
+N1,22/08/2026,21:00,SC Heerenveen,PEC Zwolle,0,2,5,3,1,2,0,0,6,13,Richard Martens
+N1,22/08/2026,18:45,Sparta Rotterdam,FC Utrecht,3,3,5,7,0,0,0,0,10,13,Dennis Higler
+N1,23/08/2026,16:45,Cambuur,Feyenoord,2,5,3,3,0,1,0,0,14,13,Danny Makkelie
+N1,23/08/2026,12:15,Go Ahead Eagles,ADO Den Haag,3,1,5,3,1,2,0,0,10,13,Sander van der Eijk
+N1,23/08/2026,14:30,PSV Eindhoven,FC Groningen,5,1,9,4,1,1,0,0,10,4,Allard Lindhout
+N1,28/08/2026,20:00,FC Groningen,Fortuna Sittard,2,3,7,2,3,4,0,0,8,8,Martijn Vos
+N1,29/08/2026,18:45,AZ Alkmaar,Go Ahead Eagles,5,2,8,4,0,0,0,0,9,6,Alex Bos
+N1,29/08/2026,16:30,Excelsior,Sparta Rotterdam,2,1,6,4,2,1,0,0,13,7,Serdar Gozubuyuk
+N1,29/08/2026,21:00,PEC Zwolle,NEC Nijmegen,1,3,6,7,1,3,0,0,17,12,Joey Kooij
+N1,30/08/2026,20:00,Cambuur,FC Twente,1,4,2,9,1,1,0,0,6,14,Erwin Blank
+N1,30/08/2026,12:15,FC Utrecht,PSV Eindhoven,1,6,0,13,5,1,0,0,21,8,Jeroen Manschot
+N1,30/08/2026,14:30,Feyenoord,ADO Den Haag,2,2,11,3,0,3,0,0,5,9,Robin Hensgens
+N1,30/08/2026,16:45,Telstar,Ajax,0,4,5,4,0,0,0,0,11,13,Dennis Higler
+N1,30/08/2026,14:30,Willem II,SC Heerenveen,2,2,9,7,0,0,0,0,9,5,Jannick van der Laan

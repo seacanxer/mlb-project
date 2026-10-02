@@ -1,0 +1,65 @@
+Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG,HC,AC,HY,AY,HR,AR,HF,AF,Referee
+MEX2,01/08/2026,05:00,Atletico La Paz,Alacranes de Durango,0,1,9,3,,,,,,,Jaime Orlando Montes Santos
+MEX2,01/08/2026,03:00,Correcaminos de la UAT,Tepatitlan FC,3,1,9,6,,,,,,,Jorge Carlos Ortiz Leon
+MEX2,01/08/2026,23:45,Cruz Azul Hidalgo,Venados FC,1,1,4,6,,,,,,,
+MEX2,01/08/2026,03:00,Mineros de Zacatecas,Tlaxcala FC,3,1,3,4,,,,,,,Erick Gonzalez Miranda
+MEX2,01/08/2026,01:00,Tapatio,Jaiba Brava del Tampico-Madero,1,0,0,0,,,,,,,Orlando Delgadillo Franco
+MEX2,02/08/2026,03:00,Cancun FC,Leones Negros,0,2,0,0,,,,,,,Alan Cristobal Rodriguez Cancino
+MEX2,02/08/2026,03:00,Piratas,Atletico Morelia,1,0,9,3,,,,,,,Jose Luis Alba Dorado
+MEX2,04/09/2026,03:00,Tepatitlan FC,Dorados,1,4,6,1,,,,,,,Aldo Ballesteros
+MEX2,05/09/2026,03:00,Alacranes de Durango,Tlaxcala FC,1,1,5,2,,,,,,,Orlando Delgadillo Franco
+MEX2,05/09/2026,05:00,Atletico La Paz,Mineros de Zacatecas,3,0,3,4,,,,,,,Omar Ortega Garcia
+MEX2,06/08/2026,00:00,Tlaxcala FC,Alebrijes Oaxaca,0,2,4,5,,,,,,,
+MEX2,06/09/2026,03:00,Atletico Morelia,Alebrijes Oaxaca,4,1,8,3,,,,,,,Jorge Carlos Ortiz Leon
+MEX2,06/09/2026,03:00,Cancun FC,Cruz Azul Hidalgo,6,0,0,0,,,,,,,Mauricio Lopez Sanchez
+MEX2,06/09/2026,03:00,Jaiba Brava del Tampico-Madero,Venados FC,4,3,1,9,,,,,,,Erick Gonzalez Miranda
+MEX2,06/09/2026,03:00,Piratas,Correcaminos de la UAT,4,1,5,3,,,,,,,Jesus Enrique Herrera Armenta
+MEX2,06/09/2026,01:00,Tapatio,Leones Negros,1,3,1,4,,,,,,,Jose Negrete
+MEX2,07/08/2026,03:00,Dorados,Mineros de Zacatecas,2,2,8,1,,,,,,,
+MEX2,07/08/2026,03:00,Leones Negros,Correcaminos de la UAT,1,3,0,0,,,,,,,
+MEX2,08/08/2026,03:00,Alacranes de Durango,Piratas,0,3,3,9,,,,,,,
+MEX2,08/08/2026,03:00,Tepatitlan FC,Atletico La Paz,0,5,6,1,,,,,,,
+MEX2,08/08/2026,01:30,Venados FC,Tapatio,3,2,8,3,,,,,,,Jose Maximiliano Negrete Preciado
+MEX2,09/08/2026,03:00,Atletico Morelia,Cancun FC,4,1,10,5,,,,,,,
+MEX2,09/08/2026,03:00,Jaiba Brava del Tampico-Madero,Cruz Azul Hidalgo,3,0,3,8,,,,,,,
+MEX2,11/09/2026,03:00,Alebrijes Oaxaca,Alacranes de Durango,1,0,2,6,,,,,,,Mauricio Lopez Sanchez
+MEX2,11/09/2026,20:00,Cruz Azul Hidalgo,Piratas,1,1,4,1,,,,,,,Jose Negrete
+MEX2,12/09/2026,03:00,Correcaminos de la UAT,Cancun FC,2,2,7,4,,,,,,,Enrique Ramirez
+MEX2,12/09/2026,00:00,Tlaxcala FC,Jaiba Brava del Tampico-Madero,3,1,5,7,,,,,,,Omar Ortega Garcia
+MEX2,12/09/2026,01:00,Venados FC,Tepatitlan FC,5,0,3,12,,,,,,,Orlando Delgadillo Franco
+MEX2,13/09/2026,03:00,Dorados,Tapatio,3,1,13,2,,,,,,,Maximiliano Arias Guzman
+MEX2,13/09/2026,20:00,Leones Negros,Atletico La Paz,2,2,4,8,,,,,,,Erick Gonzalez Miranda
+MEX2,13/09/2026,03:00,Mineros de Zacatecas,Atletico Morelia,0,1,4,7,,,,,,,Hector Salvador Solorio Arreola
+MEX2,14/08/2026,03:00,Alebrijes Oaxaca,Tepatitlan FC,1,0,0,0,,,,,,,
+MEX2,15/08/2026,05:00,Atletico La Paz,Piratas,2,0,1,9,,,,,,,Fernando Alexander Cruz Garatachea
+MEX2,15/08/2026,03:00,Correcaminos de la UAT,Tapatio,2,3,9,7,,,,,,,
+MEX2,15/08/2026,20:00,Cruz Azul Hidalgo,Atletico Morelia,1,2,6,7,,,,,,,
+MEX2,15/08/2026,03:00,Mineros de Zacatecas,Venados FC,5,1,5,3,,,,,,,
+MEX2,16/08/2026,03:00,Cancun FC,Alacranes de Durango,2,0,1,3,,,,,,,Jesus Enrique Herrera Armenta
+MEX2,16/08/2026,03:00,Dorados,Tlaxcala FC,2,2,4,1,,,,,,,Jose Maximiliano Negrete Preciado
+MEX2,16/08/2026,20:00,Leones Negros,Jaiba Brava del Tampico-Madero,4,0,3,5,,,,,,,
+MEX2,16/09/2026,03:00,Dorados,Cancun FC,1,1,5,8,,,,,,,Jaime Montes Santos
+MEX2,20/08/2026,01:00,Venados FC,Dorados,4,2,6,2,,,,,,,Jorge Carlos Ortiz Leon
+MEX2,21/08/2026,03:00,Atletico Morelia,Correcaminos de la UAT,1,3,16,5,,,,,,,Alan Cancino
+MEX2,21/08/2026,03:00,Tepatitlan FC,Tlaxcala FC,3,2,5,3,,,,,,,Enrique Ramirez
+MEX2,22/08/2026,05:00,Atletico La Paz,Cruz Azul Hidalgo,1,1,4,13,,,,,,,Jose Luis Alba
+MEX2,23/08/2026,03:00,Alacranes de Durango,Leones Negros,1,2,0,0,,,,,,,Fernando Cruz Garatachea
+MEX2,23/08/2026,03:00,Jaiba Brava del Tampico-Madero,Alebrijes Oaxaca,2,1,12,5,,,,,,,Diana Perez Borja
+MEX2,23/08/2026,03:00,Piratas,Cancun FC,0,1,6,1,,,,,,,Omar Ortega Garcia
+MEX2,24/08/2026,03:00,Tapatio,Mineros de Zacatecas,4,2,3,2,,,,,,,Amairany Garcia
+MEX2,25/07/2026,03:00,Mineros de Zacatecas,Correcaminos de la UAT,3,3,2,6,,,,,,,
+MEX2,25/07/2026,03:00,Tepatitlan FC,Alacranes de Durango,0,1,4,6,,,,,,,
+MEX2,25/07/2026,00:00,Tlaxcala FC,Leones Negros,2,4,4,4,,,,,,,
+MEX2,25/07/2026,01:55,Venados FC,Alebrijes Oaxaca,3,0,12,1,,,,,,,Mauricio Eleazar Lopez Sanchez
+MEX2,26/07/2026,03:00,Atletico Morelia,Atletico La Paz,4,2,0,0,,,,,,,
+MEX2,26/07/2026,03:00,Jaiba Brava del Tampico-Madero,Piratas,0,0,5,4,,,,,,,Jesus Enrique Herrera Armenta
+MEX2,26/07/2026,01:00,Tapatio,Cruz Azul Hidalgo,0,0,5,10,,,,,,,Maximiliano Arias Guzman
+MEX2,28/08/2026,03:00,Alebrijes Oaxaca,Tapatio,1,1,2,7,,,,,,,Alfredo Lopez
+MEX2,28/08/2026,03:00,Cancun FC,Atletico La Paz,1,2,7,2,,,,,,,Orlando Delgadillo Franco
+MEX2,29/08/2026,03:00,Correcaminos de la UAT,Alacranes de Durango,0,0,3,5,,,,,,,Rafael Heras Villa
+MEX2,29/08/2026,20:00,Cruz Azul Hidalgo,Tepatitlan FC,6,0,5,2,,,,,,,Fernando Cruz Garatachea
+MEX2,29/08/2026,04:20,Dorados,Atletico Morelia,0,1,6,4,,,,,,,Julio Cesar Gil Jimenez
+MEX2,29/08/2026,00:00,Tlaxcala FC,Venados FC,3,1,3,6,,,,,,,Jaime Montes Santos
+MEX2,30/08/2026,20:00,Leones Negros,Piratas,1,1,2,5,,,,,,,Jorge Carlos Ortiz Leon
+MEX2,30/08/2026,03:00,Mineros de Zacatecas,Jaiba Brava del Tampico-Madero,2,0,6,2,,,,,,,Jose Negrete
+MEX2,31/07/2026,03:00,Alebrijes Oaxaca,Dorados,0,2,0,0,,,,,,,Enrique Augusto Ramirez Gutierrez

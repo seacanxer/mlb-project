@@ -1,0 +1,136 @@
+Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG,HC,AC,HY,AY,HR,AR,HF,AF,Referee
+E3,01/08/2026,16:00,Annan Athletic,Spartans FC,2,4,7,3,,,,,,,Connor Ashwood
+E3,01/08/2026,16:00,Clyde,Stranraer,3,1,7,7,,,,,,,Ross Birrell
+E3,01/08/2026,16:00,Edinburgh City,Elgin City,0,5,3,5,,,,,,,Gary Hanvidge
+E3,01/08/2026,16:00,Forfar Athletic,Kelty Hearts,1,0,4,5,,,,,,,Greg Soutar
+E3,01/08/2026,16:00,Stirling Albion,Dumbarton,2,0,7,8,,,,,,,Alastair Grieve
+E3,01/09/2026,20:45,Accrington Stanley,Grimsby Town,2,2,2,8,4,1,0,0,9,10,Michael Barlow
+E3,01/09/2026,20:45,Bristol Rovers,Colchester United,2,0,3,2,3,1,0,0,17,9,Alex Chilowicz
+E3,01/09/2026,20:45,Cheltenham Town,York City,3,2,4,4,1,0,0,0,11,6,Steven Copeland
+E3,01/09/2026,20:45,Chesterfield,Gillingham,1,1,8,2,1,2,0,0,8,12,Ross Martin
+E3,01/09/2026,20:45,Crewe Alexandra,Walsall,2,2,9,4,0,2,0,0,11,14,Oliver Mackey
+E3,01/09/2026,20:45,Exeter City,Barnet,1,1,1,2,1,4,0,0,13,12,Sunny Sukhvir Gill
+E3,01/09/2026,20:45,Fleetwood Town,Oldham Athletic,1,1,7,4,1,0,0,0,12,7,William Davis
+E3,01/09/2026,20:45,Northampton Town,Crawley Town,1,1,4,4,0,2,1,0,6,9,Alan Dale
+E3,01/09/2026,20:45,Rochdale,Shrewsbury Town,3,0,1,3,1,4,0,0,9,11,Simon Mather
+E3,01/09/2026,20:45,Salford City,Newport County,2,1,10,0,1,3,0,0,11,19,Matthew Russell
+E3,01/09/2026,20:45,Swindon Town,Port Vale,3,1,10,4,1,1,0,0,10,7,Matthew Corlett
+E3,01/09/2026,20:45,Tranmere Rovers,Rotherham United,2,2,2,4,3,2,1,0,9,10,Martin Woods
+E3,05/09/2026,16:00,Accrington Stanley,Crawley Town,3,2,1,4,4,2,0,0,21,8,Thomas Kirk
+E3,05/09/2026,16:00,Bristol Rovers,Rotherham United,1,0,10,4,1,3,0,0,9,10,Darren Drysdale
+E3,05/09/2026,16:00,Cheltenham Town,Grimsby Town,2,2,3,7,1,1,0,0,8,10,Dale Baines
+E3,05/09/2026,16:00,Chesterfield,Barnet,3,3,4,8,4,3,0,0,9,19,Leigh Doughty
+E3,05/09/2026,16:00,Clyde,Edinburgh City,3,2,5,6,,,,,,,Alastair Grieve
+E3,05/09/2026,16:00,Crewe Alexandra,York City,1,1,5,9,1,2,0,0,12,10,Simon Mather
+E3,05/09/2026,16:00,Dumbarton,Elgin City,2,1,5,2,,,,,,,Daniel Graves
+E3,05/09/2026,16:00,Exeter City,Walsall,0,0,4,8,0,1,0,0,16,22,Harrison Blair
+E3,05/09/2026,13:30,Fleetwood Town,Shrewsbury Town,2,0,3,4,3,5,0,0,13,15,Edward Duckworth
+E3,05/09/2026,16:00,Forfar Athletic,Stranraer,0,3,6,8,,,,,,,Gary Hanvidge
+E3,05/09/2026,16:00,Kelty Hearts,Annan Athletic,2,1,1,6,,,,,,,Greg Soutar
+E3,05/09/2026,16:00,Northampton Town,Newport County,1,0,2,0,3,2,0,0,15,12,Alan Young
+E3,05/09/2026,16:00,Rochdale,Gillingham,1,4,6,6,0,1,1,0,13,12,Jamie Robinson
+E3,05/09/2026,13:30,Salford City,Port Vale,1,0,6,6,1,2,0,0,11,18,Ben Atkinson
+E3,05/09/2026,16:00,Stirling Albion,Spartans FC,0,2,4,2,,,,,,,Abbie Hendry
+E3,05/09/2026,16:00,Swindon Town,Colchester United,3,1,4,6,2,0,0,0,8,7,Sunny Sukhvir Gill
+E3,05/09/2026,16:00,Tranmere Rovers,Oldham Athletic,2,0,2,10,3,2,0,0,11,16,Seb Stockbridge
+E3,08/08/2026,16:00,Dumbarton,Clyde,1,0,4,7,,,,,,,Connor Ashwood
+E3,08/08/2026,16:00,Elgin City,Forfar Athletic,1,1,3,5,,,,,,,Ross Birrell
+E3,08/08/2026,16:00,Kelty Hearts,Stirling Albion,3,2,2,3,,,,,,,George Calder
+E3,08/08/2026,16:00,Spartans FC,Edinburgh City,2,2,2,4,,,,,,,Euan Birch
+E3,08/08/2026,16:00,Stranraer,Annan Athletic,0,1,5,6,,,,,,,Jordan Curran
+E3,12/09/2026,16:00,Annan Athletic,Elgin City,2,0,1,12,,,,,,,Jamie Wilkie
+E3,12/09/2026,16:00,Barnet,Accrington Stanley,2,1,6,4,0,4,0,1,9,19,Neil Hair
+E3,12/09/2026,16:00,Clyde,Kelty Hearts,4,1,8,6,,,,,,,Josh Hay
+E3,12/09/2026,16:00,Colchester United,Crewe Alexandra,1,1,1,3,0,1,0,0,12,17,Stephen Parkinson
+E3,12/09/2026,13:30,Crawley Town,Cheltenham Town,1,3,8,3,4,2,0,0,13,12,Ben Toner
+E3,12/09/2026,16:00,Edinburgh City,Stirling Albion,7,3,5,5,,,,,,,Peter Stuart
+E3,12/09/2026,16:00,Gillingham,Tranmere Rovers,2,0,5,5,3,2,0,0,8,9,Alan Young
+E3,12/09/2026,13:30,Grimsby Town,Bristol Rovers,2,0,8,8,2,3,0,1,9,12,Edward Duckworth
+E3,12/09/2026,16:00,Newport County,Fleetwood Town,1,1,9,3,0,5,0,0,10,16,Sunny Sukhvir Gill
+E3,12/09/2026,16:00,Oldham Athletic,Chesterfield,1,2,1,4,2,3,0,0,16,10,Matthew Corlett
+E3,12/09/2026,16:00,Port Vale,Exeter City,1,0,6,4,3,2,0,0,14,9,Leigh Doughty
+E3,12/09/2026,16:00,Rotherham United,Salford City,3,3,4,3,3,1,0,1,17,12,Dean Whitestone
+E3,12/09/2026,16:00,Shrewsbury Town,Northampton Town,2,0,1,5,2,1,0,0,16,9,Emily Heaslip
+E3,12/09/2026,16:00,Spartans FC,Forfar Athletic,5,1,5,2,,,,,,,Graham Grainger
+E3,12/09/2026,16:00,Stranraer,Dumbarton,3,1,9,3,,,,,,,Sean Murdoch
+E3,12/09/2026,16:00,Walsall,Rochdale,0,0,7,4,1,3,0,0,9,7,Jamie O'Connor
+E3,12/09/2026,16:00,York City,Swindon Town,4,0,6,1,1,3,0,1,5,15,Darren Drysdale
+E3,15/08/2026,16:00,Accrington Stanley,Colchester United,2,2,9,4,1,0,0,0,20,10,Elliot Swallow
+E3,15/08/2026,16:00,Annan Athletic,Clyde,1,2,3,4,,,,,,,Lewis Hogarth
+E3,15/08/2026,16:00,Barnet,Salford City,3,1,6,5,2,3,0,0,20,12,Richard Eley
+E3,15/08/2026,16:00,Cheltenham Town,Rotherham United,2,1,5,4,3,2,0,0,10,11,Harry Wager
+E3,15/08/2026,16:00,Chesterfield,Fleetwood Town,0,1,5,1,1,3,0,0,8,14,Alan Dale
+E3,15/08/2026,16:00,Crawley Town,Crewe Alexandra,0,1,4,11,1,4,2,1,6,18,Andrew Humphries
+E3,15/08/2026,16:00,Dumbarton,Edinburgh City,0,3,8,2,,,,,,,Cameron Stirling
+E3,15/08/2026,16:00,Elgin City,Kelty Hearts,4,1,4,4,,,,,,,Mark Daly
+E3,15/08/2026,16:00,Forfar Athletic,Stirling Albion,3,0,8,5,,,,,,,Jordan Curran
+E3,15/08/2026,16:00,Gillingham,Walsall,0,3,6,9,4,2,0,0,12,8,Emily Heaslip
+E3,15/08/2026,16:00,Grimsby Town,Exeter City,1,0,6,3,1,1,0,0,15,8,Abigail Byrne
+E3,15/08/2026,13:30,Newport County,Rochdale,3,0,9,6,2,2,0,1,11,14,Harrison Blair
+E3,15/08/2026,16:00,Northampton Town,Swindon Town,0,0,10,1,0,2,0,0,7,6,Scott Oldham
+E3,15/08/2026,13:30,Oldham Athletic,Port Vale,2,0,1,6,2,4,0,0,12,16,Paul Howard
+E3,15/08/2026,16:00,Stranraer,Spartans FC,1,0,10,7,,,,,,,Daniel Graves
+E3,15/08/2026,16:00,Tranmere Rovers,Shrewsbury Town,2,0,3,5,3,2,0,0,15,11,Jamie O'Connor
+E3,15/08/2026,16:00,York City,Bristol Rovers,3,2,7,6,2,0,0,0,9,10,Tom Nield
+E3,15/09/2026,15:45,Arkadag,Muharraq,1,0,1,7,0,0,0,0,18,13,Nivon Robesh
+E3,15/09/2026,15:45,Gol Gohar,Al-Jazira,0,0,2,4,0,0,0,0,11,11,Rustam Lutfullin
+E3,16/09/2026,18:00,Al Khalidiyah,Nasaf Qarshi,0,0,6,3,0,0,0,0,7,12,Wiwat Jumpaoon
+E3,16/09/2026,20:15,Al Shorta,Al-Seeb,1,0,6,4,0,0,0,0,11,8,Zainiddin Alimov
+E3,16/09/2026,18:00,Al-Hussein SC,East Bengal FC,2,2,13,4,0,0,0,0,6,13,Shiekh Ahmad Alaeddin
+E3,16/09/2026,18:00,Al-Nahda,Al-Taawoun,1,1,7,4,0,0,0,0,12,11,Clifford Postanes Daypuyat
+E3,16/09/2026,20:15,Al-Rayyan,Al-Faisaly,4,3,3,3,0,0,0,0,14,9,Yahya Almulla
+E3,16/09/2026,18:00,Al-Wahda,Kuwait SC,3,2,11,1,0,0,0,1,15,11,Ryo Tanimoto
+E3,16/09/2026,12:00,FC Seoul,Persib Bandung,0,1,6,4,0,0,0,0,18,8,Faisal Al-Balawi
+E3,16/09/2026,14:15,Viettel,Melbourne Victory,1,1,5,6,0,0,0,0,10,12,Ismaeel Habib Ali
+E3,17/09/2026,12:00,Adelaide United,Tai Po,3,0,12,3,0,0,0,0,17,8,Ammar Ebrahim Hasan Mahfoodh
+E3,17/09/2026,14:15,Kitchee,Gangwon FC,0,0,3,7,0,0,1,0,14,12,Ahmad Yaacob
+E3,17/09/2026,12:00,Lion City Sailors FC,BG Pathum United,1,1,7,2,0,0,0,0,14,17,Mamedov Resul
+E3,17/09/2026,12:00,Machida Zelvia,Svay Rieng,2,0,7,1,0,0,0,0,18,11,Ammar Abo Alo
+E3,17/09/2026,14:15,Phnom Penh,Kuching City,2,1,9,4,0,0,0,0,8,8,Baraa Kamal Abu Asheh
+E3,17/09/2026,14:15,Shanghai Shenhua,Tampines Rovers FC,2,1,8,3,0,0,0,0,8,9,Mooud Bonyadifard
+E3,19/09/2026,16:00,Accrington Stanley,Newport County,0,0,4,5,2,2,0,0,21,11,Jamie Robinson
+E3,19/09/2026,16:00,Barnet,Fleetwood Town,3,1,5,6,2,2,1,0,20,19,Scott Jackson
+E3,19/09/2026,16:00,Chesterfield,York City,2,0,7,4,1,2,0,0,12,12,Ben Speedie
+E3,19/09/2026,16:00,Colchester United,Cheltenham Town,1,1,3,9,3,3,1,0,14,13,Alan Young
+E3,19/09/2026,16:00,Crewe Alexandra,Shrewsbury Town,1,1,6,9,2,4,0,0,9,13,Alex Chilowicz
+E3,19/09/2026,16:00,Exeter City,Tranmere Rovers,0,0,6,2,2,3,0,0,16,10,Isaac Searle
+E3,19/09/2026,16:00,Gillingham,Bristol Rovers,3,0,2,1,1,2,0,0,8,8,Sunny Sukhvir Gill
+E3,19/09/2026,16:00,Grimsby Town,Crawley Town,2,0,9,6,2,4,0,0,17,14,Emily Heaslip
+E3,19/09/2026,16:00,Northampton Town,Rotherham United,0,1,5,7,2,2,0,0,14,11,Will Finnie
+E3,19/09/2026,13:30,Rochdale,Oldham Athletic,2,0,0,6,0,0,0,0,16,11,Stephen Parkinson
+E3,19/09/2026,16:00,Salford City,Swindon Town,1,0,12,5,0,3,0,0,5,11,Neil Hair
+E3,19/09/2026,13:30,Walsall,Port Vale,2,0,7,4,3,3,0,0,14,18,James Oldham
+E3,22/08/2026,13:30,Bristol Rovers,Newport County,5,3,11,1,2,1,0,0,6,8,Simon Mather
+E3,22/08/2026,16:00,Clyde,Forfar Athletic,3,0,4,4,,,,,,,Josh Hay
+E3,22/08/2026,16:00,Colchester United,Oldham Athletic,2,1,8,2,2,5,0,1,14,17,James Durkin
+E3,22/08/2026,16:00,Crewe Alexandra,Northampton Town,1,0,7,6,1,1,0,0,14,12,Lewis Sandoe
+E3,22/08/2026,16:00,Edinburgh City,Annan Athletic,1,0,3,5,,,,,,,Connor Ashwood
+E3,22/08/2026,16:00,Exeter City,Accrington Stanley,2,0,9,1,3,2,0,0,13,12,Scott Jackson
+E3,22/08/2026,16:00,Fleetwood Town,Gillingham,0,0,10,2,1,2,0,0,13,15,Dale Baines
+E3,22/08/2026,16:00,Kelty Hearts,Dumbarton,3,1,6,4,,,,,,,Lewis Hogarth
+E3,22/08/2026,16:00,Port Vale,Tranmere Rovers,1,1,4,3,2,3,0,0,20,17,Declan Brown
+E3,22/08/2026,16:00,Rochdale,Crawley Town,1,2,5,3,4,4,0,0,12,14,Zac Kennard-Kettle
+E3,22/08/2026,16:00,Rotherham United,York City,1,1,5,9,2,0,0,0,11,5,Declan Bourne
+E3,22/08/2026,13:30,Salford City,Chesterfield,0,1,5,1,2,3,0,0,12,17,Scott Oldham
+E3,22/08/2026,16:00,Shrewsbury Town,Barnet,1,3,7,9,1,0,0,0,13,14,William Davis
+E3,22/08/2026,16:00,Spartans FC,Elgin City,3,3,2,3,,,,,,,Gary Hanvidge
+E3,22/08/2026,16:00,Stirling Albion,Stranraer,2,2,9,8,,,,,,,Euan Birch
+E3,22/08/2026,16:00,Swindon Town,Cheltenham Town,2,1,2,5,1,1,0,0,7,12,Craig Hicks
+E3,22/08/2026,13:30,Walsall,Grimsby Town,0,0,8,7,1,1,0,0,12,15,Matthew Russell
+E3,28/08/2026,20:45,Edinburgh City,Forfar Athletic,1,1,9,8,,,,,,,Greg Soutar
+E3,29/08/2026,16:00,Annan Athletic,Dumbarton,2,0,0,0,,,,,,,Mark Daly
+E3,29/08/2026,13:30,Barnet,Cheltenham Town,2,2,11,4,1,3,0,0,7,19,Abigail Byrne
+E3,29/08/2026,16:00,Colchester United,Rochdale,1,0,5,3,1,2,0,0,10,15,Declan Bourne
+E3,29/08/2026,16:00,Crawley Town,Bristol Rovers,0,2,2,4,3,4,0,0,6,17,Leigh Doughty
+E3,29/08/2026,16:00,Elgin City,Stirling Albion,4,0,3,9,,,,,,,Graham Grainger
+E3,29/08/2026,16:00,Gillingham,Northampton Town,1,1,4,4,2,4,0,0,10,16,Elliott Swallow
+E3,29/08/2026,16:00,Grimsby Town,Fleetwood Town,2,2,7,5,2,4,0,0,15,11,Robert Massey-Ellis
+E3,29/08/2026,16:00,Newport County,Tranmere Rovers,2,2,4,6,2,2,0,0,14,11,Emily Heaslip
+E3,29/08/2026,16:00,Oldham Athletic,Swindon Town,3,0,14,4,0,3,0,0,6,12,Dean Whitestone
+E3,29/08/2026,13:30,Port Vale,Crewe Alexandra,0,0,3,1,0,1,0,0,15,16,Ben Toner
+E3,29/08/2026,14:00,Rotherham United,Chesterfield,2,1,2,0,2,1,0,0,14,11,Seb Stockbridge
+E3,29/08/2026,16:00,Shrewsbury Town,Salford City,1,0,5,3,1,0,0,0,13,11,Alan Dale
+E3,29/08/2026,16:00,Spartans FC,Clyde,3,3,10,4,,,,,,,Cameron Stirling
+E3,29/08/2026,16:00,Stranraer,Kelty Hearts,2,0,6,7,,,,,,,Connor Ashwood
+E3,29/08/2026,16:00,Walsall,Accrington Stanley,3,2,4,4,4,3,0,0,8,18,William Davis
+E3,29/08/2026,16:00,York City,Exeter City,2,1,7,5,2,3,0,0,12,10,Oliver Langford

@@ -1,13 +1,13 @@
 {
   "summary": {
     "locked_picks": 0,
-    "settled_picks": 201,
+    "settled_picks": 202,
     "wins": 74,
-    "losses": 115,
+    "losses": 116,
     "pushes": 12,
-    "profit_units": -23.37,
-    "roi_pct": -11.63,
-    "hit_rate_pct": 39.15,
+    "profit_units": -24.37,
+    "roi_pct": -12.07,
+    "hit_rate_pct": 38.95,
     "duplicates_hidden": 0,
     "pending_picks": 6,
     "live_picks": 0,
@@ -25,12 +25,12 @@
     "hit_rate_pct": 0.0
   },
   "manual_parlay_summary": {
-    "pending_slips": 1,
-    "settled_slips": 4,
+    "pending_slips": 0,
+    "settled_slips": 5,
     "wins": 0,
-    "losses": 4,
+    "losses": 5,
     "pushes": 0,
-    "profit_units": -4.0,
+    "profit_units": -5.0,
     "roi_pct": -100.0,
     "hit_rate_pct": 0.0
   },
@@ -39,9 +39,9 @@
       "id": 5,
       "combined_odds": 977.0191152908621,
       "generated_at": "2026-09-30T21:23:41.865219+00:00",
-      "status": "pending",
-      "profit": null,
-      "settled_at": null,
+      "status": "lost",
+      "profit": -1.0,
+      "settled_at": "2026-10-01T10:15:03.737946+00:00",
       "legs": [
         {
           "id": 61,
@@ -57,7 +57,7 @@
           "leg_return": 0.0,
           "home_score": 3,
           "away_score": 2,
-          "settled_at": "2026-10-01T07:37:56.246497+00:00"
+          "settled_at": "2026-10-01T10:15:03.737946+00:00"
         },
         {
           "id": 62,
@@ -73,7 +73,7 @@
           "leg_return": 0.0,
           "home_score": 3,
           "away_score": 2,
-          "settled_at": "2026-10-01T07:37:56.246845+00:00"
+          "settled_at": "2026-10-01T10:15:03.737946+00:00"
         },
         {
           "id": 63,
@@ -89,7 +89,7 @@
           "leg_return": 1.85,
           "home_score": 1,
           "away_score": 3,
-          "settled_at": "2026-10-01T07:37:56.246963+00:00"
+          "settled_at": "2026-10-01T10:15:03.737946+00:00"
         },
         {
           "id": 64,
@@ -105,7 +105,7 @@
           "leg_return": 0.0,
           "home_score": 1,
           "away_score": 3,
-          "settled_at": "2026-10-01T07:37:56.247078+00:00"
+          "settled_at": "2026-10-01T10:15:03.737946+00:00"
         },
         {
           "id": 65,
@@ -121,7 +121,7 @@
           "leg_return": 1.849,
           "home_score": 4,
           "away_score": 1,
-          "settled_at": "2026-10-01T07:37:56.247187+00:00"
+          "settled_at": "2026-10-01T10:15:03.737946+00:00"
         },
         {
           "id": 66,
@@ -137,7 +137,7 @@
           "leg_return": 1.49,
           "home_score": 4,
           "away_score": 1,
-          "settled_at": "2026-10-01T07:37:56.247287+00:00"
+          "settled_at": "2026-10-01T10:15:03.737946+00:00"
         },
         {
           "id": 67,
@@ -153,7 +153,7 @@
           "leg_return": 2.186,
           "home_score": 1,
           "away_score": 0,
-          "settled_at": "2026-10-01T07:37:56.247346+00:00"
+          "settled_at": "2026-10-01T10:15:03.737946+00:00"
         },
         {
           "id": 68,
@@ -169,7 +169,7 @@
           "leg_return": 2.02,
           "home_score": 1,
           "away_score": 0,
-          "settled_at": "2026-10-01T07:37:56.247464+00:00"
+          "settled_at": "2026-10-01T10:15:03.737946+00:00"
         },
         {
           "id": 69,
@@ -185,7 +185,7 @@
           "leg_return": 1.54,
           "home_score": 3,
           "away_score": 2,
-          "settled_at": "2026-10-01T07:37:56.247519+00:00"
+          "settled_at": "2026-10-01T10:15:03.737946+00:00"
         },
         {
           "id": 70,
@@ -201,7 +201,7 @@
           "leg_return": 0.0,
           "home_score": 3,
           "away_score": 2,
-          "settled_at": "2026-10-01T07:37:56.247576+00:00"
+          "settled_at": "2026-10-01T10:15:03.737946+00:00"
         },
         {
           "id": 71,
@@ -213,11 +213,11 @@
           "market": "1x2",
           "pick": "Home",
           "odds": 2.712,
-          "result": "pending",
-          "leg_return": null,
-          "home_score": null,
-          "away_score": null,
-          "settled_at": null
+          "result": "lost",
+          "leg_return": 0.0,
+          "home_score": 1,
+          "away_score": 1,
+          "settled_at": "2026-10-01T10:15:03.737946+00:00"
         }
       ]
     },
@@ -6604,13 +6604,38 @@
       "lock_source": "manual",
       "settlement_kind": "parlay",
       "parlay_id": 4
+    },
+    {
+      "id": -5,
+      "match_id": "parlay-5",
+      "match": "Parlay #5 · 11 leg",
+      "home": "Parlay",
+      "away": "5",
+      "league": "Manual parlay",
+      "start_ts": 1790849703,
+      "market": "parlay",
+      "pick": "11 leg",
+      "odds": 977.0191152908621,
+      "placed_at": "2026-09-30T21:23:41.865219+00:00",
+      "settled": 1,
+      "won": 0,
+      "profit": -1.0,
+      "settled_at": "2026-10-01T10:15:03.737946+00:00",
+      "home_score": null,
+      "away_score": null,
+      "score_status": null,
+      "settlement_status": "settled",
+      "timing_status": "settled",
+      "lock_source": "manual",
+      "settlement_kind": "parlay",
+      "parlay_id": 5
     }
   ],
   "status_counts": {
     "locked": 0,
     "live": 0,
     "overdue": 6,
-    "settled": 201
+    "settled": 202
   },
   "market_performance": [
     {
@@ -6659,17 +6684,17 @@
     },
     {
       "market": "parlay",
-      "bets": 4,
+      "bets": 5,
       "wins": 0,
-      "losses": 4,
+      "losses": 5,
       "pushes": 0,
       "win_rate_pct": 0.0,
       "loss_rate_pct": 100.0,
-      "profit_units": -4.0,
+      "profit_units": -5.0,
       "roi_pct": -100.0
     }
   ],
   "by_version": [],
   "unit_size": 1.0,
-  "built_at": "2026-10-01T07:37:56.340360+00:00"
+  "built_at": "2026-10-02T13:35:03.231392+00:00"
 }

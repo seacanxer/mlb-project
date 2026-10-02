@@ -40,8 +40,9 @@ export function forecastPicks(match: DetailedMatch): ForecastPick[] {
 
 export function isValue(pick: ForecastPick): boolean {
   return pick.analysis_status === 'value_candidate' ||
-    (pick.analysis_status === undefined && Number.isFinite(pick.ev) && pick.ev >= 0.01 &&
-      Number.isFinite(pick.conservative_ev) && pick.conservative_ev >= 0 && pick.odds >= 1.6 && pick.odds <= 2.5);
+    (pick.analysis_status === undefined && Number.isFinite(pick.ev ?? NaN) && (pick.ev ?? 0) >= 0.01 &&
+      Number.isFinite(pick.conservative_ev ?? NaN) && (pick.conservative_ev ?? 0) >= 0 &&
+      Number.isFinite(pick.odds ?? NaN) && (pick.odds ?? 0) >= 1.6 && (pick.odds ?? 0) <= 2.5);
 }
 
 export function matchKey(match: DetailedMatch): string {

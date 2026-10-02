@@ -99,7 +99,13 @@ export function readPicks(q: PickQuery): PicksResponse {
   } catch {
     raw = [];
   }
-  const future = raw.filter((p) => Number(p?.start_ts ?? 0) > nowSec && typeof p?.odds === 'number' && typeof p?.ev === 'number');
+  const future = raw.filter((p) => {
+    if (Number(p?.start_ts ?? 0) <= nowSec) return false;
+    // Corner/card projections carry no bookmaker price by design; they are
+    // published as research cards and must not be dropped by the odds gate.
+    if (p?.coverage_status === 'projection') return true;
+    return typeof p?.odds === 'number' && typeof p?.ev === 'number';
+  });
 
   const minOdds = Math.max(q.min_odds ?? 1.5, ODDS_FLOOR_ABS);
   const market = (q.market ?? '').toLowerCase();
@@ -107,9 +113,10 @@ export function readPicks(q: PickQuery): PicksResponse {
   const search = (q.search ?? '').toLowerCase();
 
   const filtered = future.filter((p) => {
-    if (p.odds < minOdds) return false;
-    if (q.max_odds !== undefined && p.odds > q.max_odds) return false;
-    if (q.min_ev !== undefined && p.ev < q.min_ev) return false;
+    const priced = p.coverage_status !== 'projection' && typeof p.odds === 'number';
+    if (priced && (p.odds as number) < minOdds) return false;
+    if (priced && q.max_odds !== undefined && (p.odds as number) > q.max_odds) return false;
+    if (q.min_ev !== undefined && p.ev !== null && p.ev !== undefined && p.ev < q.min_ev) return false;
     if (market && market !== 'all' && (p.market ?? '').toLowerCase() !== market) return false;
     if (league && league !== 'all' && !(p.league ?? '').toLowerCase().includes(league)) return false;
     if (search) {
@@ -139,7 +146,8 @@ export function readPicks(q: PickQuery): PicksResponse {
 
   const leagues = [...new Set(future.map((p) => p.league).filter(Boolean))].sort() as string[];
   const markets = [...new Set(future.map((p) => p.market).filter(Boolean))].sort() as string[];
-  const avg = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
+  const avg = (xs: (number | null | undefined)[]) =>
+    (xs.length ? xs.reduce<number>((a, b) => a + (b ?? 0), 0) / xs.length : 0);
 
   return {
     summary: {
@@ -149,8 +157,8 @@ export function readPicks(q: PickQuery): PicksResponse {
 official_count: filtered.filter((p) => p.tier === 'official' && p.selection_status === 'official').length,
       watch_count: filtered.filter((p) => p.tier === 'watch').length,
       formula_version: formulaVersion(cfg),
-      avg_ev_pct: Math.round(avg(filtered.map((p) => p.ev)) * 10000) / 100,
-      avg_odds: Math.round(avg(filtered.map((p) => p.odds)) * 1000) / 1000,
+      avg_ev_pct: Math.round(avg(filtered.map((p) => p.ev ?? 0)) * 10000) / 100,
+      avg_odds: Math.round(avg(filtered.map((p) => p.odds ?? 0)) * 1000) / 1000,
       min_odds_floor: ODDS_FLOOR_ABS,
       selection_limit: Number((cfg['filters'] as Record<string, unknown> | undefined)?.['top_pick_limit'] ?? 50),
       max_picks_per_match: Number((cfg['filters'] as Record<string, unknown> | undefined)?.['top_picks_per_match'] ?? 4),

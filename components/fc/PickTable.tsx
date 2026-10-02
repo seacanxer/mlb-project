@@ -34,8 +34,14 @@ export function FilterBar({
       <label>
         Market
         <select value={filters.market} onChange={(e) => set('market', e.target.value)} aria-label="Market">
-          {['all', 'ah', 'ou', 'btts', '1x2'].map((m) => (
-            <option key={m} value={m}>{m === 'all' ? 'Semua' : m.toUpperCase()}</option>
+          {['all', 'ah', 'ou', 'btts', '1x2', 'corners_ou', 'corner_hdp',
+            'cards_ou', 'team_cards_ou', 'red_card'].map((m) => (
+            <option key={m} value={m}>
+              {m === 'all' ? 'Semua' : m === 'corners_ou' ? 'Corner O/U'
+                : m === 'corner_hdp' ? 'Corner HDP' : m === 'cards_ou' ? 'Kartu O/U'
+                : m === 'team_cards_ou' ? 'Kartu Tim' : m === 'red_card' ? 'Cartu Merah'
+                : m.toUpperCase()}
+            </option>
           ))}
         </select>
       </label>

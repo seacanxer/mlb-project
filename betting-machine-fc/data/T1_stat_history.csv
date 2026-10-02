@@ -1,0 +1,125 @@
+Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG,HC,AC,HY,AY,HR,AR,HF,AF,Referee
+T1,01/08/2026,20:30,Cukaricki,FK Radnicki 1923,3,0,1,9,0,0,0,0,12,12,
+T1,01/08/2026,02:00,FK Radnik Surdulica,FK Crvena Zvezda,0,0,1,6,0,0,0,0,19,3,Andrija Stojanovic
+T1,01/08/2026,20:00,Novi Pazar,OFK Beograd,1,4,4,3,0,0,0,0,14,9,
+T1,02/08/2026,20:00,FK Zemun,Radnicki Nis,0,1,1,7,0,0,0,0,15,17,
+T1,02/08/2026,20:00,Partizan Beograd,FK IMT Beograd,1,2,6,5,0,0,1,0,7,24,
+T1,03/08/2026,19:00,Vojvodina,Macva Sabac,2,0,4,4,0,0,0,0,16,14,
+T1,03/08/2026,21:00,Zeleznicar Pancevo,Mladost Lucani,0,0,9,0,0,0,0,0,10,16,
+T1,04/09/2026,19:00,Basaksehir,Galatasaray,2,3,6,5,2,3,1,0,14,15,Kadir Saglam
+T1,04/09/2026,19:00,Novi Pazar,Zeleznicar Pancevo,2,0,3,5,0,0,0,0,14,8,Novak Simovic
+T1,05/09/2026,16:00,Erzurumspor FK,Konyaspor,1,0,4,3,1,4,0,0,13,11,Yasin Kol
+T1,05/09/2026,18:00,FK Radnik Surdulica,Cukaricki,3,1,6,6,0,0,1,0,17,17,Lazar Lukic
+T1,05/09/2026,19:00,Fenerbahce,Besiktas,1,2,2,7,4,3,0,0,18,21,Halil Umut Meler
+T1,05/09/2026,20:00,Macva Sabac,FK Radnicki 1923,0,0,3,6,0,0,0,0,21,22,Marko Delibasic
+T1,05/09/2026,20:00,Mladost Lucani,Radnicki Nis,1,0,5,6,0,0,0,1,17,19,Pavle Ilic
+T1,06/09/2026,16:00,Corum FK,Eyupspor,3,0,8,3,1,2,0,0,15,8,Davut Dakul Celik
+T1,06/09/2026,19:00,FK Crvena Zvezda,Partizan Beograd,2,1,2,5,0,0,0,0,21,18,Nenad Minakovic
+T1,06/09/2026,16:00,Kasımpasa,Amed Sportif,2,2,2,9,5,2,0,0,15,10,Oguzhan Cakir
+T1,06/09/2026,19:00,Kocaelispor,Samsunspor,1,0,4,4,1,0,0,0,13,14,Resat Onur Coskunses
+T1,06/09/2026,19:00,Trabzonspor,Genclerbirligi,5,0,6,3,3,1,0,0,12,12,Cagdas Altay
+T1,06/09/2026,21:00,Vojvodina,FK Zemun,2,1,5,3,0,0,0,0,14,13,Milan Stefanovic
+T1,07/09/2026,19:00,Goztepe,Gaziantep FK,2,4,8,3,3,2,1,0,18,10,Umit Ozturk
+T1,07/09/2026,20:00,OFK Beograd,FK IMT Beograd,1,1,2,4,0,0,1,1,20,13,Srdjan Jovanovic
+T1,07/09/2026,19:00,Rizespor,Alanyaspor,0,1,8,7,1,1,0,0,8,15,Abdullah Taskınsoy
+T1,08/08/2026,20:00,FK Crvena Zvezda,Novi Pazar,2,0,3,5,0,0,1,0,10,16,
+T1,08/08/2026,20:00,FK Radnicki 1923,FK Zemun,3,0,5,5,0,0,0,0,15,8,
+T1,09/08/2026,20:00,Macva Sabac,FK IMT Beograd,1,0,2,5,0,0,0,0,22,14,
+T1,09/08/2026,21:00,Mladost Lucani,Cukaricki,2,2,10,3,0,0,0,0,10,25,
+T1,09/08/2026,21:00,OFK Beograd,Zeleznicar Pancevo,2,2,2,4,0,0,0,1,22,14,
+T1,09/08/2026,20:00,Vojvodina,FK Radnik Surdulica,2,1,8,3,0,0,0,0,21,12,
+T1,10/09/2026,19:00,FK Radnik Surdulica,FK Crvena Zvezda,0,0,1,6,0,0,0,0,19,3,Andrija Stojanovic
+T1,11/09/2026,19:00,Besiktas,Erzurumspor FK,3,0,10,1,3,0,0,0,11,11,Gurcan Hasova
+T1,11/09/2026,18:30,Zeleznicar Pancevo,Macva Sabac,2,0,9,0,0,0,0,0,14,21,Darko Jeknic
+T1,12/09/2026,19:00,Alanyaspor,Goztepe,2,2,9,3,2,1,0,0,8,10,Ozan Ergun
+T1,12/09/2026,18:30,Cukaricki,Novi Pazar,1,1,2,2,0,0,0,0,17,18,Mladen Jakovljevic
+T1,12/09/2026,16:00,Eyupspor,Rizespor,0,2,8,2,0,3,0,1,13,10,Oguzhan Aksu
+T1,12/09/2026,20:30,FK Radnicki 1923,Mladost Lucani,5,0,8,6,0,0,0,0,13,10,Milan Ilic
+T1,12/09/2026,19:00,Konyaspor,Trabzonspor,1,0,3,7,3,3,0,0,16,9,Resat Onur Coskunses
+T1,12/09/2026,16:00,Samsunspor,Corum FK,1,5,8,2,0,3,0,0,12,18,Ali Sansalan
+T1,13/09/2026,19:00,Amed Sportif,Basaksehir,5,0,3,3,1,2,0,0,9,9,Cihan Aydın
+T1,13/09/2026,19:00,FK IMT Beograd,FK Crvena Zvezda,0,1,5,2,0,0,0,0,19,7,Danilo Nikolic
+T1,13/09/2026,19:00,Galatasaray,Kocaelispor,1,0,16,3,3,1,0,0,13,10,Atilla Karaoglan
+T1,13/09/2026,16:00,Genclerbirligi,Kasımpasa,1,2,8,9,3,3,0,0,18,14,Yasin Kol
+T1,13/09/2026,17:00,Partizan Beograd,Vojvodina,2,3,8,2,0,0,0,0,10,25,Pavle Ilic
+T1,13/09/2026,16:00,Radnicki Nis,OFK Beograd,3,1,3,2,0,0,0,0,18,17,Milos Milanovic
+T1,14/08/2026,20:30,Galatasaray,Corum FK,2,2,8,1,1,0,0,1,11,6,Batuhan Kolak
+T1,14/09/2026,19:00,FK Zemun,FK Radnik Surdulica,1,1,1,7,0,0,0,0,17,20,Aleksandar Zivkovic
+T1,14/09/2026,19:00,Gaziantep FK,Fenerbahce,0,0,6,6,4,3,0,0,16,8,Mehmet Turkmen
+T1,15/08/2026,21:00,Cukaricki,OFK Beograd,2,0,3,6,0,0,0,0,18,10,
+T1,15/08/2026,19:00,FK Radnik Surdulica,Macva Sabac,2,1,6,0,0,0,0,0,19,17,
+T1,15/08/2026,20:30,Gaziantep FK,Alanyaspor,1,1,0,4,3,3,0,0,14,21,Yasin Kol
+T1,15/08/2026,20:30,Genclerbirligi,Fenerbahce,2,1,1,12,0,1,0,0,7,10,Oguzhan Aksu
+T1,15/08/2026,18:00,Kasımpasa,Trabzonspor,1,1,3,10,2,0,0,0,17,9,Gurcan Hasova
+T1,15/08/2026,18:00,Konyaspor,Rizespor,0,1,1,7,1,4,0,0,12,11,Cihan Aydın
+T1,15/08/2026,20:00,Zeleznicar Pancevo,FK Crvena Zvezda,0,0,4,6,0,0,0,0,21,17,Stanko Ostracanin
+T1,16/08/2026,20:30,Amed Sportif,Erzurumspor FK,3,0,4,4,1,0,0,0,10,12,Halil Umut Meler
+T1,16/08/2026,18:00,Basaksehir,Kocaelispor,2,0,8,2,2,2,0,0,14,14,Mehmet Turkmen
+T1,16/08/2026,20:30,Besiktas,Eyupspor,1,0,8,2,2,1,0,1,20,14,Oguzhan Cakır
+T1,16/08/2026,19:00,FK IMT Beograd,Radnicki Nis,0,0,4,4,0,0,0,0,13,19,
+T1,16/08/2026,21:00,FK Zemun,Mladost Lucani,0,1,9,3,0,0,1,0,9,21,
+T1,16/08/2026,21:00,Partizan Beograd,FK Radnicki 1923,0,1,11,5,0,0,0,1,11,16,
+T1,17/07/2026,20:00,FK Crvena Zvezda,Macva Sabac,5,0,9,0,0,0,0,0,9,10,
+T1,17/07/2026,20:00,Zeleznicar Pancevo,Radnicki Nis,2,1,3,7,0,0,0,0,15,12,
+T1,17/08/2026,20:00,Novi Pazar,Vojvodina,2,0,3,9,0,0,1,0,12,11,Stefan Jeknic
+T1,17/08/2026,20:30,Samsunspor,Goztepe,3,3,4,8,1,4,0,0,8,13,Kadir Saglam
+T1,17/09/2026,20:00,Zeleznicar Pancevo,FK Crvena Zvezda,1,2,4,6,0,0,0,0,21,17,Stanko Ostracanin
+T1,18/07/2026,20:00,FK Zemun,Partizan Beograd,2,2,0,5,0,0,0,0,14,11,
+T1,18/07/2026,20:00,Novi Pazar,FK Radnicki 1923,1,0,4,11,0,0,0,1,13,14,
+T1,18/09/2026,19:00,Kasımpasa,Konyaspor,0,0,6,4,3,4,0,0,17,16,Davut Dakul Celik
+T1,19/07/2026,19:00,Cukaricki,FK IMT Beograd,0,1,2,4,0,0,0,0,18,18,
+T1,19/07/2026,19:00,FK Radnik Surdulica,Mladost Lucani,1,1,5,3,0,0,0,0,15,11,
+T1,19/07/2026,19:00,Vojvodina,OFK Beograd,4,0,6,1,0,0,0,0,19,12,
+T1,19/09/2026,19:00,Basaksehir,Genclerbirligi,4,0,3,7,2,1,0,0,11,9,Atilla Karaoglan
+T1,19/09/2026,16:00,Corum FK,Alanyaspor,1,2,3,3,5,0,0,0,22,8,Alper Akarsu
+T1,19/09/2026,19:00,FK Radnik Surdulica,Partizan Beograd,4,4,3,5,0,0,0,1,18,10,Srdjan Jovanovic
+T1,19/09/2026,16:00,Kocaelispor,Gaziantep FK,2,0,1,2,1,2,0,0,16,12,Halil Umut Meler
+T1,19/09/2026,17:00,Novi Pazar,FK Zemun,2,2,7,4,0,0,1,0,19,12,Predrag Janjus
+T1,19/09/2026,19:00,OFK Beograd,FK Radnicki 1923,3,5,3,4,0,0,0,0,15,20,Milan Mitic
+T1,19/09/2026,19:00,Trabzonspor,Galatasaray,4,0,1,5,4,1,0,1,15,18,Batuhan Kolak
+T1,19/09/2026,17:00,Vojvodina,FK IMT Beograd,1,1,1,5,0,0,1,0,18,17,Stefan Jeknic
+T1,20/09/2026,19:00,Amed Sportif,Besiktas,3,2,1,10,7,5,1,0,25,7,Ali Sansalan
+T1,20/09/2026,16:00,Erzurumspor FK,Samsunspor,1,0,3,5,3,2,0,0,11,14,Abdullah Taskınsoy
+T1,20/09/2026,19:00,FK Crvena Zvezda,Radnicki Nis,3,0,7,3,0,0,0,0,14,8,Novak Simovic
+T1,20/09/2026,16:00,Fenerbahce,Eyupspor,8,0,8,6,1,1,0,0,12,9,Kadir Saglam
+T1,20/09/2026,19:00,Goztepe,Rizespor,2,2,4,3,5,1,0,0,15,9,Oguzhan Cakir
+T1,20/09/2026,17:00,Macva Sabac,Mladost Lucani,1,2,6,1,0,0,0,0,20,15,Mladen Jakovljevic
+T1,20/09/2026,20:00,Zeleznicar Pancevo,Cukaricki,2,1,8,0,0,0,0,0,10,14,Milan Stefanovic
+T1,21/08/2026,20:30,Erzurumspor FK,Galatasaray,0,4,2,2,1,0,0,0,11,12,Cagdas Altay
+T1,22/08/2026,18:00,Corum FK,Kasımpasa,0,1,7,0,0,3,0,0,12,13,Fatih Tokail
+T1,22/08/2026,19:00,FK Radnicki 1923,FK IMT Beograd,2,1,8,5,0,0,0,0,16,21,Nenad Minakovic
+T1,22/08/2026,20:30,Fenerbahce,Konyaspor,4,2,7,3,0,3,0,0,11,10,Atilla Karaoglan
+T1,22/08/2026,18:30,Macva Sabac,Radnicki Nis,1,0,5,5,0,0,0,0,12,18,Stanko Ostracanin
+T1,22/08/2026,21:00,OFK Beograd,FK Zemun,1,0,2,3,0,0,0,1,21,24,Mladen Jakovljevic
+T1,22/08/2026,18:00,Rizespor,Samsunspor,0,2,10,1,1,1,0,0,13,11,Omer Faruk Turtay
+T1,23/08/2026,20:30,Alanyaspor,Besiktas,1,0,7,7,0,0,0,0,14,14,Adnan Deniz Kayatepe
+T1,23/08/2026,18:00,Eyupspor,Gaziantep FK,0,1,4,2,0,1,0,1,16,17,Resat Onur Coskunses
+T1,23/08/2026,19:00,FK Crvena Zvezda,Cukaricki,4,0,3,2,0,0,0,0,8,9,Pavle Ilic
+T1,23/08/2026,19:00,FK Radnik Surdulica,Novi Pazar,1,0,7,5,0,0,1,0,13,13,Darko Jeknic
+T1,23/08/2026,20:30,Goztepe,Genclerbirligi,0,1,6,5,1,2,0,0,15,12,Batuhan Kolak
+T1,23/08/2026,21:00,Mladost Lucani,Partizan Beograd,3,1,0,2,0,0,0,0,17,10,Novak Simovic
+T1,23/08/2026,18:00,Trabzonspor,Basaksehir,2,1,5,1,3,4,0,0,13,18,Ali Sansalan
+T1,23/08/2026,21:00,Vojvodina,Zeleznicar Pancevo,1,0,4,4,0,0,0,1,20,13,Srdan Jovanovic
+T1,24/08/2026,20:30,Kocaelispor,Amed Sportif,2,0,3,7,0,2,0,0,9,16,Umit Ozturk
+T1,25/07/2026,20:00,FK IMT Beograd,FK Zemun,4,0,11,2,0,0,0,1,15,4,
+T1,25/07/2026,20:00,OFK Beograd,FK Radnik Surdulica,0,0,8,3,0,0,0,0,17,19,
+T1,25/07/2026,17:30,Radnicki Nis,Cukaricki,0,2,5,5,0,0,0,0,7,11,
+T1,26/07/2026,19:00,FK Crvena Zvezda,Vojvodina,3,1,6,2,0,0,0,0,9,7,
+T1,26/07/2026,21:00,Macva Sabac,Partizan Beograd,1,3,4,3,0,0,1,1,21,10,
+T1,26/07/2026,20:30,Mladost Lucani,Novi Pazar,0,0,3,6,0,0,0,0,12,13,
+T1,28/08/2026,20:30,Genclerbirligi,Erzurumspor FK,1,1,3,5,3,2,0,0,15,11,Umit Ozturk
+T1,29/08/2026,21:00,Cukaricki,Vojvodina,0,5,12,4,0,0,0,0,10,16,Milos Milanovic
+T1,29/08/2026,20:30,Galatasaray,Goztepe,3,2,6,2,2,2,0,0,5,12,Mehmet Turkmen
+T1,29/08/2026,20:30,Gaziantep FK,Rizespor,1,2,8,0,1,2,0,0,10,17,Batuhan Kolak
+T1,29/08/2026,18:00,Konyaspor,Kocaelispor,1,2,1,4,1,3,1,0,16,12,Gurcan Hasova
+T1,29/08/2026,21:00,Novi Pazar,Macva Sabac,1,1,8,2,0,0,0,0,9,11,Milan Mitic
+T1,29/08/2026,21:00,Radnicki Nis,FK Radnicki 1923,1,1,1,5,0,0,0,0,21,18,Danilo Nikolic
+T1,29/08/2026,19:00,Zeleznicar Pancevo,FK Radnik Surdulica,5,1,6,1,0,0,0,0,17,16,Milan Ilic
+T1,30/08/2026,20:30,Basaksehir,Kasımpasa,1,1,5,3,3,1,0,0,11,13,Halil Umut Meler
+T1,30/08/2026,18:00,Eyupspor,Alanyaspor,2,1,1,2,3,1,0,0,16,22,Cihan Aydin
+T1,30/08/2026,21:00,FK IMT Beograd,Mladost Lucani,2,0,4,0,0,0,0,0,18,11,Predrag Janjus
+T1,30/08/2026,20:00,FK Zemun,FK Crvena Zvezda,0,2,4,5,0,0,0,0,13,11,Stefan Jeknic
+T1,30/08/2026,20:30,Samsunspor,Fenerbahce,0,2,1,6,0,1,0,0,13,18,Yasin Kol
+T1,31/08/2026,20:30,Amed Sportif,Trabzonspor,2,1,2,5,5,3,0,0,18,10,Atilla Karaoglan
+T1,31/08/2026,20:30,Besiktas,Corum FK,6,2,8,6,2,3,0,0,9,11,Cagdas Altay
+T1,31/08/2026,19:00,Partizan Beograd,OFK Beograd,3,1,6,1,0,0,0,0,17,7,Andrija Stojanovic

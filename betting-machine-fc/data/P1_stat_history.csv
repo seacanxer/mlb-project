@@ -1,0 +1,63 @@
+Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG,HC,AC,HY,AY,HR,AR,HF,AF,Referee
+P1,04/09/2026,21:15,FC Porto,Moreirense,2,1,9,1,1,2,0,1,11,12,Antonio Nobre
+P1,05/09/2026,19:00,Alverca,Braga,1,2,2,2,2,4,0,0,11,15,Luis Godinho
+P1,05/09/2026,16:30,Estrela da Amadora,Famalicao,2,2,5,5,3,2,0,0,11,9,Vitor Ferreira
+P1,05/09/2026,19:00,Maritimo,Benfica,0,3,3,5,2,3,0,0,22,14,Sergio Guelho
+P1,05/09/2026,21:30,Sporting CP,Nacional,2,0,12,0,2,1,0,0,10,7,Joao Pinheiro
+P1,06/09/2026,21:30,Gil Vicente,Academico Viseu,0,1,7,1,0,2,0,0,11,13,Pedro Ramalho
+P1,06/09/2026,16:30,Santa Clara,Rio Ave,4,0,8,2,1,1,0,0,12,9,Anzhony Rodrigues
+P1,06/09/2026,19:00,Vitoria de Guimaraes,Casa Pia AC,0,0,17,4,2,2,0,0,16,6,Gustavo Correia
+P1,07/08/2026,21:15,Estoril,Famalicao,1,1,7,6,1,2,0,0,12,13,Miguel Andre Monteiro Fonseca
+P1,07/09/2026,21:15,Estoril,Arouca,0,0,8,2,4,1,0,0,12,9,Fabio Verissimo
+P1,08/08/2026,21:30,Estrela da Amadora,Sporting CP,2,2,5,4,2,2,0,0,13,14,Joao Antonio Ferreira Goncalves
+P1,08/08/2026,16:30,Maritimo,Casa Pia AC,1,0,2,6,2,2,0,0,17,13,Sergio Jose dos Santos Guelho
+P1,08/08/2026,19:00,Vitoria de Guimaraes,Arouca,0,1,5,2,2,3,0,1,9,7,Miguel Bertolo Nogueira
+P1,09/08/2026,21:30,Benfica,Academico Viseu,2,2,10,2,2,4,0,0,14,13,David Rafael Oliveira Silva
+P1,09/08/2026,19:00,FC Porto,Alverca,2,0,7,9,0,4,0,0,13,10,Luis Miguel Branco Godinho
+P1,09/08/2026,21:30,Gil Vicente,Rio Ave,1,0,5,2,2,3,0,1,14,9,Gustavo Fernandes Correia
+P1,09/08/2026,21:30,Moreirense,Braga,2,2,4,2,4,2,0,0,15,20,Jose Armando Torres Bessa
+P1,09/09/2026,21:45,Moreirense,Benfica,0,4,3,7,4,2,0,0,17,10,Fabio Verissimo
+P1,10/08/2026,21:15,Santa Clara,Nacional,2,2,4,4,2,2,0,0,15,14,Helder Filipe Claudio Carvalho
+P1,10/09/2026,21:15,Estrela da Amadora,Braga,2,1,5,9,2,1,0,0,12,14,Iancu Vasilica
+P1,12/09/2026,21:30,Academico Viseu,Vitoria de Guimaraes,2,1,4,8,4,3,0,1,14,11,Carlos Macedo
+P1,12/09/2026,19:00,Casa Pia AC,FC Porto,1,4,5,10,4,1,0,0,13,10,Jose Bessa
+P1,12/09/2026,16:30,Nacional,Alverca,1,3,2,0,0,3,0,0,7,16,Miguel Fonseca
+P1,13/09/2026,19:00,Arouca,Santa Clara,1,2,5,2,3,3,0,1,14,12,Vitor Ferreira
+P1,13/09/2026,19:00,Benfica,Gil Vicente,3,1,14,0,2,3,0,0,11,18,Joao Ferreira
+P1,13/09/2026,21:30,Famalicao,Sporting CP,1,1,4,4,2,4,1,0,14,11,Luis Godinho
+P1,14/08/2026,21:15,Sporting CP,Vitoria de Guimaraes,3,2,5,1,4,4,0,0,12,21,David Rafael Oliveira Silva
+P1,14/09/2026,21:45,Braga,Estoril,1,0,4,2,0,2,0,1,9,12,David Silva
+P1,14/09/2026,21:15,Moreirense,Maritimo,3,1,3,5,1,3,0,0,14,16,Fabio Melo
+P1,14/09/2026,19:45,Rio Ave,Estrela da Amadora,3,3,4,5,2,3,0,0,16,12,Gustavo Correia
+P1,15/08/2026,19:00,Academico Viseu,Santa Clara,0,1,4,2,1,3,0,0,11,16,Joao Antonio Ferreira Goncalves
+P1,15/08/2026,16:30,Alverca,Estrela da Amadora,2,2,2,0,2,4,1,0,10,12,Jose Armando Torres Bessa
+P1,15/08/2026,21:30,Rio Ave,FC Porto,0,2,6,6,0,0,0,0,1,10,Miguel Andre Monteiro Fonseca
+P1,16/08/2026,19:00,Arouca,Moreirense,4,0,5,3,3,4,0,0,10,9,Andre Filipe Domingues Narciso
+P1,16/08/2026,21:30,Famalicao,Maritimo,1,2,5,1,1,2,0,0,11,16,Miguel Bertolo Nogueira
+P1,16/08/2026,16:30,Nacional,Estoril,2,0,7,4,2,2,0,1,13,13,Bruno Jose Ribeiro Pires Costa
+P1,17/08/2026,21:15,Casa Pia AC,Benfica,0,7,1,3,1,0,1,0,11,13,Joao Pinheiro
+P1,19/09/2026,19:00,Alverca,Rio Ave,1,0,8,3,2,2,0,0,12,8,Luis Carlos Mateus Filipe
+P1,19/09/2026,16:30,Gil Vicente,Maritimo,1,1,4,3,1,1,0,0,9,13,Bruno Pires Costa
+P1,19/09/2026,16:30,Nacional,Famalicao,0,4,7,3,1,3,1,0,11,10,Gustavo Correia
+P1,19/09/2026,21:30,Sporting CP,Arouca,2,2,4,2,4,5,1,0,9,17,David Silva
+P1,20/09/2026,19:00,Estoril,Casa Pia AC,1,2,7,4,3,2,0,0,7,11,Pedro Ramalho
+P1,20/09/2026,16:30,Estrela da Amadora,Academico Viseu,0,2,5,2,2,3,0,0,10,11,Andre Narciso
+P1,20/09/2026,21:30,FC Porto,Benfica,3,1,3,3,3,3,0,1,17,12,Miguel Nogueira
+P1,20/09/2026,19:00,Santa Clara,Braga,0,0,5,5,4,3,0,0,13,13,Fabio Verissimo
+P1,20/09/2026,16:30,Vitoria de Guimaraes,Moreirense,1,1,3,0,0,0,0,0,10,13,Sergio Guelho
+P1,22/08/2026,19:00,Estoril,Rio Ave,0,2,6,3,1,1,0,0,11,14,Carlos Macedo
+P1,22/08/2026,16:30,Maritimo,Academico Viseu,2,2,4,5,2,6,0,0,15,16,Luis Carlos Mateus Filipe
+P1,22/08/2026,21:30,Sporting CP,Alverca,3,1,3,4,1,3,0,0,13,17,Fabio Verissimo
+P1,23/08/2026,21:30,FC Porto,Arouca,2,0,12,2,1,0,0,0,16,8,Joao Pinheiro
+P1,23/08/2026,19:00,Santa Clara,Famalicao,1,0,1,9,1,3,0,0,16,16,Iancu Vasilica
+P1,23/08/2026,16:30,Vitoria de Guimaraes,Nacional,1,0,4,3,2,1,0,0,18,8,Pedro Ramalho
+P1,24/08/2026,21:15,Gil Vicente,Casa Pia AC,2,0,3,4,1,1,0,0,11,12,Anzhony Rodrigues
+P1,28/08/2026,21:15,Rio Ave,Sporting CP,0,4,2,3,1,1,0,0,7,14,Bruno Pires Costa
+P1,29/08/2026,19:00,Academico Viseu,FC Porto,0,3,1,1,0,0,0,0,13,19,Miguel Nogueira
+P1,29/08/2026,16:30,Alverca,Santa Clara,1,1,10,4,1,2,0,0,14,9,Diogo Rosa
+P1,29/08/2026,16:30,Arouca,Maritimo,2,1,2,3,2,1,0,0,8,10,Gustavo Correia
+P1,30/08/2026,19:00,Casa Pia AC,Moreirense,0,1,5,1,1,3,0,0,14,18,Luis Godinho
+P1,30/08/2026,21:30,Famalicao,Gil Vicente,0,0,6,3,2,4,0,0,10,19,David Silva
+P1,30/08/2026,16:30,Nacional,Estrela da Amadora,2,3,4,3,2,1,0,0,12,9,Carlos Macedo
+P1,31/08/2026,21:15,Benfica,Estoril,2,1,9,0,0,1,0,0,14,12,Helder Carvalho
+P1,31/08/2026,21:15,Braga,Vitoria de Guimaraes,1,0,2,2,2,3,0,0,11,18,Andre Narciso

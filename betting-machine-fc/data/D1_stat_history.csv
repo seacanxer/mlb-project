@@ -1,0 +1,168 @@
+Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG,HC,AC,HY,AY,HR,AR,HF,AF,Referee
+D1,01/08/2026,19:30,Salzburg,Hartberg,1,0,19,2,0,0,0,0,3,9,Alain Sadikovski
+D1,01/08/2026,17:00,WSG Tirol,Sturm Graz,1,1,1,6,1,4,0,0,11,14,Stefan Ebner
+D1,01/09/2026,19:30,Wolfsberger AC,LASK,1,3,1,14,1,3,1,0,5,13,Christian-Petru Ciochirca
+D1,02/08/2026,17:00,Austria Lustenau,Ried,1,1,4,9,2,2,0,0,8,14,Harald Lechner
+D1,02/08/2026,19:00,Rapid Wien,Altach,1,0,6,5,0,2,0,0,9,13,Jakob Semler
+D1,02/08/2026,17:00,Wolfsberger AC,Austria Wien,3,0,5,3,2,1,0,0,10,9,Alexander Harkam
+D1,02/09/2026,18:30,Austria Wien,WSG Tirol,0,1,8,2,3,2,0,0,10,6,Harald Lechner
+D1,02/09/2026,20:30,Salzburg,Rapid Wien,5,1,2,6,0,1,0,0,8,8,Jakob Semler
+D1,04/09/2026,18:30,Arminia Bielefeld,St. Pauli,2,2,3,5,2,3,0,0,12,14,Felix Prigan
+D1,04/09/2026,18:30,Hannover 96,Karlsruher SC,2,2,1,5,4,2,0,0,12,12,Tom Bauer
+D1,04/09/2026,18:30,TSG 1899 Hoffenheim (W),Bayer Leverkusen (W),1,2,4,6,0,1,0,1,10,15,Naemi Breier
+D1,04/09/2026,20:30,VfB Stuttgart,1. FC Koln,4,1,10,8,1,3,0,0,5,6,Christian Dingert
+D1,05/09/2026,15:30,Bayer Leverkusen,Union Berlin,4,0,11,1,2,2,0,0,11,12,Robin Braun
+D1,05/09/2026,15:30,Borussia Monchengladbach,Elversberg,3,4,13,4,3,1,0,0,18,9,Martin Petersen
+D1,05/09/2026,20:30,Dynamo Dresden,Bochum,1,2,8,4,1,7,0,0,10,15,Harm Osmers
+D1,05/09/2026,12:00,Hamburger SV (W),RB Leipzig (W),1,1,1,9,1,5,0,0,11,16,Julia Boike
+D1,05/09/2026,15:30,Hoffenheim,Borussia Dortmund,2,3,10,3,4,2,0,0,13,7,Dr. Matthias Jollenbeck
+D1,05/09/2026,13:00,Holstein Kiel,1. FC Nurnberg,2,2,10,8,4,3,0,0,17,14,Tobias Stieler
+D1,05/09/2026,13:00,Kaiserslautern,Darmstadt,3,0,9,3,3,2,0,0,19,14,Michael Bacher
+D1,05/09/2026,14:00,Mainz 05 (W),FC Koln (W),0,4,0,6,1,0,0,0,9,9,Davina Lutz
+D1,05/09/2026,15:30,Paderborn,Freiburg,0,1,5,4,3,3,0,0,16,10,Max Burda
+D1,05/09/2026,18:30,Schalke 04,Bayern Munchen,0,0,0,11,2,2,0,0,5,12,Robert Schroder
+D1,05/09/2026,15:30,Werder Bremen,RB Leipzig,3,1,2,7,1,0,0,0,13,8,Benjamin Brand
+D1,05/09/2026,13:00,Wolfsburg,Energie Cottbus,4,4,4,8,1,4,1,0,13,11,Lukas Benen
+D1,06/09/2026,16:00,Bayern Munchen (W),Freiburg (W),4,1,4,1,2,3,0,0,15,7,Fabienne Michel
+D1,06/09/2026,17:30,Eintracht Frankfurt,Augsburg,1,4,9,4,1,1,0,0,10,13,Daniel Schlager
+D1,06/09/2026,13:30,Greuther Furth,FC Heidenheim,0,1,7,2,1,1,0,0,7,11,Konrad Oldhafer
+D1,06/09/2026,15:30,Hamburger SV,Mainz 05,0,5,4,5,1,3,0,0,14,19,Tobias Reichel
+D1,06/09/2026,13:30,Hertha BSC,Magdeburg,2,1,5,7,1,1,1,1,17,10,Florian Exner
+D1,06/09/2026,18:30,Nurnberg (W),VfB Stuttgart (W),3,3,5,6,2,2,0,0,16,12,Sina Diekmann
+D1,06/09/2026,13:30,VfL Osnabruck,Eintracht Braunschweig,3,1,5,5,1,5,0,0,11,13,Wolfgang Haslberger
+D1,06/09/2026,14:00,VfL Wolfsburg (W),Werder Bremen (W),3,2,4,5,2,2,0,0,11,14,Miriam Schwermer
+D1,07/08/2026,19:30,Altach,WSG Tirol,3,1,3,5,1,1,0,0,14,9,Sebastian Gishamer
+D1,07/08/2026,20:30,Bochum,Hertha BSC,0,1,5,2,2,5,0,0,18,13,Wolfgang Haslberger
+D1,07/09/2026,18:00,Union Berlin (W),Eintracht Frankfurt (W),0,1,0,7,1,1,0,0,8,10,Nadine Westerhoff
+D1,08/08/2026,13:00,Darmstadt,Holstein Kiel,2,2,8,4,2,3,0,0,15,16,Felix Bickel
+D1,08/08/2026,13:00,FC Heidenheim,VfL Osnabruck,4,3,4,6,1,2,0,0,6,6,Eric-Dominic Weisbach
+D1,08/08/2026,17:00,Grazer AK,Austria Lustenau,2,1,5,6,1,2,0,0,12,5,Safak Barmaksiz
+D1,08/08/2026,19:30,Hartberg,Sturm Graz,0,2,3,9,0,1,1,0,15,10,Julian Weinberger
+D1,08/08/2026,13:00,Karlsruher SC,Arminia Bielefeld,2,1,6,6,2,1,0,0,15,12,Michael Bacher
+D1,08/08/2026,13:00,Magdeburg,Eintracht Braunschweig,1,6,5,5,4,1,1,0,14,9,Felix Prigan
+D1,08/08/2026,20:30,Wolfsburg,Kaiserslautern,0,0,9,2,0,1,0,0,17,10,Florian Exner
+D1,09/08/2026,13:30,1. FC Nurnberg,Dynamo Dresden,3,0,5,5,0,2,0,0,6,11,Jarno Wienefeld
+D1,09/08/2026,19:00,Austria Wien,LASK,0,2,1,11,2,2,1,0,13,10,Arnes Talic
+D1,09/08/2026,13:30,Energie Cottbus,Hannover 96,3,1,2,6,0,2,0,0,11,11,Lars Erbst
+D1,09/08/2026,17:00,Ried,Rapid Wien,1,2,3,4,1,1,0,0,11,5,Walter Altmann
+D1,09/08/2026,13:30,St. Pauli,Greuther Furth,1,1,9,2,1,0,0,0,4,5,Harm Osmers
+D1,09/08/2026,17:00,Wolfsberger AC,Salzburg,1,1,4,8,5,1,0,0,19,2,Isa Simsek
+D1,11/09/2026,18:30,1. FC Nurnberg,Hannover 96,2,1,7,2,3,1,0,0,10,12,Florian Lechner
+D1,11/09/2026,18:30,Darmstadt,Arminia Bielefeld,2,1,4,8,3,2,0,0,17,17,Eric-Dominic Weisbach
+D1,11/09/2026,19:30,Ried,Salzburg,1,1,5,7,2,3,0,0,8,6,Julian Schnur
+D1,11/09/2026,20:30,Union Berlin,Schalke 04,1,3,4,5,3,1,0,0,11,10,Timo Gerach
+D1,11/09/2026,18:30,Werder Bremen (W),Hamburger SV (W),1,0,3,6,0,2,0,0,9,12,Davina Lutz
+D1,12/09/2026,18:30,1. FC Koln,Werder Bremen,1,1,8,5,2,1,0,0,11,12,Florian Exner
+D1,12/09/2026,17:00,Altach,Grazer AK,1,2,6,2,1,1,0,0,5,21,Josef Spurny
+D1,12/09/2026,15:30,Augsburg,Bayer Leverkusen,2,2,2,14,1,1,0,0,6,12,Daniel Siebert
+D1,12/09/2026,13:00,Bochum,Greuther Furth,1,1,3,7,0,0,1,0,7,7,Felix Bickel
+D1,12/09/2026,15:30,Borussia Dortmund,Paderborn,3,0,7,3,1,1,0,0,11,7,Harm Osmers
+D1,12/09/2026,13:15,Eintracht Braunschweig,Dynamo Dresden,2,2,2,5,3,2,0,0,8,13,Lars Erbst
+D1,12/09/2026,14:00,FC Koln (W),Union Berlin (W),3,0,4,7,2,3,0,0,7,13,Karoline Wacker
+D1,12/09/2026,15:30,Freiburg,Borussia Monchengladbach,5,0,6,2,1,2,0,1,7,16,Richard Hempel
+D1,12/09/2026,15:30,Hoffenheim,VfB Stuttgart,2,1,5,7,1,0,0,0,15,8,Sven Jablonski
+D1,12/09/2026,13:00,Magdeburg,Kaiserslautern,3,0,4,3,1,2,0,0,9,5,Marc Philip Eckermann
+D1,12/09/2026,15:30,Mainz 05,Eintracht Frankfurt,1,3,4,5,0,2,0,0,11,9,Felix Zwayer
+D1,12/09/2026,12:00,RB Leipzig (W),Nurnberg (W),2,1,7,8,1,1,0,1,8,14,Nadine Westerhoff
+D1,12/09/2026,20:30,St. Pauli,Wolfsburg,1,0,10,4,2,2,0,0,12,8,Soren Storks
+D1,12/09/2026,19:30,Wolfsberger AC,Rapid Wien,0,3,1,6,2,4,0,0,16,15,Alain Sadikovski
+D1,13/09/2026,14:30,Austria Wien,Austria Lustenau,2,1,6,4,0,1,0,0,5,7,Christian-Petru Ciochirca
+D1,13/09/2026,16:00,Eintracht Frankfurt (W),TSG 1899 Hoffenheim (W),4,2,12,1,3,1,0,1,10,5,Angelika Soder
+D1,13/09/2026,17:30,Elversberg,Bayern Munchen,1,2,3,9,2,0,0,0,9,8,Sascha Stegemann
+D1,13/09/2026,13:30,FC Heidenheim,Holstein Kiel,1,0,6,8,1,0,0,1,11,12,Justin Hasmann
+D1,13/09/2026,18:30,Freiburg (W),Mainz 05 (W),3,0,9,6,1,1,0,0,7,13,Daniela Kottmann
+D1,13/09/2026,13:30,Karlsruher SC,Energie Cottbus,0,3,5,8,1,2,0,0,13,16,Robert Hartmann
+D1,13/09/2026,15:30,RB Leipzig,Hamburger SV,5,0,7,7,1,2,0,0,11,13,Florian Badstubner
+D1,13/09/2026,17:00,Sturm Graz,LASK,2,1,3,6,3,3,0,0,14,7,Sebastian Gishamer
+D1,13/09/2026,14:00,VfB Stuttgart (W),VfL Wolfsburg (W),0,2,2,5,2,1,0,0,11,17,Naemi Breier
+D1,13/09/2026,13:30,VfL Osnabruck,Hertha BSC,1,3,4,5,2,2,0,0,12,12,Felix Weller
+D1,13/09/2026,14:30,WSG Tirol,Hartberg,2,2,14,5,0,0,0,0,10,13,Achim Untergasser
+D1,14/08/2026,18:30,Eintracht Braunschweig,Bochum,0,1,5,6,2,3,0,0,11,13,Marc-Philipp Eckermann
+D1,14/08/2026,18:30,Holstein Kiel,St. Pauli,2,2,5,5,3,3,0,0,14,19,Max Burda
+D1,14/08/2026,19:30,LASK,Ried,4,1,6,0,0,3,1,0,6,14,Alain Sadikovski
+D1,14/09/2026,18:00,Bayer Leverkusen (W),Bayern Munchen (W),2,3,1,5,1,3,0,0,15,5,Anna-Lena Heidenreich
+D1,15/08/2026,17:00,Austria Lustenau,Wolfsberger AC,2,1,6,4,2,1,0,0,11,11,Jakob Semler
+D1,15/08/2026,13:00,Greuther Furth,1. FC Nurnberg,2,4,5,3,1,4,0,0,9,15,Tom Bauer
+D1,15/08/2026,13:00,Hertha BSC,FC Heidenheim,4,1,5,3,1,2,1,0,12,17,Lukas Benen
+D1,15/08/2026,20:30,Kaiserslautern,Karlsruher SC,0,0,4,11,3,3,0,0,12,19,Richard Hempel
+D1,15/08/2026,19:30,Sturm Graz,Altach,1,0,12,7,0,2,0,0,6,8,Florian Jager
+D1,15/08/2026,13:00,VfL Osnabruck,Magdeburg,0,3,3,10,1,1,0,0,12,11,Justin Joel Hasmann
+D1,16/08/2026,13:30,Arminia Bielefeld,Energie Cottbus,3,0,7,10,2,2,0,0,12,18,Florian Lechner
+D1,16/08/2026,13:30,Dynamo Dresden,Darmstadt,1,0,7,5,1,1,0,1,12,12,Konrad Oldhfer
+D1,16/08/2026,13:30,Hannover 96,Wolfsburg,0,1,8,6,1,2,0,0,9,9,Timo Gansloweit
+D1,16/08/2026,17:00,Hartberg,Austria Wien,0,2,8,4,2,1,0,0,12,9,Emil Ristoskov
+D1,16/08/2026,19:00,Rapid Wien,Grazer AK,8,0,8,1,0,4,0,0,5,19,Arnes Talic
+D1,16/08/2026,17:00,WSG Tirol,Salzburg,0,3,2,7,3,0,0,0,9,8,Chiristian-Petru Ciochirca
+D1,18/09/2026,20:30,Bayern Munchen,Union Berlin,7,0,9,2,1,3,0,0,12,9,Benjamin Brand
+D1,18/09/2026,18:30,Greuther Furth,Magdeburg,1,1,3,5,3,1,0,0,9,9,Christian Ballweg
+D1,18/09/2026,18:30,Mainz 05 (W),Eintracht Frankfurt (W),2,3,5,13,1,3,0,0,7,10,Miriam Schwermer
+D1,18/09/2026,19:30,Rapid Wien,WSG Tirol,3,0,6,3,4,2,0,0,6,13,Harald Lechner
+D1,18/09/2026,18:30,TSG 1899 Hoffenheim (W),VfL Wolfsburg (W),2,1,2,12,2,1,0,0,7,6,Sina Diekmann
+D1,18/09/2026,18:30,Wolfsburg,Darmstadt,5,1,8,5,3,2,0,0,19,9,Martin Petersen
+D1,19/09/2026,17:00,Austria Lustenau,Altach,2,0,3,7,5,1,0,0,14,8,Stefan Ebner
+D1,19/09/2026,14:00,Bayern Munchen (W),FC Koln (W),5,2,2,2,0,3,0,0,6,11,Selina S. Menzel
+D1,19/09/2026,15:30,Borussia Monchengladbach,Mainz 05,3,4,6,4,6,5,0,0,12,14,Robert Hartmann
+D1,19/09/2026,20:30,Dynamo Dresden,Hertha BSC,1,2,6,5,2,2,0,0,11,9,Christian Dingert
+D1,19/09/2026,15:30,Eintracht Frankfurt,Freiburg,2,2,3,5,2,2,0,0,12,11,Soren Storks
+D1,19/09/2026,19:30,Grazer AK,Austria Wien,2,2,2,4,5,3,0,0,12,9,Arnes Talic
+D1,19/09/2026,15:30,Hamburger SV,1. FC Koln,2,1,3,5,2,3,0,0,12,14,Dr. Matthias Jollenbeck
+D1,19/09/2026,13:00,Holstein Kiel,VfL Osnabruck,1,1,10,1,2,3,1,0,11,15,Tom Bauer
+D1,19/09/2026,13:00,Kaiserslautern,Eintracht Braunschweig,1,0,7,5,1,2,0,0,11,6,Jarno Wienefeld
+D1,19/09/2026,13:00,Karlsruher SC,1. FC Nurnberg,0,1,3,4,3,1,0,0,16,11,Timo Gansloweit
+D1,19/09/2026,18:30,VfB Stuttgart,Borussia Dortmund,0,1,6,2,2,5,0,0,9,14,Tobias Stieler
+D1,19/09/2026,15:30,Werder Bremen,Augsburg,3,2,2,2,2,2,0,0,10,11,Bastian Dankert
+D1,20/09/2026,13:30,Arminia Bielefeld,FC Heidenheim,2,2,5,6,3,4,0,0,13,9,Felix Wagner
+D1,20/09/2026,15:30,Bayer Leverkusen,RB Leipzig,2,0,9,6,2,3,0,0,14,8,Robert Schroder
+D1,20/09/2026,13:30,Energie Cottbus,St. Pauli,1,1,9,3,2,2,0,1,13,7,Michael Bacher
+D1,20/09/2026,16:00,Freiburg (W),Bayer Leverkusen (W),1,2,6,9,3,3,0,0,8,14,Karoline Wacker
+D1,20/09/2026,14:00,Hamburger SV (W),Nurnberg (W),5,1,5,6,2,3,0,0,9,20,Naemi Breier
+D1,20/09/2026,13:30,Hannover 96,Bochum,2,1,2,12,3,2,0,0,12,9,Patrick Schwengers
+D1,20/09/2026,14:30,Hartberg,LASK,3,3,1,9,4,0,0,0,16,5,Safak Barmaksiz
+D1,20/09/2026,19:30,Paderborn,Hoffenheim,3,1,6,5,0,1,0,0,6,14,Daniel Schlager
+D1,20/09/2026,14:30,Ried,Wolfsberger AC,4,1,0,9,3,4,0,0,9,13,Alexander Harkam
+D1,20/09/2026,17:00,Salzburg,Sturm Graz,3,0,3,8,0,1,0,1,11,14,Isa Simsek
+D1,20/09/2026,17:30,Schalke 04,Elversberg,0,0,4,4,1,2,0,0,10,10,Robin Braun
+D1,20/09/2026,18:30,Union Berlin (W),RB Leipzig (W),3,2,13,8,1,2,0,0,10,9,Levke Scholz
+D1,21/08/2026,19:30,Ried,Grazer AK,1,0,7,4,3,4,0,0,15,10,Daniel Pfister
+D1,21/08/2026,18:20,Union Berlin (W),Bayern Munchen (W),1,4,5,7,1,1,0,0,8,5,Miriam Schwermer
+D1,21/09/2026,18:00,Werder Bremen (W),VfB Stuttgart (W),1,1,8,1,2,1,0,0,16,14,Lara Wolf
+D1,22/08/2026,17:00,Altach,Hartberg,1,2,11,2,0,3,0,0,5,11,Walter Altmann
+D1,22/08/2026,12:00,Eintracht Frankfurt (W),FC Koln (W),2,0,6,3,3,5,0,0,12,19,Franziska Wildfeuer
+D1,22/08/2026,14:00,Nurnberg (W),VfL Wolfsburg (W),2,8,11,11,1,1,1,0,9,6,Lara Wolf
+D1,22/08/2026,19:30,Sturm Graz,Austria Lustenau,1,1,10,8,3,2,0,1,10,10,Julian Weinberger
+D1,23/08/2026,18:30,Hamburger SV (W),Freiburg (W),1,1,5,5,3,1,0,0,12,12,Sina Diekmann
+D1,23/08/2026,16:00,RB Leipzig (W),Bayer Leverkusen (W),0,2,4,7,2,1,0,0,9,8,Angelika Soder
+D1,23/08/2026,14:00,TSG 1899 Hoffenheim (W),VfB Stuttgart (W),1,2,3,5,3,2,0,0,11,13,Julia Boike
+D1,24/08/2026,18:00,Mainz 05 (W),Werder Bremen (W),1,2,2,4,2,4,0,0,10,16,Naemi Breier
+D1,28/08/2026,19:30,Austria Lustenau,WSG Tirol,0,4,8,12,2,1,0,0,12,9,Manuel Baumann
+D1,28/08/2026,20:30,Bayern Munchen,VfB Stuttgart,5,1,9,3,1,3,0,0,10,17,Soren Storks
+D1,28/08/2026,18:30,Bochum,VfL Osnabruck,0,1,6,1,3,4,0,0,15,12,Felix Wagner
+D1,28/08/2026,18:30,Eintracht Braunschweig,Hertha BSC,3,5,5,12,2,4,0,0,9,15,Richard Hempel
+D1,28/08/2026,18:30,FC Koln (W),TSG 1899 Hoffenheim (W),1,0,9,1,3,0,0,0,12,4,Lara Wolf
+D1,29/08/2026,15:30,1. FC Koln,Hoffenheim,3,2,6,7,0,2,0,0,11,14,Florian Badstubner
+D1,29/08/2026,20:30,1. FC Nurnberg,Arminia Bielefeld,4,1,3,8,2,0,0,0,9,11,Patrick Schwengers
+D1,29/08/2026,18:30,Borussia Dortmund,Hamburger SV,2,0,3,1,2,1,1,0,13,19,Felix Zwayer
+D1,29/08/2026,15:30,Elversberg,Bayer Leverkusen,3,2,4,3,3,2,0,0,18,15,Robert Hartmann
+D1,29/08/2026,13:00,Energie Cottbus,Greuther Furth,3,4,10,6,2,2,0,0,11,16,Felix Weller
+D1,29/08/2026,13:00,FC Heidenheim,Dynamo Dresden,5,3,6,9,2,1,0,1,8,6,Felix Bickel
+D1,29/08/2026,12:00,Freiburg (W),Union Berlin (W),1,0,10,8,2,5,0,0,11,10,Davina Lutz
+D1,29/08/2026,17:00,Grazer AK,Wolfsberger AC,0,0,11,4,3,3,0,1,14,12,Markus Greinecker
+D1,29/08/2026,13:00,Karlsruher SC,Wolfsburg,2,5,10,8,0,1,0,0,13,14,Lars Erbst
+D1,29/08/2026,19:30,LASK,Altach,3,0,4,0,2,4,0,0,9,15,Alexander Harkam
+D1,29/08/2026,15:30,Mainz 05,Paderborn,0,0,11,2,1,2,0,0,8,10,Tobias Stieler
+D1,29/08/2026,15:30,RB Leipzig,Borussia Monchengladbach,3,0,7,6,1,0,0,0,10,13,Sven Jablonski
+D1,29/08/2026,15:30,Union Berlin,Eintracht Frankfurt,3,3,5,2,2,4,0,0,11,10,Bastian Dankert
+D1,29/08/2026,14:00,VfB Stuttgart (W),Hamburger SV (W),2,1,8,6,3,3,0,0,13,11,Anna-Lena Heidenreich
+D1,30/08/2026,17:30,Augsburg,Schalke 04,3,0,11,3,1,0,0,1,5,6,Sascha Stegemann
+D1,30/08/2026,16:00,Bayer Leverkusen (W),VfL Wolfsburg (W),1,2,7,7,1,0,0,0,15,8,Franziska Wildfeuer
+D1,30/08/2026,13:30,Darmstadt,Hannover 96,0,1,2,11,1,2,1,0,8,12,Timo Gerach
+D1,30/08/2026,14:00,Eintracht Frankfurt (W),Nurnberg (W),1,1,7,4,1,1,0,0,13,18,Levke Scholz
+D1,30/08/2026,15:30,Freiburg,Werder Bremen,4,1,6,5,1,1,0,0,13,16,Daniel Siebert
+D1,30/08/2026,17:00,Hartberg,Ried,3,2,3,4,1,2,0,0,12,7,Arnes Talic
+D1,30/08/2026,13:30,Magdeburg,Holstein Kiel,2,0,3,3,5,4,0,0,14,17,Jarno Wienefeld
+D1,30/08/2026,17:00,Rapid Wien,Sturm Graz,3,1,6,4,2,3,0,1,5,11,Stefan Ebner
+D1,30/08/2026,19:00,Salzburg,Austria Wien,4,1,7,4,1,1,0,0,3,7,Walter Altmann
+D1,30/08/2026,13:30,St. Pauli,Kaiserslautern,1,2,4,5,3,4,0,0,9,13,Eric-Dominic Weisbach
+D1,30/08/2026,18:30,Werder Bremen (W),RB Leipzig (W),2,0,11,1,0,1,0,1,4,17,Daniela Kottmann
+D1,31/07/2026,19:30,LASK,Grazer AK,3,0,6,2,0,2,0,0,12,13,Sebastian Gishamer
+D1,31/08/2026,18:00,Bayern Munchen (W),Mainz 05 (W),2,0,8,1,0,0,0,0,10,9,Angelika Soder
