@@ -100,3 +100,30 @@ def test_csv_loader_keeps_missing_values_null(tmp_path):
     assert len(rows) == 1
     assert rows[0]['home_corners'] == 8
     assert rows[0]['away_corners'] is None
+
+
+def test_score_only_lane_does_not_hide_later_corner_card_statistics(tmp_path):
+    scores = tmp_path / 'scores.csv'
+    stats = tmp_path / 'stats.csv'
+    scores.write_text('Date,HomeTeam,AwayTeam,FTHG,FTAG\n01/08/26,Home,Away,1,0\n')
+    stats.write_text('Date,HomeTeam,AwayTeam,FTHG,FTAG,HC,AC,HY,AY\n01/08/26,Home,Away,1,0,8,3,2,3\n')
+    rows = load_stat_rows([scores, stats])
+    assert len(rows) == 1
+    assert rows[0]['home_corners'] == 8
+    assert rows[0]['away_yellow'] == 3
+
+
+def test_secondary_analysis_does_not_require_goal_model_or_market_quote():
+    import runpy
+    scanner = runpy.run_path(str(ROOT / 'scripts' / 'fc-scan-live.py'))
+    kickoff = int(datetime(2026, 9, 1, tzinfo=timezone.utc).timestamp())
+    info = {'league': 'England. Premier League', 'home': 'Spain', 'away': 'Croatia',
+            'start_ts': kickoff, 'match_id': 'fixture-1'}
+    result = scanner['secondary_analysis'](info, {'E0': make_rows()})
+    assert result['availability'] == 'B'
+    offer = result['markets'][0]
+    payload = scanner['secondary_pick_payload'](info, offer, None, None, kickoff-3600,
+                                               'E0', 'secondary-test', 'unknown')
+    assert payload['odds'] is None and payload['ev'] is None
+    assert payload['quote_observation_id'] is None
+    assert payload['line_quarters'] == round(offer['line'] * 4)

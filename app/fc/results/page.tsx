@@ -14,6 +14,7 @@ import { slipStatusLabel } from '@/lib/fc/parlay';
 import { ByVersionTable, EquityChart, KpiRow, MarketBreakdown, ResultsTable } from '@/components/fc/Results';
 import { ParlaySettlementBox } from '@/components/fc/ParlaySettlementBox';
 import { ParlayDialog } from '@/components/fc/ParlayDialog';
+import { OperatorPanel } from '@/components/fc/OperatorPanel';
 import { EmptyState, ErrorBanner, SkeletonRows } from '@/components/fc/shared';
 
 export default function FcResults() {
@@ -47,6 +48,7 @@ export default function FcResults() {
         </div>
       </div>
 
+      <OperatorPanel />
       {error && <ErrorBanner message={error} onRetry={refresh} />}
 
       {data?.manual_parlays && data.manual_parlays.length > 0 && (

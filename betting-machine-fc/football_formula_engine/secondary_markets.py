@@ -75,7 +75,7 @@ def _date(value):
 
 def load_stat_rows(paths):
     """Read actual football-data statistics; unavailable fields remain None."""
-    rows, seen = [], set()
+    rows, seen = [], {}
     for path in paths:
         path = Path(path)
         if not path.exists():
@@ -88,10 +88,7 @@ def load_stat_rows(paths):
                     if not day or not home or not away:
                         continue
                     identity = (day, home, away)
-                    if identity in seen:
-                        continue
-                    seen.add(identity)
-                    rows.append({
+                    candidate = {
                         'date': day, 'home': home, 'away': away,
                         'home_goals': _number(raw.get('FTHG')),
                         'away_goals': _number(raw.get('FTAG')),
@@ -104,7 +101,18 @@ def load_stat_rows(paths):
                         'home_fouls': _number(raw.get('HF')),
                         'away_fouls': _number(raw.get('AF')),
                         'referee': (raw.get('Referee') or '').strip() or None,
-                    })
+                    }
+                    previous = seen.get(identity)
+                    if previous is None:
+                        rows.append(candidate)
+                        seen[identity] = candidate
+                    elif not any(previous[key] is not None and candidate[key] is not None
+                                 and previous[key] != candidate[key]
+                                 for key in ('home_goals', 'away_goals')):
+                        # Score-only rows must not hide later, richer stat lanes.
+                        for key, value in candidate.items():
+                            if previous.get(key) is None and value is not None:
+                                previous[key] = value
         except (OSError, UnicodeError, csv.Error):
             continue
     return sorted(rows, key=lambda row: (row['date'], row['home'], row['away']))

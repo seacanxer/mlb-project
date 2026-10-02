@@ -4,9 +4,12 @@ export const FC_UI_VERSION = 'fc-market-board-v2';
 export const PREDICTION_MARKETS: { key: Market; label: string }[] = [
   { key: '1x2', label: '1X2' }, { key: 'ah', label: 'Asian HDP' },
   { key: 'ou', label: 'O/U' }, { key: 'btts', label: 'BTTS' },
+  { key: 'corners_ou', label: 'Corner O/U' }, { key: 'corner_hdp', label: 'Corner HDP' },
+  { key: 'cards_ou', label: 'Kartu O/U' }, { key: 'team_cards_ou', label: 'Kartu tim' }, { key: 'red_card', label: 'Kartu merah' },
 ];
 
 const REASONS: Record<string, string> = {
+  DIRECTION_ALTERNATIVE: 'Alternatif handicap pada tim lawan; berbeda dari arah utama 1X2.',
   LEAGUE_MODEL_UNAVAILABLE: 'Model untuk liga ini belum tersedia.',
   MODEL_UNAVAILABLE: 'Model liga belum berhasil dimuat.',
   TEAM_UNMATCHED: 'Identitas tim belum cocok dengan histori liga.',

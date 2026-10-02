@@ -5,15 +5,22 @@ The display line is the bookmaker's most balanced complete pair, so choosing
 an extreme line for its high win probability cannot masquerade as confidence.
 """
 MARKET_ORDER = ('1x2', 'ah', 'ou', 'btts')
-POLICY_VERSION = 'fc-market-catalog-v2'
+POLICY_VERSION = 'fc-market-catalog-v3-direction'
 
 
 def select_markets(opportunities):
     forecasts, value_picks = [], []
+    outcomes = [row for row in opportunities if row[0] == '1x2']
+    favorite = max(outcomes, key=lambda row: (row[2]['probability'], row[1]))[2]['side'] if outcomes else None
+    primary_side = favorite if favorite in ('home', 'away') else None
     for market in MARKET_ORDER:
         rows = [row for row in opportunities if row[0] == market]
         if not rows:
             continue
+        if market == 'ah' and primary_side:
+            for row in rows:
+                if row[2]['side'] != primary_side and 'DIRECTION_ALTERNATIVE' not in row[2]['gate_reasons']:
+                    row[2]['gate_reasons'].append('DIRECTION_ALTERNATIVE')
         eligible = [row for row in rows if not row[2]['gate_reasons']]
         if eligible:
             value_picks.append(max(eligible, key=lambda row: (row[2]['conservative_ev'], row[1])))
@@ -28,6 +35,10 @@ def select_markets(opportunities):
                 min(abs(row[2]['market_probability'] - 0.5) for row in rows if line_key(row) == line),
                 abs(line), line))
             rows = [row for row in rows if line_key(row) == main_line]
+        if market == 'ah' and primary_side:
+            rows = [row for row in rows if row[2]['side'] == primary_side]
+            if not rows:
+                continue
         # 1X2 displays the most probable result. Binary priced markets display
         # the better expected return on a fixed line, treating both signs alike.
         score = 'probability' if market == '1x2' else 'ev'

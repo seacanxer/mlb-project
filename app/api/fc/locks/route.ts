@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { execFile } from 'node:child_process';
 import { timingSafeEqual } from 'node:crypto';
 import path from 'node:path';
+import fs from 'node:fs';
 import { promisify } from 'node:util';
 
 export const dynamic = 'force-dynamic';
@@ -19,7 +20,8 @@ function authorized(request: Request): boolean {
 async function ledger(args: string[]) {
   const cwd = process.cwd();
   const script = path.join(cwd, 'scripts', 'fc-manual-lock.py');
-  const python = process.env.FC_PYTHON || 'python3';
+  const venv = path.join(cwd, 'betting-machine-fc', 'venv', process.platform === 'win32' ? 'Scripts/python.exe' : 'bin/python');
+  const python = process.env.FC_PYTHON || (fs.existsSync(venv) ? venv : process.platform === 'win32' ? 'python' : 'python3');
   try {
     const { stdout } = await run(python, [script, ...args], { cwd, timeout: 20000, maxBuffer: 1024 * 1024 });
     return JSON.parse(stdout.trim().split('\n').at(-1) || '{}');

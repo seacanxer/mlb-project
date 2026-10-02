@@ -541,6 +541,22 @@ def secondary_stat_files(code):
             if os.path.exists(os.path.join(data_dir, name))]
 
 
+def secondary_analysis(info, cache, goal_projection=None):
+    code = model_code(info.get('league'))
+    if code not in LEAGUES:
+        return {'availability': 'C', 'reason': 'NO_HISTORICAL_MATCH_STATS', 'markets': [], 'limited': True}
+    if code not in cache:
+        cache[code] = load_secondary_rows(secondary_stat_files(code))
+    rows = cache[code]
+    teams = {r[side] for r in rows for side in ('home', 'away')}
+    home = match_team(info.get('home') or '', teams)
+    away = match_team(info.get('away') or '', teams)
+    if not home or not away:
+        return {'availability': 'C', 'reason': 'SECONDARY_TEAM_UNMATCHED', 'markets': [], 'limited': True}
+    return project_secondary_fixture(rows, home, away, info['start_ts'],
+        goal_projection=goal_projection, referee=info.get('referee'))
+
+
 def csv_teams(code):
     csvs = training_files(code)
     names = set()
@@ -574,7 +590,7 @@ def secondary_pick_payload(info, offer, observation, captured_at, decision_at, c
         'match': f"{info.get('home')} vs {info.get('away')}",
         'home': info.get('home'), 'away': info.get('away'),
         'league': info.get('league'), 'start_ts': int(float(info['start_ts'])),
-        'quote_observation_id': observation['artifact_id'],
+        'quote_observation_id': observation['artifact_id'] if observation else None,
         'quote_captured_at': captured_at, 'decision_at': decision_at,
         'uncertainty_status': 'SECONDARY_MARKET_NO_ODDS',
         'market': offer.get('market') or 'secondary',
@@ -599,7 +615,7 @@ def secondary_pick_payload(info, offer, observation, captured_at, decision_at, c
         'analysis_status': 'projection',
         'gate_reasons': ['SECONDARY_MARKET_NO_ODDS'],
         'official_eligible': False,
-        'quote_provider': '1xbit', 'quote_is_closing': False,
+        'quote_provider': '1xbit' if observation else None, 'quote_is_closing': False,
         'secondary_provider': None,
         'secondary_status': 'unavailable',
         'secondary_match_verified': False,
@@ -845,6 +861,7 @@ def main(argv=()):
                          'policy_version': POLICY_VERSION, 'generated_at': now}
         info['coverage_status'] = 'market_only'
         code = model_code(info.get('league'))
+        m['analysis']['secondary_markets'] = secondary_analysis(info, secondary_data)
         if not code:
             m['analysis']['reason_codes'] = ['LEAGUE_MODEL_UNAVAILABLE']
             league_name = info.get('league') or 'Unknown league'
@@ -951,23 +968,8 @@ def main(argv=()):
         # apply the historical Dixon-Coles rho a second time after pooling.
         decision_distribution = build_score_matrix(blended_home, blended_away, 0.0)
         opportunities = price_fixture(decision_distribution, mk, gated=False)
-        if code != NATIONAL_CODE and code in LEAGUES:
-            if code not in secondary_data:
-                secondary_paths = secondary_stat_files(code)
-                secondary_data[code] = load_secondary_rows(secondary_paths)
-                for historical_row in secondary_data[code]:
-                    historical_row['home'] = (match_team(historical_row['home'], teams_by_code[code])
-                                              or historical_row['home'])
-                    historical_row['away'] = (match_team(historical_row['away'], teams_by_code[code])
-                                              or historical_row['away'])
-            secondary = project_secondary_fixture(
-                secondary_data[code], home_csv, away_csv,
-                info['start_ts'], goal_projection={'home': blended_home, 'away': blended_away},
-                referee=info.get('referee'))
-        else:
-            secondary = {'availability': 'C', 'reason': 'NO_HISTORICAL_MATCH_STATS',
-                         'markets': [], 'limited': True}
-        m['analysis']['secondary_markets'] = secondary
+        m['analysis']['secondary_markets'] = secondary_analysis(info, secondary_data,
+            {'home': blended_home, 'away': blended_away})
         if code == NATIONAL_CODE:
             reason = national_market_reason(opportunities)
             if reason:
@@ -1013,7 +1015,7 @@ def main(argv=()):
                 'match': f"{info.get('home')} vs {info.get('away')}",
                 'home': info.get('home'), 'away': info.get('away'),
                 'league': info.get('league'), 'start_ts': int(float(info['start_ts'])),
-                'quote_observation_id': observation['artifact_id'],
+                'quote_observation_id': observation['artifact_id'] if observation else None,
                 'quote_captured_at': captured_at, 'decision_at': decision_at,
                 'uncertainty_status': 'UNAVAILABLE_HEURISTIC_PENALTY_ONLY',
                 'market': market, 'pick': label, 'side': o['side'],
@@ -1063,17 +1065,18 @@ def main(argv=()):
             m['qualified_picks'].append(item)
         m['picks'] = list(m['qualified_picks'])
 
+    # Publish count projections independently of goal-model and quote gates.
+    for m in merged.values():
+        info = m['info']
         secondary_result = m.get('analysis', {}).get('secondary_markets') or {}
         if secondary_result.get('availability') == 'B':
             for offer in secondary_result.get('markets', []):
-                secondary_pick = secondary_pick_payload(
-                    info, offer, observation, captured_at, decision_at, code,
-                    secondary_result.get('model_version', 'fc-secondary-counts-v1'),
+                item = secondary_pick_payload(info, offer, None, None, now,
+                    model_code(info.get('league')), secondary_result.get('model_version'),
                     secondary_result.get('referee_status'))
-                picks.append(secondary_pick)
-                m['qualified_picks'].append(secondary_pick)
-                m['projections'].append(secondary_pick)
-            m['picks'] = list(m['qualified_picks'])
+                picks.append(item)
+                m.setdefault('projections', []).append(item)
+                m.setdefault('picks', []).append(item)
 
     # 4. atomic writes
     def atomic_write(path, data):

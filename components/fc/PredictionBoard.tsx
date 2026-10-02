@@ -31,7 +31,7 @@ function PredictionCard({ match, market, valueOnly, saved, lockedIds, onToggle }
   const available = projections.length > 0;
   const reasons = match.analysis?.reason_codes.length ? match.analysis.reason_codes : ['RESCAN_REQUIRED'];
   const options = (match.market_options ?? projections).filter((p) => market === 'all' || p.market === market);
-  const cells = PREDICTION_MARKETS.filter((m) => market === 'all' || m.key === market);
+  const cells = PREDICTION_MARKETS.filter((m) => ['1x2', 'ah', 'ou', 'btts'].includes(m.key) && (market === 'all' || m.key === market));
   return <article className={`prediction-card${available ? '' : ' prediction-card-empty'}`}>
     <header className="prediction-meta">
       <span className="prediction-league"><span aria-hidden="true">◈</span> {info.league || 'Liga belum tersedia'}</span>
@@ -44,7 +44,7 @@ function PredictionCard({ match, market, valueOnly, saved, lockedIds, onToggle }
         <span className="prediction-versus">VS</span>
         <div><span className="team-monogram team-away" aria-hidden="true">{(info.away || '?').slice(0, 2).toUpperCase()}</span><strong>{info.away || 'Away —'}</strong></div>
       </div>
-      <div className="prediction-market-grid" style={{ '--market-count': cells.length } as React.CSSProperties}>
+      {cells.length > 0 && <div className="prediction-market-grid" style={{ '--market-count': cells.length } as React.CSSProperties}>
         {cells.map(({ key, label }) => {
           const pick = projections.find((p) => p.market === key);
           const selected = pick && saved.includes(choiceId(match, pick));
@@ -59,7 +59,7 @@ function PredictionCard({ match, market, valueOnly, saved, lockedIds, onToggle }
             </button> : <div className="prediction-no-market"><strong>—</strong><small>{available ? 'Pasar belum tersedia' : 'Menunggu data'}</small></div>}
           </div>;
         })}
-      </div>
+      </div>}
     </div>
     <section className="prediction-goals" aria-label="Projection Goal dan proyeksi gol per tim">
       <div className="prediction-goals-title">Projection Goal</div>
@@ -79,33 +79,33 @@ function PredictionCard({ match, market, valueOnly, saved, lockedIds, onToggle }
       {match.analysis.secondary_markets.availability === 'C'
         ? <p className="prediction-secondary-unavailable">Prediksi corner/kartu belum dapat dihitung karena data statistik pertandingan historis belum cukup.</p>
         : <div className="prediction-market-grid prediction-secondary-grid">
-        {(['corners_ou', 'cards_ou'] as const).map((key) => {
+        {(['corners_ou', 'cards_ou'] as const).filter((key) => market === 'all' || key === market).map((key) => {
           const projection = match.analysis?.secondary_markets?.markets.find((row) => row.market === key);
           const title = key === 'corners_ou' ? 'Total corners' : 'Total kartu';
           const data = key === 'corners_ou' ? match.analysis?.secondary_markets?.corners : match.analysis?.secondary_markets?.cards;
           return <div className="prediction-market" key={key}><div className="prediction-market-heading">{title}</div>
             {data && <small>{key === 'corners_ou'
-              ? `Ekspektasi ${data.home.toFixed(1)} – ${data.away.toFixed(1)} (total ${data.total.toFixed(1)})`
+              ? `Home ${data.home.toFixed(2)} · Away ${data.away.toFixed(2)} · Projection corner ${data.total.toFixed(2)}`
               : `Kuning ${data.home.toFixed(1)} – ${data.away.toFixed(1)}; poin kartu total ${data.total.toFixed(1)}`}</small>}
             {projection ? <div className="prediction-secondary-pick"><strong>{projection.pick}</strong>
-              <small>P(model) {formatProb(projection.probability)}</small><span className="prediction-tag">Proyeksi</span>
+              <small>Line {projection.line ?? '—'} · P(model) {formatProb(projection.probability)}</small><span className="prediction-tag">Proyeksi</span>
             </div> : <div className="prediction-no-market"><strong>—</strong><small>Data belum cukup</small></div>}
           </div>;
         })}
-        {(['corner_hdp', 'team_cards_ou'] as const).map((key) => {
+        {(['corner_hdp', 'team_cards_ou'] as const).filter((key) => market === 'all' || key === market).map((key) => {
           const projection = match.analysis?.secondary_markets?.markets.find((row) => row.market === key);
           const title = key === 'corner_hdp' ? 'Corner HDP' : 'Kartu per tim';
           return <div className="prediction-market" key={key}><div className="prediction-market-heading">{title}</div>
             {projection ? <div className="prediction-secondary-pick"><strong>{projection.pick}</strong>
-              <small>P(model) {formatProb(projection.probability)}</small><span className="prediction-tag">Proyeksi</span>
+              <small>Line {projection.line ?? '—'} · P(model) {formatProb(projection.probability)}</small><span className="prediction-tag">Proyeksi</span>
             </div> : <div className="prediction-no-market"><strong>—</strong><small>Data belum cukup</small></div>}
           </div>;
         })}
-        {match.analysis.secondary_markets.markets.find((row) => row.market === 'red_card') && (() => {
+        {(market === 'all' || market === 'red_card') && match.analysis.secondary_markets.markets.find((row) => row.market === 'red_card') && (() => {
           const projection = match.analysis!.secondary_markets!.markets.find((row) => row.market === 'red_card')!;
           return <div className="prediction-market"><div className="prediction-market-heading">Kartu merah</div>
             <div className="prediction-secondary-pick"><strong>{projection.pick}</strong>
-              <small>P(model) {formatProb(projection.probability)}</small><span className="prediction-tag">Proyeksi</span>
+              <small>Line {projection.line ?? '—'} · P(model) {formatProb(projection.probability)}</small><span className="prediction-tag">Proyeksi</span>
             </div></div>;
         })()}
       </div>}
@@ -120,7 +120,7 @@ function PredictionCard({ match, market, valueOnly, saved, lockedIds, onToggle }
     <details className="prediction-details">
       <summary>{available ? 'Detail analisis & alternatif line' : 'Lihat kebutuhan data'} <span aria-hidden="true">↗</span></summary>
       <div className="prediction-explanation">
-        <p>{available ? '1X2 menampilkan hasil paling mungkin. AH dan O/U memakai line dengan harga pasar paling seimbang; kedua sisi dihitung dengan model liga yang sama. Pilihan dengan EV tertinggi tersedia di tab Value.' : reasons.map(reasonLabel).join(' ')}</p>
+        <p>{available ? '1X2 menampilkan hasil paling mungkin. Jika 1X2 memilih home/away, AH utama mengikuti tim yang sama pada line pasar seimbang. Handicap tim lawan ditandai sebagai alternatif di tabel. Proyeksi dengan EV negatif tetap bukan kandidat value.' : reasons.map(reasonLabel).join(' ')}</p>
         <p>Official: {reasonLabel(match.analysis?.official_reason || 'MODEL_NOT_VALIDATED')} Probabilitas menang menghitung menang penuh dan setengah menang; EV memperhitungkan push dan hasil setengah.</p>
         {match.analysis?.quote_captured_at && <p>Odds 1xbit diambil: {formatKickoffWIB(match.analysis.quote_captured_at)}. Harga dapat berubah.</p>}
         {match.analysis?.model_data_as_of && <p>Hasil terakhir pada data model: {formatKickoffWIB(match.analysis.model_data_as_of)}.</p>}
@@ -154,7 +154,6 @@ export function PredictionBoard({ matches, initialView = 'all', marketScope = 'a
   const [parlays, setParlays] = useState<LockedParlay[]>([]);
   const [locking, setLocking] = useState(false);
   const [operatorToken, setOperatorToken] = useState('');
-  const [tokenDraft, setTokenDraft] = useState('');
   const [message, setMessage] = useState('');
   useEffect(() => {
     try { const stored: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); if (Array.isArray(stored)) setSaved(stored.filter((v): v is string => typeof v === 'string')); } catch { /* Storage is optional. */ }
@@ -162,7 +161,7 @@ export function PredictionBoard({ matches, initialView = 'all', marketScope = 'a
       const stored: unknown = JSON.parse(localStorage.getItem(LOCK_STORAGE_KEY) || '[]');
       if (Array.isArray(stored)) setLockedChoices(stored.filter((v): v is LockedChoice => Boolean(v && typeof v.id === 'string' && v.match?.info && v.pick && typeof v.lockedAt === 'string')));
     } catch { /* Storage is optional. */ }
-    try { const token = sessionStorage.getItem('fc-lock-operator-token') || ''; setOperatorToken(token); setTokenDraft(token); } catch { /* Session storage is optional. */ }
+    try { const token = sessionStorage.getItem('fc-lock-operator-token') || ''; setOperatorToken(token); } catch { /* Session storage is optional. */ }
   }, []);
   useEffect(() => {
     if (!operatorToken) return;
@@ -188,6 +187,7 @@ export function PredictionBoard({ matches, initialView = 'all', marketScope = 'a
   const updateLocked = (next: LockedChoice[]) => { setLockedChoices(next); try { localStorage.setItem(LOCK_STORAGE_KEY, JSON.stringify(next)); } catch { setMessage('Lock hanya bertahan selama sesi ini; penyimpanan perangkat tidak tersedia.'); } };
   const lockedIds = new Set(lockedChoices.filter((choice) => choice.settlementId).map((choice) => choice.id));
   const toggle = (m: DetailedMatch, p: ForecastPick) => {
+    if (!['1x2', 'ah', 'ou', 'btts'].includes(p.market)) { setMessage('Proyeksi corner/kartu belum memiliki odds pasar untuk dikunci.'); return; }
     const id = choiceId(m, p);
     if (lockedIds.has(id)) { setMessage('Pilihan ini terkunci. Buka lock di daftar pilihan sebelum mengubahnya.'); return; }
     const prefix = `${matchKey(m)}|${p.market}|`;
@@ -195,7 +195,7 @@ export function PredictionBoard({ matches, initialView = 'all', marketScope = 'a
     updateSaved(saved.includes(id) ? saved.filter((v) => v !== id) : [...saved.filter((v) => !v.startsWith(prefix)), id]);
   };
   const lock = async (choice: Choice) => {
-    if (!operatorToken) { setMessage('Masukkan token operator sebelum mengunci pick ke settlement.'); return; }
+    if (!operatorToken) { setMessage('Hubungkan operator di halaman Hasil & ROI sebelum mengunci pick.'); return; }
     const matchId = choice.match.info.match_id;
     if (!matchId) { setMessage('Fixture tidak memiliki ID provider yang bisa diverifikasi.'); return; }
     try {
@@ -211,7 +211,7 @@ export function PredictionBoard({ matches, initialView = 'all', marketScope = 'a
     } catch (error) { setMessage(error instanceof Error ? error.message : 'Lock settlement gagal.'); }
   };
   const lockBatch = async (mode: 'singles' | 'parlay') => {
-    if (!operatorToken) { setMessage('Masukkan token operator sebelum mengunci pilihan.'); return; }
+    if (!operatorToken) { setMessage('Hubungkan operator di halaman Hasil & ROI sebelum mengunci pilihan.'); return; }
     const choices = savedChoices.filter((choice) => !lockedIds.has(choice.id));
     if (mode === 'parlay' && choices.length < 2) { setMessage('Parlay membutuhkan sedikitnya dua pilihan belum dikunci.'); return; }
     if (!choices.length) { setMessage('Tidak ada pilihan baru untuk dikunci.'); return; }
@@ -300,7 +300,7 @@ export function PredictionBoard({ matches, initialView = 'all', marketScope = 'a
       </section>
       <aside className="prediction-sidebar">
         <section className="prediction-watchlist"><header><div><span className="prediction-eyebrow">PILIHAN ANDA</span><h2>Watchlist pertandingan</h2></div><button type="button" disabled={!saved.some((id) => !lockedIds.has(id))} onClick={() => updateSaved(saved.filter((id) => lockedIds.has(id)))}>Reset</button></header>
-          <form className="watchlist-token" onSubmit={(event) => { event.preventDefault(); const token = tokenDraft.trim(); setOperatorToken(token); try { sessionStorage.setItem('fc-lock-operator-token', token); } catch { /* Session state remains available. */ } }}><label htmlFor="fc-lock-token">Token operator settlement</label><div><input id="fc-lock-token" type="password" autoComplete="off" value={tokenDraft} onChange={(event) => setTokenDraft(event.target.value)} placeholder="Masukkan token operator" /><button type="submit">Hubungkan</button></div></form>
+          {!operatorToken && <p className="watchlist-note">Hubungkan operator di <a href="/fc/results">Hasil &amp; ROI</a> untuk mengunci pilihan.</p>}
           {!savedChoices.length ? <div className="watchlist-empty"><span aria-hidden="true">☆</span><p>Mulai dari satu pilihan.</p><small>Klik pasar pada kartu pertandingan untuk menyimpannya di sini.</small></div> : <ul>{savedChoices.map((choice) => { const { match, pick, id } = choice; const locked = lockedChoices.find((item) => item.id === id); const confirmed = Boolean(locked?.settlementId); const slipIds = parlays.filter((slip) => slip.legs.some((leg) => `${leg.source_match_id}|${leg.market}|${leg.pick}` === id)).map((slip) => slip.id); return <li key={id}>{!locked && <button type="button" className="watchlist-remove" aria-label={`Hapus ${pickLabel(pick, match)}`} onClick={() => updateSaved(saved.filter((v) => v !== id))}>×</button>}<strong>{match.info.home} vs {match.info.away}</strong><span>{pickLabel(pick, match)} <b>@{formatOdds(pick.odds)}</b></span><small>{formatKickoffWIB(match.info.start_ts)}</small><div className="watchlist-lock-row"><span>{confirmed ? `🔒 Settlement single #${locked?.settlementId} · ${new Date(locked!.lockedAt).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })} WIB` : locked ? 'Lock lama di perangkat · belum masuk settlement' : slipIds.length ? `🔒 Parlay #${slipIds.join(', #')}` : 'Belum dikunci'}</span>{!confirmed && <button type="button" onClick={() => void lock(choice)}>Kunci sebagai single</button>}</div>{locked && !confirmed && <button type="button" className="watchlist-legacy-remove" onClick={() => { updateLocked(lockedChoices.filter((item) => item.id !== id)); updateSaved(saved.filter((item) => item !== id)); }}>Hapus lock lama</button>}</li>; })}</ul>}
           <div className="watchlist-total"><span>Total pilihan</span><strong>{savedChoices.length} · {lockedChoices.filter((choice) => choice.settlementId).length} single · {parlays.length} parlay</strong></div>
           <div className="watchlist-batch-actions"><button type="button" disabled={locking || !savedChoices.some((choice) => !lockedIds.has(choice.id))} onClick={() => void lockBatch('singles')}>Kunci semua sebagai single</button><button type="button" disabled={locking || savedChoices.filter((choice) => !lockedIds.has(choice.id)).length < 2} onClick={() => void lockBatch('parlay')}>Kunci sebagai parlay</button></div>

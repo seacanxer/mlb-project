@@ -155,3 +155,21 @@ def test_scan_writes_four_market_catalog_and_clears_old_missing_team_picks(tmp_p
     assert matches[1]['picks'] == []
     assert matches[1]['analysis']['reason_codes'] == ['TEAM_COVERAGE_MISSING']
     assert not (tmp_path / 'bets.db').exists()
+
+
+@pytest.mark.parametrize('favorite,opponent,opponent_line', [('home','away',1),('away','home',3)])
+def test_primary_handicap_follows_1x2_even_when_opponent_has_higher_ev(favorite, opponent, opponent_line):
+    def offer(side, probability, ev, line=None):
+        return {'side': side, 'probability': probability, 'ev': ev, 'conservative_ev': ev-.02,
+                'market_probability': .5, 'line_quarters': line, 'gate_reasons': [] if ev>.02 else ['EV_BELOW_VALUE_THRESHOLD']}
+    favorite_line = -opponent_line
+    rows = [('1x2','Favorite',offer(favorite,.45,.05)),
+            ('1x2','Opponent',offer(opponent,.30,-.05)),
+            ('1x2','Draw',offer('draw',.25,-.05)),
+            ('ah','Favorite AH',offer(favorite,.40,-.10,favorite_line)),
+            ('ah','Opponent AH',offer(opponent,.60,.15,opponent_line))]
+    forecasts, picks = select_markets(rows)
+    assert next(r[2]['side'] for r in forecasts if r[0]=='ah') == favorite
+    assert not any(r[0]=='ah' for r in picks)  # aligning the display never fabricates value
+    assert 'DIRECTION_ALTERNATIVE' in rows[-1][2]['gate_reasons']
+    assert rows[-1][2]['ev'] == .15
