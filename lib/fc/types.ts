@@ -93,6 +93,9 @@ export interface FcPick {
   calibrated_prob: number | null;
   rank_score?: number;
   locked?: boolean;
+  /** Engine provenance for secondary-market cards (see secondary_pick_payload). */
+  uncertainty_status?: string;
+  line_source?: string;
 }
 
 export interface PicksSummary {

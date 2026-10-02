@@ -113,9 +113,18 @@ export function readPicks(q: PickQuery): PicksResponse {
   const search = (q.search ?? '').toLowerCase();
 
   const filtered = future.filter((p) => {
+    // Corner/card projections carry no bookmaker price by design; they are
+    // published as research cards and must not be dropped by the odds gate.
+    // Book-priced secondary cards do carry a price, but corner/card lines
+    // legitimately trade below the 1.5 goal-market floor, so the floor must
+    // not apply to them either.
     const priced = p.coverage_status !== 'projection' && typeof p.odds === 'number';
-    if (priced && (p.odds as number) < minOdds) return false;
-    if (priced && q.max_odds !== undefined && (p.odds as number) > q.max_odds) return false;
+    if (priced && p.coverage_status === 'full' && p.uncertainty_status === 'SECONDARY_BOOK_PRICED') {
+      // fall through to market/league/search filters only
+    } else if (priced) {
+      if (p.odds as number < minOdds) return false;
+      if (q.max_odds !== undefined && (p.odds as number) > q.max_odds) return false;
+    }
     if (q.min_ev !== undefined && p.ev !== null && p.ev !== undefined && p.ev < q.min_ev) return false;
     if (market && market !== 'all' && (p.market ?? '').toLowerCase() !== market) return false;
     if (league && league !== 'all' && !(p.league ?? '').toLowerCase().includes(league)) return false;
