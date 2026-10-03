@@ -1,13 +1,13 @@
 {
   "summary": {
     "locked_picks": 0,
-    "settled_picks": 202,
+    "settled_picks": 203,
     "wins": 74,
-    "losses": 116,
+    "losses": 117,
     "pushes": 12,
-    "profit_units": -24.37,
-    "roi_pct": -12.07,
-    "hit_rate_pct": 38.95,
+    "profit_units": -25.37,
+    "roi_pct": -12.5,
+    "hit_rate_pct": 38.74,
     "duplicates_hidden": 0,
     "pending_picks": 6,
     "live_picks": 0,
@@ -25,12 +25,12 @@
     "hit_rate_pct": 0.0
   },
   "manual_parlay_summary": {
-    "pending_slips": 1,
-    "settled_slips": 5,
+    "pending_slips": 0,
+    "settled_slips": 6,
     "wins": 0,
-    "losses": 5,
+    "losses": 6,
     "pushes": 0,
-    "profit_units": -5.0,
+    "profit_units": -6.0,
     "roi_pct": -100.0,
     "hit_rate_pct": 0.0
   },
@@ -39,9 +39,9 @@
       "id": 6,
       "combined_odds": 17287.553319430484,
       "generated_at": "2026-10-02T14:47:53.447901+00:00",
-      "status": "pending",
-      "profit": null,
-      "settled_at": null,
+      "status": "lost",
+      "profit": -1.0,
+      "settled_at": "2026-10-02T22:05:04.097759+00:00",
       "legs": [
         {
           "id": 72,
@@ -53,11 +53,11 @@
           "market": "1x2",
           "pick": "Home",
           "odds": 2.267,
-          "result": "pending",
-          "leg_return": null,
-          "home_score": null,
-          "away_score": null,
-          "settled_at": null
+          "result": "won",
+          "leg_return": 2.267,
+          "home_score": 2,
+          "away_score": 0,
+          "settled_at": "2026-10-02T22:05:04.097759+00:00"
         },
         {
           "id": 73,
@@ -69,11 +69,11 @@
           "market": "ou",
           "pick": "Over 2.25",
           "odds": 1.824,
-          "result": "pending",
-          "leg_return": null,
-          "home_score": null,
-          "away_score": null,
-          "settled_at": null
+          "result": "lost",
+          "leg_return": 0.5,
+          "home_score": 2,
+          "away_score": 0,
+          "settled_at": "2026-10-02T22:05:04.097759+00:00"
         },
         {
           "id": 74,
@@ -85,11 +85,11 @@
           "market": "1x2",
           "pick": "Away",
           "odds": 1.751,
-          "result": "pending",
-          "leg_return": null,
-          "home_score": null,
-          "away_score": null,
-          "settled_at": null
+          "result": "won",
+          "leg_return": 1.751,
+          "home_score": 1,
+          "away_score": 2,
+          "settled_at": "2026-10-02T22:05:04.097759+00:00"
         },
         {
           "id": 75,
@@ -101,11 +101,11 @@
           "market": "btts",
           "pick": "BTTS No",
           "odds": 1.745,
-          "result": "pending",
-          "leg_return": null,
-          "home_score": null,
-          "away_score": null,
-          "settled_at": null
+          "result": "lost",
+          "leg_return": 0.0,
+          "home_score": 1,
+          "away_score": 2,
+          "settled_at": "2026-10-02T22:05:04.097759+00:00"
         },
         {
           "id": 76,
@@ -117,11 +117,11 @@
           "market": "1x2",
           "pick": "Home",
           "odds": 1.59,
-          "result": "pending",
-          "leg_return": null,
-          "home_score": null,
-          "away_score": null,
-          "settled_at": null
+          "result": "won",
+          "leg_return": 1.5899999999999999,
+          "home_score": 3,
+          "away_score": 0,
+          "settled_at": "2026-10-02T22:05:04.097759+00:00"
         },
         {
           "id": 77,
@@ -133,11 +133,11 @@
           "market": "ou",
           "pick": "Over 3.25",
           "odds": 1.96,
-          "result": "pending",
-          "leg_return": null,
-          "home_score": null,
-          "away_score": null,
-          "settled_at": null
+          "result": "lost",
+          "leg_return": 0.5,
+          "home_score": 3,
+          "away_score": 0,
+          "settled_at": "2026-10-02T22:05:04.097759+00:00"
         },
         {
           "id": 78,
@@ -149,11 +149,11 @@
           "market": "1x2",
           "pick": "Away",
           "odds": 2.459,
-          "result": "pending",
-          "leg_return": null,
-          "home_score": null,
-          "away_score": null,
-          "settled_at": null
+          "result": "lost",
+          "leg_return": 0.0,
+          "home_score": 1,
+          "away_score": 1,
+          "settled_at": "2026-10-02T22:05:04.097759+00:00"
         },
         {
           "id": 79,
@@ -165,11 +165,11 @@
           "market": "ou",
           "pick": "Over 2.75",
           "odds": 1.837,
-          "result": "pending",
-          "leg_return": null,
-          "home_score": null,
-          "away_score": null,
-          "settled_at": null
+          "result": "lost",
+          "leg_return": 0.0,
+          "home_score": 1,
+          "away_score": 1,
+          "settled_at": "2026-10-02T22:05:04.097759+00:00"
         },
         {
           "id": 80,
@@ -181,11 +181,11 @@
           "market": "1x2",
           "pick": "Away",
           "odds": 1.551,
-          "result": "pending",
-          "leg_return": null,
-          "home_score": null,
-          "away_score": null,
-          "settled_at": null
+          "result": "lost",
+          "leg_return": 0.0,
+          "home_score": 1,
+          "away_score": 1,
+          "settled_at": "2026-10-02T22:05:04.097759+00:00"
         },
         {
           "id": 81,
@@ -197,11 +197,11 @@
           "market": "ou",
           "pick": "Over 2.25",
           "odds": 1.93,
-          "result": "pending",
-          "leg_return": null,
-          "home_score": null,
-          "away_score": null,
-          "settled_at": null
+          "result": "lost",
+          "leg_return": 0.5,
+          "home_score": 1,
+          "away_score": 1,
+          "settled_at": "2026-10-02T22:05:04.097759+00:00"
         },
         {
           "id": 82,
@@ -213,11 +213,11 @@
           "market": "1x2",
           "pick": "Home",
           "odds": 1.486,
-          "result": "pending",
-          "leg_return": null,
-          "home_score": null,
-          "away_score": null,
-          "settled_at": null
+          "result": "lost",
+          "leg_return": 0.0,
+          "home_score": 1,
+          "away_score": 1,
+          "settled_at": "2026-10-02T22:05:04.097759+00:00"
         },
         {
           "id": 83,
@@ -229,11 +229,11 @@
           "market": "btts",
           "pick": "BTTS Yes",
           "odds": 1.63,
-          "result": "pending",
-          "leg_return": null,
-          "home_score": null,
-          "away_score": null,
-          "settled_at": null
+          "result": "won",
+          "leg_return": 1.63,
+          "home_score": 1,
+          "away_score": 1,
+          "settled_at": "2026-10-02T22:05:04.097759+00:00"
         },
         {
           "id": 84,
@@ -245,11 +245,11 @@
           "market": "1x2",
           "pick": "Home",
           "odds": 2.306,
-          "result": "pending",
-          "leg_return": null,
-          "home_score": null,
-          "away_score": null,
-          "settled_at": null
+          "result": "won",
+          "leg_return": 2.306,
+          "home_score": 1,
+          "away_score": 0,
+          "settled_at": "2026-10-02T22:05:04.097759+00:00"
         },
         {
           "id": 85,
@@ -261,11 +261,11 @@
           "market": "ou",
           "pick": "Over 2.25",
           "odds": 1.95,
-          "result": "pending",
-          "leg_return": null,
-          "home_score": null,
-          "away_score": null,
-          "settled_at": null
+          "result": "lost",
+          "leg_return": 0.0,
+          "home_score": 1,
+          "away_score": 0,
+          "settled_at": "2026-10-02T22:05:04.097759+00:00"
         },
         {
           "id": 86,
@@ -277,11 +277,11 @@
           "market": "1x2",
           "pick": "Home",
           "odds": 1.638,
-          "result": "pending",
-          "leg_return": null,
-          "home_score": null,
-          "away_score": null,
-          "settled_at": null
+          "result": "won",
+          "leg_return": 1.638,
+          "home_score": 6,
+          "away_score": 0,
+          "settled_at": "2026-10-02T22:05:04.097759+00:00"
         },
         {
           "id": 87,
@@ -293,11 +293,11 @@
           "market": "ou",
           "pick": "Under 3",
           "odds": 1.82,
-          "result": "pending",
-          "leg_return": null,
-          "home_score": null,
-          "away_score": null,
-          "settled_at": null
+          "result": "lost",
+          "leg_return": 0.0,
+          "home_score": 6,
+          "away_score": 0,
+          "settled_at": "2026-10-02T22:05:04.097759+00:00"
         }
       ]
     },
@@ -6895,13 +6895,38 @@
       "lock_source": "manual",
       "settlement_kind": "parlay",
       "parlay_id": 5
+    },
+    {
+      "id": -6,
+      "match_id": "parlay-6",
+      "match": "Parlay #6 · 16 leg",
+      "home": "Parlay",
+      "away": "6",
+      "league": "Manual parlay",
+      "start_ts": 1790978704,
+      "market": "parlay",
+      "pick": "16 leg",
+      "odds": 17287.553319430484,
+      "placed_at": "2026-10-02T14:47:53.447901+00:00",
+      "settled": 1,
+      "won": 0,
+      "profit": -1.0,
+      "settled_at": "2026-10-02T22:05:04.097759+00:00",
+      "home_score": null,
+      "away_score": null,
+      "score_status": null,
+      "settlement_status": "settled",
+      "timing_status": "settled",
+      "lock_source": "manual",
+      "settlement_kind": "parlay",
+      "parlay_id": 6
     }
   ],
   "status_counts": {
     "locked": 0,
     "live": 0,
     "overdue": 6,
-    "settled": 202
+    "settled": 203
   },
   "market_performance": [
     {
@@ -6950,17 +6975,17 @@
     },
     {
       "market": "parlay",
-      "bets": 5,
+      "bets": 6,
       "wins": 0,
-      "losses": 5,
+      "losses": 6,
       "pushes": 0,
       "win_rate_pct": 0.0,
       "loss_rate_pct": 100.0,
-      "profit_units": -5.0,
+      "profit_units": -6.0,
       "roi_pct": -100.0
     }
   ],
   "by_version": [],
   "unit_size": 1.0,
-  "built_at": "2026-10-02T20:20:03.922789+00:00"
+  "built_at": "2026-10-03T08:25:03.101800+00:00"
 }

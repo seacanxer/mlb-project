@@ -40,6 +40,19 @@ export async function GET(request: Request) {
   return NextResponse.json(result, { status: result.status === 'ok' ? 200 : 503 });
 }
 
+const SECONDARY_MARKETS = ['corners_ou', 'corner_hdp', 'cards_ou', 'team_cards_ou', 'red_card'];
+const ALLOWED_MARKETS = ['1x2', 'ah', 'ou', 'btts', ...SECONDARY_MARKETS];
+
+function choiceValid(item: unknown): boolean {
+  return Boolean(item && typeof item === 'object' &&
+    typeof (item as { match_id: string }).match_id === 'string' && (item as { match_id: string }).match_id.length <= 100 &&
+    typeof (item as { market: string }).market === 'string' && ALLOWED_MARKETS.includes((item as { market: string }).market) &&
+    typeof (item as { pick: string }).pick === 'string' && (item as { pick: string }).pick.length <= 100 &&
+    // Corner/card projections carry no price; only priced cards are lockable.
+    (SECONDARY_MARKETS.includes((item as { market: string }).market) ||
+      (typeof (item as { odds: number }).odds === 'number' && Number.isFinite((item as { odds: number }).odds))));
+}
+
 export async function POST(request: Request) {
   if (!authorized(request)) return NextResponse.json({ message: 'Token operator tidak valid atau belum dikonfigurasi.' }, { status: 401 });
   let body: Record<string, unknown>;
@@ -47,10 +60,7 @@ export async function POST(request: Request) {
   if (body.mode === 'singles' || body.mode === 'parlay') {
     const choices = body.choices;
     if (!Array.isArray(choices) || choices.length < (body.mode === 'parlay' ? 2 : 1) || choices.length > 30 ||
-        !choices.every((item) => item && typeof item.match_id === 'string' && item.match_id.length <= 100 &&
-          typeof item.market === 'string' && ['1x2', 'ah', 'ou', 'btts'].includes(item.market) &&
-          typeof item.pick === 'string' && item.pick.length <= 100 &&
-          typeof item.odds === 'number' && Number.isFinite(item.odds))) {
+        !choices.every(choiceValid)) {
       return NextResponse.json({ message: 'Batch pilihan tidak valid.' }, { status: 400 });
     }
     const result = await ledger(['batch', '--payload', JSON.stringify({ mode: body.mode, choices })]);
@@ -58,9 +68,9 @@ export async function POST(request: Request) {
   }
   const { match_id, market, pick, odds } = body;
   if (typeof match_id !== 'string' || match_id.length > 100 ||
-      typeof market !== 'string' || !['1x2', 'ah', 'ou', 'btts'].includes(market) ||
+      typeof market !== 'string' || !ALLOWED_MARKETS.includes(market) ||
       typeof pick !== 'string' || pick.length > 100 ||
-      typeof odds !== 'number' || !Number.isFinite(odds)) {
+      (!SECONDARY_MARKETS.includes(market) && (typeof odds !== 'number' || !Number.isFinite(odds)))) {
     return NextResponse.json({ message: 'Pilihan tidak valid.' }, { status: 400 });
   }
   const result = await ledger(['create', '--match-id', match_id, '--market', market, '--pick', pick, '--odds', String(odds)]);

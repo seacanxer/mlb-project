@@ -20,7 +20,9 @@ ROOT = Path(__file__).resolve().parents[1]
 FC = ROOT / 'betting-machine-fc'
 MATCHES = Path(os.environ.get('FC_MATCHES_PATH', str(FC / 'matches_detailed.json')))
 DB = Path(os.environ.get('FC_BETS_DB', str(FC / 'bets.db')))
-MARKETS = {'1x2', 'ah', 'ou', 'btts'}
+MARKETS = {'1x2', 'ah', 'ou', 'btts',
+           'corners_ou', 'corner_hdp', 'cards_ou', 'team_cards_ou', 'red_card'}
+SECONDARY_MARKETS = {'corners_ou', 'corner_hdp', 'cards_ou', 'team_cards_ou', 'red_card'}
 MAX_QUOTE_AGE = 600
 
 
@@ -31,7 +33,10 @@ def fail(message):
 
 def create(match_id, market, pick_name, expected_odds):
     now = time.time()
-    if market not in MARKETS or not match_id or not pick_name or expected_odds is None or not math.isfinite(expected_odds):
+    if market not in MARKETS or not match_id or not pick_name:
+        return fail('Pilihan tidak valid.')
+    unpriced = market in SECONDARY_MARKETS
+    if not unpriced and (expected_odds is None or not math.isfinite(expected_odds)):
         return fail('Pilihan tidak valid.')
     try:
         matches = json.loads(MATCHES.read_text(encoding='utf-8'))
@@ -42,8 +47,11 @@ def create(match_id, market, pick_name, expected_odds):
             return fail('Kickoff sudah terlalu dekat atau lewat; lock ditolak.')
         candidates = match.get('market_options') or match.get('projections') or []
         choice = next(p for p in candidates if p.get('market') == market and p.get('pick') == pick_name)
-        odds = float(choice['odds'])
-        if not math.isfinite(odds) or odds <= 1 or abs(odds - expected_odds) > 0.0001:
+        odds = choice.get('odds')
+        odds = float(odds) if odds is not None else None
+        if odds is None and not unpriced:
+            return fail('Odds tidak tersedia untuk pilihan ini.')
+        if odds is not None and (not math.isfinite(odds) or odds <= 1 or abs(odds - expected_odds) > 0.0001):
             return fail('Odds sudah berubah. Muat ulang pertandingan sebelum lock.')
         captured = float(choice.get('quote_captured_at') or match.get('analysis', {}).get('quote_captured_at') or 0)
         if captured <= 0 or captured > now + 5 or now - captured > MAX_QUOTE_AGE:
@@ -174,8 +182,12 @@ def batch_lock(payload):
         seen = set()
         for item in requested:
             match_id, market, pick_name = str(item['match_id']), item['market'], item['pick']
-            expected_odds = float(item['odds'])
-            if market not in MARKETS or not match_id or not pick_name or not math.isfinite(expected_odds):
+            unpriced = market in SECONDARY_MARKETS
+            raw_odds = item.get('odds')
+            expected_odds = float(raw_odds) if raw_odds is not None else None
+            if market not in MARKETS or not match_id or not pick_name:
+                raise ValueError('Pilihan tidak valid.')
+            if expected_odds is None and not unpriced:
                 raise ValueError('Pilihan tidak valid.')
             key = (match_id, market)
             if key in seen:
@@ -188,8 +200,12 @@ def batch_lock(payload):
                 raise ValueError('Kickoff sudah terlalu dekat atau lewat; lock ditolak.')
             candidates = match.get('market_options') or match.get('projections') or []
             choice = next(p for p in candidates if p.get('market') == market and p.get('pick') == pick_name)
-            odds = float(choice['odds'])
-            if not math.isfinite(odds) or odds <= 1 or abs(odds - expected_odds) > 0.0001:
+            odds = choice.get('odds')
+            odds = float(odds) if odds is not None else None
+            if odds is None and not unpriced:
+                raise ValueError('Odds tidak tersedia untuk pilihan ini.')
+            if odds is not None and expected_odds is not None and (
+                    not math.isfinite(odds) or odds <= 1 or abs(odds - expected_odds) > 0.0001):
                 raise ValueError('Odds sudah berubah. Muat ulang pertandingan sebelum lock.')
             captured = float(choice.get('quote_captured_at') or match.get('analysis', {}).get('quote_captured_at') or 0)
             if captured <= 0 or captured > now + 5 or now - captured > MAX_QUOTE_AGE:
@@ -254,6 +270,10 @@ def batch_lock(payload):
             if existing:
                 slip_id, combined, item_time = existing['id'], existing['combined_odds'], existing['generated_at']
             else:
+                unpriced_legs = [f'{v[1]} {v[2]}' for v in validated if v[6] is None]
+                if unpriced_legs:
+                    raise ValueError('Parlay menolak pilihan tanpa odds: ' + ', '.join(unpriced_legs) +
+                                     '. Hanya pilihan corner/card yang sudah memiliki harga buku.')
                 combined = math.prod(v[6] for v in validated)
                 cur = conn.execute('''INSERT INTO parlay_slips
                     (generation_key,fingerprint,tier,label,source,combined_odds,generated_at,status,match_signature)
