@@ -19,6 +19,7 @@ const FC_LINKS = [
   { href: '/fc',          label: 'Top Picks' },
   { href: '/fc/analyzer', label: 'Analisis Pasar' },
   { href: '/fc/results',  label: 'Hasil & ROI' },
+  { href: '/fc/model-performance', label: 'Kinerja Model' },
 ];
 
 function useFcInstance() {

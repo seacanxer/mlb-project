@@ -15,6 +15,7 @@ import type {
   FcPick,
   HealthResponse,
   MatchesResponse,
+  ModelPerformanceResponse,
   PicksResponse,
   TrackerResponse,
 } from './types';
@@ -179,6 +180,36 @@ official_count: filtered.filter((p) => p.tier === 'official' && p.selection_stat
     pagination: { limit, offset, total: filtered.length },
     engine_offline: engineOffline(),
   };
+}
+
+/**
+ * Model-performance report is built by scripts/fc-grade-projections.py from
+ * the local projections ledger — model skill (hit rate/Brier/calibration),
+ * never money. Missing report (cron never ran) → honest zeros, never fake.
+ */
+export function readModelPerformance(): ModelPerformanceResponse {
+  const empty: ModelPerformanceResponse = {
+    generated_at: null,
+    ledger_entries: 0,
+    graded: 0,
+    pending: 0,
+    by_market: {},
+    overall: {
+      n: 0, decisive: 0, hit_rate: null, mean_predicted: null, brier: null,
+      calibration_gap: null, wins: 0, losses: 0, pushes: 0,
+      half_wins: 0, half_losses: 0,
+    },
+    note: 'Kinerja MODEL (probabilitas vs hasil). Bukan ROI: tanpa odds, stake, atau lock. ROI tetap hanya dari tracker.',
+    report_missing: true,
+  };
+  try {
+    const raw = fs.readFileSync(path.join(process.cwd(), 'reports', 'fc-model-performance.json'), 'utf-8');
+    const parsed = parseJson<Partial<ModelPerformanceResponse>>(raw, {});
+    if (!parsed || typeof parsed !== 'object' || !parsed.by_market) return empty;
+    return { ...empty, ...parsed, report_missing: false };
+  } catch {
+    return empty;
+  }
 }
 
 /** Matches mirrors engine GET /api/matches (future-only). */

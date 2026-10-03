@@ -129,6 +129,33 @@ export interface PicksResponse {
   engine_offline?: boolean;
 }
 
+// ---- GET /api/fc/model-performance (projections ledger report; model skill, NOT ROI) ----
+export interface ModelMarketBucket {
+  n: number;
+  decisive: number;
+  hit_rate: number | null;
+  mean_predicted: number | null;
+  brier: number | null;
+  calibration_gap: number | null;
+  wins: number;
+  losses: number;
+  pushes: number;
+  half_wins: number;
+  half_losses: number;
+}
+
+export interface ModelPerformanceResponse {
+  generated_at: string | null;
+  ledger_entries: number;
+  graded: number;
+  pending: number;
+  by_market: Record<string, ModelMarketBucket>;
+  overall: ModelMarketBucket & { n: number };
+  note: string;
+  /** True when reports/fc-model-performance.json has never been generated. */
+  report_missing?: boolean;
+}
+
 // ---- GET /api/fc/tracker (mirrors engine GET /api/tracker) ----
 export interface TrackerSummary {
   locked_picks: number;

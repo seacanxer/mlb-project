@@ -37,6 +37,11 @@ betting-machine-fc/models_cache/
 betting-machine-fc/data/*_live_scores.csv
 betting-machine-fc/data/*_live_scores.source.json
 betting-machine-fc/odds_quotes.jsonl
+# FC projection ledger + grades are local-only (regenerable by
+# scripts/fc-log-projections.py and scripts/fc-grade-projections.py).
+# The committed model report is reports/fc-model-performance.{json,md}.
+betting-machine-fc/projection_ledger.jsonl
+betting-machine-fc/projection_grades.jsonl
 
 # FC score-feed raw cache (regenerable by scripts/fc-fetch-dayfeed.py)
 betting-machine-fc/data/.feed_cache/

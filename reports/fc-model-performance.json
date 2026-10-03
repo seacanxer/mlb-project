@@ -1,0 +1,18 @@
+{
+  "generated_at": "2026-10-03T17:14:39.495957+00:00",
+  "ledger_entries": 0,
+  "graded": 0,
+  "pending": 0,
+  "by_market": {},
+  "overall": {
+    "n": 0,
+    "brier": null,
+    "wins": 0,
+    "pushes": 0,
+    "decisive": 0,
+    "hit_rate": null,
+    "mean_predicted": null,
+    "calibration_gap": null
+  },
+  "note": "Kinerja MODEL (probabilitas vs hasil). Bukan ROI: tanpa odds, stake, atau lock. ROI tetap hanya dari tracker_snapshot.json."
+}
