@@ -1,18 +1,71 @@
 {
-  "generated_at": "2026-10-03T17:14:39.495957+00:00",
-  "ledger_entries": 0,
-  "graded": 0,
-  "pending": 0,
-  "by_market": {},
+  "generated_at": "2026-10-03T22:14:55.859741+00:00",
+  "ledger_entries": 11224,
+  "graded": 7678,
+  "pending": 3546,
+  "by_market": {
+    "1x2": {
+      "n": 408,
+      "brier": 0.1886,
+      "wins": 136,
+      "losses": 272,
+      "pushes": 0,
+      "half_wins": 0,
+      "half_losses": 0,
+      "decisive": 408,
+      "hit_rate": 0.3333,
+      "mean_predicted": 0.3333,
+      "calibration_gap": 0.0
+    },
+    "ah": {
+      "n": 3176,
+      "brier": 0.1615,
+      "wins": 1374,
+      "losses": 1374,
+      "pushes": 168,
+      "half_wins": 130,
+      "half_losses": 130,
+      "decisive": 3008,
+      "hit_rate": 0.5,
+      "mean_predicted": 0.4796,
+      "calibration_gap": 0.0204
+    },
+    "ou": {
+      "n": 3826,
+      "brier": 0.144,
+      "wins": 1705,
+      "losses": 1705,
+      "pushes": 124,
+      "half_wins": 146,
+      "half_losses": 146,
+      "decisive": 3702,
+      "hit_rate": 0.5,
+      "mean_predicted": 0.4864,
+      "calibration_gap": 0.0136
+    },
+    "btts": {
+      "n": 268,
+      "brier": 0.2524,
+      "wins": 134,
+      "losses": 134,
+      "pushes": 0,
+      "half_wins": 0,
+      "half_losses": 0,
+      "decisive": 268,
+      "hit_rate": 0.5,
+      "mean_predicted": 0.5,
+      "calibration_gap": 0.0
+    }
+  },
   "overall": {
-    "n": 0,
-    "brier": null,
-    "wins": 0,
-    "pushes": 0,
-    "decisive": 0,
-    "hit_rate": null,
-    "mean_predicted": null,
-    "calibration_gap": null
+    "n": 7386,
+    "brier": 0.164,
+    "wins": 3349,
+    "pushes": 292,
+    "decisive": 7094,
+    "hit_rate": 0.511,
+    "mean_predicted": 0.4952,
+    "calibration_gap": 0.0158
   },
   "note": "Kinerja MODEL (probabilitas vs hasil). Bukan ROI: tanpa odds, stake, atau lock. ROI tetap hanya dari tracker_snapshot.json."
 }
