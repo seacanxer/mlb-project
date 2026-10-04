@@ -1,6 +1,6 @@
 # FC model performance report (projections ledger)
 
-Digenerate: 2026-10-04T06:06:39.143520+00:00 · Ledger: 11390 entri · Ter-grade: 8215 · Pending: 3175
+Digenerate: 2026-10-04T06:17:28.792436+00:00 · Ledger: 11390 entri · Ter-grade: 8215 · Pending: 3175
 
 > Kinerja MODEL, bukan ROI. Tanpa odds/stake/lock. ROI tetap hanya dari tracker.
 
@@ -18,23 +18,23 @@ Digenerate: 2026-10-04T06:06:39.143520+00:00 · Ledger: 11390 entri · Ter-grade
 
 | Match | Market | Pick | Prob | Hasil |
 |---|---|---|---:|---|
-| None | ah | AH Away -2.75 | 0.1487 | loss |
-| None | ah | AH Home +2.75 | 0.8513 | win |
-| None | ah | AH Away -2.25 | 0.1487 | half_loss |
-| None | ah | AH Home +2.25 | 0.8513 | half_win |
-| None | ah | AH Away -1.75 | 0.332 | half_win |
-| None | ah | AH Home +1.75 | 0.668 | half_loss |
-| None | ah | AH Away -1.25 | 0.332 | win |
-| None | ah | AH Home +1.25 | 0.668 | loss |
-| None | ah | AH Home +0.75 | 0.4093 | loss |
-| None | ah | AH Away -0.25 | 0.5907 | win |
-| None | ah | AH Home +0.25 | 0.4093 | loss |
-| None | ah | AH Away +0.25 | 0.8278 | win |
-| None | ah | AH Home -0.25 | 0.1722 | loss |
-| None | ah | AH Away +0.75 | 0.8278 | win |
-| None | ah | AH Home -0.75 | 0.1722 | loss |
-| None | ah | AH Away -2.5 | 0.1487 | loss |
-| None | ah | AH Home +2.5 | 0.8513 | win |
-| None | ah | AH Away -2 | 0.1487 | push |
-| None | ah | AH Home +2 | 0.668 | push |
-| None | ah | AH Away -1.5 | 0.332 | win |
+| Vanraure Hachinohe vs Yokohama | ah | AH Away -2.75 | 0.1487 | loss |
+| Vanraure Hachinohe vs Yokohama | ah | AH Home +2.75 | 0.8513 | win |
+| Vanraure Hachinohe vs Yokohama | ah | AH Away -2.25 | 0.1487 | half_loss |
+| Vanraure Hachinohe vs Yokohama | ah | AH Home +2.25 | 0.8513 | half_win |
+| Vanraure Hachinohe vs Yokohama | ah | AH Away -1.75 | 0.332 | half_win |
+| Vanraure Hachinohe vs Yokohama | ah | AH Home +1.75 | 0.668 | half_loss |
+| Vanraure Hachinohe vs Yokohama | ah | AH Away -1.25 | 0.332 | win |
+| Vanraure Hachinohe vs Yokohama | ah | AH Home +1.25 | 0.668 | loss |
+| Vanraure Hachinohe vs Yokohama | ah | AH Home +0.75 | 0.4093 | loss |
+| Vanraure Hachinohe vs Yokohama | ah | AH Away -0.25 | 0.5907 | win |
+| Vanraure Hachinohe vs Yokohama | ah | AH Home +0.25 | 0.4093 | loss |
+| Vanraure Hachinohe vs Yokohama | ah | AH Away +0.25 | 0.8278 | win |
+| Vanraure Hachinohe vs Yokohama | ah | AH Home -0.25 | 0.1722 | loss |
+| Vanraure Hachinohe vs Yokohama | ah | AH Away +0.75 | 0.8278 | win |
+| Vanraure Hachinohe vs Yokohama | ah | AH Home -0.75 | 0.1722 | loss |
+| Vanraure Hachinohe vs Yokohama | ah | AH Away -2.5 | 0.1487 | loss |
+| Vanraure Hachinohe vs Yokohama | ah | AH Home +2.5 | 0.8513 | win |
+| Vanraure Hachinohe vs Yokohama | ah | AH Away -2 | 0.1487 | push |
+| Vanraure Hachinohe vs Yokohama | ah | AH Home +2 | 0.668 | push |
+| Vanraure Hachinohe vs Yokohama | ah | AH Away -1.5 | 0.332 | win |
