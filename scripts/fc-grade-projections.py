@@ -45,6 +45,28 @@ SETTLE_DELAY_S = 6300
 GOAL_MARKETS = {'1x2', 'ah', 'ou', 'btts'}
 SECONDARY_MARKETS = {'corners_ou', 'corner_hdp', 'cards_ou', 'team_cards_ou', 'red_card'}
 
+# Card-only scope (mirrors components/fc/PredictionBoard.tsx): the report
+# grades ONLY picks the card displays — one per market per fixture. The full
+# alternate-lines catalog (ledger source 'market_option') is excluded: grading
+# both complementary sides of every line forced hit rate to a structural
+# 0.5/0.33 and drowned the model's actual chosen side.
+# Legacy compatibility: before the card-only ledger, primary forecasts were
+# logged as 'projection'/'qualified'/'pick' (same keys the card showed) and
+# secondary single picks as 'projection' — all kept. Only 'market_option'
+# (never card-shown) is dropped.
+CARD_PRIMARY_SOURCES = {'projection', 'qualified', 'pick', 'card'}
+CARD_SECONDARY_SOURCES = {'card-secondary', 'projection'}
+
+
+def is_card_row(entry):
+    market = (entry.get('market') or '').lower()
+    source = entry.get('source')
+    if market in GOAL_MARKETS:
+        return source in CARD_PRIMARY_SOURCES
+    if market in SECONDARY_MARKETS:
+        return source in CARD_SECONDARY_SOURCES
+    return False
+
 _settle_ns = None
 _scan_ns = None
 
@@ -261,11 +283,13 @@ def grade_pending(entries, graded_ids, now=None):
 
 
 def build_report(entries, grades, *, recent_n=100):
-    by_id = {e['ledger_id']: e for e in entries}
-    graded_ids = {g['ledger_id'] for g in grades}
+    by_id = {e['ledger_id']: e for e in entries if is_card_row(e)}
+    card_ids = set(by_id)
+    card_grades = [g for g in grades if g.get('ledger_id') in card_ids]
+    graded_ids = {g['ledger_id'] for g in card_grades}
     by_market, overall = {}, {'n': 0, 'score': 0.0, 'brier': 0.0,
                               'mean_prob': 0.0, 'wins': 0, 'pushes': 0}
-    for grade in grades:
+    for grade in card_grades:
         entry = by_id.get(grade['ledger_id'], {})
         market = grade.get('market') or entry.get('market') or 'unknown'
         bucket = by_market.setdefault(market, {'n': 0, 'score': 0.0, 'brier': 0.0,
@@ -308,12 +332,12 @@ def build_report(entries, grades, *, recent_n=100):
                                     if bucket['hit_rate'] is not None else None)
         del bucket['score']
         del bucket['mean_prob']
-    pending = [e['ledger_id'] for e in entries if e.get('ledger_id') not in graded_ids]
+    pending = [e['ledger_id'] for e in by_id.values() if e.get('ledger_id') not in graded_ids]
     # Legacy grades (e.g. the first backfill) predate match/league/side/line
     # on the grade row itself — fall back to the ledger entry, which always
     # carries them. Without this the detail table renders blank matches.
     recent = []
-    for grade in sorted(grades, key=lambda g: g.get('graded_at') or '', reverse=True)[:recent_n]:
+    for grade in sorted(card_grades, key=lambda g: g.get('graded_at') or '', reverse=True)[:recent_n]:
         entry = by_id.get(grade.get('ledger_id'), {})
         row = {}
         for key in ('match', 'league', 'market', 'pick', 'side',
@@ -329,16 +353,16 @@ def build_report(entries, grades, *, recent_n=100):
         row['line'] = line
         recent.append(row)
     return {'generated_at': datetime.now(timezone.utc).isoformat(),
-            'ledger_entries': len(entries), 'graded': len(graded_ids),
+            'ledger_entries': len(by_id), 'graded': len(graded_ids),
             'pending': len(pending),
             'by_market': by_market, 'overall': overall,
             'recent': recent,
+            'scope': 'card-only: one displayed pick per market per fixture '
+                     '(alternate book lines never logged, never graded)',
             'note': ('Kinerja MODEL (probabilitas vs hasil). Bukan ROI: tanpa odds, '
                      'stake, atau lock. ROI tetap hanya dari tracker_snapshot.json. '
-                     'Setiap line dinilai di SEMUA sisi yang ditawarkan ledger '
-                     '(over+under, home+away, yes+no, home+draw+away), sehingga hit '
-                     'rate selalu memusat di 0.5 (biner) / 0.33 (1x2) secara '
-                     'struktural — baca Brier & cal gap untuk skill model.')}
+                     'Hanya pick yang tampil di card yang dinilai — satu sisi per '
+                     'market — sehingga hit rate mencerminkan pilihan model.')}
 
 
 def render_markdown(report):
@@ -349,8 +373,8 @@ def render_markdown(report):
              '',
              '> Kinerja MODEL, bukan ROI. Tanpa odds/stake/lock. ROI tetap hanya dari tracker.',
              '',
-             '> Setiap line dinilai di SEMUA sisi yang ditawarkan, sehingga hit rate memusat di 0.5/0.33 '
-             'secara struktural — baca Brier & cal gap.',
+             '> Hanya pick yang tampil di card (satu sisi per market) yang dinilai — '
+             'alternate lines tidak dicatat dan tidak di-grade.',
              '',
              '| Market | N decisif | Hit rate | Mean pred | Brier | Cal gap | W / HW / HL / L / Push |',
              '|---|---:|---:|---:|---:|---:|---|']

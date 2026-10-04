@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
-"""Append every scan projection to an append-only local ledger.
+"""Append every CARD-SHOWN pick to an append-only local ledger.
 
 Reads betting-machine-fc/matches_detailed.json (written by fc-scan-live.py)
-and appends one row per fixture x projection to
-betting-machine-fc/projection_ledger.jsonl — projections, market_options and
-qualified/single picks alike, primary AND secondary markets.
+and appends ONE row per fixture x displayed pick to
+betting-machine-fc/projection_ledger.jsonl — exactly what PredictionBoard
+renders: one pick per primary market from `projections`, one pick per
+secondary market from `analysis.secondary_markets.markets` (first entry per
+key, mirroring the card's `.find`). The full alternate-lines catalog
+(`market_options`: every book line, both sides) is never card-shown and is
+never logged.
 
 Dedup key (match_id, market, side, line_quarters, team, pick): first-seen
 wins, so a fixture predicted across many scans is recorded once with its
@@ -32,8 +36,16 @@ MATCHES_PATH = os.path.join(FC_DIR, 'matches_detailed.json')
 LEDGER_PATH = os.path.join(FC_DIR, 'projection_ledger.jsonl')
 CONFIG_PATH = os.path.join(FC_DIR, 'config.json')
 
-SOURCE_ORDER = (('projections', 'projection'), ('market_options', 'market_option'),
-                ('qualified_picks', 'qualified'), ('picks', 'pick'))
+# What the PredictionBoard card actually renders (components/fc/PredictionBoard.tsx):
+#   primary cells:   projections.find(p => p.market === key) — ONE pick per market
+#   secondary cells: secondary_markets.markets.find(row => row.market === key) — ditto
+# The full alternate-lines catalog (market_options: every book line, both sides)
+# is NEVER shown on the card, so it must never enter the ledger. Logging it
+# exploded the ledger 10x and forced every aggregate hit rate to a structural
+# 0.5/0.33 (both complementary sides always graded together).
+PRIMARY_CARD_MARKETS = ('1x2', 'ah', 'ou', 'btts')
+SECONDARY_CARD_MARKETS = ('corners_ou', 'corner_hdp', 'cards_ou',
+                          'team_cards_ou', 'red_card')
 
 
 def ledger_key(match_id, market, side, line_quarters, team, pick):
@@ -84,56 +96,84 @@ def collect_rows(matches, first_seen_at):
             continue
         if start_ts <= 0:
             continue
-        seen_in_scan = set()
-        for field, source in SOURCE_ORDER:
-            for proj in match.get(field) or []:
-                if not isinstance(proj, dict):
-                    continue
-                market = (proj.get('market') or '').lower()
-                if not market:
-                    continue
-                side = proj.get('side')
-                line_quarters = proj.get('line_quarters')
-                team = proj.get('team')
-                pick = proj.get('pick') or ''
-                key = ledger_key(match_id, market, side, line_quarters, team, pick)
-                if key in seen_in_scan:
-                    continue
-                seen_in_scan.add(key)
+        base = {
+            'match_id': match_id,
+            'match': info.get('match') or f"{info.get('home')} vs {info.get('away')}",
+            'home': info.get('home'), 'away': info.get('away'),
+            'league': info.get('league'),
+            'league_model': analysis.get('league_model'),
+            'start_ts': start_ts,
+        }
+        seen_keys = set()
+
+        def record(proj, source):
+            if not isinstance(proj, dict):
+                return
+            market = (proj.get('market') or '').lower()
+            if not market:
+                return
+            side = proj.get('side')
+            line_quarters = proj.get('line_quarters')
+            if line_quarters is None and proj.get('line') is not None:
+                # Secondary analysis rows carry `line`, not `line_quarters`.
                 try:
-                    probability = float(proj.get('probability'))
+                    line_quarters = int(round(float(proj.get('line')) * 4))
                 except (TypeError, ValueError):
-                    continue
-                import math
-                if not math.isfinite(probability) or not 0 <= probability <= 1:
-                    continue
-                rows.append({
-                    'ledger_id': key,
-                    'first_seen_at': first_seen_at,
-                    'match_id': match_id,
-                    'match': info.get('match') or f"{info.get('home')} vs {info.get('away')}",
-                    'home': info.get('home'), 'away': info.get('away'),
-                    'league': info.get('league'),
-                    'league_model': (proj.get('league_model')
-                                     or analysis.get('league_model')),
-                    'start_ts': start_ts,
-                    'market': market, 'pick': pick, 'side': side,
-                    'team': team, 'line_quarters': line_quarters,
-                    'line': (None if line_quarters is None
-                             else line_quarters / 4),
-                    'probability': round(probability, 4),
-                    'odds': proj.get('odds'),
-                    'ev': proj.get('ev'),
-                    'formula_version': (proj.get('formula_version')
-                                        or proj.get('base_formula_version')),
-                    'base_formula_version': proj.get('base_formula_version'),
-                    'policy_version': proj.get('policy_version'),
-                    'coverage_status': proj.get('coverage_status'),
-                    'analysis_status': proj.get('analysis_status'),
-                    'gate_reasons': proj.get('gate_reasons'),
-                    'source': source,
-                    'quote_captured_at': proj.get('quote_captured_at'),
-                })
+                    line_quarters = None
+            team = proj.get('team')
+            pick = proj.get('pick') or ''
+            key = ledger_key(match_id, market, side, line_quarters, team, pick)
+            if key in seen_keys:
+                return
+            seen_keys.add(key)
+            try:
+                probability = float(proj.get('probability'))
+            except (TypeError, ValueError):
+                return
+            import math
+            if not math.isfinite(probability) or not 0 <= probability <= 1:
+                return
+            rows.append({
+                **base,
+                'ledger_id': key,
+                'first_seen_at': first_seen_at,
+                'market': market, 'pick': pick, 'side': side,
+                'team': team, 'line_quarters': line_quarters,
+                'line': (None if line_quarters is None
+                         else line_quarters / 4),
+                'probability': round(probability, 4),
+                'odds': proj.get('odds'),
+                'ev': proj.get('ev'),
+                'formula_version': (proj.get('formula_version')
+                                    or proj.get('base_formula_version')),
+                'base_formula_version': proj.get('base_formula_version'),
+                'policy_version': proj.get('policy_version'),
+                'coverage_status': proj.get('coverage_status'),
+                'analysis_status': proj.get('analysis_status'),
+                'gate_reasons': proj.get('gate_reasons'),
+                'source': source,
+                'quote_captured_at': proj.get('quote_captured_at'),
+            })
+
+        # Primary card cells: first projections item per market (mirrors .find).
+        # qualified/picks collapse onto the same keys via dedup and are skipped
+        # as separate sources; market_options (full alternate lines) is NEVER
+        # card-shown and is never logged.
+        shown_primary = set()
+        for proj in match.get('projections') or []:
+            market = ((proj or {}).get('market') or '').lower()
+            if market in PRIMARY_CARD_MARKETS and market not in shown_primary:
+                shown_primary.add(market)
+                record(proj, 'card')
+        # Secondary card cells: first secondary_markets.markets entry per key.
+        secondary = (analysis.get('secondary_markets') or {}).get('markets') or []
+        shown_secondary = set()
+        for proj in secondary:
+            market = ((proj or {}).get('market') or '').lower()
+            if market in SECONDARY_CARD_MARKETS and market not in shown_secondary:
+                shown_secondary.add(market)
+                record({**proj, 'league_model': base['league_model'],
+                        'quote_captured_at': None}, 'card-secondary')
     return rows
 
 

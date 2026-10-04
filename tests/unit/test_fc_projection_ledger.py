@@ -33,12 +33,13 @@ def test_log_appends_once_with_first_seen_dedup(tmp_path):
     matches.write_text(json.dumps(make_matches()), encoding='utf-8')
     assert log['main'](['--matches', str(matches), '--ledger', str(ledger)]) == 0
     rows = [json.loads(line) for line in ledger.read_text(encoding='utf-8').splitlines()]
-    # 2 unique projections despite appearing in 4 source lists.
-    assert len(rows) == 2
-    by_market = {row['market']: row for row in rows}
-    assert by_market['ou']['source'] == 'projection'
-    assert by_market['ou']['line'] == 2.5
-    assert by_market['corners_ou']['odds'] is None
+    # Card-only: the ou forecast (first per market in projections). The
+    # corners_ou forecast is secondary (comes from analysis.markets, absent
+    # here) and the duplicated market_options catalog is never logged.
+    assert len(rows) == 1
+    assert rows[0]['market'] == 'ou'
+    assert rows[0]['source'] == 'card'
+    assert rows[0]['line'] == 2.5
     first = {row['ledger_id']: row['first_seen_at'] for row in rows}
     # Second scan with changed probabilities appends nothing (first-seen wins).
     changed = make_matches()
@@ -48,9 +49,33 @@ def test_log_appends_once_with_first_seen_dedup(tmp_path):
     matches.write_text(json.dumps(changed), encoding='utf-8')
     assert log['main'](['--matches', str(matches), '--ledger', str(ledger)]) == 0
     rows2 = [json.loads(line) for line in ledger.read_text(encoding='utf-8').splitlines()]
-    assert len(rows2) == 2
+    assert len(rows2) == 1
     assert {row['ledger_id']: row['first_seen_at'] for row in rows2} == first
     assert all(row['probability'] != 0.99 for row in rows2)
+
+
+def test_log_takes_secondary_display_pick_from_analysis_markets(tmp_path):
+    log = runpy.run_path(LOG_PATH)
+    matches = tmp_path / 'matches.json'
+    ledger = tmp_path / 'ledger.jsonl'
+    data = make_matches()
+    data[0]['analysis']['secondary_markets'] = {
+        'availability': 'B',
+        'markets': [
+            {'market': 'corners_ou', 'side': 'over', 'line': 9.5,
+             'pick': 'Over 9.5', 'probability': 0.55, 'odds': None,
+             'ev': None, 'formula_version': 'v2'},
+            {'market': 'corners_ou', 'side': 'over', 'line': 10.5,
+             'pick': 'Over 10.5', 'probability': 0.4, 'odds': None,
+             'ev': None, 'formula_version': 'v2'},
+        ],
+    }
+    matches.write_text(json.dumps(data), encoding='utf-8')
+    assert log['main'](['--matches', str(matches), '--ledger', str(ledger)]) == 0
+    rows = [json.loads(line) for line in ledger.read_text(encoding='utf-8').splitlines()]
+    # Card shows first-per-key only: ou forecast + first corners line.
+    assert {(row['market'], row.get('line')) for row in rows} == {('ou', 2.5), ('corners_ou', 9.5)}
+    assert {row['source'] for row in rows} == {'card', 'card-secondary'}
 
 
 def test_payout_label_and_report_math():
@@ -62,9 +87,9 @@ def test_payout_label_and_report_math():
     assert (label, y) == ('push', 0.0)
     label, y = grade['payout_label'](settle_score('ou', 'under', 9, 1, 1))
     assert (label, y) == ('half_win', 0.5)
-    entries = [{'ledger_id': 'a', 'market': 'ou', 'probability': 0.6},
-               {'ledger_id': 'b', 'market': 'ou', 'probability': 0.8},
-               {'ledger_id': 'c', 'market': 'ou', 'probability': 0.5}]
+    entries = [{'ledger_id': 'a', 'market': 'ou', 'probability': 0.6, 'source': 'projection'},
+               {'ledger_id': 'b', 'market': 'ou', 'probability': 0.8, 'source': 'projection'},
+               {'ledger_id': 'c', 'market': 'ou', 'probability': 0.5, 'source': 'projection'}]
     grades = [{'ledger_id': 'a', 'market': 'ou', 'outcome': 'win',
                'y_effective': 1.0, 'model_probability': 0.6},
               {'ledger_id': 'b', 'market': 'ou', 'outcome': 'loss',
@@ -80,13 +105,14 @@ def test_payout_label_and_report_math():
     assert bucket['calibration_gap'] == round(0.5 - 0.7, 4)
     assert report['pending'] == 0
     assert 'Bukan ROI' in report['note']
-    # Structural both-sides coverage must be disclosed, not hidden.
-    assert 'SEMUA sisi' in report['note']
+    # Card-only scope must be disclosed, not hidden.
+    assert 'satu sisi per' in report['note']
 
 
 def test_report_embeds_newest_pick_detail_first():
     grade = runpy.run_path(GRADE_PATH)
-    entries = [{'ledger_id': 'a', 'market': 'ou', 'probability': 0.6}]
+    entries = [{'ledger_id': 'a', 'market': 'ou', 'probability': 0.6, 'source': 'card'},
+               {'ledger_id': 'b', 'market': 'ou', 'probability': 0.4, 'source': 'card'}]
     grades = [
         {'ledger_id': 'a', 'match': 'H vs A', 'league': 'L', 'market': 'ou',
          'pick': 'Over 2.5', 'side': 'over', 'line': 2.5,
@@ -109,7 +135,8 @@ def test_report_embeds_newest_pick_detail_first():
 def test_recent_falls_back_to_ledger_for_legacy_grades():
     grade = runpy.run_path(GRADE_PATH)
     entries = [{'ledger_id': 'old', 'match': 'H vs A', 'league': 'E0', 'market': 'ah',
-                'pick': 'H -1.5', 'side': 'home', 'line': -1.5, 'probability': 0.6}]
+                'pick': 'H -1.5', 'side': 'home', 'line': -1.5, 'probability': 0.6,
+                'source': 'projection'}]
     grades = [{'ledger_id': 'old', 'market': 'ah', 'model_probability': 0.6,
                'outcome': 'win', 'y_effective': 1.0,
                'graded_at': '2026-10-04T00:00:01+00:00'}]
@@ -118,3 +145,25 @@ def test_recent_falls_back_to_ledger_for_legacy_grades():
     assert report['recent'][0]['league'] == 'E0'
     assert report['recent'][0]['side'] == 'home'
     assert report['recent'][0]['line'] == -1.5
+
+
+def test_report_excludes_never_shown_alternate_lines():
+    grade = runpy.run_path(GRADE_PATH)
+    entries = [
+        {'ledger_id': 'card', 'match': 'H vs A', 'market': 'ou', 'pick': 'Over 2.5',
+         'side': 'over', 'line': 2.5, 'probability': 0.6, 'source': 'card'},
+        {'ledger_id': 'alt', 'match': 'H vs A', 'market': 'ou', 'pick': 'Over 3.5',
+         'side': 'over', 'line': 3.5, 'probability': 0.4, 'source': 'market_option'},
+    ]
+    grades = [
+        {'ledger_id': 'card', 'market': 'ou', 'model_probability': 0.6,
+         'outcome': 'win', 'y_effective': 1.0, 'graded_at': '2026-10-04T00:00:02+00:00'},
+        {'ledger_id': 'alt', 'market': 'ou', 'model_probability': 0.4,
+         'outcome': 'loss', 'y_effective': 0.0, 'graded_at': '2026-10-04T00:00:01+00:00'},
+    ]
+    report = grade['build_report'](entries, grades)
+    assert report['ledger_entries'] == 1
+    assert report['graded'] == 1
+    assert report['pending'] == 0
+    assert report['by_market']['ou']['decisive'] == 1
+    assert [row['pick'] for row in report['recent']] == ['Over 2.5']

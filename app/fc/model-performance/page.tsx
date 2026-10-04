@@ -75,10 +75,10 @@ export default function FcModelPerformance() {
       <div className="card card-sm" style={{ marginBottom: '1rem' }}>
         <strong>Bukan laporan ROI — cara baca yang benar.</strong>
         <p className="muted">
-          Setiap line dinilai di <em>semua sisi yang ditawarkan</em> (over+under, home+away,
-          yes+no), sehingga hit rate selalu memusat di 0.5 (biner) / 0.33 (1X2) secara
-          struktural. Itu normal, bukan bagus atau jelek. Untuk skill model, baca{' '}
-          <strong>Brier</strong> (makin kecil makin baik; acak ≈ 0.25) dan{' '}
+          Halaman ini menilai <em>pick yang tampil di card</em> — satu sisi per market per
+          pertandingan. Alternate lines tidak dicatat dan tidak di-grade, jadi hit rate
+          di sini mencerminkan pilihan model (bukan 0.5 struktural). Untuk skill,
+          baca <strong>Brier</strong> (makin kecil makin baik; acak ≈ 0.25) dan{' '}
           <strong>cal gap</strong> (≈ 0 berarti probabilitas jujur). Laporan uang tetap
           hanya di <a href="/fc/results">Hasil &amp; ROI</a>.
         </p>
