@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-04T06:46:32.033981+00:00",
+  "generated_at": "2026-10-04T07:20:07.392046+00:00",
   "ledger_entries": 904,
   "graded": 577,
   "pending": 327,
@@ -76,6 +76,8 @@
       "side": "yes",
       "outcome": "loss",
       "graded_at": "2026-10-04T06:46:31.632617+00:00",
+      "kickoff_ts": 1791090000,
+      "kickoff": "2026-10-04 05:00",
       "model_probability": 0.5084,
       "line": null
     },
@@ -87,6 +89,8 @@
       "side": "over",
       "outcome": "loss",
       "graded_at": "2026-10-04T06:46:31.632505+00:00",
+      "kickoff_ts": 1791090000,
+      "kickoff": "2026-10-04 05:00",
       "model_probability": 0.4554,
       "line": 2.25
     },
@@ -98,6 +102,8 @@
       "side": "away",
       "outcome": "loss",
       "graded_at": "2026-10-04T06:46:31.632384+00:00",
+      "kickoff_ts": 1791090000,
+      "kickoff": "2026-10-04 05:00",
       "model_probability": 0.3679,
       "line": -0.25
     },
@@ -109,6 +115,8 @@
       "side": "away",
       "outcome": "loss",
       "graded_at": "2026-10-04T06:46:31.632258+00:00",
+      "kickoff_ts": 1791090000,
+      "kickoff": "2026-10-04 05:00",
       "model_probability": 0.3679,
       "line": null
     },
@@ -120,6 +128,8 @@
       "side": "no",
       "outcome": "win",
       "graded_at": "2026-10-04T06:00:08.086401+00:00",
+      "kickoff_ts": 1791086400,
+      "kickoff": "2026-10-04 04:00",
       "model_probability": 0.5507,
       "line": null
     },
@@ -131,6 +141,8 @@
       "side": "under",
       "outcome": "win",
       "graded_at": "2026-10-04T06:00:08.086295+00:00",
+      "kickoff_ts": 1791086400,
+      "kickoff": "2026-10-04 04:00",
       "model_probability": 0.5432,
       "line": 2.5
     },
@@ -142,6 +154,8 @@
       "side": "away",
       "outcome": "win",
       "graded_at": "2026-10-04T06:00:08.086174+00:00",
+      "kickoff_ts": 1791086400,
+      "kickoff": "2026-10-04 04:00",
       "model_probability": 0.5907,
       "line": -0.75
     },
@@ -153,6 +167,8 @@
       "side": "away",
       "outcome": "win",
       "graded_at": "2026-10-04T06:00:08.086043+00:00",
+      "kickoff_ts": 1791086400,
+      "kickoff": "2026-10-04 04:00",
       "model_probability": 0.5907,
       "line": null
     },
@@ -164,6 +180,8 @@
       "side": "yes",
       "outcome": "loss",
       "graded_at": "2026-10-04T03:00:05.480898+00:00",
+      "kickoff_ts": 1791075600,
+      "kickoff": "2026-10-04 01:00",
       "model_probability": 0.5817,
       "line": null
     },
@@ -175,6 +193,8 @@
       "side": "over",
       "outcome": "loss",
       "graded_at": "2026-10-04T03:00:05.480754+00:00",
+      "kickoff_ts": 1791075600,
+      "kickoff": "2026-10-04 01:00",
       "model_probability": 0.5867,
       "line": 2.75
     },
@@ -186,6 +206,8 @@
       "side": "home",
       "outcome": "loss",
       "graded_at": "2026-10-04T03:00:05.480617+00:00",
+      "kickoff_ts": 1791075600,
+      "kickoff": "2026-10-04 01:00",
       "model_probability": 0.5444,
       "line": -0.75
     },
@@ -197,6 +219,8 @@
       "side": "home",
       "outcome": "loss",
       "graded_at": "2026-10-04T03:00:05.480480+00:00",
+      "kickoff_ts": 1791075600,
+      "kickoff": "2026-10-04 01:00",
       "model_probability": 0.5444,
       "line": null
     },
@@ -208,6 +232,8 @@
       "side": "yes",
       "outcome": "loss",
       "graded_at": "2026-10-04T03:00:04.754921+00:00",
+      "kickoff_ts": 1791075600,
+      "kickoff": "2026-10-04 01:00",
       "model_probability": 0.6007,
       "line": null
     },
@@ -219,6 +245,8 @@
       "side": "over",
       "outcome": "loss",
       "graded_at": "2026-10-04T03:00:04.754804+00:00",
+      "kickoff_ts": 1791075600,
+      "kickoff": "2026-10-04 01:00",
       "model_probability": 0.6387,
       "line": 2.75
     },
@@ -230,6 +258,8 @@
       "side": "home",
       "outcome": "half_win",
       "graded_at": "2026-10-04T03:00:04.754680+00:00",
+      "kickoff_ts": 1791075600,
+      "kickoff": "2026-10-04 01:00",
       "model_probability": 0.6049,
       "line": -0.75
     },
@@ -241,6 +271,8 @@
       "side": "home",
       "outcome": "win",
       "graded_at": "2026-10-04T03:00:04.754539+00:00",
+      "kickoff_ts": 1791075600,
+      "kickoff": "2026-10-04 01:00",
       "model_probability": 0.6049,
       "line": null
     },
@@ -252,6 +284,8 @@
       "side": "no",
       "outcome": "loss",
       "graded_at": "2026-10-04T02:00:09.229099+00:00",
+      "kickoff_ts": 1791072000,
+      "kickoff": "2026-10-04 00:00",
       "model_probability": 0.5731,
       "line": null
     },
@@ -263,6 +297,8 @@
       "side": "under",
       "outcome": "half_win",
       "graded_at": "2026-10-04T02:00:09.229006+00:00",
+      "kickoff_ts": 1791072000,
+      "kickoff": "2026-10-04 00:00",
       "model_probability": 0.6445,
       "line": 2.25
     },
@@ -274,6 +310,8 @@
       "side": "home",
       "outcome": "half_win",
       "graded_at": "2026-10-04T02:00:09.228907+00:00",
+      "kickoff_ts": 1791072000,
+      "kickoff": "2026-10-04 00:00",
       "model_probability": 0.6535,
       "line": 0.25
     },
@@ -285,6 +323,8 @@
       "side": "home",
       "outcome": "loss",
       "graded_at": "2026-10-04T02:00:09.228787+00:00",
+      "kickoff_ts": 1791072000,
+      "kickoff": "2026-10-04 00:00",
       "model_probability": 0.3556,
       "line": null
     },
@@ -296,6 +336,8 @@
       "side": "yes",
       "outcome": "win",
       "graded_at": "2026-10-04T01:20:04.282324+00:00",
+      "kickoff_ts": 1791070200,
+      "kickoff": "2026-10-03 23:30",
       "model_probability": 0.5422,
       "line": null
     },
@@ -307,6 +349,8 @@
       "side": "over",
       "outcome": "half_win",
       "graded_at": "2026-10-04T01:20:04.282226+00:00",
+      "kickoff_ts": 1791070200,
+      "kickoff": "2026-10-03 23:30",
       "model_probability": 0.6452,
       "line": 2.75
     },
@@ -318,6 +362,8 @@
       "side": "home",
       "outcome": "loss",
       "graded_at": "2026-10-04T01:20:04.282124+00:00",
+      "kickoff_ts": 1791070200,
+      "kickoff": "2026-10-03 23:30",
       "model_probability": 0.4837,
       "line": -1.25
     },
@@ -329,6 +375,8 @@
       "side": "home",
       "outcome": "loss",
       "graded_at": "2026-10-04T01:20:04.282003+00:00",
+      "kickoff_ts": 1791070200,
+      "kickoff": "2026-10-03 23:30",
       "model_probability": 0.708,
       "line": null
     },
@@ -340,6 +388,8 @@
       "side": "yes",
       "outcome": "win",
       "graded_at": "2026-10-04T01:00:05.210965+00:00",
+      "kickoff_ts": 1791068400,
+      "kickoff": "2026-10-03 23:00",
       "model_probability": 0.6069,
       "line": null
     },
@@ -351,6 +401,8 @@
       "side": "over",
       "outcome": "win",
       "graded_at": "2026-10-04T01:00:05.210836+00:00",
+      "kickoff_ts": 1791068400,
+      "kickoff": "2026-10-03 23:00",
       "model_probability": 0.5994,
       "line": 2.75
     },
@@ -362,6 +414,8 @@
       "side": "home",
       "outcome": "win",
       "graded_at": "2026-10-04T01:00:05.210707+00:00",
+      "kickoff_ts": 1791068400,
+      "kickoff": "2026-10-03 23:00",
       "model_probability": 0.4952,
       "line": -0.75
     },
@@ -373,6 +427,8 @@
       "side": "home",
       "outcome": "win",
       "graded_at": "2026-10-04T01:00:05.210579+00:00",
+      "kickoff_ts": 1791068400,
+      "kickoff": "2026-10-03 23:00",
       "model_probability": 0.4952,
       "line": null
     },
@@ -384,6 +440,8 @@
       "side": "no",
       "outcome": "win",
       "graded_at": "2026-10-04T01:00:05.202773+00:00",
+      "kickoff_ts": 1791068400,
+      "kickoff": "2026-10-03 23:00",
       "model_probability": 0.4944,
       "line": null
     },
@@ -395,6 +453,8 @@
       "side": "under",
       "outcome": "win",
       "graded_at": "2026-10-04T01:00:05.202645+00:00",
+      "kickoff_ts": 1791068400,
+      "kickoff": "2026-10-03 23:00",
       "model_probability": 0.4858,
       "line": 2.75
     },
@@ -406,6 +466,8 @@
       "side": "home",
       "outcome": "half_win",
       "graded_at": "2026-10-04T01:00:05.202518+00:00",
+      "kickoff_ts": 1791068400,
+      "kickoff": "2026-10-03 23:00",
       "model_probability": 0.5791,
       "line": -0.75
     },
@@ -417,6 +479,8 @@
       "side": "home",
       "outcome": "win",
       "graded_at": "2026-10-04T01:00:05.202391+00:00",
+      "kickoff_ts": 1791068400,
+      "kickoff": "2026-10-03 23:00",
       "model_probability": 0.5791,
       "line": null
     },
@@ -428,6 +492,8 @@
       "side": "no",
       "outcome": "loss",
       "graded_at": "2026-10-04T01:00:05.196808+00:00",
+      "kickoff_ts": 1791068400,
+      "kickoff": "2026-10-03 23:00",
       "model_probability": 0.4704,
       "line": null
     },
@@ -439,6 +505,8 @@
       "side": "under",
       "outcome": "loss",
       "graded_at": "2026-10-04T01:00:05.196708+00:00",
+      "kickoff_ts": 1791068400,
+      "kickoff": "2026-10-03 23:00",
       "model_probability": 0.4667,
       "line": 2.75
     },
@@ -450,6 +518,8 @@
       "side": "away",
       "outcome": "win",
       "graded_at": "2026-10-04T01:00:05.196600+00:00",
+      "kickoff_ts": 1791068400,
+      "kickoff": "2026-10-03 23:00",
       "model_probability": 0.5625,
       "line": -0.75
     },
@@ -461,6 +531,8 @@
       "side": "away",
       "outcome": "win",
       "graded_at": "2026-10-04T01:00:05.196471+00:00",
+      "kickoff_ts": 1791068400,
+      "kickoff": "2026-10-03 23:00",
       "model_probability": 0.5625,
       "line": null
     },
@@ -472,6 +544,8 @@
       "side": "no",
       "outcome": "loss",
       "graded_at": "2026-10-04T00:00:06.811556+00:00",
+      "kickoff_ts": 1791064800,
+      "kickoff": "2026-10-03 22:00",
       "model_probability": 0.3969,
       "line": null
     },
@@ -483,6 +557,8 @@
       "side": "under",
       "outcome": "win",
       "graded_at": "2026-10-04T00:00:06.811412+00:00",
+      "kickoff_ts": 1791064800,
+      "kickoff": "2026-10-03 22:00",
       "model_probability": 0.4232,
       "line": 2.75
     },
@@ -494,6 +570,8 @@
       "side": "home",
       "outcome": "half_loss",
       "graded_at": "2026-10-04T00:00:06.811263+00:00",
+      "kickoff_ts": 1791064800,
+      "kickoff": "2026-10-03 22:00",
       "model_probability": 0.3996,
       "line": -0.25
     },
@@ -505,6 +583,8 @@
       "side": "home",
       "outcome": "loss",
       "graded_at": "2026-10-04T00:00:06.811098+00:00",
+      "kickoff_ts": 1791064800,
+      "kickoff": "2026-10-03 22:00",
       "model_probability": 0.3996,
       "line": null
     },
@@ -516,6 +596,8 @@
       "side": "no",
       "outcome": "loss",
       "graded_at": "2026-10-03T22:14:55.752494+00:00",
+      "kickoff_ts": 1791032400,
+      "kickoff": "2026-10-03 13:00",
       "model_probability": 0.3165,
       "line": null
     },
@@ -527,6 +609,8 @@
       "side": "under",
       "outcome": "win",
       "graded_at": "2026-10-03T22:14:55.752455+00:00",
+      "kickoff_ts": 1791032400,
+      "kickoff": "2026-10-03 13:00",
       "model_probability": 0.4672,
       "line": 3.75
     },
@@ -538,6 +622,8 @@
       "side": "home",
       "outcome": "loss",
       "graded_at": "2026-10-03T22:14:55.752413+00:00",
+      "kickoff_ts": 1791032400,
+      "kickoff": "2026-10-03 13:00",
       "model_probability": 0.6109,
       "line": -0.75
     },
@@ -549,6 +635,8 @@
       "side": "home",
       "outcome": "loss",
       "graded_at": "2026-10-03T22:14:55.752375+00:00",
+      "kickoff_ts": 1791032400,
+      "kickoff": "2026-10-03 13:00",
       "model_probability": 0.6109,
       "line": null
     },
@@ -560,6 +648,8 @@
       "side": "yes",
       "outcome": "loss",
       "graded_at": "2026-10-03T22:14:55.743587+00:00",
+      "kickoff_ts": 1791028800,
+      "kickoff": "2026-10-03 12:00",
       "model_probability": 0.7522,
       "line": null
     },
@@ -571,6 +661,8 @@
       "side": "under",
       "outcome": "win",
       "graded_at": "2026-10-03T22:14:55.743544+00:00",
+      "kickoff_ts": 1791028800,
+      "kickoff": "2026-10-03 12:00",
       "model_probability": 0.6016,
       "line": 4.25
     },
@@ -582,6 +674,8 @@
       "side": "away",
       "outcome": "half_win",
       "graded_at": "2026-10-03T22:14:55.743503+00:00",
+      "kickoff_ts": 1791028800,
+      "kickoff": "2026-10-03 12:00",
       "model_probability": 0.514,
       "line": -0.75
     },
@@ -593,6 +687,8 @@
       "side": "away",
       "outcome": "win",
       "graded_at": "2026-10-03T22:14:55.743461+00:00",
+      "kickoff_ts": 1791028800,
+      "kickoff": "2026-10-03 12:00",
       "model_probability": 0.514,
       "line": null
     },
@@ -604,6 +700,8 @@
       "side": "no",
       "outcome": "loss",
       "graded_at": "2026-10-03T22:14:55.733736+00:00",
+      "kickoff_ts": 1791057600,
+      "kickoff": "2026-10-03 20:00",
       "model_probability": 0.6158,
       "line": null
     },
@@ -615,6 +713,8 @@
       "side": "under",
       "outcome": "win",
       "graded_at": "2026-10-03T22:14:55.733603+00:00",
+      "kickoff_ts": 1791057600,
+      "kickoff": "2026-10-03 20:00",
       "model_probability": 0.5268,
       "line": 2.5
     },
@@ -626,6 +726,8 @@
       "side": "home",
       "outcome": "loss",
       "graded_at": "2026-10-03T22:14:55.733453+00:00",
+      "kickoff_ts": 1791057600,
+      "kickoff": "2026-10-03 20:00",
       "model_probability": 0.4436,
       "line": -1.0
     },
@@ -637,6 +739,8 @@
       "side": "home",
       "outcome": "loss",
       "graded_at": "2026-10-03T22:14:55.733267+00:00",
+      "kickoff_ts": 1791057600,
+      "kickoff": "2026-10-03 20:00",
       "model_probability": 0.7029,
       "line": null
     },
@@ -648,6 +752,8 @@
       "side": "no",
       "outcome": "loss",
       "graded_at": "2026-10-03T22:14:55.674631+00:00",
+      "kickoff_ts": 1791057600,
+      "kickoff": "2026-10-03 20:00",
       "model_probability": 0.4887,
       "line": null
     },
@@ -659,6 +765,8 @@
       "side": "under",
       "outcome": "loss",
       "graded_at": "2026-10-03T22:14:55.674512+00:00",
+      "kickoff_ts": 1791057600,
+      "kickoff": "2026-10-03 20:00",
       "model_probability": 0.4449,
       "line": 2.75
     },
@@ -670,6 +778,8 @@
       "side": "home",
       "outcome": "loss",
       "graded_at": "2026-10-03T22:14:55.674390+00:00",
+      "kickoff_ts": 1791057600,
+      "kickoff": "2026-10-03 20:00",
       "model_probability": 0.3907,
       "line": -1.0
     },
@@ -681,6 +791,8 @@
       "side": "home",
       "outcome": "loss",
       "graded_at": "2026-10-03T22:14:55.674268+00:00",
+      "kickoff_ts": 1791057600,
+      "kickoff": "2026-10-03 20:00",
       "model_probability": 0.6344,
       "line": null
     },
@@ -692,6 +804,8 @@
       "side": "no",
       "outcome": "win",
       "graded_at": "2026-10-03T22:14:55.670810+00:00",
+      "kickoff_ts": 1791054000,
+      "kickoff": "2026-10-03 19:00",
       "model_probability": 0.6405,
       "line": null
     },
@@ -703,6 +817,8 @@
       "side": "under",
       "outcome": "win",
       "graded_at": "2026-10-03T22:14:55.670761+00:00",
+      "kickoff_ts": 1791054000,
+      "kickoff": "2026-10-03 19:00",
       "model_probability": 0.3844,
       "line": 2.0
     },
@@ -714,6 +830,8 @@
       "side": "home",
       "outcome": "loss",
       "graded_at": "2026-10-03T22:14:55.670707+00:00",
+      "kickoff_ts": 1791054000,
+      "kickoff": "2026-10-03 19:00",
       "model_probability": 0.5681,
       "line": -0.75
     },
@@ -725,6 +843,8 @@
       "side": "home",
       "outcome": "loss",
       "graded_at": "2026-10-03T22:14:55.670657+00:00",
+      "kickoff_ts": 1791054000,
+      "kickoff": "2026-10-03 19:00",
       "model_probability": 0.5681,
       "line": null
     },
@@ -736,6 +856,8 @@
       "side": "yes",
       "outcome": "win",
       "graded_at": "2026-10-03T22:14:55.667775+00:00",
+      "kickoff_ts": 1791053100,
+      "kickoff": "2026-10-03 18:45",
       "model_probability": 0.5088,
       "line": null
     },
@@ -747,6 +869,8 @@
       "side": "over",
       "outcome": "win",
       "graded_at": "2026-10-03T22:14:55.667737+00:00",
+      "kickoff_ts": 1791053100,
+      "kickoff": "2026-10-03 18:45",
       "model_probability": 0.5591,
       "line": 2.5
     },
@@ -758,6 +882,8 @@
       "side": "home",
       "outcome": "loss",
       "graded_at": "2026-10-03T22:14:55.667699+00:00",
+      "kickoff_ts": 1791053100,
+      "kickoff": "2026-10-03 18:45",
       "model_probability": 0.4008,
       "line": -1.5
     },
@@ -769,6 +895,8 @@
       "side": "home",
       "outcome": "win",
       "graded_at": "2026-10-03T22:14:55.667661+00:00",
+      "kickoff_ts": 1791053100,
+      "kickoff": "2026-10-03 18:45",
       "model_probability": 0.644,
       "line": null
     },
@@ -780,6 +908,8 @@
       "side": "yes",
       "outcome": "win",
       "graded_at": "2026-10-03T22:14:55.664176+00:00",
+      "kickoff_ts": 1791053100,
+      "kickoff": "2026-10-03 18:45",
       "model_probability": 0.46,
       "line": null
     },
@@ -791,6 +921,8 @@
       "side": "over",
       "outcome": "win",
       "graded_at": "2026-10-03T22:14:55.664137+00:00",
+      "kickoff_ts": 1791053100,
+      "kickoff": "2026-10-03 18:45",
       "model_probability": 0.5274,
       "line": 3.5
     },
@@ -802,6 +934,8 @@
       "side": "home",
       "outcome": "loss",
       "graded_at": "2026-10-03T22:14:55.664098+00:00",
+      "kickoff_ts": 1791053100,
+      "kickoff": "2026-10-03 18:45",
       "model_probability": 0.4739,
       "line": -2.75
     },
@@ -813,6 +947,8 @@
       "side": "home",
       "outcome": "win",
       "graded_at": "2026-10-03T22:14:55.664060+00:00",
+      "kickoff_ts": 1791053100,
+      "kickoff": "2026-10-03 18:45",
       "model_probability": 0.855,
       "line": null
     },
@@ -824,6 +960,8 @@
       "side": "no",
       "outcome": "win",
       "graded_at": "2026-10-03T22:14:55.661389+00:00",
+      "kickoff_ts": 1791052200,
+      "kickoff": "2026-10-03 18:30",
       "model_probability": 0.6131,
       "line": null
     },
@@ -835,6 +973,8 @@
       "side": "under",
       "outcome": "win",
       "graded_at": "2026-10-03T22:14:55.661340+00:00",
+      "kickoff_ts": 1791052200,
+      "kickoff": "2026-10-03 18:30",
       "model_probability": 0.5939,
       "line": 2.5
     },
@@ -846,6 +986,8 @@
       "side": "home",
       "outcome": "push",
       "graded_at": "2026-10-03T22:14:55.661283+00:00",
+      "kickoff_ts": 1791052200,
+      "kickoff": "2026-10-03 18:30",
       "model_probability": 0.3467,
       "line": -1.0
     },
@@ -857,6 +999,8 @@
       "side": "home",
       "outcome": "win",
       "graded_at": "2026-10-03T22:14:55.661209+00:00",
+      "kickoff_ts": 1791052200,
+      "kickoff": "2026-10-03 18:30",
       "model_probability": 0.6179,
       "line": null
     },
@@ -868,6 +1012,8 @@
       "side": "no",
       "outcome": "win",
       "graded_at": "2026-10-03T22:14:55.658482+00:00",
+      "kickoff_ts": 1791050400,
+      "kickoff": "2026-10-03 18:00",
       "model_probability": 0.6114,
       "line": null
     },
@@ -879,6 +1025,8 @@
       "side": "under",
       "outcome": "win",
       "graded_at": "2026-10-03T22:14:55.658445+00:00",
+      "kickoff_ts": 1791050400,
+      "kickoff": "2026-10-03 18:00",
       "model_probability": 0.5354,
       "line": 2.5
     },
@@ -890,6 +1038,8 @@
       "side": "home",
       "outcome": "win",
       "graded_at": "2026-10-03T22:14:55.658407+00:00",
+      "kickoff_ts": 1791050400,
+      "kickoff": "2026-10-03 18:00",
       "model_probability": 0.6886,
       "line": -0.75
     },
@@ -901,6 +1051,8 @@
       "side": "home",
       "outcome": "win",
       "graded_at": "2026-10-03T22:14:55.658370+00:00",
+      "kickoff_ts": 1791050400,
+      "kickoff": "2026-10-03 18:00",
       "model_probability": 0.6886,
       "line": null
     },
@@ -912,6 +1064,8 @@
       "side": "no",
       "outcome": "win",
       "graded_at": "2026-10-03T22:14:55.656124+00:00",
+      "kickoff_ts": 1791050400,
+      "kickoff": "2026-10-03 18:00",
       "model_probability": 0.5923,
       "line": null
     },
@@ -923,6 +1077,8 @@
       "side": "over",
       "outcome": "loss",
       "graded_at": "2026-10-03T22:14:55.656081+00:00",
+      "kickoff_ts": 1791050400,
+      "kickoff": "2026-10-03 18:00",
       "model_probability": 0.6204,
       "line": 1.75
     },
@@ -934,6 +1090,8 @@
       "side": "away",
       "outcome": "loss",
       "graded_at": "2026-10-03T22:14:55.656036+00:00",
+      "kickoff_ts": 1791050400,
+      "kickoff": "2026-10-03 18:00",
       "model_probability": 0.4592,
       "line": -0.25
     },
@@ -945,6 +1103,8 @@
       "side": "away",
       "outcome": "loss",
       "graded_at": "2026-10-03T22:14:55.655983+00:00",
+      "kickoff_ts": 1791050400,
+      "kickoff": "2026-10-03 18:00",
       "model_probability": 0.4592,
       "line": null
     },
@@ -956,6 +1116,8 @@
       "side": "no",
       "outcome": "win",
       "graded_at": "2026-10-03T22:14:55.647623+00:00",
+      "kickoff_ts": 1791050400,
+      "kickoff": "2026-10-03 18:00",
       "model_probability": 0.6257,
       "line": null
     },
@@ -967,6 +1129,8 @@
       "side": "under",
       "outcome": "half_loss",
       "graded_at": "2026-10-03T22:14:55.647583+00:00",
+      "kickoff_ts": 1791050400,
+      "kickoff": "2026-10-03 18:00",
       "model_probability": 0.4348,
       "line": 1.75
     },
@@ -978,6 +1142,8 @@
       "side": "home",
       "outcome": "win",
       "graded_at": "2026-10-03T22:14:55.647541+00:00",
+      "kickoff_ts": 1791050400,
+      "kickoff": "2026-10-03 18:00",
       "model_probability": 0.3679,
       "line": -0.25
     },
@@ -989,6 +1155,8 @@
       "side": "home",
       "outcome": "win",
       "graded_at": "2026-10-03T22:14:55.647502+00:00",
+      "kickoff_ts": 1791050400,
+      "kickoff": "2026-10-03 18:00",
       "model_probability": 0.3679,
       "line": null
     },
@@ -1000,6 +1168,8 @@
       "side": "no",
       "outcome": "win",
       "graded_at": "2026-10-03T22:14:55.645560+00:00",
+      "kickoff_ts": 1791050400,
+      "kickoff": "2026-10-03 18:00",
       "model_probability": 0.5377,
       "line": null
     },
@@ -1011,6 +1181,8 @@
       "side": "over",
       "outcome": "win",
       "graded_at": "2026-10-03T22:14:55.645519+00:00",
+      "kickoff_ts": 1791050400,
+      "kickoff": "2026-10-03 18:00",
       "model_probability": 0.3996,
       "line": 2.25
     },
@@ -1022,6 +1194,8 @@
       "side": "away",
       "outcome": "win",
       "graded_at": "2026-10-03T22:14:55.645477+00:00",
+      "kickoff_ts": 1791050400,
+      "kickoff": "2026-10-03 18:00",
       "model_probability": 0.3873,
       "line": -0.25
     },
@@ -1033,6 +1207,8 @@
       "side": "away",
       "outcome": "win",
       "graded_at": "2026-10-03T22:14:55.645431+00:00",
+      "kickoff_ts": 1791050400,
+      "kickoff": "2026-10-03 18:00",
       "model_probability": 0.3873,
       "line": null
     },
@@ -1044,6 +1220,8 @@
       "side": "no",
       "outcome": "loss",
       "graded_at": "2026-10-03T22:14:55.635911+00:00",
+      "kickoff_ts": 1791050400,
+      "kickoff": "2026-10-03 18:00",
       "model_probability": 0.6087,
       "line": null
     },
@@ -1055,6 +1233,8 @@
       "side": "over",
       "outcome": "half_win",
       "graded_at": "2026-10-03T22:14:55.635870+00:00",
+      "kickoff_ts": 1791050400,
+      "kickoff": "2026-10-03 18:00",
       "model_probability": 0.5881,
       "line": 1.75
     },
@@ -1066,6 +1246,8 @@
       "side": "home",
       "outcome": "half_loss",
       "graded_at": "2026-10-03T22:14:55.635827+00:00",
+      "kickoff_ts": 1791050400,
+      "kickoff": "2026-10-03 18:00",
       "model_probability": 0.3943,
       "line": -0.25
     },
@@ -1077,6 +1259,8 @@
       "side": "home",
       "outcome": "loss",
       "graded_at": "2026-10-03T22:14:55.635771+00:00",
+      "kickoff_ts": 1791050400,
+      "kickoff": "2026-10-03 18:00",
       "model_probability": 0.3943,
       "line": null
     },
@@ -1088,6 +1272,8 @@
       "side": "yes",
       "outcome": "loss",
       "graded_at": "2026-10-03T22:14:55.630725+00:00",
+      "kickoff_ts": 1791045900,
+      "kickoff": "2026-10-03 16:45",
       "model_probability": 0.5044,
       "line": null
     },
@@ -1099,6 +1285,8 @@
       "side": "over",
       "outcome": "loss",
       "graded_at": "2026-10-03T22:14:55.630635+00:00",
+      "kickoff_ts": 1791045900,
+      "kickoff": "2026-10-03 16:45",
       "model_probability": 0.4546,
       "line": 2.25
     },
@@ -1110,6 +1298,8 @@
       "side": "home",
       "outcome": "half_loss",
       "graded_at": "2026-10-03T22:14:55.630543+00:00",
+      "kickoff_ts": 1791045900,
+      "kickoff": "2026-10-03 16:45",
       "model_probability": 0.4177,
       "line": -0.25
     },
@@ -1121,6 +1311,8 @@
       "side": "home",
       "outcome": "loss",
       "graded_at": "2026-10-03T22:14:55.630450+00:00",
+      "kickoff_ts": 1791045900,
+      "kickoff": "2026-10-03 16:45",
       "model_probability": 0.4177,
       "line": null
     },
@@ -1132,6 +1324,8 @@
       "side": "no",
       "outcome": "win",
       "graded_at": "2026-10-03T22:14:55.620402+00:00",
+      "kickoff_ts": 1791045000,
+      "kickoff": "2026-10-03 16:30",
       "model_probability": 0.4916,
       "line": null
     },
@@ -1143,6 +1337,8 @@
       "side": "over",
       "outcome": "win",
       "graded_at": "2026-10-03T22:14:55.620317+00:00",
+      "kickoff_ts": 1791045000,
+      "kickoff": "2026-10-03 16:30",
       "model_probability": 0.456,
       "line": 2.25
     },
@@ -1154,6 +1350,8 @@
       "side": "away",
       "outcome": "loss",
       "graded_at": "2026-10-03T22:14:55.620233+00:00",
+      "kickoff_ts": 1791045000,
+      "kickoff": "2026-10-03 16:30",
       "model_probability": 0.3851,
       "line": -0.25
     },
@@ -1165,6 +1363,8 @@
       "side": "away",
       "outcome": "loss",
       "graded_at": "2026-10-03T22:14:55.620147+00:00",
+      "kickoff_ts": 1791045000,
+      "kickoff": "2026-10-03 16:30",
       "model_probability": 0.3851,
       "line": null
     }

@@ -343,6 +343,14 @@ def build_report(entries, grades, *, recent_n=100):
         for key in ('match', 'league', 'market', 'pick', 'side',
                     'outcome', 'graded_at'):
             row[key] = grade.get(key) if grade.get(key) is not None else entry.get(key)
+        kickoff = entry.get('start_ts')
+        if isinstance(kickoff, (int, float)) and kickoff > 0:
+            row['kickoff_ts'] = kickoff
+            row['kickoff'] = (datetime.fromtimestamp(float(kickoff), timezone.utc)
+                              .strftime('%Y-%m-%d %H:%M'))
+        else:
+            row['kickoff_ts'] = None
+            row['kickoff'] = None
         prob = grade.get('model_probability')
         if prob is None:
             prob = entry.get('probability')

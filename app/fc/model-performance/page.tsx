@@ -193,6 +193,8 @@ export default function FcModelPerformance() {
                   <table className="data-table" aria-label="Detail pick ter-grade">
                     <thead>
                       <tr>
+                        <th scope="col">Tanggal</th>
+                        <th scope="col">Jam</th>
                         <th scope="col">Match</th>
                         <th scope="col">Pick</th>
                         <th scope="col">Prob</th>
@@ -200,8 +202,13 @@ export default function FcModelPerformance() {
                       </tr>
                     </thead>
                     <tbody>
-                      {detail.map((row, i) => (
+                      {detail.map((row, i) => {
+                        const date = row.kickoff ? row.kickoff.slice(0, 10) : '—';
+                        const time = row.kickoff ? row.kickoff.slice(11, 16) : '—';
+                        return (
                         <tr key={`${row.match}-${row.market}-${row.pick}-${i}`}>
+                          <td className="muted">{date}</td>
+                          <td className="muted">{time}</td>
                           <td>
                             <div style={{ fontWeight: 600 }}>{row.match ?? '—'}</div>
                             <div className="muted">{row.league ?? ''}</div>
@@ -213,7 +220,8 @@ export default function FcModelPerformance() {
                           <td>{fmt(row.model_probability)}</td>
                           <td>{outcomeChip(row.outcome)}</td>
                         </tr>
-                      ))}
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>

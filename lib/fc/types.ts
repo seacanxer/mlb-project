@@ -153,6 +153,8 @@ export interface RecentGrade {
   line?: number | null;
   model_probability?: number;
   outcome?: string;
+  kickoff?: string | null;
+  kickoff_ts?: number | null;
   graded_at?: string;
 }
 

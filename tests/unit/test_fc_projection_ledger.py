@@ -127,7 +127,8 @@ def test_report_embeds_newest_pick_detail_first():
     assert [row['pick'] for row in report['recent']] == ['Over 2.5', 'Under 2.5']
     assert report['recent'][0]['match'] == 'H vs A'
     assert set(report['recent'][0]) == {'match', 'league', 'market', 'pick', 'side',
-                                        'line', 'model_probability', 'outcome', 'graded_at'}
+                                        'line', 'model_probability', 'outcome',
+                                        'kickoff', 'kickoff_ts', 'graded_at'}
     capped = grade['build_report'](entries, grades, recent_n=1)
     assert len(capped['recent']) == 1
 

@@ -227,6 +227,8 @@ export interface GradeDetailRow {
   line?: number | null;
   model_probability?: number;
   outcome?: string;
+  kickoff?: string;
+  kickoff_ts?: number | null;
   graded_at?: string;
 }
 
@@ -265,6 +267,11 @@ export function readGradeDetails(): GradeDetailRow[] {
     const market = pick('market');
     if (!market) continue;
     const lineRaw = grade['line'] ?? entry['line'];
+    const kickoffTs = num(entry['start_ts']) ?? null;
+    let kickoff: string | undefined;
+    if (kickoffTs && kickoffTs > 0) {
+      kickoff = new Date(kickoffTs * 1000).toISOString().slice(0, 16).replace('T', ' ');
+    }
     rows.push({
       match: pick('match'),
       league: pick('league'),
@@ -274,6 +281,8 @@ export function readGradeDetails(): GradeDetailRow[] {
       line: num(lineRaw) ?? null,
       model_probability: num(grade['model_probability']) ?? num(entry['probability']),
       outcome: pick('outcome'),
+      kickoff,
+      kickoff_ts: kickoffTs,
       graded_at: pick('graded_at'),
     });
   }
@@ -282,7 +291,7 @@ export function readGradeDetails(): GradeDetailRow[] {
 
 const CSV_COLUMNS: (keyof GradeDetailRow)[] = [
   'match', 'league', 'market', 'pick', 'side', 'line',
-  'model_probability', 'outcome', 'graded_at',
+  'model_probability', 'outcome', 'kickoff', 'kickoff_ts', 'graded_at',
 ];
 
 function csvCell(value: unknown): string {
