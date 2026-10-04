@@ -146,6 +146,11 @@ export default function FcModelPerformance() {
               </div>
 
               <h2 className="fc-section-title">Detail pick terbaru</h2>
+              <p className="muted" style={{ marginBottom: '0.75rem' }}>
+                <a className="btn btn-ghost btn-sm" href="/api/fc/model-performance/csv" download>
+                  Unduh CSV full ({data.graded} baris ter-grade)
+                </a>
+              </p>
               <form className="fc-filters" onSubmit={(e) => e.preventDefault()}>
                 <label>
                   Market

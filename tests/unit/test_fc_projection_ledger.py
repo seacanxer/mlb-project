@@ -104,3 +104,17 @@ def test_report_embeds_newest_pick_detail_first():
                                         'line', 'model_probability', 'outcome', 'graded_at'}
     capped = grade['build_report'](entries, grades, recent_n=1)
     assert len(capped['recent']) == 1
+
+
+def test_recent_falls_back_to_ledger_for_legacy_grades():
+    grade = runpy.run_path(GRADE_PATH)
+    entries = [{'ledger_id': 'old', 'match': 'H vs A', 'league': 'E0', 'market': 'ah',
+                'pick': 'H -1.5', 'side': 'home', 'line': -1.5, 'probability': 0.6}]
+    grades = [{'ledger_id': 'old', 'market': 'ah', 'model_probability': 0.6,
+               'outcome': 'win', 'y_effective': 1.0,
+               'graded_at': '2026-10-04T00:00:01+00:00'}]
+    report = grade['build_report'](entries, grades)
+    assert report['recent'][0]['match'] == 'H vs A'
+    assert report['recent'][0]['league'] == 'E0'
+    assert report['recent'][0]['side'] == 'home'
+    assert report['recent'][0]['line'] == -1.5

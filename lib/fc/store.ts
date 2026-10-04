@@ -212,6 +212,91 @@ export function readModelPerformance(): ModelPerformanceResponse {
   }
 }
 
+/**
+ * Full pick-level detail for the CSV download. Joins the local grades file
+ * with the ledger (legacy grades predate match/league on the grade row, so
+ * the ledger is the fallback — same rule as the report's `recent`).
+ * Local-only files; absent files → empty rows, never an error.
+ */
+export interface GradeDetailRow {
+  match?: string;
+  league?: string;
+  market?: string;
+  pick?: string;
+  side?: string | null;
+  line?: number | null;
+  model_probability?: number;
+  outcome?: string;
+  graded_at?: string;
+}
+
+function readJsonlLines(relPath: string): Record<string, unknown>[] {
+  try {
+    const raw = fs.readFileSync(path.join(process.cwd(), relPath), 'utf-8');
+    return raw.split('\n').filter((line) => line.trim()).map((line) => {
+      try {
+        return parseJson<Record<string, unknown>>(line, {});
+      } catch {
+        return {};
+      }
+    });
+  } catch {
+    return [];
+  }
+}
+
+const str = (value: unknown): string | undefined =>
+  typeof value === 'string' && value ? value : undefined;
+const num = (value: unknown): number | undefined =>
+  typeof value === 'number' && Number.isFinite(value) ? value : undefined;
+
+export function readGradeDetails(): GradeDetailRow[] {
+  const ledger = readJsonlLines('betting-machine-fc/projection_ledger.jsonl');
+  const grades = readJsonlLines('betting-machine-fc/projection_grades.jsonl');
+  const byId = new Map<string, Record<string, unknown>>();
+  for (const entry of ledger) {
+    const id = str(entry['ledger_id']);
+    if (id && !byId.has(id)) byId.set(id, entry);
+  }
+  const rows: GradeDetailRow[] = [];
+  for (const grade of grades) {
+    const entry = byId.get(str(grade['ledger_id']) ?? '') ?? {};
+    const pick = (key: string): string | undefined => str(grade[key]) ?? str(entry[key]);
+    const market = pick('market');
+    if (!market) continue;
+    const lineRaw = grade['line'] ?? entry['line'];
+    rows.push({
+      match: pick('match'),
+      league: pick('league'),
+      market,
+      pick: pick('pick'),
+      side: (str(grade['side']) ?? str(entry['side']) ?? null) as string | null,
+      line: num(lineRaw) ?? null,
+      model_probability: num(grade['model_probability']) ?? num(entry['probability']),
+      outcome: pick('outcome'),
+      graded_at: pick('graded_at'),
+    });
+  }
+  return rows;
+}
+
+const CSV_COLUMNS: (keyof GradeDetailRow)[] = [
+  'match', 'league', 'market', 'pick', 'side', 'line',
+  'model_probability', 'outcome', 'graded_at',
+];
+
+function csvCell(value: unknown): string {
+  if (value === null || value === undefined) return '';
+  const text = String(value);
+  return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+}
+
+export function gradeDetailsCsv(rows: GradeDetailRow[]): string {
+  const lines = [CSV_COLUMNS.join(',')];
+  for (const row of rows) lines.push(CSV_COLUMNS.map((col) => csvCell(row[col])).join(','));
+  return lines.join('\n') + '\n';
+}
+
 /** Matches mirrors engine GET /api/matches (future-only). */
 export function readMatches(limit = 50, offset = 0): MatchesResponse {
   const nowSec = Date.now() / 1000;

@@ -309,11 +309,25 @@ def build_report(entries, grades, *, recent_n=100):
         del bucket['score']
         del bucket['mean_prob']
     pending = [e['ledger_id'] for e in entries if e.get('ledger_id') not in graded_ids]
+    # Legacy grades (e.g. the first backfill) predate match/league/side/line
+    # on the grade row itself — fall back to the ledger entry, which always
+    # carries them. Without this the detail table renders blank matches.
     recent = []
     for grade in sorted(grades, key=lambda g: g.get('graded_at') or '', reverse=True)[:recent_n]:
-        recent.append({key: grade.get(key) for key in
-                       ('match', 'league', 'market', 'pick', 'side', 'line',
-                        'model_probability', 'outcome', 'graded_at')})
+        entry = by_id.get(grade.get('ledger_id'), {})
+        row = {}
+        for key in ('match', 'league', 'market', 'pick', 'side',
+                    'outcome', 'graded_at'):
+            row[key] = grade.get(key) if grade.get(key) is not None else entry.get(key)
+        prob = grade.get('model_probability')
+        if prob is None:
+            prob = entry.get('probability')
+        row['model_probability'] = prob
+        line = grade.get('line')
+        if line is None:
+            line = entry.get('line')
+        row['line'] = line
+        recent.append(row)
     return {'generated_at': datetime.now(timezone.utc).isoformat(),
             'ledger_entries': len(entries), 'graded': len(graded_ids),
             'pending': len(pending),
