@@ -270,7 +270,8 @@ export function readGradeDetails(): GradeDetailRow[] {
     const kickoffTs = num(entry['start_ts']) ?? null;
     let kickoff: string | undefined;
     if (kickoffTs && kickoffTs > 0) {
-      kickoff = new Date(kickoffTs * 1000).toISOString().slice(0, 16).replace('T', ' ');
+      kickoff = new Date(kickoffTs * 1000 + 7 * 3600 * 1000)
+        .toISOString().slice(0, 16).replace('T', ' ');
     }
     rows.push({
       match: pick('match'),

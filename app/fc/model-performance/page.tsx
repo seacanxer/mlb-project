@@ -194,7 +194,7 @@ export default function FcModelPerformance() {
                     <thead>
                       <tr>
                         <th scope="col">Tanggal</th>
-                        <th scope="col">Jam</th>
+                        <th scope="col">Jam (WIB)</th>
                         <th scope="col">Match</th>
                         <th scope="col">Pick</th>
                         <th scope="col">Prob</th>
@@ -203,8 +203,16 @@ export default function FcModelPerformance() {
                     </thead>
                     <tbody>
                       {detail.map((row, i) => {
-                        const date = row.kickoff ? row.kickoff.slice(0, 10) : '—';
-                        const time = row.kickoff ? row.kickoff.slice(11, 16) : '—';
+                        const ts = row.kickoff_ts ?? null;
+                        let date = '—';
+                        let time = '—';
+                        if (ts && ts > 0) {
+                          // Kickoff is stored UTC; the audience is WIB (UTC+7).
+                          const shifted = new Date(ts * 1000 + 7 * 3600 * 1000);
+                          const iso = shifted.toISOString();
+                          date = iso.slice(0, 10);
+                          time = iso.slice(11, 16);
+                        }
                         return (
                         <tr key={`${row.match}-${row.market}-${row.pick}-${i}`}>
                           <td className="muted">{date}</td>

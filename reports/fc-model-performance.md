@@ -1,6 +1,6 @@
 # FC model performance report (projections ledger)
 
-Digenerate: 2026-10-04T07:20:07.392046+00:00 · Ledger: 904 entri · Ter-grade: 577 · Pending: 327
+Digenerate: 2026-10-04T07:40:06.187012+00:00 · Ledger: 904 entri · Ter-grade: 577 · Pending: 327
 
 > Kinerja MODEL, bukan ROI. Tanpa odds/stake/lock. ROI tetap hanya dari tracker.
 
