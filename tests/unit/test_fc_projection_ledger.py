@@ -80,3 +80,27 @@ def test_payout_label_and_report_math():
     assert bucket['calibration_gap'] == round(0.5 - 0.7, 4)
     assert report['pending'] == 0
     assert 'Bukan ROI' in report['note']
+    # Structural both-sides coverage must be disclosed, not hidden.
+    assert 'SEMUA sisi' in report['note']
+
+
+def test_report_embeds_newest_pick_detail_first():
+    grade = runpy.run_path(GRADE_PATH)
+    entries = [{'ledger_id': 'a', 'market': 'ou', 'probability': 0.6}]
+    grades = [
+        {'ledger_id': 'a', 'match': 'H vs A', 'league': 'L', 'market': 'ou',
+         'pick': 'Over 2.5', 'side': 'over', 'line': 2.5,
+         'model_probability': 0.6, 'outcome': 'win', 'y_effective': 1.0,
+         'graded_at': '2026-10-04T00:00:02+00:00'},
+        {'ledger_id': 'b', 'match': 'X vs Y', 'league': 'L', 'market': 'ou',
+         'pick': 'Under 2.5', 'side': 'under', 'line': 2.5,
+         'model_probability': 0.4, 'outcome': 'loss', 'y_effective': 0.0,
+         'graded_at': '2026-10-04T00:00:01+00:00'},
+    ]
+    report = grade['build_report'](entries, grades, recent_n=100)
+    assert [row['pick'] for row in report['recent']] == ['Over 2.5', 'Under 2.5']
+    assert report['recent'][0]['match'] == 'H vs A'
+    assert set(report['recent'][0]) == {'match', 'league', 'market', 'pick', 'side',
+                                        'line', 'model_probability', 'outcome', 'graded_at'}
+    capped = grade['build_report'](entries, grades, recent_n=1)
+    assert len(capped['recent']) == 1

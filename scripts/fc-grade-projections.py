@@ -251,13 +251,16 @@ def grade_pending(entries, graded_ids, now=None):
         if result is None:
             continue  # actuals not available yet; retry next run
         grades.append({'ledger_id': entry['ledger_id'], 'match_id': entry.get('match_id'),
+                       'match': entry.get('match'), 'league': entry.get('league'),
+                       'start_ts': entry.get('start_ts'),
                        'market': market, 'pick': entry.get('pick'),
+                       'side': entry.get('side'), 'line': entry.get('line'),
                        'model_probability': entry.get('probability'),
                        'graded_at': datetime.now(timezone.utc).isoformat(), **result})
     return grades
 
 
-def build_report(entries, grades):
+def build_report(entries, grades, *, recent_n=100):
     by_id = {e['ledger_id']: e for e in entries}
     graded_ids = {g['ledger_id'] for g in grades}
     by_market, overall = {}, {'n': 0, 'score': 0.0, 'brier': 0.0,
@@ -306,12 +309,22 @@ def build_report(entries, grades):
         del bucket['score']
         del bucket['mean_prob']
     pending = [e['ledger_id'] for e in entries if e.get('ledger_id') not in graded_ids]
+    recent = []
+    for grade in sorted(grades, key=lambda g: g.get('graded_at') or '', reverse=True)[:recent_n]:
+        recent.append({key: grade.get(key) for key in
+                       ('match', 'league', 'market', 'pick', 'side', 'line',
+                        'model_probability', 'outcome', 'graded_at')})
     return {'generated_at': datetime.now(timezone.utc).isoformat(),
             'ledger_entries': len(entries), 'graded': len(graded_ids),
             'pending': len(pending),
             'by_market': by_market, 'overall': overall,
+            'recent': recent,
             'note': ('Kinerja MODEL (probabilitas vs hasil). Bukan ROI: tanpa odds, '
-                     'stake, atau lock. ROI tetap hanya dari tracker_snapshot.json.')}
+                     'stake, atau lock. ROI tetap hanya dari tracker_snapshot.json. '
+                     'Setiap line dinilai di SEMUA sisi yang ditawarkan ledger '
+                     '(over+under, home+away, yes+no, home+draw+away), sehingga hit '
+                     'rate selalu memusat di 0.5 (biner) / 0.33 (1x2) secara '
+                     'struktural — baca Brier & cal gap untuk skill model.')}
 
 
 def render_markdown(report):
@@ -321,6 +334,9 @@ def render_markdown(report):
              f'entri · Ter-grade: {report["graded"]} · Pending: {report["pending"]}',
              '',
              '> Kinerja MODEL, bukan ROI. Tanpa odds/stake/lock. ROI tetap hanya dari tracker.',
+             '',
+             '> Setiap line dinilai di SEMUA sisi yang ditawarkan, sehingga hit rate memusat di 0.5/0.33 '
+             'secara struktural — baca Brier & cal gap.',
              '',
              '| Market | N decisif | Hit rate | Mean pred | Brier | Cal gap | W / HW / HL / L / Push |',
              '|---|---:|---:|---:|---:|---:|---|']
@@ -334,6 +350,14 @@ def render_markdown(report):
     lines.append(f"| **overall** | {o['decisive']} | {o['hit_rate']} | "
                  f"{o['mean_predicted']} | {o['brier']} | {o['calibration_gap']} | "
                  f"{o['wins']} / — / — / — / {o['pushes']} |")
+    recent = report.get('recent') or []
+    if recent:
+        lines += ['', '## Detail pick terbaru (20 terakhir ter-grade)', '',
+                  '| Match | Market | Pick | Prob | Hasil |',
+                  '|---|---|---|---:|---|']
+        for row in recent[:20]:
+            lines.append(f"| {row.get('match')} | {row.get('market')} | {row.get('pick')} | "
+                         f"{row.get('model_probability')} | {row.get('outcome')} |")
     return '\n'.join(lines) + '\n'
 
 

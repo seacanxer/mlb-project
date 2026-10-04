@@ -144,6 +144,18 @@ export interface ModelMarketBucket {
   half_losses: number;
 }
 
+export interface RecentGrade {
+  match?: string;
+  league?: string;
+  market?: string;
+  pick?: string;
+  side?: string | null;
+  line?: number | null;
+  model_probability?: number;
+  outcome?: string;
+  graded_at?: string;
+}
+
 export interface ModelPerformanceResponse {
   generated_at: string | null;
   ledger_entries: number;
@@ -151,6 +163,8 @@ export interface ModelPerformanceResponse {
   pending: number;
   by_market: Record<string, ModelMarketBucket>;
   overall: ModelMarketBucket & { n: number };
+  /** Newest graded picks first (cap 100); absent until the next cron regen. */
+  recent?: RecentGrade[];
   note: string;
   /** True when reports/fc-model-performance.json has never been generated. */
   report_missing?: boolean;
