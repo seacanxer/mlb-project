@@ -152,6 +152,8 @@ export interface RecentGrade {
   side?: string | null;
   line?: number | null;
   model_probability?: number;
+  odds?: number | null;
+  ev?: number | null;
   outcome?: string;
   kickoff?: string | null;
   kickoff_ts?: number | null;

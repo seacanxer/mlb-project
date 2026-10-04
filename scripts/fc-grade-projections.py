@@ -355,6 +355,14 @@ def build_report(entries, grades, *, recent_n=100):
         if prob is None:
             prob = entry.get('probability')
         row['model_probability'] = prob
+        odds = grade.get('odds')
+        if odds is None:
+            odds = entry.get('odds')
+        row['odds'] = odds
+        ev = grade.get('ev')
+        if ev is None:
+            ev = entry.get('ev')
+        row['ev'] = ev
         line = grade.get('line')
         if line is None:
             line = entry.get('line')

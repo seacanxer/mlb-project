@@ -198,6 +198,7 @@ export default function FcModelPerformance() {
                         <th scope="col">Match</th>
                         <th scope="col">Pick</th>
                         <th scope="col">Prob</th>
+                        <th scope="col">Odds</th>
                         <th scope="col">Hasil</th>
                       </tr>
                     </thead>
@@ -226,6 +227,7 @@ export default function FcModelPerformance() {
                             <div className="muted">{row.market ?? ''}</div>
                           </td>
                           <td>{fmt(row.model_probability)}</td>
+                          <td>{row.odds ? row.odds.toFixed(2) : '—'}</td>
                           <td>{outcomeChip(row.outcome)}</td>
                         </tr>
                         );
