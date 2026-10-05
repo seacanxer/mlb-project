@@ -1,6 +1,6 @@
 # FC model performance report (projections ledger)
 
-Digenerate: 2026-10-04T13:16:39.147467+00:00 · Ledger: 907 entri · Ter-grade: 585 · Pending: 322
+Digenerate: 2026-10-05T17:40:06.764665+00:00 · Ledger: 1050 entri · Ter-grade: 696 · Pending: 354
 
 > Kinerja MODEL, bukan ROI. Tanpa odds/stake/lock. ROI tetap hanya dari tracker.
 
@@ -8,33 +8,33 @@ Digenerate: 2026-10-04T13:16:39.147467+00:00 · Ledger: 907 entri · Ter-grade: 
 
 | Market | N decisif | Hit rate | Mean pred | Brier | Cal gap | W / HW / HL / L / Push |
 |---|---:|---:|---:|---:|---:|---|
-| 1x2 | 148 | 0.5811 | 0.5628 | 0.2402 | 0.0183 | 86 / 0 / 0 / 62 / 0 |
-| ah | 132 | 0.4545 | 0.5122 | 0.2084 | -0.0577 | 47 / 12 / 14 / 59 / 13 |
-| btts | 146 | 0.4932 | 0.5707 | 0.251 | -0.0775 | 72 / 0 / 0 / 74 / 0 |
-| ou | 143 | 0.5105 | 0.5537 | 0.2231 | -0.0432 | 61 / 11 / 13 / 58 / 3 |
-| **overall** | 553 | 0.5262 | 0.5667 | 0.238 | -0.0405 | 266 / — / — / — / 16 |
+| 1x2 | 175 | 0.5886 | 0.5642 | 0.238 | 0.0244 | 103 / 0 / 0 / 72 / 0 |
+| ah | 160 | 0.4406 | 0.5038 | 0.2047 | -0.0632 | 54 / 15 / 18 / 73 / 14 |
+| btts | 172 | 0.4826 | 0.5697 | 0.2545 | -0.0871 | 83 / 0 / 0 / 89 / 0 |
+| ou | 169 | 0.5178 | 0.5516 | 0.2251 | -0.0338 | 73 / 15 / 14 / 67 / 6 |
+| **overall** | 656 | 0.5244 | 0.5649 | 0.2381 | -0.0405 | 313 / — / — / — / 20 |
 
 ## Detail pick terbaru (20 terakhir ter-grade)
 
 | Match | Market | Pick | Prob | Hasil |
 |---|---|---|---:|---|
-| Tegevajaro Miyazaki vs RB Omiya Ardija | btts | BTTS Yes | 0.6068 | win |
-| Tegevajaro Miyazaki vs RB Omiya Ardija | ou | Over 2.75 | 0.5827 | loss |
-| Tegevajaro Miyazaki vs RB Omiya Ardija | ah | AH Away -0.25 | 0.4127 | half_loss |
-| Tegevajaro Miyazaki vs RB Omiya Ardija | 1x2 | Away | 0.4127 | loss |
-| Vegalta Sendai vs Jubilo Iwata | btts | BTTS Yes | 0.563 | win |
-| Vegalta Sendai vs Jubilo Iwata | ou | Over 2.5 | 0.5424 | win |
-| Vegalta Sendai vs Jubilo Iwata | ah | AH Home -0.25 | 0.4857 | win |
-| Vegalta Sendai vs Jubilo Iwata | 1x2 | Home | 0.4857 | win |
-| Blaublitz Akita vs Sagan Tosu | btts | BTTS Yes | 0.5084 | loss |
-| Blaublitz Akita vs Sagan Tosu | ou | Over 2.25 | 0.4554 | loss |
-| Blaublitz Akita vs Sagan Tosu | ah | AH Away -0.25 | 0.3679 | loss |
-| Blaublitz Akita vs Sagan Tosu | 1x2 | Away | 0.3679 | loss |
-| Vanraure Hachinohe vs Yokohama | btts | BTTS No | 0.5507 | win |
-| Vanraure Hachinohe vs Yokohama | ou | Under 2.5 | 0.5432 | win |
-| Vanraure Hachinohe vs Yokohama | ah | AH Away -0.75 | 0.5907 | win |
-| Vanraure Hachinohe vs Yokohama | 1x2 | Away | 0.5907 | win |
-| Colorado Springs Switchbacks vs Oakland Roots | btts | BTTS Yes | 0.5817 | loss |
-| Colorado Springs Switchbacks vs Oakland Roots | ou | Over 2.75 | 0.5867 | loss |
-| Colorado Springs Switchbacks vs Oakland Roots | ah | AH Home -0.75 | 0.5444 | loss |
-| Colorado Springs Switchbacks vs Oakland Roots | 1x2 | Home | 0.5444 | loss |
+| Japan vs New Zealand | ah | AH Home -1.75 | 0.5494 | loss |
+| Japan vs New Zealand | btts | BTTS No | 0.5057 | loss |
+| Japan vs New Zealand | ou | Under 3.25 | 0.5816 | half_win |
+| Japan vs New Zealand | ah | AH Home -1.5 | 0.535 | loss |
+| Japan vs New Zealand | 1x2 | Home | 0.7545 | win |
+| Japan vs New Zealand | ou | Over 3 | 0.3839 | push |
+| Japan vs New Zealand | ah | AH Home -2 | 0.3351 | loss |
+| Japan vs New Zealand | 1x2 | Home | 0.7798 | win |
+| Ecuador vs Panama | ou | Under 2.25 | 0.6727 | half_win |
+| Ecuador vs Panama | ah | AH Home -0.25 | 0.5123 | half_loss |
+| Ecuador vs Panama | btts | BTTS No | 0.6686 | loss |
+| Ecuador vs Panama | ou | Under 2 | 0.438 | push |
+| Ecuador vs Panama | ah | AH Home -0.75 | 0.522 | loss |
+| Ecuador vs Panama | 1x2 | Home | 0.522 | loss |
+| Ecuador vs Panama | ou | Under 2 | 0.4829 | push |
+| Ecuador vs Panama | btts | BTTS No | 0.5844 | loss |
+| Ecuador vs Panama | ou | Under 3 | 0.5961 | win |
+| Ecuador vs Panama | ah | AH Home -1 | 0.2992 | loss |
+| Ecuador vs Panama | 1x2 | Home | 0.5643 | loss |
+| Nicaragua vs Dominican Republic | btts | BTTS Yes | 0.6028 | win |
