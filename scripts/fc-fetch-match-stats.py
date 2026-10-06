@@ -10,7 +10,7 @@ import xml.etree.ElementTree as ET
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
 
-FC_DIR = os.environ.get('FC_DIR', '/home/ubuntu/mlb-project/betting-machine-fc')
+FC_DIR = os.environ.get('FC_DIR', os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'betting-machine-fc'))
 DATA_DIR = os.path.join(FC_DIR, 'data')
 FEED_URL = 'https://apigw.fotmob.com/matches?date={day}'
 MATCH_URL = 'https://www.fotmob.com/match/{mid}'
@@ -94,7 +94,7 @@ def _matches_for(day, feed_names):
     return keep
 
 
-def run(code, feed_names, days, end, workers):
+def run(code, feed_names, days, end, workers, day_keys=None):
     path = os.path.join(DATA_DIR, f'{code}_stat_history.csv')
     rows = []
     seen = set()
@@ -109,18 +109,36 @@ def run(code, feed_names, days, end, workers):
                 seen.add(key)
                 rows.append({k: ('' if row.get(k) in (None, 'None') else row.get(k))
                              for k in CSV_FIELDS})
-    day_keys = [(end - timedelta(days=offset)).strftime('%Y%m%d')
-                for offset in range(days)][::-1]
+    day_keys = day_keys or [(end - timedelta(days=offset)).strftime('%Y%m%d')
+                          for offset in range(days)][::-1]
 
     jobs = []
-    for day in day_keys:
-        for match in _matches_for(day, feed_names):
-            key = (day, match['home'], match['away'])
-            if key in seen:
+    feed_failed = 0
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        feeds = {pool.submit(finished_matches, day): day for day in day_keys}
+        for future in as_completed(feeds):
+            day = feeds[future]
+            try:
+                matches = future.result()
+            except Exception:
+                feed_failed += 1
                 continue
-            jobs.append((day, match))
+            for match in matches:
+                league = (match['league'] or '').lower()
+                if code == 'INT_MEN':
+                    # Only senior UEFA Nations League, never club National League,
+                    # women's/youth competitions or extra-time knockout games.
+                    if not league.startswith('uefa nations league') or any(
+                            tag in league for tag in ('women', 'u17', 'u19', 'u21', 'final', 'playoff')):
+                        continue
+                elif not any(name.lower().rstrip('*') in league for name in feed_names):
+                    continue
+                key = (datetime.strptime(day, '%Y%m%d').strftime('%d/%m/%Y'), match['home'], match['away'])
+                if key not in seen:
+                    jobs.append((day, match))
 
     added, failed = 0, 0
+    failed_match_ids = []
     if jobs:
         with ThreadPoolExecutor(max_workers=workers) as pool:
             futures = {pool.submit(match_stats, j[1]['match_id']): j for j in jobs}
@@ -132,6 +150,7 @@ def run(code, feed_names, days, end, workers):
                     stats = None
                 if not stats:
                     failed += 1
+                    failed_match_ids.append(match['match_id'])
                     continue
                 corners = stats.get('corners') or [None, None]
                 yellows = stats.get('yellow_cards') or [None, None]
@@ -153,6 +172,7 @@ def run(code, feed_names, days, end, workers):
 
     rows = sorted({(r['Date'], r['HomeTeam'], r['AwayTeam']): r for r in rows}.values(),
                   key=lambda r: (r['Date'], r['HomeTeam'], r['AwayTeam']))
+    os.makedirs(DATA_DIR, exist_ok=True)
     tmp = path + '.tmp'
     with open(tmp, 'w', newline='', encoding='utf-8') as handle:
         writer = csv.DictWriter(handle, fieldnames=CSV_FIELDS, extrasaction='ignore')
@@ -160,9 +180,18 @@ def run(code, feed_names, days, end, workers):
         for row in rows:
             writer.writerow({k: '' if row.get(k) is None else row[k] for k in CSV_FIELDS})
     os.replace(tmp, path)
-    print(json.dumps({'status': 'ok', 'code': code, 'rows': len(rows),
-                      'added': added, 'failed': failed, 'path': path}), flush=True)
-    return 0
+    metadata = {'source': 'https://www.fotmob.com', 'code': code,
+                'retrieved_at_utc': datetime.now(timezone.utc).isoformat(),
+                'rows': len(rows), 'added': added, 'failed_match_ids': sorted(failed_match_ids),
+                'feed_failed': feed_failed,
+                'scope': 'senior UEFA Nations League excluding finals/playoffs' if code == 'INT_MEN' else feed_names}
+    meta_path = path.replace('.csv', '.source.json')
+    with open(meta_path + '.tmp', 'w', encoding='utf-8') as handle:
+        json.dump(metadata, handle, indent=2)
+    os.replace(meta_path + '.tmp', meta_path)
+    print(json.dumps({'status': 'partial' if failed or feed_failed else 'ok', 'code': code, 'rows': len(rows),
+                      'added': added, 'failed': failed, 'feed_failed': feed_failed, 'path': path}), flush=True)
+    return 1 if failed or feed_failed else 0
 
 
 def main(argv=None):
@@ -173,14 +202,34 @@ def main(argv=None):
     parser.add_argument('--end', default=None)
     parser.add_argument('--workers', type=int, default=8)
     parser.add_argument('--output')
+    parser.add_argument('--dates-file', help='JSON list of YYYYMMDD dates for historical backfill')
+    parser.add_argument('--national-backfill', action='store_true',
+                        help='Include UEFA Nations League dates since 2020 from the national results archive')
     args = parser.parse_args(argv)
     end = datetime.strptime(args.end, '%Y%m%d').date() if args.end else \
         datetime.now(timezone.utc).date()
     if args.output:
         global DATA_DIR
         os.makedirs(args.output, exist_ok=True)
-        DATA_DIR = os.path.dirname(os.path.abspath(args.output))
-    return run(args.code, args.names.split(','), args.days, end, args.workers)
+        DATA_DIR = os.path.abspath(args.output)
+    dates = json.load(open(args.dates_file, encoding='utf-8')) if args.dates_file else None
+    if args.national_backfill:
+        if args.code != 'INT_MEN':
+            parser.error('--national-backfill requires --code INT_MEN')
+        with open(os.path.join(FC_DIR, 'data', 'international_results.csv'), newline='', encoding='utf-8-sig') as handle:
+            historical = {row['date'].replace('-', '') for row in csv.DictReader(handle)
+                          if '2020-01-01' <= row['date'] <= end.isoformat()
+                          and row['tournament'] == 'UEFA Nations League'
+                          and row['neutral'] == 'FALSE'}
+        historical.update((end - timedelta(days=i)).strftime('%Y%m%d') for i in range(args.days))
+        dates = sorted(historical | set(dates or []))
+    if dates is not None:
+        for day in dates:
+            parsed = datetime.strptime(day, '%Y%m%d').date()
+            if parsed > end:
+                parser.error('Backfill dates must not be after --end')
+        dates = sorted(set(dates))
+    return run(args.code, args.names.split(','), args.days, end, args.workers, dates)
 
 
 if __name__ == '__main__':

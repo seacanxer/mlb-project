@@ -531,6 +531,9 @@ def secondary_stat_files(code):
     archives (full stats) plus the current-season archive/dayfeed, and skip
     the stat-free live_scores lane entirely.
     """
+    if code == NATIONAL_CODE:
+        path = os.path.join(FC_DIR, 'data', f'{code}_stat_history.csv')
+        return [path] if os.path.exists(path) else []
     season = current_season_for(code, time.time())
     data_dir = os.path.join(FC_DIR, 'data')
     names = [file for file, _season in LEAGUES[code][0]]
@@ -545,14 +548,17 @@ def secondary_stat_files(code):
 
 def secondary_analysis(info, cache, goal_projection=None, book=None):
     code = model_code(info.get('league'))
-    if code not in LEAGUES:
+    if code not in LEAGUES and code != NATIONAL_CODE:
         return {'availability': 'C', 'reason': 'NO_HISTORICAL_MATCH_STATS', 'markets': [], 'limited': True}
     if code not in cache:
         cache[code] = load_secondary_rows(secondary_stat_files(code))
     rows = cache[code]
     teams = {r[side] for r in rows for side in ('home', 'away')}
-    home = match_team(info.get('home') or '', teams)
-    away = match_team(info.get('away') or '', teams)
+    aliases = {'Republic of North Macedonia': 'North Macedonia',
+               'Czech Republic': 'Czechia'} if code == NATIONAL_CODE else {}
+    home_name, away_name = info.get('home') or '', info.get('away') or ''
+    home = match_team(aliases.get(home_name, home_name), teams)
+    away = match_team(aliases.get(away_name, away_name), teams)
     if not home or not away:
         return {'availability': 'C', 'reason': 'SECONDARY_TEAM_UNMATCHED', 'markets': [], 'limited': True}
     return project_secondary_fixture(rows, home, away, info['start_ts'],

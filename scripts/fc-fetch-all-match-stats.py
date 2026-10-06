@@ -1,10 +1,12 @@
 import subprocess, sys, os, time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-VENV = '/home/ubuntu/mlb-project/betting-machine-fc/venv/bin/python'
-SCRIPT = '/home/ubuntu/mlb-project/scripts/fc-fetch-match-stats.py'
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+VENV = sys.executable
+SCRIPT = os.path.join(ROOT, 'scripts', 'fc-fetch-match-stats.py')
 
 LEAGUES = [
+    ('INT_MEN', 'UEFA Nations League'),
     ('E0', 'Premier League'),
     ('E1', 'Championship'),
     ('E2', 'League One'),
@@ -48,8 +50,10 @@ def job(entry, days, end, workers):
            '--days', str(days), '--workers', str(workers)]
     if end:
         cmd += ['--end', end]
+    if code == 'INT_MEN':
+        cmd += ['--national-backfill']
     proc = subprocess.run(cmd, capture_output=True, text=True,
-                          cwd='/home/ubuntu/mlb-project/scripts')
+                          cwd=os.path.join(ROOT, 'scripts'))
     return code, proc.stdout.strip() or proc.stderr.strip()[-300:]
 
 
@@ -68,7 +72,7 @@ def main():
     import csv
     total = 0
     for code, _ in LEAGUES:
-        path = f'/home/ubuntu/mlb-project/betting-machine-fc/data/{code}_stat_history.csv'
+        path = os.path.join(ROOT, 'betting-machine-fc', 'data', f'{code}_stat_history.csv')
         try:
             with open(path, newline='', encoding='utf-8-sig') as handle:
                 n = sum(1 for _ in csv.DictReader(handle))

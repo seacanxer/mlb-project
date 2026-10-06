@@ -128,6 +128,24 @@ def test_secondary_analysis_does_not_require_goal_model_or_market_quote():
     assert payload['odds'] is None and payload['ev'] is None
     assert payload['quote_observation_id'] is None
     assert payload['line_quarters'] == round(offer['line'] * 4)
+
+
+def test_national_secondary_analysis_uses_scoped_history():
+    import runpy
+    scanner = runpy.run_path(str(ROOT / 'scripts' / 'fc-scan-live.py'))
+    kickoff = int(datetime(2026, 9, 1, tzinfo=timezone.utc).timestamp())
+    info = {'league': 'UEFA Nations League', 'home': 'Spain', 'away': 'Croatia', 'start_ts': kickoff,
+            'match_id': 'national-fixture'}
+    result = scanner['secondary_analysis'](info, {'INT_MEN': make_rows()})
+    assert result['availability'] == 'B'
+    assert any(m['market'].startswith('corner') for m in result['markets'])
+    assert all('INT_MEN_stat_history.csv' in path for path in scanner['secondary_stat_files']('INT_MEN'))
+    renamed = [{**r, 'home': 'Switzerland' if r['home'] == 'Spain' else r['home'],
+                'away': 'North Macedonia' if r['away'] == 'Croatia' else r['away']}
+               for r in make_rows()]
+    alias_result = scanner['secondary_analysis'](
+        {**info, 'home': 'Switzerland', 'away': 'Republic of North Macedonia'}, {'INT_MEN': renamed})
+    assert alias_result['availability'] == 'B'
     # team_cards_ou must carry its side or the leg can never be settled.
     team_offer = next(row for row in result['markets'] if row['market'] == 'team_cards_ou')
     assert team_offer['team'] in ('home', 'away')

@@ -1,0 +1,583 @@
+Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG,HC,AC,HY,AY,HR,AR,HF,AF,Referee
+INT_MEN,01/06/2022,18:00,Poland,Wales,2,1,3,4,1,2,0,0,15,10,Rade Obrenovic
+INT_MEN,01/10/2026,18:00,Azerbaijan,Liechtenstein,0,0,6,0,2,3,0,0,7,16,Christian-Petru Ciochirca
+INT_MEN,01/10/2026,20:45,Denmark,Portugal,2,4,3,7,1,1,0,0,6,12,Mykola Balakin
+INT_MEN,01/10/2026,20:45,Germany,Serbia,2,0,12,1,0,2,0,0,10,11,Espen Eskas
+INT_MEN,01/10/2026,20:45,Greece,Netherlands,2,2,6,8,2,0,0,0,6,7,Marco Guida
+INT_MEN,01/10/2026,20:45,Ireland,Austria,2,2,3,5,2,1,0,0,14,17,Allard Lindhout
+INT_MEN,01/10/2026,20:45,Israel,Kosovo,0,0,4,5,0,0,0,0,8,7,Radu Marian Petrescu
+INT_MEN,01/10/2026,20:45,Malta,Gibraltar,1,1,8,1,3,1,0,0,16,8,Antoni Bandic
+INT_MEN,01/10/2026,20:45,Wales,Norway,2,1,3,3,3,1,0,1,11,7,Alejandro Jose Hernandez Hernandez
+INT_MEN,02/06/2022,18:00,Bulgaria,North Macedonia,1,1,1,5,2,2,0,0,14,12,Jeremie Pignard
+INT_MEN,02/06/2022,18:00,Cyprus,Kosovo,0,2,5,5,1,4,0,0,8,13,Jerome Brisard
+INT_MEN,02/06/2022,20:45,Czech Republic,Switzerland,2,1,3,8,2,2,0,0,9,12,Daniel Siebert
+INT_MEN,02/06/2022,18:00,Estonia,San Marino,2,0,4,1,0,2,0,0,11,10,Ioannis Papadopoulos
+INT_MEN,02/06/2022,18:00,Georgia,Gibraltar,4,0,8,0,2,3,0,0,12,7,Morten Krogh
+INT_MEN,02/06/2022,20:45,Israel,Iceland,2,2,3,5,1,3,0,0,15,11,Andris Treimanis
+INT_MEN,02/06/2022,20:45,Northern Ireland,Greece,0,1,2,1,2,2,0,0,14,15,Erik Lambrechts
+INT_MEN,02/06/2022,20:45,Serbia,Norway,0,1,12,0,1,2,0,0,10,8,Paweł Raczkowski
+INT_MEN,02/06/2022,20:45,Slovenia,Sweden,0,2,2,4,2,3,0,0,11,12,Ruddy Buquet
+INT_MEN,02/06/2022,20:45,Spain,Portugal,1,1,5,5,3,5,0,0,15,14,Michael Oliver
+INT_MEN,02/10/2026,20:45,Belgium,Turkiye,3,0,2,5,4,4,0,0,12,12,Rohit Saggi
+INT_MEN,02/10/2026,20:45,Bosnia and Herzegovina,Sweden,1,1,4,0,0,0,0,0,8,11,Oleksiy Derevinskyi
+INT_MEN,02/10/2026,18:00,Cyprus,Armenia,2,0,1,11,0,2,1,0,6,10,Mohammed Al Emara
+INT_MEN,02/10/2026,20:45,Faroe Islands,Slovakia,1,1,2,10,3,0,0,0,12,7,Mohammed Al Hakim
+INT_MEN,02/10/2026,20:45,France,Italy,1,1,6,4,0,4,1,0,9,10,Jesus Gil Manzano
+INT_MEN,02/10/2026,20:45,Hungary,Georgia,1,0,8,4,3,2,0,0,18,17,Srdjan Jovanovic
+INT_MEN,02/10/2026,16:00,Kazakhstan,Moldova,1,2,11,4,2,0,0,0,10,10,Marian Barbu
+INT_MEN,02/10/2026,18:00,Latvia,Montenegro,1,2,5,2,1,1,0,0,10,7,Radoslav Gidzhenov
+INT_MEN,02/10/2026,20:45,Poland,Romania,6,0,7,1,2,3,0,1,9,11,Urs Schnyder
+INT_MEN,02/10/2026,20:45,Ukraine,Northern Ireland,0,3,7,1,3,1,0,0,15,4,Jasper Vergoote
+INT_MEN,03/06/2022,20:45,Belarus,Slovakia,0,1,3,9,1,2,0,0,9,13,Stephanie Frappart
+INT_MEN,03/06/2022,20:45,Belgium,Netherlands,1,4,10,4,1,1,0,0,6,14,Jose Maria Sanchez Martinez
+INT_MEN,03/06/2022,20:45,Croatia,Austria,0,3,7,4,1,1,0,0,10,7,Chris Kavanagh
+INT_MEN,03/06/2022,20:45,France,Denmark,1,2,2,2,0,1,0,0,8,8,Felix Zwayer
+INT_MEN,03/06/2022,16:00,Kazakhstan,Azerbaijan,2,0,2,4,3,1,0,0,12,10,Istvan Vad II
+INT_MEN,03/06/2022,18:00,Latvia,Andorra,3,0,5,1,0,0,0,0,16,8,Tomasz Musial
+INT_MEN,03/06/2022,20:45,Liechtenstein,Moldova,0,2,1,4,3,2,0,0,12,13,Giorgi Kruashvili
+INT_MEN,03/09/2020,20:45,Bulgaria,Ireland,1,1,1,5,0,1,0,0,15,16,Manuel Schuettengruber
+INT_MEN,03/09/2020,20:45,Faroe Islands,Malta,3,2,4,7,3,2,0,0,13,20,
+INT_MEN,03/09/2020,20:45,Finland,Wales,0,1,3,0,3,4,0,0,14,14,Daniel Siebert
+INT_MEN,03/09/2020,20:45,Germany,Spain,1,1,6,4,0,0,0,0,12,10,Daniele Orsato
+INT_MEN,03/09/2020,18:00,Latvia,Andorra,0,0,4,1,0,5,1,0,17,13,
+INT_MEN,03/09/2020,20:45,Moldova,Kosovo,1,1,1,6,1,1,0,0,18,18,
+INT_MEN,03/09/2020,20:45,Russia,Serbia,3,1,3,4,0,2,0,0,16,12,William Collum
+INT_MEN,03/09/2020,20:45,Slovenia,Greece,0,0,2,6,3,1,0,0,18,12,
+INT_MEN,03/09/2020,20:45,Turkey,Hungary,0,1,3,5,2,3,0,0,13,19,Artur Dias
+INT_MEN,03/09/2020,20:45,Ukraine,Switzerland,2,1,2,5,1,2,0,0,7,17,Andreas Ekberg
+INT_MEN,03/10/2026,18:00,Belarus,San Marino,4,0,6,4,3,5,0,0,16,20,Alexandros Tsakalidis
+INT_MEN,03/10/2026,18:00,Croatia,England,0,7,1,6,1,0,0,0,10,6,Sven Jablonski
+INT_MEN,03/10/2026,18:00,Estonia,Luxembourg,1,0,7,3,3,6,0,0,13,12,Paweł Raczkowski
+INT_MEN,03/10/2026,15:00,Finland,Albania,2,1,7,6,1,4,0,1,13,10,Robert Hennessy
+INT_MEN,03/10/2026,18:00,Iceland,Bulgaria,3,0,9,1,2,4,0,0,11,15,Balazs Berke
+INT_MEN,03/10/2026,20:45,North Macedonia,Scotland,0,2,1,9,5,1,0,1,20,13,Francois Letexier
+INT_MEN,03/10/2026,20:45,Spain,Czechia,3,1,5,0,1,4,0,1,11,13,Vasilis Fotias
+INT_MEN,03/10/2026,20:45,Switzerland,Slovenia,2,1,4,3,1,5,0,0,8,15,Ivan Kruzliak
+INT_MEN,04/06/2022,15:00,Armenia,Ireland,1,0,2,6,1,2,0,0,6,11,Radu Marian Petrescu
+INT_MEN,04/06/2022,18:00,Finland,Bosnia and Herzegovina,1,1,5,7,4,2,0,0,11,13,Nick Walsh
+INT_MEN,04/06/2022,18:00,Hungary,England,1,0,3,6,2,2,0,0,7,6,Artur Manuel Ribeiro Soares Dias
+INT_MEN,04/06/2022,20:45,Italy,Germany,1,1,3,3,5,3,0,0,12,17,Srđan Jovanovic
+INT_MEN,04/06/2022,18:00,Lithuania,Luxembourg,0,2,6,10,4,1,0,0,20,5,David Fuxman
+INT_MEN,04/06/2022,20:45,Montenegro,Romania,2,0,4,3,2,1,0,0,12,17,Lars Christian Andreas Ekberg
+INT_MEN,04/06/2022,20:45,Turkey,Faroe Islands,4,0,4,0,2,2,0,0,9,15,Trustin Farrugia Cann
+INT_MEN,04/09/2020,20:45,Belarus,Albania,0,2,4,3,1,1,0,0,14,10,
+INT_MEN,04/09/2020,20:45,Italy,Bosnia and Herzegovina,1,1,7,2,3,2,0,0,7,12,Anastasios Sidiropoulos
+INT_MEN,04/09/2020,18:00,Lithuania,Kazakhstan,0,2,3,2,4,2,0,0,13,16,
+INT_MEN,04/09/2020,20:45,Netherlands,Poland,1,0,5,4,3,5,0,0,13,23,Georgi Kabakov
+INT_MEN,04/09/2020,20:45,Norway,Austria,1,2,1,4,4,2,0,0,18,13,Mattias Gestranius
+INT_MEN,04/09/2020,20:45,Romania,Northern Ireland,1,1,4,0,2,1,0,1,19,18,Francois Letexier
+INT_MEN,04/09/2020,20:45,Scotland,Israel,1,1,5,4,1,1,0,0,13,12,Slavko Vincic
+INT_MEN,04/09/2020,20:45,Slovakia,Czech Republic,1,3,0,6,3,1,0,0,19,22,Andris Treimanis
+INT_MEN,04/10/2026,15:00,Azerbaijan,Lithuania,1,0,2,5,3,3,0,1,14,9,Gustavo Correia
+INT_MEN,04/10/2026,20:45,Greece,Germany,0,0,2,3,3,3,0,0,8,17,Clement Turpin
+INT_MEN,04/10/2026,20:45,Ireland,Israel,1,1,3,3,1,3,0,0,13,15,Juan Martinez Munuera
+INT_MEN,04/10/2026,18:00,Kosovo,Austria,1,1,3,5,1,0,0,0,6,15,Antonio Nobre
+INT_MEN,04/10/2026,18:00,Malta,Andorra,1,0,6,5,2,3,0,0,14,16,Mikkel Redder
+INT_MEN,04/10/2026,20:45,Netherlands,Serbia,2,1,6,4,1,4,0,0,14,13,Donatas Rumsas
+INT_MEN,04/10/2026,20:45,Portugal,Norway,2,1,6,4,2,0,1,0,8,7,Maurizio Mariani
+INT_MEN,04/10/2026,20:45,Wales,Denmark,0,1,3,3,3,1,0,0,11,9,Irfan Peljto
+INT_MEN,05/06/2022,20:45,Bulgaria,Georgia,2,5,5,6,2,0,0,0,8,7,Fabio Maresca
+INT_MEN,05/06/2022,18:00,Cyprus,Northern Ireland,0,0,2,4,1,2,0,0,4,11,Enea Jorgji
+INT_MEN,05/06/2022,20:45,Czech Republic,Spain,2,2,3,8,1,1,0,0,15,9,Francois Letexier
+INT_MEN,05/06/2022,18:00,Gibraltar,North Macedonia,0,2,2,5,0,1,0,0,12,10,Alain Durieux
+INT_MEN,05/06/2022,20:45,Kosovo,Greece,0,1,4,5,2,2,2,0,14,7,John Beaton
+INT_MEN,05/06/2022,20:45,Portugal,Switzerland,4,0,6,5,1,3,0,0,10,16,Orel Grinfeeld
+INT_MEN,05/06/2022,15:00,San Marino,Malta,0,2,2,4,2,3,0,0,9,17,Əliyar Agayev
+INT_MEN,05/06/2022,20:45,Serbia,Slovenia,4,1,4,0,1,1,0,0,6,10,Jesus Gil Manzano
+INT_MEN,05/06/2022,20:45,Sweden,Norway,1,2,10,4,5,1,0,0,8,12,Anthony Taylor
+INT_MEN,05/09/2020,18:00,Azerbaijan,Luxembourg,1,2,0,9,3,0,1,0,19,13,
+INT_MEN,05/09/2020,18:00,Cyprus,Montenegro,0,2,1,6,3,4,0,0,15,14,
+INT_MEN,05/09/2020,20:45,Denmark,Belgium,0,2,7,4,2,1,0,0,13,10,Sandro Schaerer
+INT_MEN,05/09/2020,18:00,Estonia,Georgia,0,1,3,5,3,2,0,0,15,13,
+INT_MEN,05/09/2020,15:00,Gibraltar,San Marino,1,0,3,0,1,2,0,0,12,19,
+INT_MEN,05/09/2020,18:00,Iceland,England,0,1,1,7,0,1,1,1,12,8,Srdjan Jovanovic
+INT_MEN,05/09/2020,15:00,North Macedonia,Armenia,2,1,1,13,2,3,0,0,14,18,
+INT_MEN,05/09/2020,20:45,Portugal,Croatia,4,1,8,4,0,2,0,0,11,8,Davide Massa
+INT_MEN,05/09/2020,20:45,Sweden,France,0,1,5,5,1,1,0,0,14,9,Szymon Marciniak
+INT_MEN,05/09/2024,18:00,Azerbaijan,Sweden,1,3,2,8,2,2,0,0,4,20,Balazs Berke
+INT_MEN,05/09/2024,20:45,Belarus,Bulgaria,0,0,5,5,2,2,0,1,17,13,Ovidiu Alin Hategan
+INT_MEN,05/09/2024,20:45,Denmark,Switzerland,2,0,6,1,4,3,0,2,17,13,Daniel Siebert
+INT_MEN,05/09/2024,20:45,Estonia,Slovakia,0,1,1,7,2,5,0,0,13,9,Matej Jug
+INT_MEN,05/09/2024,20:45,Northern Ireland,Luxembourg,2,0,10,2,1,1,0,0,8,17,Marian Alexandru Barbu
+INT_MEN,05/09/2024,20:45,Portugal,Croatia,2,1,5,7,0,1,0,0,5,6,Halil Umut Meler
+INT_MEN,05/09/2024,20:45,San Marino,Liechtenstein,1,0,1,2,3,2,0,0,13,21,Andris Treimanis
+INT_MEN,05/09/2024,20:45,Scotland,Poland,2,3,2,3,0,3,0,0,13,18,Glenn Nyberg
+INT_MEN,05/09/2024,20:45,Serbia,Spain,0,0,2,9,3,5,0,0,11,12,Serdar Gozubuyuk
+INT_MEN,05/10/2026,20:45,Bosnia and Herzegovina,Poland,1,0,2,8,3,3,0,0,12,7,Jeremie Pignard
+INT_MEN,05/10/2026,18:00,Cyprus,Latvia,2,1,7,3,2,3,0,0,10,8,Giorgi Kruashvili
+INT_MEN,05/10/2026,20:45,France,Belgium,4,1,9,2,1,2,0,0,4,8,Nick Walsh
+INT_MEN,05/10/2026,20:45,Italy,Turkiye,3,1,3,9,2,2,0,0,11,9,Szymon Marciniak
+INT_MEN,05/10/2026,20:45,Montenegro,Armenia,0,0,4,2,,,,,,,Manfredas Lukjancukas
+INT_MEN,05/10/2026,20:45,Northern Ireland,Georgia,0,0,8,4,0,4,0,0,9,14,Sebastian Gishamer
+INT_MEN,05/10/2026,20:45,Romania,Sweden,0,1,5,4,4,2,0,0,15,11,Elchin Məsiyev
+INT_MEN,05/10/2026,20:45,Ukraine,Hungary,1,2,5,4,1,2,0,0,10,13,Igor Pajac
+INT_MEN,06/06/2022,20:45,Andorra,Moldova,0,0,2,6,2,4,0,1,15,17,Leonce Lionel Tschudi
+INT_MEN,06/06/2022,22:15,Austria,Denmark,1,2,6,5,0,2,0,0,13,10,William Collum
+INT_MEN,06/06/2022,20:45,Belarus,Azerbaijan,0,0,1,5,4,4,0,1,9,15,Mohammed Al Hakim
+INT_MEN,06/06/2022,20:45,Croatia,France,1,1,4,6,1,1,0,0,9,8,Marco Guida
+INT_MEN,06/06/2022,20:45,Iceland,Albania,1,1,4,7,1,1,0,0,15,16,Craig Pawson
+INT_MEN,06/06/2022,18:00,Latvia,Liechtenstein,1,0,9,2,1,1,0,0,8,5,Mario Zebec
+INT_MEN,06/06/2022,20:45,Slovakia,Kazakhstan,0,1,5,4,4,6,0,0,10,14,Kristo Tohver
+INT_MEN,06/09/2020,15:00,Andorra,Faroe Islands,0,1,2,6,3,2,0,0,16,16,
+INT_MEN,06/09/2020,18:00,Hungary,Russia,2,3,7,0,1,1,0,0,13,10,Maurizio Mariani
+INT_MEN,06/09/2020,18:00,Ireland,Finland,0,1,3,6,2,1,0,0,2,7,Fabio Maresca
+INT_MEN,06/09/2020,20:45,Kosovo,Greece,1,2,5,3,3,2,0,0,18,13,
+INT_MEN,06/09/2020,20:45,Malta,Latvia,1,1,3,4,2,3,0,0,11,17,
+INT_MEN,06/09/2020,20:45,Serbia,Turkey,0,0,6,3,2,2,1,0,16,16,Alexey Kulbakov
+INT_MEN,06/09/2020,18:00,Slovenia,Moldova,1,0,4,2,2,3,0,0,20,19,
+INT_MEN,06/09/2020,20:45,Spain,Ukraine,4,0,9,2,1,2,0,0,15,8,Benoit Bastien
+INT_MEN,06/09/2020,20:45,Switzerland,Germany,1,1,4,4,1,2,0,0,11,19,Michael Oliver
+INT_MEN,06/09/2020,15:00,Wales,Bulgaria,1,0,5,1,2,1,0,0,16,13,Fabio Verissimo
+INT_MEN,06/09/2024,20:45,Belgium,Israel,3,1,7,1,1,1,0,0,9,7,Michael Oliver
+INT_MEN,06/09/2024,20:45,France,Italy,1,3,2,5,1,1,0,0,12,10,Sandro Scharer
+INT_MEN,06/09/2024,20:45,Iceland,Montenegro,2,0,7,4,2,5,0,0,17,15,Willy Delajod
+INT_MEN,06/09/2024,16:00,Kazakhstan,Norway,0,0,1,12,4,1,0,0,12,9,Allard Lindhout
+INT_MEN,06/09/2024,20:45,Kosovo,Romania,0,3,3,4,3,2,1,0,11,8,Əliyar Agayev
+INT_MEN,06/09/2024,18:00,Lithuania,Cyprus,0,1,4,2,1,5,0,0,17,20,Igor Pajac
+INT_MEN,06/09/2024,20:45,Slovenia,Austria,1,1,4,7,2,4,0,0,9,18,Radu Marian Petrescu
+INT_MEN,06/09/2024,20:45,Wales,Turkiye,0,0,4,3,2,4,0,1,12,20,Rohit Saggi
+INT_MEN,07/06/2022,21:05,Bosnia and Herzegovina,Romania,1,0,9,3,2,1,0,0,8,16,Sascha Stegemann
+INT_MEN,07/06/2022,20:45,Faroe Islands,Luxembourg,0,1,2,3,2,0,2,0,9,8,Robert Hennessy
+INT_MEN,07/06/2022,18:00,Finland,Montenegro,2,0,7,2,0,1,0,0,13,13,Allard Lindhout
+INT_MEN,07/06/2022,20:45,Germany,England,1,1,5,8,1,0,0,0,4,7,Carlos del Cerro Grande
+INT_MEN,07/06/2022,20:45,Italy,Hungary,2,1,8,6,2,1,0,0,12,8,Sandro Scharer
+INT_MEN,07/06/2022,20:45,Lithuania,Turkiye,0,6,1,6,4,2,0,0,17,14,Novak Simovic
+INT_MEN,07/09/2020,20:45,Albania,Lithuania,0,1,6,3,1,3,1,0,14,20,
+INT_MEN,07/09/2020,20:45,Austria,Romania,2,3,8,4,0,3,0,0,13,21,Glenn Nyberg
+INT_MEN,07/09/2020,20:45,Bosnia and Herzegovina,Poland,1,2,2,5,1,2,0,0,25,18,Cuneyt Cakir
+INT_MEN,07/09/2020,20:45,Czech Republic,Scotland,1,2,8,0,2,4,0,0,17,13,Serdar Gozubuyuk
+INT_MEN,07/09/2020,20:45,Israel,Slovakia,1,1,7,2,2,1,0,0,14,16,Nikola Dabanovic
+INT_MEN,07/09/2020,16:00,Kazakhstan,Belarus,1,2,2,5,3,1,0,0,17,10,
+INT_MEN,07/09/2020,20:45,Netherlands,Italy,0,1,6,5,3,3,0,0,14,16,Felix Brych
+INT_MEN,07/09/2020,20:45,Northern Ireland,Norway,1,5,4,0,2,1,0,0,8,13,Bartosz Frankowski
+INT_MEN,07/09/2024,18:00,Armenia,Latvia,4,1,8,3,0,2,0,0,10,14,Nenad Minakovic
+INT_MEN,07/09/2024,15:00,Faroe Islands,North Macedonia,1,1,4,4,2,3,0,0,17,5,Manfredas Lukjancukas
+INT_MEN,07/09/2024,18:00,Georgia,Czechia,4,1,1,4,3,3,0,0,18,13,Orel Grinfeeld
+INT_MEN,07/09/2024,20:45,Germany,Hungary,5,0,4,2,0,1,0,0,13,11,Clement Turpin
+INT_MEN,07/09/2024,20:45,Greece,Finland,3,0,6,2,3,2,0,0,10,8,Urs Schnyder
+INT_MEN,07/09/2024,18:00,Ireland,England,0,2,1,4,4,2,0,0,15,9,Jose Maria Sanchez Martinez
+INT_MEN,07/09/2024,18:00,Moldova,Malta,2,0,3,0,2,3,0,0,16,17,Mykola Balakin
+INT_MEN,07/09/2024,20:45,Netherlands,Bosnia and Herzegovina,5,2,10,1,0,2,0,0,10,15,Donatas Rumsas
+INT_MEN,07/09/2024,20:45,Ukraine,Albania,1,2,5,4,0,2,0,0,17,13,Luis Miguel Branco Godinho
+INT_MEN,08/06/2022,20:45,Belgium,Poland,6,1,7,1,1,1,0,0,12,11,Ivan Kruzliak
+INT_MEN,08/06/2022,20:45,Ireland,Ukraine,0,1,6,4,1,1,0,0,11,12,Filip Glova
+INT_MEN,08/06/2022,20:45,Scotland,Armenia,2,0,9,0,1,3,0,0,13,11,Sebastian Gishamer
+INT_MEN,08/06/2022,20:45,Wales,Netherlands,1,2,4,5,0,1,0,0,10,12,Glenn Nyberg
+INT_MEN,08/09/2020,18:00,Armenia,Estonia,2,0,4,1,3,0,0,0,9,9,
+INT_MEN,08/09/2020,20:45,Belgium,Iceland,5,1,7,3,0,1,0,0,8,5,Pawel Raczkowski
+INT_MEN,08/09/2020,20:45,Cyprus,Azerbaijan,0,1,2,3,1,3,0,0,12,17,
+INT_MEN,08/09/2020,20:45,Denmark,England,0,0,4,6,1,0,0,0,11,17,Istvan Kovacs
+INT_MEN,08/09/2020,20:45,France,Croatia,4,2,5,5,3,3,0,0,13,15,Ovidiu Hategan
+INT_MEN,08/09/2020,18:00,Georgia,North Macedonia,1,1,5,2,3,3,0,1,16,18,
+INT_MEN,08/09/2020,20:45,Luxembourg,Montenegro,0,1,4,2,4,2,1,0,18,16,
+INT_MEN,08/09/2020,20:45,San Marino,Liechtenstein,0,2,2,6,5,3,0,0,15,19,
+INT_MEN,08/09/2020,20:45,Sweden,Portugal,0,2,3,9,0,2,1,0,8,14,Danny Makkelie
+INT_MEN,08/09/2024,18:00,Bulgaria,Northern Ireland,1,0,2,4,3,4,0,0,19,12,Anastasios Sidiropoulos
+INT_MEN,08/09/2024,20:45,Croatia,Poland,1,0,8,2,5,1,0,0,9,11,Francois Letexier
+INT_MEN,08/09/2024,18:00,Denmark,Serbia,2,0,8,3,2,3,0,0,11,13,Chris Kavanagh
+INT_MEN,08/09/2024,18:00,Gibraltar,Liechtenstein,2,2,4,3,6,8,1,0,14,24,Kristo Tohver
+INT_MEN,08/09/2024,15:00,Luxembourg,Belarus,0,1,2,6,3,3,0,0,17,13,Lawrence Visser
+INT_MEN,08/09/2024,20:45,Portugal,Scotland,2,1,12,6,3,3,0,0,14,7,Maurizio Mariani
+INT_MEN,08/09/2024,18:00,Slovakia,Azerbaijan,2,0,4,6,0,4,0,0,15,13,Damian Sylwestrzak
+INT_MEN,08/09/2024,20:45,Sweden,Estonia,3,0,13,1,0,1,0,1,6,8,Sven Jablonski
+INT_MEN,08/09/2024,20:45,Switzerland,Spain,1,4,9,3,3,2,0,1,10,9,Irfan Peljto
+INT_MEN,09/06/2022,20:45,Gibraltar,Bulgaria,1,1,6,8,4,3,0,0,12,14,Petri Viljanen
+INT_MEN,09/06/2022,20:45,Greece,Cyprus,3,0,3,2,1,1,0,0,9,5,Tamas Bognar
+INT_MEN,09/06/2022,20:45,Kosovo,Northern Ireland,3,2,2,6,3,2,0,0,13,9,Jakob Kehlet
+INT_MEN,09/06/2022,20:45,Malta,Estonia,1,2,4,7,1,2,0,0,6,13,Bobby Madden
+INT_MEN,09/06/2022,20:45,North Macedonia,Georgia,0,3,3,3,3,3,0,0,10,7,Roee Reinshreiber
+INT_MEN,09/06/2022,20:45,Norway,Slovenia,0,0,9,1,1,2,0,1,5,6,Fabio Jose Costa Verissimo
+INT_MEN,09/06/2022,20:45,Portugal,Czech Republic,2,0,8,4,4,2,0,0,19,10,Matej Jug
+INT_MEN,09/06/2022,20:45,Sweden,Serbia,0,1,3,5,2,4,0,0,10,13,Lawrence Visser
+INT_MEN,09/06/2022,20:45,Switzerland,Spain,0,1,3,1,4,0,0,0,21,10,Serdar Gozubuyuk
+INT_MEN,09/09/2024,18:00,Cyprus,Kosovo,0,4,8,1,2,1,0,0,11,13,Sebastian Gishamer
+INT_MEN,09/09/2024,20:45,France,Belgium,2,0,5,7,2,2,0,0,8,10,Tobias Stieler
+INT_MEN,09/09/2024,20:45,Israel,Italy,1,2,3,2,2,1,0,0,13,10,Ivan Kruzliak
+INT_MEN,09/09/2024,20:45,Montenegro,Wales,1,2,12,5,2,4,0,0,17,10,Georgi Kabakov
+INT_MEN,09/09/2024,20:45,Norway,Austria,2,1,5,1,0,1,0,0,6,8,Nikola Dabanovic
+INT_MEN,09/09/2024,20:45,Romania,Lithuania,3,1,4,5,3,3,0,0,12,13,Rade Obrenovic
+INT_MEN,09/09/2024,20:45,Slovenia,Kazakhstan,3,0,5,0,2,1,0,0,11,11,Joao Pedro Silva Pinheiro
+INT_MEN,09/09/2024,20:45,Turkiye,Iceland,3,1,3,3,1,2,0,0,7,10,Enea Jorgji
+INT_MEN,10/06/2022,20:50,Albania,Israel,1,2,6,5,2,4,0,0,10,13,Tiago Bruno Lopes Martins
+INT_MEN,10/06/2022,20:45,Andorra,Liechtenstein,2,1,8,1,2,3,0,0,10,10,Nejc Kajtazovic
+INT_MEN,10/06/2022,20:45,Austria,France,1,1,3,10,4,0,0,0,10,6,Anastasios Sidiropoulos
+INT_MEN,10/06/2022,18:00,Azerbaijan,Slovakia,0,1,4,6,2,4,0,0,10,12,Donatas Rumsas
+INT_MEN,10/06/2022,20:45,Belarus,Kazakhstan,1,1,11,4,1,1,0,0,11,11,Manuel Schuttengruber
+INT_MEN,10/06/2022,20:45,Denmark,Croatia,0,1,8,3,2,2,0,0,12,10,Bartosz Frankowski
+INT_MEN,10/06/2022,18:00,Moldova,Latvia,2,4,6,11,1,2,0,0,15,13,Andy Madley
+INT_MEN,10/09/2024,20:45,Albania,Georgia,0,1,1,4,1,2,0,0,10,13,Erik Lambrechts
+INT_MEN,10/09/2024,20:45,Andorra,Malta,0,1,3,4,3,1,0,0,15,14,Mohammed Al Hakim
+INT_MEN,10/09/2024,20:45,Czechia,Ukraine,3,2,0,8,5,2,0,0,16,16,John Beaton
+INT_MEN,10/09/2024,20:45,England,Finland,2,0,8,2,0,1,0,0,7,8,Morten Krogh
+INT_MEN,10/09/2024,20:45,Hungary,Bosnia and Herzegovina,0,0,13,1,1,2,0,0,10,10,Marco Guida
+INT_MEN,10/09/2024,20:45,Ireland,Greece,0,2,2,2,2,3,0,0,14,11,Espen Eskas
+INT_MEN,10/09/2024,18:00,Latvia,Faroe Islands,1,0,6,1,0,1,0,0,5,7,Duje Strukan
+INT_MEN,10/09/2024,20:45,Netherlands,Germany,2,2,7,10,0,4,0,0,7,13,Davide Massa
+INT_MEN,10/09/2024,20:45,North Macedonia,Armenia,2,0,4,3,3,2,1,0,8,12,Harm Osmers
+INT_MEN,10/10/2020,20:45,Andorra,Malta,0,0,7,4,3,1,0,0,27,17,
+INT_MEN,10/10/2020,18:00,Faroe Islands,Latvia,1,1,4,7,1,3,0,0,14,11,
+INT_MEN,10/10/2020,18:00,Liechtenstein,Gibraltar,0,1,6,3,4,7,0,0,10,15,
+INT_MEN,10/10/2020,15:00,Luxembourg,Cyprus,2,0,6,5,2,2,0,0,21,10,
+INT_MEN,10/10/2020,15:00,Montenegro,Azerbaijan,2,0,3,4,2,3,0,0,20,19,
+INT_MEN,10/10/2020,20:45,Spain,Switzerland,1,0,8,3,1,2,0,0,10,11,Ali Palabiyik
+INT_MEN,10/10/2020,20:45,Ukraine,Germany,1,2,0,7,1,2,0,0,8,17,Orel Grinfeld
+INT_MEN,10/10/2024,20:45,Austria,Kazakhstan,4,0,14,3,1,2,0,0,10,17,Don Robertson
+INT_MEN,10/10/2024,20:45,England,Greece,1,2,9,5,2,4,0,0,10,14,Andrea Colombo
+INT_MEN,10/10/2024,20:45,Faroe Islands,Armenia,2,2,4,9,1,3,0,0,10,8,Oleksii Derevinskyi
+INT_MEN,10/10/2024,20:45,Finland,Ireland,1,2,2,2,0,0,0,0,10,5,Aleksandar Stavrev
+INT_MEN,10/10/2024,20:45,Gibraltar,San Marino,1,0,7,6,3,8,0,0,11,17,Felix Zwayer
+INT_MEN,10/10/2024,20:45,Israel,France,1,4,0,9,0,1,0,0,8,11,Nikola Dabanovic
+INT_MEN,10/10/2024,20:45,Italy,Belgium,2,2,0,12,2,1,1,0,11,15,Espen Eskas
+INT_MEN,10/10/2024,18:00,Latvia,North Macedonia,0,3,5,4,1,2,0,0,11,12,Jakob Alexander Sundberg
+INT_MEN,10/10/2024,18:00,Moldova,Andorra,2,0,2,5,4,4,0,0,15,20,Milos Milanovic
+INT_MEN,10/10/2024,20:45,Norway,Slovenia,3,0,4,4,1,1,0,0,5,11,Manfredas Lukjancukas
+INT_MEN,11/06/2022,20:45,England,Italy,0,0,2,2,2,3,0,0,17,12,Szymon Marciniak
+INT_MEN,11/06/2022,18:00,Faroe Islands,Lithuania,2,1,4,3,3,4,0,0,13,15,Igor Pajac
+INT_MEN,11/06/2022,20:45,Hungary,Germany,1,1,3,6,3,1,0,0,6,13,Jose Maria Sanchez Martinez
+INT_MEN,11/06/2022,18:00,Ireland,Scotland,3,0,6,8,2,1,0,0,10,10,Marco Di Bello
+INT_MEN,11/06/2022,20:45,Luxembourg,Turkiye,0,2,4,7,1,0,0,0,9,11,Antonio Emanuel Carvalho Nobre
+INT_MEN,11/06/2022,20:45,Montenegro,Bosnia and Herzegovina,1,1,2,6,1,3,0,0,4,10,Daniele Orsato
+INT_MEN,11/06/2022,20:45,Netherlands,Poland,2,2,6,1,3,5,0,0,10,9,Halil Umut Meler
+INT_MEN,11/06/2022,20:45,Romania,Finland,1,0,5,5,2,2,0,0,16,12,Harald Lechner
+INT_MEN,11/06/2022,15:00,Ukraine,Armenia,3,0,2,1,3,4,0,0,12,10,Daniel Stefanski
+INT_MEN,11/06/2022,20:45,Wales,Belgium,1,1,6,4,2,2,0,0,9,12,Benoit Bastien
+INT_MEN,11/10/2020,18:00,Armenia,Georgia,2,2,1,4,3,3,0,0,16,17,
+INT_MEN,11/10/2020,18:00,Bosnia and Herzegovina,Netherlands,0,0,2,7,2,1,0,0,9,14,Istvan Kovacs
+INT_MEN,11/10/2020,18:00,Croatia,Sweden,2,1,8,3,2,1,0,0,14,11,John Beaton
+INT_MEN,11/10/2020,18:00,England,Belgium,2,1,7,5,1,1,0,0,4,5,Tobias Stieler
+INT_MEN,11/10/2020,18:00,Estonia,North Macedonia,3,3,4,3,2,3,0,0,20,8,
+INT_MEN,11/10/2020,18:00,Finland,Bulgaria,2,0,3,7,0,0,0,0,5,12,Erik Lambrechts
+INT_MEN,11/10/2020,20:45,France,Portugal,0,0,1,4,0,1,0,0,19,12,Carlos del Cerro
+INT_MEN,11/10/2020,20:45,Greece,Moldova,2,0,7,0,2,4,0,1,8,20,
+INT_MEN,11/10/2020,20:45,Iceland,Denmark,0,3,3,12,2,0,0,0,15,11,Bojan Pandzic
+INT_MEN,11/10/2020,15:00,Ireland,Wales,0,0,3,4,1,2,1,0,14,11,Anastasios Sidiropoulos
+INT_MEN,11/10/2020,20:45,Israel,Czech Republic,1,2,2,4,4,2,0,0,9,15,Tiago Martins
+INT_MEN,11/10/2020,15:00,Kazakhstan,Albania,0,0,4,6,2,2,0,0,12,15,
+INT_MEN,11/10/2020,20:45,Kosovo,Slovenia,0,1,5,5,2,1,0,0,8,14,
+INT_MEN,11/10/2020,18:00,Lithuania,Belarus,2,2,3,7,4,2,0,0,21,24,
+INT_MEN,11/10/2020,20:45,Northern Ireland,Austria,0,1,3,5,2,1,0,0,13,11,Petr Ardeleanu
+INT_MEN,11/10/2020,18:00,Norway,Romania,4,0,5,4,1,1,0,0,10,8,Ivan Kruzliak
+INT_MEN,11/10/2020,20:45,Poland,Italy,0,0,5,9,2,2,0,0,20,18,Jose Sanchez
+INT_MEN,11/10/2020,20:45,Russia,Turkey,1,1,6,5,1,4,0,0,13,17,Matej Jug
+INT_MEN,11/10/2020,20:45,Scotland,Slovakia,1,0,9,5,4,3,0,0,19,14,Davide Massa
+INT_MEN,11/10/2020,20:45,Serbia,Hungary,0,1,7,0,3,4,0,0,13,21,Sandro Schaerer
+INT_MEN,11/10/2024,20:45,Bosnia and Herzegovina,Germany,1,2,3,2,5,1,0,0,10,9,Francois Letexier
+INT_MEN,11/10/2024,20:45,Czechia,Albania,2,0,4,3,1,1,0,0,15,12,Benoit Bastien
+INT_MEN,11/10/2024,18:00,Estonia,Azerbaijan,3,1,0,8,2,0,0,0,18,3,Robert Harvey
+INT_MEN,11/10/2024,20:45,Hungary,Netherlands,1,1,2,5,2,0,0,1,19,8,Lukas Fahndrich
+INT_MEN,11/10/2024,20:45,Iceland,Wales,2,2,4,1,2,5,0,0,16,8,Antoni Bandic
+INT_MEN,11/10/2024,20:45,Slovakia,Sweden,2,2,5,7,4,2,0,0,14,18,Maurizio Mariani
+INT_MEN,11/10/2024,20:45,Turkiye,Montenegro,1,0,6,5,3,2,0,0,19,10,Daniele Chiffi
+INT_MEN,11/10/2024,20:45,Ukraine,Georgia,1,0,3,7,4,4,0,0,11,9,Julian Weinberger
+INT_MEN,12/06/2022,18:00,Georgia,Bulgaria,0,0,10,0,1,2,0,0,8,11,Espen Eskas
+INT_MEN,12/06/2022,20:45,Greece,Kosovo,2,0,6,5,3,1,0,0,10,12,Julian Weinberger
+INT_MEN,12/06/2022,20:45,Malta,San Marino,1,0,11,1,0,3,0,0,9,15,Dennis Johan Higler
+INT_MEN,12/06/2022,18:00,North Macedonia,Gibraltar,4,0,7,1,1,3,0,0,7,7,Dumitru Muntean
+INT_MEN,12/06/2022,15:00,Northern Ireland,Cyprus,2,2,4,0,1,1,0,0,9,5,Ricardo De Burgos Bengoetxea
+INT_MEN,12/06/2022,18:00,Norway,Sweden,3,2,4,5,4,3,0,0,16,8,Harm Osmers
+INT_MEN,12/06/2022,20:45,Slovenia,Serbia,2,2,1,2,5,2,0,1,17,11,Maurizio Mariani
+INT_MEN,12/06/2022,20:45,Spain,Czech Republic,2,0,2,5,1,0,0,0,5,13,Cuneyt Cakιr
+INT_MEN,12/06/2022,20:45,Switzerland,Portugal,1,0,0,10,2,2,0,0,9,13,Fran Jovic
+INT_MEN,12/10/2024,20:45,Belarus,Northern Ireland,0,0,3,7,2,1,0,0,16,18,Henrik Nalbandyan
+INT_MEN,12/10/2024,18:00,Bulgaria,Luxembourg,0,0,6,3,6,5,0,0,12,19,David Smajc
+INT_MEN,12/10/2024,18:00,Croatia,Scotland,2,1,3,2,2,2,0,0,14,7,Istvan Kovacs
+INT_MEN,12/10/2024,20:45,Cyprus,Romania,0,3,4,6,4,2,0,0,11,14,Sascha Stegemann
+INT_MEN,12/10/2024,15:00,Lithuania,Kosovo,1,2,3,4,2,3,0,0,13,14,Ondrej Berka
+INT_MEN,12/10/2024,20:45,Poland,Portugal,1,3,7,4,4,1,0,0,12,16,Serdar Gozubuyuk
+INT_MEN,12/10/2024,20:45,Serbia,Switzerland,2,0,3,7,3,2,0,0,12,11,Simone Sozza
+INT_MEN,12/10/2024,20:45,Spain,Denmark,1,0,4,4,1,4,0,0,9,17,Ivan Kruzliak
+INT_MEN,13/06/2022,18:00,Azerbaijan,Belarus,2,0,5,6,1,0,0,0,10,7,Anastasios Papapetrou
+INT_MEN,13/06/2022,20:45,Denmark,Austria,2,0,5,4,1,2,0,0,9,13,Alejandro Jose Hernandez Hernandez
+INT_MEN,13/06/2022,20:45,France,Croatia,0,1,7,3,3,1,0,0,12,10,Orel Grinfeeld
+INT_MEN,13/06/2022,20:45,Iceland,Israel,2,2,1,7,1,2,0,0,17,12,Duje Strukan
+INT_MEN,13/06/2022,16:00,Kazakhstan,Slovakia,2,1,0,8,1,4,0,1,16,15,Bram Van Driessche
+INT_MEN,13/10/2020,18:00,Azerbaijan,Cyprus,0,0,1,1,1,5,0,0,18,23,
+INT_MEN,13/10/2020,20:45,Faroe Islands,Andorra,2,0,7,2,4,4,0,0,9,23,
+INT_MEN,13/10/2020,20:45,Germany,Switzerland,3,3,7,2,3,2,0,1,13,13,Ruddy Buquet
+INT_MEN,13/10/2020,18:00,Latvia,Malta,0,1,6,6,4,2,0,0,21,11,
+INT_MEN,13/10/2020,20:45,Liechtenstein,San Marino,0,0,1,2,5,5,0,0,19,15,
+INT_MEN,13/10/2020,20:45,Montenegro,Luxembourg,1,2,3,4,3,1,2,1,19,11,
+INT_MEN,13/10/2020,20:45,Ukraine,Spain,1,0,3,9,0,0,0,0,10,8,Pawel Gil
+INT_MEN,13/10/2024,18:00,Armenia,North Macedonia,0,2,4,2,2,1,0,0,10,12,Stuart Attwell
+INT_MEN,13/10/2024,20:45,Austria,Norway,5,1,3,1,1,3,0,0,8,8,Tamas Bognar
+INT_MEN,13/10/2024,20:45,Faroe Islands,Latvia,1,1,5,1,2,1,0,0,11,12,Philip Farrugia
+INT_MEN,13/10/2024,18:00,Finland,England,1,3,4,5,0,0,0,0,7,7,Giorgi Kruashvili
+INT_MEN,13/10/2024,20:45,Greece,Ireland,2,0,5,5,2,0,0,0,14,17,Joey Kooij
+INT_MEN,13/10/2024,15:00,Kazakhstan,Slovenia,0,1,5,4,4,1,0,0,12,8,Craig Pawson
+INT_MEN,13/10/2024,18:00,Liechtenstein,Gibraltar,0,0,1,2,3,1,0,1,17,10,Horatiu Mircea Fesnic
+INT_MEN,13/10/2024,18:00,Malta,Moldova,1,0,3,4,3,3,0,0,9,25,John Brooks
+INT_MEN,14/06/2022,18:00,Armenia,Scotland,1,4,4,7,3,2,2,0,11,11,Nikola Dabanovic
+INT_MEN,14/06/2022,20:45,Bosnia and Herzegovina,Finland,3,2,9,4,2,1,0,0,11,5,Georgi Kabakov
+INT_MEN,14/06/2022,20:45,England,Hungary,0,4,6,0,1,2,1,0,13,11,Clement Turpin
+INT_MEN,14/06/2022,20:45,Germany,Italy,5,2,5,4,2,0,0,0,8,8,Istvan Kovacs
+INT_MEN,14/06/2022,20:45,Liechtenstein,Latvia,0,2,1,7,3,2,0,0,8,18,Aleksandar Stavrev
+INT_MEN,14/06/2022,20:45,Luxembourg,Faroe Islands,2,2,1,6,1,0,0,0,4,9,Michael Fabbri
+INT_MEN,14/06/2022,18:00,Moldova,Andorra,2,1,4,1,2,2,0,0,23,18,Peter Kjærsgaard-Andersen
+INT_MEN,14/06/2022,20:45,Netherlands,Wales,3,2,6,2,2,3,0,0,17,12,Horatiu Mircea Fesnic
+INT_MEN,14/06/2022,20:45,Poland,Belgium,0,1,6,4,1,0,0,0,9,11,Irfan Peljto
+INT_MEN,14/06/2022,20:45,Romania,Montenegro,0,3,2,5,4,3,0,0,13,13,Joao Pedro Silva Pinheiro
+INT_MEN,14/06/2022,20:45,Turkiye,Lithuania,2,0,12,2,0,4,0,0,4,19,Stephanie Frappart
+INT_MEN,14/06/2022,20:45,Ukraine,Ireland,1,1,0,2,3,2,0,0,14,10,Ali Palabıyık
+INT_MEN,14/10/2020,20:45,Belarus,Kazakhstan,2,0,5,3,0,1,0,0,11,19,
+INT_MEN,14/10/2020,20:45,Bulgaria,Wales,0,1,4,7,3,4,0,0,15,16,Aliyar Aghayev
+INT_MEN,14/10/2020,20:45,Croatia,France,1,2,2,5,3,2,0,0,9,7,Bjorn Kuipers
+INT_MEN,14/10/2020,20:45,England,Denmark,0,1,4,4,2,2,2,0,14,12,Jesus Gil
+INT_MEN,14/10/2020,20:45,Estonia,Armenia,1,1,7,4,3,1,0,0,18,9,
+INT_MEN,14/10/2020,18:00,Finland,Ireland,1,0,2,6,1,1,0,0,13,12,Leonce Lionel Tschudi
+INT_MEN,14/10/2020,20:45,Greece,Kosovo,0,0,5,3,2,3,0,1,11,14,
+INT_MEN,14/10/2020,20:45,Iceland,Belgium,1,2,6,7,0,1,0,0,12,8,Andris Treimanis
+INT_MEN,14/10/2020,20:45,Italy,Netherlands,1,1,4,9,3,0,0,0,12,12,Anthony Taylor
+INT_MEN,14/10/2020,18:00,Lithuania,Albania,0,0,2,5,1,3,0,0,11,22,
+INT_MEN,14/10/2020,20:45,Moldova,Slovenia,0,4,4,4,2,1,0,0,9,21,
+INT_MEN,14/10/2020,20:45,North Macedonia,Georgia,1,1,5,2,1,2,1,0,16,22,
+INT_MEN,14/10/2020,20:45,Norway,Northern Ireland,1,0,9,3,2,0,0,0,15,10,Kristo Tohver
+INT_MEN,14/10/2020,20:45,Poland,Bosnia and Herzegovina,3,0,4,3,2,3,0,1,16,12,Craig Pawson
+INT_MEN,14/10/2020,20:45,Portugal,Sweden,3,0,6,9,2,4,0,0,12,17,Srdjan Jovanovic
+INT_MEN,14/10/2020,20:45,Romania,Austria,0,1,3,3,2,4,0,0,8,12,Daniel Stefanski
+INT_MEN,14/10/2020,20:45,Russia,Hungary,0,0,5,1,2,3,0,0,16,16,Michael Oliver
+INT_MEN,14/10/2020,20:45,Scotland,Czech Republic,1,0,1,12,2,1,0,0,9,10,Felix Zwayer
+INT_MEN,14/10/2020,20:45,Slovakia,Israel,2,3,5,3,1,1,0,0,11,11,Alejandro Hernandez
+INT_MEN,14/10/2020,20:45,Turkey,Serbia,2,2,3,9,1,3,1,0,16,13,Georgi Kabakov
+INT_MEN,14/10/2024,18:00,Azerbaijan,Slovakia,1,3,5,6,1,0,1,0,17,10,Rohit Saggi
+INT_MEN,14/10/2024,20:45,Belgium,France,1,2,9,4,3,4,0,1,10,14,Irfan Peljto
+INT_MEN,14/10/2024,20:45,Bosnia and Herzegovina,Hungary,0,2,4,3,3,1,0,0,10,19,Anthony Taylor
+INT_MEN,14/10/2024,20:45,Estonia,Sweden,0,3,2,9,2,3,0,0,13,13,Juxhin Xhaja
+INT_MEN,14/10/2024,18:00,Georgia,Albania,0,1,11,3,1,3,0,0,11,10,Danny Desmond Makkelie
+INT_MEN,14/10/2024,20:45,Germany,Netherlands,1,0,4,3,3,3,0,0,10,10,Slavko Vincic
+INT_MEN,14/10/2024,20:45,Iceland,Turkiye,2,4,4,6,3,3,0,0,12,9,Damian Sylwestrzak
+INT_MEN,14/10/2024,20:45,Italy,Israel,4,1,11,2,1,0,0,0,10,10,Ricardo De Burgos Bengoetxea
+INT_MEN,14/10/2024,20:45,Ukraine,Czechia,1,1,7,5,1,4,0,0,8,12,Guillermo Cuadra Fernandez
+INT_MEN,14/10/2024,20:45,Wales,Montenegro,1,0,9,2,0,4,0,0,21,16,Filip Glova
+INT_MEN,14/11/2020,18:00,Azerbaijan,Montenegro,0,0,6,2,4,1,0,1,16,9,
+INT_MEN,14/11/2020,18:00,Cyprus,Luxembourg,2,1,4,2,5,1,0,1,20,12,
+INT_MEN,14/11/2020,20:45,Germany,Ukraine,3,1,9,2,1,1,0,0,11,12,Ovidiu Hategan
+INT_MEN,14/11/2020,18:00,Latvia,Faroe Islands,1,1,4,4,2,1,0,0,16,12,
+INT_MEN,14/11/2020,15:00,Malta,Andorra,3,1,5,1,1,2,0,0,13,22,
+INT_MEN,14/11/2020,20:45,Portugal,France,0,1,8,4,1,3,0,0,15,17,Tobias Stieler
+INT_MEN,14/11/2020,15:00,San Marino,Gibraltar,0,0,3,7,1,3,1,0,13,14,
+INT_MEN,14/11/2020,20:45,Sweden,Croatia,2,1,4,4,1,2,0,0,5,12,Daniel Siebert
+INT_MEN,14/11/2020,20:45,Switzerland,Spain,1,1,2,10,2,0,1,0,18,11,William Collum
+INT_MEN,14/11/2024,18:00,Armenia,Faroe Islands,0,1,16,1,3,3,0,0,6,5,Anastasios Sidiropoulos
+INT_MEN,14/11/2024,20:45,Belgium,Italy,0,1,7,1,3,2,0,0,8,9,Radu Marian Petrescu
+INT_MEN,14/11/2024,20:45,France,Israel,0,0,8,0,1,2,0,0,9,9,Tobias Stieler
+INT_MEN,14/11/2024,20:45,Greece,England,0,3,4,3,2,3,0,0,18,10,Daniel Siebert
+INT_MEN,14/11/2024,20:45,Ireland,Finland,1,0,7,5,2,0,0,0,9,9,Harm Osmers
+INT_MEN,14/11/2024,16:00,Kazakhstan,Austria,0,2,1,4,1,0,1,0,12,8,Marian Alexandru Barbu
+INT_MEN,14/11/2024,20:45,North Macedonia,Latvia,1,0,5,2,2,3,0,0,11,13,Goga Kikacheishvili
+INT_MEN,14/11/2024,20:45,Slovenia,Norway,1,4,0,3,0,1,0,0,12,11,Michael Oliver
+INT_MEN,15/10/2024,20:45,Belarus,Luxembourg,1,1,5,2,2,6,0,0,16,20,Atilla Karaoglan
+INT_MEN,15/10/2024,20:45,Kosovo,Cyprus,3,0,5,6,1,3,0,0,9,12,Matej Jug
+INT_MEN,15/10/2024,20:45,Lithuania,Romania,1,2,0,9,3,2,0,0,18,11,Nick Walsh
+INT_MEN,15/10/2024,20:45,Northern Ireland,Bulgaria,5,0,7,2,2,2,0,0,15,12,Jerome Brisard
+INT_MEN,15/10/2024,20:45,Poland,Croatia,3,3,2,3,1,3,0,1,14,9,Alejandro Jose Hernandez Hernandez
+INT_MEN,15/10/2024,20:45,Scotland,Portugal,0,0,1,9,1,4,0,0,13,19,Lawrence Visser
+INT_MEN,15/10/2024,20:45,Spain,Serbia,3,0,6,2,1,4,0,1,12,12,Daniel Stefanski
+INT_MEN,15/10/2024,20:45,Switzerland,Denmark,2,2,6,4,2,1,0,0,12,7,Halil Umut Meler
+INT_MEN,15/11/2020,18:00,Albania,Kazakhstan,3,1,5,6,1,4,0,0,11,22,
+INT_MEN,15/11/2020,20:45,Austria,Northern Ireland,2,1,11,1,2,2,0,0,15,9,Maurizio Mariani
+INT_MEN,15/11/2020,18:00,Belarus,Lithuania,2,0,7,4,1,2,0,0,19,14,
+INT_MEN,15/11/2020,20:45,Belgium,England,2,0,1,5,3,0,0,0,15,8,Danny Makkelie
+INT_MEN,15/11/2020,18:00,Bulgaria,Finland,1,2,3,0,5,3,0,0,19,20,Donatas Rumsas
+INT_MEN,15/11/2020,20:45,Czech Republic,Israel,1,0,6,10,1,0,0,1,19,11,Srdjan Jovanovic
+INT_MEN,15/11/2020,20:45,Denmark,Iceland,2,1,4,1,1,3,0,0,9,11,Halil Meler
+INT_MEN,15/11/2020,18:00,Georgia,Armenia,1,2,8,4,1,1,0,0,14,12,
+INT_MEN,15/11/2020,20:45,Hungary,Serbia,1,1,9,3,1,3,0,0,13,14,Glenn Nyberg
+INT_MEN,15/11/2020,20:45,Italy,Poland,2,0,9,0,1,1,0,1,9,14,Clement Turpin
+INT_MEN,15/11/2020,20:45,Moldova,Greece,0,2,1,9,2,1,0,0,17,14,
+INT_MEN,15/11/2020,18:00,Netherlands,Bosnia and Herzegovina,3,1,5,1,1,2,0,0,19,13,Francois Letexier
+INT_MEN,15/11/2020,15:00,North Macedonia,Estonia,2,1,3,3,4,3,0,0,11,17,
+INT_MEN,15/11/2020,15:00,Slovakia,Scotland,1,0,1,4,6,3,0,0,15,16,Istvan Kovacs
+INT_MEN,15/11/2020,20:45,Slovenia,Kosovo,2,1,11,1,2,4,0,0,9,12,
+INT_MEN,15/11/2020,18:00,Turkey,Russia,3,2,3,5,3,4,0,1,11,14,Szymon Marciniak
+INT_MEN,15/11/2020,18:05,Wales,Ireland,1,0,2,4,3,4,0,1,15,13,Petr Ardeleanu
+INT_MEN,15/11/2024,18:00,Cyprus,Lithuania,2,1,5,2,4,2,0,0,21,22,Nenad Minakovic
+INT_MEN,15/11/2024,20:45,Denmark,Spain,1,2,7,7,4,2,0,0,8,17,Rade Obrenovic
+INT_MEN,15/11/2024,20:45,Luxembourg,Bulgaria,0,1,12,0,3,3,0,0,16,9,Juri Frischer
+INT_MEN,15/11/2024,20:45,Northern Ireland,Belarus,2,0,7,4,2,3,0,0,19,27,Luis Miguel Branco Godinho
+INT_MEN,15/11/2024,20:45,Portugal,Poland,5,1,3,4,4,1,0,0,9,12,Donatas Rumsas
+INT_MEN,15/11/2024,20:45,Romania,Kosovo,0,0,5,7,5,5,0,0,18,8,Morten Krogh
+INT_MEN,15/11/2024,20:45,San Marino,Gibraltar,1,1,2,2,4,6,0,0,19,13,Igor Pajac
+INT_MEN,15/11/2024,20:45,Scotland,Croatia,1,0,6,7,0,2,0,1,8,7,Orel Grinfeeld
+INT_MEN,15/11/2024,20:45,Switzerland,Serbia,1,1,5,3,3,2,0,0,13,15,Clement Turpin
+INT_MEN,16/11/2024,20:45,Albania,Czechia,0,0,2,6,1,2,0,0,11,15,Sandro Scharer
+INT_MEN,16/11/2024,18:00,Andorra,Moldova,0,1,1,3,3,4,0,0,20,22,Bulat Saryev
+INT_MEN,16/11/2024,15:00,Azerbaijan,Estonia,0,0,8,3,2,4,0,0,7,11,John Beaton
+INT_MEN,16/11/2024,18:00,Georgia,Ukraine,1,1,8,4,2,4,0,0,8,17,Chris Kavanagh
+INT_MEN,16/11/2024,20:45,Germany,Bosnia and Herzegovina,7,0,3,0,1,2,0,0,7,12,Vassilios Fotias
+INT_MEN,16/11/2024,18:00,Montenegro,Iceland,0,2,7,2,4,3,0,0,9,7,Sven Jablonski
+INT_MEN,16/11/2024,20:45,Netherlands,Hungary,4,0,5,4,1,2,0,0,10,14,Jesus Gil Manzano
+INT_MEN,16/11/2024,20:45,Sweden,Slovakia,2,1,6,2,3,3,0,1,15,13,Mykola Balakin
+INT_MEN,16/11/2024,18:00,Turkiye,Wales,0,0,9,2,1,2,0,0,13,10,Juan Martinez Munuera
+INT_MEN,17/11/2020,20:45,Andorra,Latvia,0,5,3,7,4,4,1,0,22,16,
+INT_MEN,17/11/2020,20:45,Croatia,Portugal,2,3,4,12,1,1,1,0,15,10,Michael Oliver
+INT_MEN,17/11/2020,20:45,France,Sweden,4,2,4,2,0,2,0,0,13,11,Alexey Kulbakov
+INT_MEN,17/11/2020,20:45,Gibraltar,Liechtenstein,1,1,4,2,1,4,0,0,16,17,
+INT_MEN,17/11/2020,20:45,Luxembourg,Azerbaijan,0,0,6,6,4,3,0,0,15,16,
+INT_MEN,17/11/2020,20:45,Malta,Faroe Islands,1,1,3,4,1,2,0,0,9,14,
+INT_MEN,17/11/2020,20:45,Montenegro,Cyprus,4,0,3,5,3,2,0,0,17,12,
+INT_MEN,17/11/2020,20:45,Spain,Germany,6,0,6,2,0,2,0,0,6,12,Andreas Ekberg
+INT_MEN,17/11/2024,18:00,Austria,Slovenia,1,1,3,0,1,2,0,0,12,9,Glenn Nyberg
+INT_MEN,17/11/2024,18:00,England,Ireland,5,0,12,0,4,2,0,1,7,9,Erik Lambrechts
+INT_MEN,17/11/2024,18:00,Finland,Greece,0,2,4,7,3,0,0,0,10,4,Willy Delajod
+INT_MEN,17/11/2024,20:45,Israel,Belgium,1,0,5,5,2,3,0,0,14,10,Sebastian Gishamer
+INT_MEN,17/11/2024,20:45,Italy,France,1,3,3,3,1,2,0,0,20,13,Slavko Vincic
+INT_MEN,17/11/2024,15:00,Latvia,Armenia,1,2,0,9,2,1,0,0,9,9,Georgi Kabakov
+INT_MEN,17/11/2024,15:00,North Macedonia,Faroe Islands,1,0,2,5,5,1,0,0,7,8,Daniel Schlager
+INT_MEN,17/11/2024,18:00,Norway,Kazakhstan,5,0,11,3,0,2,0,0,8,16,Jasper Vergoote
+INT_MEN,18/11/2020,16:00,Albania,Belarus,3,2,9,6,4,5,0,0,12,16,
+INT_MEN,18/11/2020,18:00,Armenia,North Macedonia,1,0,5,4,4,1,0,0,19,10,
+INT_MEN,18/11/2020,20:45,Austria,Norway,1,1,8,4,1,3,0,0,9,14,Benoit Bastien
+INT_MEN,18/11/2020,20:45,Belgium,Denmark,4,2,7,5,1,0,0,0,12,10,Slavko Vincic
+INT_MEN,18/11/2020,20:45,Bosnia and Herzegovina,Italy,0,2,3,8,1,2,0,0,13,15,Artur Dias
+INT_MEN,18/11/2020,20:45,Czech Republic,Slovakia,2,0,2,4,0,1,0,0,21,9,Cuneyt Cakir
+INT_MEN,18/11/2020,20:45,England,Iceland,4,0,8,2,1,2,0,1,14,17,Fabio Verissimo
+INT_MEN,18/11/2020,18:00,Georgia,Estonia,0,0,3,3,1,3,0,0,12,14,
+INT_MEN,18/11/2020,20:45,Greece,Slovenia,0,0,7,4,4,5,1,0,18,15,
+INT_MEN,18/11/2020,20:45,Hungary,Turkey,2,0,5,3,4,1,0,0,17,12,Ivan Kruzliak
+INT_MEN,18/11/2020,20:45,Ireland,Bulgaria,0,0,4,6,2,2,0,0,10,25,Lawrence Visser
+INT_MEN,18/11/2020,20:45,Israel,Scotland,1,0,2,12,3,2,0,0,11,11,Pawel Raczkowski
+INT_MEN,18/11/2020,16:00,Kazakhstan,Lithuania,1,2,4,2,2,3,1,0,19,11,
+INT_MEN,18/11/2020,20:45,Kosovo,Moldova,1,0,2,3,2,2,1,0,15,12,
+INT_MEN,18/11/2020,20:45,Northern Ireland,Romania,1,1,6,2,0,0,0,0,8,14,Sandro Schaerer
+INT_MEN,18/11/2020,20:45,Poland,Netherlands,1,2,2,9,3,0,0,0,20,13,Orel Grinfeld
+INT_MEN,18/11/2020,20:45,Serbia,Russia,5,0,6,7,2,3,0,0,8,14,Anthony Taylor
+INT_MEN,18/11/2020,20:45,Wales,Finland,3,1,5,3,1,0,0,1,12,7,Jesus Gil
+INT_MEN,18/11/2024,20:45,Bulgaria,Belarus,1,1,1,3,3,5,0,0,17,18,Allard Lindhout
+INT_MEN,18/11/2024,20:45,Croatia,Portugal,1,1,5,7,0,2,0,0,8,8,Davide Massa
+INT_MEN,18/11/2024,20:45,Kosovo,Lithuania,1,0,4,2,2,1,1,0,17,17,Kristoffer Hagenes
+INT_MEN,18/11/2024,20:45,Liechtenstein,San Marino,1,3,3,7,3,3,0,0,15,16,Jeremie Pignard
+INT_MEN,18/11/2024,20:45,Luxembourg,Northern Ireland,2,2,0,5,1,2,0,0,18,16,Elcin Məsiyev
+INT_MEN,18/11/2024,20:45,Poland,Scotland,1,2,4,5,2,3,0,0,13,10,Christian Dingert
+INT_MEN,18/11/2024,20:45,Romania,Cyprus,4,1,5,2,0,2,0,1,11,13,Luca Pairetto
+INT_MEN,18/11/2024,20:45,Serbia,Denmark,0,0,7,3,3,1,1,0,13,8,Felix Zwayer
+INT_MEN,18/11/2024,20:45,Spain,Switzerland,3,2,7,3,2,1,0,0,11,14,Bastian Dankert
+INT_MEN,19/11/2024,20:45,Albania,Ukraine,1,2,5,3,3,1,0,0,12,17,Joao Pedro Silva Pinheiro
+INT_MEN,19/11/2024,20:45,Bosnia and Herzegovina,Netherlands,1,1,3,5,1,0,0,0,17,11,Əliyar Agayev
+INT_MEN,19/11/2024,20:45,Czechia,Georgia,2,1,10,6,5,4,0,0,13,10,Anastasios Papapetrou
+INT_MEN,19/11/2024,20:45,Hungary,Germany,1,1,7,5,2,3,0,0,17,12,Duje Strukan
+INT_MEN,19/11/2024,20:45,Malta,Andorra,0,0,2,4,2,4,1,0,7,28,Luka Bilbija
+INT_MEN,19/11/2024,20:45,Montenegro,Turkiye,3,1,2,5,6,5,0,0,14,6,Urs Schnyder
+INT_MEN,19/11/2024,20:45,Slovakia,Estonia,1,0,9,4,1,2,0,0,12,11,Mikkel Redder
+INT_MEN,19/11/2024,20:45,Sweden,Azerbaijan,6,0,12,1,1,5,0,0,10,16,Paweł Raczkowski
+INT_MEN,19/11/2024,20:45,Wales,Iceland,4,1,7,2,3,5,0,0,10,14,Antonio Emanuel Carvalho Nobre
+INT_MEN,20/03/2025,18:00,Armenia,Georgia,0,3,7,3,1,2,0,0,10,11,Radu Marian Petrescu
+INT_MEN,20/03/2025,20:45,Austria,Serbia,1,1,3,2,0,0,0,0,11,9,Joao Pedro Silva Pinheiro
+INT_MEN,20/03/2025,20:45,Bulgaria,Ireland,1,2,2,3,4,4,0,0,21,10,Benoit Bastien
+INT_MEN,20/03/2025,20:45,Greece,Scotland,0,1,8,3,1,1,0,0,9,10,Tobias Stieler
+INT_MEN,20/03/2025,20:45,Kosovo,Iceland,2,1,5,2,2,2,0,0,10,10,Serdar Gozubuyuk
+INT_MEN,20/03/2025,20:45,Slovakia,Slovenia,0,0,6,0,0,1,0,0,7,13,Maurizio Mariani
+INT_MEN,20/03/2025,18:00,Turkiye,Hungary,3,1,4,3,1,3,0,0,13,17,Ivan Kruzliak
+INT_MEN,20/03/2025,20:45,Ukraine,Belgium,3,1,3,4,0,1,0,0,7,10,Sandro Scharer
+INT_MEN,21/09/2022,20:45,Scotland,Ukraine,3,0,7,0,0,5,0,0,6,12,Maurizio Mariani
+INT_MEN,22/09/2022,20:45,Belgium,Wales,2,1,6,4,0,3,0,0,9,10,Ali Palabıyık
+INT_MEN,22/09/2022,20:45,Croatia,Denmark,2,1,4,2,1,1,0,0,11,7,Davide Massa
+INT_MEN,22/09/2022,20:45,France,Austria,2,0,4,1,0,1,0,0,4,14,Lars Christian Andreas Ekberg
+INT_MEN,22/09/2022,16:00,Kazakhstan,Belarus,2,1,5,7,3,2,1,0,18,9,Horatiu Mircea Fesnic
+INT_MEN,22/09/2022,18:00,Latvia,Moldova,1,2,9,5,1,3,0,0,9,12,Antonio Emanuel Carvalho Nobre
+INT_MEN,22/09/2022,20:45,Liechtenstein,Andorra,0,2,0,1,4,3,0,0,15,20,Juxhin Xhaja
+INT_MEN,22/09/2022,20:45,Lithuania,Faroe Islands,1,1,2,4,4,0,0,0,18,19,Vilhjalmur Alvar Thorarinsson
+INT_MEN,22/09/2022,20:45,Poland,Netherlands,0,2,4,1,1,4,0,0,21,18,Alejandro Jose Hernandez Hernandez
+INT_MEN,22/09/2022,20:45,Slovakia,Azerbaijan,1,2,3,4,2,3,0,0,10,20,William Collum
+INT_MEN,22/09/2022,20:45,Turkiye,Luxembourg,3,3,6,0,1,1,0,0,10,12,Tobias Stieler
+INT_MEN,23/03/2025,20:45,Belgium,Ukraine,3,0,10,1,2,4,0,0,10,9,Daniel Siebert
+INT_MEN,23/03/2025,15:00,Georgia,Armenia,6,1,4,3,1,3,0,0,10,10,Anthony Taylor
+INT_MEN,23/03/2025,18:00,Hungary,Turkiye,0,3,2,3,4,3,0,0,18,13,Felix Zwayer
+INT_MEN,23/03/2025,18:00,Iceland,Kosovo,1,3,6,6,2,3,1,0,9,13,Jesus Gil Manzano
+INT_MEN,23/03/2025,20:45,Ireland,Bulgaria,2,1,5,5,3,3,0,0,12,12,Halil Umut Meler
+INT_MEN,23/03/2025,18:00,Scotland,Greece,0,3,3,0,2,2,0,0,13,15,Davide Massa
+INT_MEN,23/03/2025,18:00,Serbia,Austria,2,0,2,3,2,2,0,1,9,8,Jose Maria Sanchez Martinez
+INT_MEN,23/03/2025,18:00,Slovenia,Slovakia,1,0,6,7,5,3,0,0,18,14,Istvan Kovacs
+INT_MEN,23/09/2022,20:45,Bosnia and Herzegovina,Montenegro,1,0,7,3,5,4,0,0,19,17,Szymon Marciniak
+INT_MEN,23/09/2022,20:45,Bulgaria,Gibraltar,5,1,9,3,0,0,0,0,7,8,Pavel Orel
+INT_MEN,23/09/2022,18:00,Estonia,Malta,2,1,5,3,1,1,0,1,14,11,Daniel Siebert
+INT_MEN,23/09/2022,20:45,Finland,Romania,1,1,3,4,3,2,0,0,7,10,Carlos del Cerro Grande
+INT_MEN,23/09/2022,18:00,Georgia,North Macedonia,2,0,4,9,1,1,0,0,14,12,Ivan Kruzliak
+INT_MEN,23/09/2022,20:45,Germany,Hungary,0,1,2,3,2,1,0,0,10,10,Slavko Vincic
+INT_MEN,23/09/2022,20:45,Italy,England,1,0,5,4,2,1,0,0,18,11,Jesus Gil Manzano
+INT_MEN,24/09/2022,15:00,Armenia,Ukraine,0,5,2,6,2,2,0,0,3,16,Joao Pedro Silva Pinheiro
+INT_MEN,24/09/2022,20:45,Cyprus,Greece,1,0,1,6,1,2,0,0,18,17,Aleksey Kulbakov
+INT_MEN,24/09/2022,20:45,Czech Republic,Portugal,0,4,6,5,0,0,0,0,2,7,Srđan Jovanovic
+INT_MEN,24/09/2022,20:45,Israel,Albania,2,1,4,9,2,3,0,0,13,11,Donatas Rumsas
+INT_MEN,24/09/2022,18:00,Northern Ireland,Kosovo,2,1,5,3,0,1,0,0,10,9,Glenn Nyberg
+INT_MEN,24/09/2022,20:45,Scotland,Ireland,2,1,9,3,3,5,0,0,13,17,Sandro Scharer
+INT_MEN,24/09/2022,20:45,Serbia,Sweden,4,1,3,1,3,1,0,0,12,5,Georgi Kabakov
+INT_MEN,24/09/2022,18:00,Slovenia,Norway,2,1,6,7,3,2,0,0,15,16,Lawrence Visser
+INT_MEN,24/09/2022,20:45,Spain,Switzerland,1,2,9,6,0,2,0,0,9,15,Clement Turpin
+INT_MEN,24/09/2026,18:00,Andorra,Malta,1,2,3,2,5,2,0,0,24,12,Joey Kooij
+INT_MEN,24/09/2026,20:45,Austria,Israel,3,1,4,2,3,2,0,1,15,4,Georgi Kabakov
+INT_MEN,24/09/2026,20:45,Kosovo,Ireland,1,0,1,0,0,2,0,0,12,15,Lawrence Visser
+INT_MEN,24/09/2026,20:45,Liechtenstein,Lithuania,0,2,0,8,1,1,0,0,15,14,Ante Culina
+INT_MEN,24/09/2026,20:45,Netherlands,Germany,1,1,12,1,3,1,0,0,11,16,Alejandro Jose Hernandez Hernandez
+INT_MEN,24/09/2026,20:45,Norway,Denmark,3,2,4,7,0,3,1,0,14,10,Tobias Stieler
+INT_MEN,24/09/2026,20:45,Portugal,Wales,1,0,10,2,0,1,0,0,12,10,Donatas Rumsas
+INT_MEN,24/09/2026,20:45,Serbia,Greece,1,2,2,6,2,1,0,0,11,7,Glenn Nyberg
+INT_MEN,25/09/2022,15:00,Andorra,Latvia,1,1,4,5,2,4,0,0,16,16,Anastasios Papapetrou
+INT_MEN,25/09/2022,20:45,Austria,Croatia,1,3,4,5,2,2,0,0,12,9,Artur Manuel Ribeiro Soares Dias
+INT_MEN,25/09/2022,18:00,Azerbaijan,Kazakhstan,3,0,10,0,3,2,0,1,5,10,Harm Osmers
+INT_MEN,25/09/2022,20:45,Denmark,France,2,0,13,11,2,0,0,0,9,6,Istvan Kovacs
+INT_MEN,25/09/2022,20:45,Faroe Islands,Turkiye,2,1,1,3,2,1,0,0,9,10,Serhii Boyko
+INT_MEN,25/09/2022,20:45,Luxembourg,Lithuania,1,0,5,5,4,4,0,0,12,17,Giorgi Kruashvili
+INT_MEN,25/09/2022,15:00,Moldova,Liechtenstein,2,0,13,1,2,3,0,0,8,11,Stephanie Frappart
+INT_MEN,25/09/2022,20:45,Netherlands,Belgium,1,0,4,2,2,2,0,0,12,9,Anthony Taylor
+INT_MEN,25/09/2022,18:00,Slovakia,Belarus,1,1,12,1,1,5,0,0,12,13,Nikola Dabanovic
+INT_MEN,25/09/2022,20:45,Wales,Poland,0,1,5,2,4,3,0,0,18,13,Andris Treimanis
+INT_MEN,25/09/2026,18:00,Armenia,Latvia,2,0,10,2,1,0,0,0,10,9,Martin Matosa
+INT_MEN,25/09/2026,18:00,Georgia,Northern Ireland,0,1,9,1,1,3,0,0,13,14,Orel Grinfeeld
+INT_MEN,25/09/2026,20:45,Hungary,Ukraine,0,1,4,2,4,4,0,1,12,19,Jarred Gillett
+INT_MEN,25/09/2026,20:45,Italy,Belgium,0,2,4,8,3,5,0,0,12,11,Daniel Siebert
+INT_MEN,25/09/2026,20:45,Montenegro,Cyprus,2,1,8,1,1,3,0,0,7,7,Daniele Chiffi
+INT_MEN,25/09/2026,20:45,Poland,Bosnia and Herzegovina,0,0,3,3,3,5,0,0,18,17,Anastasios Papapetrou
+INT_MEN,25/09/2026,20:45,Sweden,Romania,2,1,3,0,0,5,0,0,6,17,Ondrej Berka
+INT_MEN,25/09/2026,20:45,Turkiye,France,0,1,5,3,2,3,1,0,14,15,Felix Zwayer
+INT_MEN,26/09/2022,20:45,England,Germany,3,3,6,2,0,2,0,0,12,8,Danny Desmond Makkelie
+INT_MEN,26/09/2022,20:45,Gibraltar,Georgia,1,2,6,7,3,3,0,0,12,10,Robert Harvey
+INT_MEN,26/09/2022,20:45,Hungary,Italy,0,2,6,2,2,1,0,0,16,12,Benoit Bastien
+INT_MEN,26/09/2022,20:45,Montenegro,Finland,0,2,3,8,4,2,1,0,10,13,Francois Letexier
+INT_MEN,26/09/2022,20:45,North Macedonia,Bulgaria,0,1,5,1,3,5,1,0,10,24,Julian Weinberger
+INT_MEN,26/09/2022,20:45,Romania,Bosnia and Herzegovina,4,1,5,5,0,0,0,0,11,7,Halil Umut Meler
+INT_MEN,26/09/2022,20:45,San Marino,Estonia,0,4,0,9,1,1,0,0,18,12,Kateryna Monzul
+INT_MEN,26/09/2026,20:45,Albania,Belarus,2,0,5,2,2,4,0,0,9,23,Samuel Barrott
+INT_MEN,26/09/2026,18:00,Bulgaria,Luxembourg,1,2,5,4,2,2,0,0,10,17,Sander van der Eijk
+INT_MEN,26/09/2026,20:45,Czechia,Croatia,1,2,1,6,2,1,0,0,6,9,Simone Sozza
+INT_MEN,26/09/2026,20:45,England,Spain,2,3,6,3,3,0,0,0,11,16,Davide Massa
+INT_MEN,26/09/2026,18:00,Faroe Islands,Kazakhstan,1,1,7,5,0,2,0,0,10,10,Ishmael Barbara
+INT_MEN,26/09/2026,18:00,Iceland,Estonia,1,1,7,3,1,2,0,0,13,13,Milos Milanovic
+INT_MEN,26/09/2026,20:45,North Macedonia,Switzerland,0,3,0,5,4,0,0,0,10,7,Daniel Schlager
+INT_MEN,26/09/2026,18:00,San Marino,Finland,0,7,0,4,1,1,1,0,14,10,Nathan Verboomen
+INT_MEN,26/09/2026,20:45,Slovakia,Moldova,2,0,7,3,2,1,0,0,8,12,Juxhin Xhaja
+INT_MEN,26/09/2026,15:00,Slovenia,Scotland,0,0,5,4,3,1,0,0,15,18,Horatiu Fesnic
+INT_MEN,27/09/2022,20:45,Albania,Iceland,1,1,14,5,2,0,0,1,12,3,Ricardo De Burgos Bengoetxea
+INT_MEN,27/09/2022,20:45,Greece,Northern Ireland,3,1,4,1,1,2,0,0,13,10,Filip Glova
+INT_MEN,27/09/2022,20:45,Ireland,Armenia,3,2,8,1,1,2,0,2,11,9,Rade Obrenovic
+INT_MEN,27/09/2022,20:45,Kosovo,Cyprus,5,1,11,2,1,1,0,0,6,6,Kristo Tohver
+INT_MEN,27/09/2022,20:45,Norway,Serbia,0,2,9,3,0,2,0,0,9,10,Antonio Miguel Mateu Lahoz
+INT_MEN,27/09/2022,20:45,Portugal,Spain,0,1,5,7,3,2,0,0,15,14,Daniele Orsato
+INT_MEN,27/09/2022,20:45,Sweden,Slovenia,1,1,12,3,2,3,0,0,7,13,Felix Zwayer
+INT_MEN,27/09/2022,20:45,Switzerland,Czech Republic,2,1,6,4,2,0,0,0,8,13,Irfan Peljto
+INT_MEN,27/09/2022,20:45,Ukraine,Scotland,0,0,5,5,4,3,0,0,14,6,Anastasios Sidiropoulos
+INT_MEN,27/09/2026,18:00,Austria,Kosovo,3,1,5,1,2,2,0,0,21,15,Nick Walsh
+INT_MEN,27/09/2026,18:00,Denmark,Wales,2,0,2,4,1,2,0,0,10,17,Willy Delajod
+INT_MEN,27/09/2026,20:45,Germany,Greece,0,1,8,2,1,4,0,0,12,11,Chris Kavanagh
+INT_MEN,27/09/2026,18:00,Gibraltar,Andorra,0,0,4,4,2,3,0,0,15,24,Genc Nuza
+INT_MEN,27/09/2026,20:45,Israel,Ireland,0,3,2,4,1,2,0,0,16,12,Harm Osmers
+INT_MEN,27/09/2026,15:00,Lithuania,Azerbaijan,1,1,0,2,1,3,0,0,15,16,Antoniou Menelaus
+INT_MEN,27/09/2026,20:45,Norway,Portugal,1,2,7,2,3,6,0,0,8,12,Francois Letexier
+INT_MEN,27/09/2026,18:00,Serbia,Netherlands,1,2,3,4,1,1,0,0,7,10,Szymon Marciniak
+INT_MEN,28/09/2026,18:00,Armenia,Montenegro,2,3,2,4,2,2,0,0,10,16,Jose Luis Munuera Montero
+INT_MEN,28/09/2026,20:45,Belgium,France,0,1,2,6,3,0,0,0,12,9,Rade Obrenovic
+INT_MEN,28/09/2026,18:00,Georgia,Ukraine,0,0,4,0,2,4,0,0,13,14,Əliyar Aghayev
+INT_MEN,28/09/2026,18:00,Latvia,Cyprus,0,0,4,11,2,4,0,0,16,12,Michal Ocenas
+INT_MEN,28/09/2026,20:45,Northern Ireland,Hungary,0,0,3,2,4,2,0,0,15,15,Ricardo de Burgos Bengoetxea
+INT_MEN,28/09/2026,20:45,Romania,Bosnia and Herzegovina,2,4,4,3,0,2,0,0,15,9,Luis Godinho
+INT_MEN,28/09/2026,20:45,Sweden,Poland,3,1,4,4,1,3,0,0,8,9,Javier Alberola Rojas
+INT_MEN,28/09/2026,20:45,Turkiye,Italy,1,4,6,2,3,0,0,0,12,21,Michael Oliver
+INT_MEN,29/09/2026,20:45,Bulgaria,Estonia,0,0,6,6,3,2,0,0,9,26,Goga Kikacheishvili
+INT_MEN,29/09/2026,20:45,Czechia,England,0,2,1,6,0,1,1,0,9,12,Halil Umut Meler
+INT_MEN,29/09/2026,18:00,Finland,Belarus,0,0,8,2,2,2,0,0,18,14,Nikola Dabanovic
+INT_MEN,29/09/2026,20:45,Luxembourg,Iceland,0,3,2,2,2,4,0,0,11,13,Enea Jorgji
+INT_MEN,29/09/2026,18:00,Moldova,Faroe Islands,1,1,7,2,0,1,0,0,12,11,Julian Weinberger
+INT_MEN,29/09/2026,20:45,San Marino,Albania,0,3,5,6,1,1,0,0,6,14,Mihaly Kapraly
+INT_MEN,29/09/2026,20:45,Scotland,Switzerland,0,3,2,6,1,0,1,0,14,13,Nenad Minakovic
+INT_MEN,29/09/2026,20:45,Slovakia,Kazakhstan,2,1,8,1,2,2,0,0,8,18,Patrik Kolaric
+INT_MEN,29/09/2026,20:45,Slovenia,North Macedonia,2,0,6,3,1,2,0,0,8,8,Andrea Colombo
+INT_MEN,29/09/2026,20:45,Spain,Croatia,4,1,6,2,1,4,0,0,9,10,Serdar Gozubuyuk
