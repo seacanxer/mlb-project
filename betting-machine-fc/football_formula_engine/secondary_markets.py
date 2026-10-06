@@ -211,7 +211,7 @@ def _book_price(value):
     return price if math.isfinite(price) and price > 1 else None
 
 
-def price_offered_totals(distribution, market, book_lines, *, max_lines=24):
+def price_offered_totals(distribution, market, book_lines, *, max_lines=24, mean=None):
     """Evaluate every bookmaker-offered total line — no line shopping.
 
     book_lines mirrors the scraper OU shape: {line: {9: over, 10: under}}.
@@ -219,6 +219,12 @@ def price_offered_totals(distribution, market, book_lines, *, max_lines=24):
     this function does no unit conversion. Malformed lines are skipped,
     never fabricated. Status stays 'projection': EV gating happens at scan
     time once no-vig can be computed from the full quote.
+
+    Ordering: when `mean` is given, offers come central-first (nearest the
+    model mean). The card and the ledger both take the FIRST offer per
+    market, so central-first makes the displayed pick the model's central
+    prediction at book lines — not a tail line like Over 5.5 @1.07 whose
+    probability looks high but carries negative EV.
     """
     lines = []
     for raw_line, prices in (book_lines or {}).items():
@@ -243,6 +249,9 @@ def price_offered_totals(distribution, market, book_lines, *, max_lines=24):
                            'status': 'projection', 'label': 'Proyeksi',
                            'line_source': 'book',
                            'model_version': CONFIG['version']})
+    if mean is not None and math.isfinite(mean):
+        offers.sort(key=lambda o: (abs(o['line'] - mean), o['line'],
+                                   o['side'] == 'under'))
     return offers
 
 
@@ -254,10 +263,15 @@ def price_offered_handicap(home_distribution, away_distribution, home, away, boo
     'away': [(line, price)]} with lines in team-perspective sign (home -1.5,
     away +1.5), the same convention _best_corner_handicap stores. Same
     difference-distribution math, only the candidate lines come from the
-    book instead of the model's fair line.
+    book instead of the model's fair line. Offers come central-first
+    (nearest the distribution-implied fair line) so the card/ledger head
+    is the central prediction, not a tail leg.
     """
     difference = np.convolve(home_distribution, away_distribution[::-1])
     offset = len(away_distribution) - 1
+    mean_diff = (sum(i * p for i, p in enumerate(home_distribution))
+                 - sum(j * p for j, p in enumerate(away_distribution)))
+    fair_home = round(-mean_diff * 4) / 4 if math.isfinite(mean_diff) else 0.0
     legs = []
     for side in ('home', 'away'):
         entries = (book_legs or {}).get(side) or []
@@ -284,6 +298,8 @@ def price_offered_handicap(home_distribution, away_distribution, home, away, boo
             'book_odds': price, 'payout': payout, 'availability': 'B',
             'status': 'projection', 'label': 'Proyeksi',
             'line_source': 'book', 'model_version': CONFIG['version']})
+    fairs = {'home': fair_home, 'away': -fair_home}
+    offers.sort(key=lambda o: (abs(o['line'] - fairs[o['side']]), o['line']))
     return offers
 
 
@@ -468,7 +484,8 @@ def project_fixture(rows, home, away, kickoff_utc, *, goal_projection=None,
     if corner:
         result['corners'] = {key: value for key, value in corner.items() if 'distribution' not in key}
         corner_totals = price_offered_totals(
-            corner['distribution'], 'corners_ou', book.get('corners_ou'))
+            corner['distribution'], 'corners_ou', book.get('corners_ou'),
+            mean=corner['total'])
         result['markets'].extend(corner_totals if corner_totals else
             [_best_total(corner['distribution'], corner['total'], 'corners_ou')])
         corner_spreads = price_offered_handicap(
@@ -480,7 +497,8 @@ def project_fixture(rows, home, away, kickoff_utc, *, goal_projection=None,
     if cards:
         result['cards'] = {key: value for key, value in cards.items() if 'distribution' not in key}
         card_totals = (price_offered_totals(
-            cards['distribution'], 'cards_ou', book.get('cards_ou'))
+            cards['distribution'], 'cards_ou', book.get('cards_ou'),
+            mean=cards['total'])
             if book.get('cards_units') == 'points' else [])
         result['markets'].extend(card_totals if card_totals else
             [_best_total(cards['distribution'], cards['total'], 'cards_ou')])

@@ -234,6 +234,11 @@ def test_offered_totals_price_every_book_line_without_shopping():
     assert by_line[(9.5, 'over')]['book_over'] == 1.9
     assert by_line[(9.5, 'under')]['book_under'] == 1.9
     assert by_line[(12.5, 'over')]['book_over'] == 9.0
+    # Central-first: the head is the line nearest the model mean (card pick).
+    central = price_offered_totals(distribution, 'corners_ou',
+                                   {9.5: {9: 1.9, 10: 1.9}, 12.5: {9: 9.0, 10: 1.05},
+                                    6.5: {9: 1.1, 10: 6.0}}, mean=9.0)
+    assert central[0]['line'] == 9.5
     assert price_offered_totals(distribution, 'corners_ou', {}) == []
     assert price_offered_totals(distribution, 'corners_ou', None) == []
 
@@ -257,6 +262,11 @@ def test_offered_handicap_is_symmetric_and_skips_bad_legs():
     assert by_key[('away', 1.5)]['pick'] == 'Away +1.5'
     assert all(o['line_source'] == 'book' for o in offers)
     assert all(sum(o['payout'].values()) == pytest.approx(1) for o in offers)
+    # Central-first: symmetric dists imply fair 0, so a level leg heads the list.
+    headed = price_offered_handicap(symmetric, symmetric, 'Home', 'Away',
+                                    {'home': [(-2.5, 2.2), (0.0, 1.9)],
+                                     'away': [(2.5, 2.2)]})
+    assert (headed[0]['side'], headed[0]['line']) == ('home', 0.0)
 
 
 def test_project_fixture_with_book_replaces_shopped_corners():
