@@ -16,6 +16,7 @@ Pipeline (Phase 7 adapter):
 Run: betting-machine-fc/venv/bin/python scripts/fc-scan-live.py
 """
 import difflib
+from types import SimpleNamespace
 import argparse
 import json
 import math
@@ -34,7 +35,7 @@ sys.path.insert(0, FC_DIR)
 import scraper_1xbit as sc  # noqa: E402
 import odds_flashscore  # noqa: E402
 from football_formula_engine.data import load_football_data_csv, stable_id  # noqa: E402
-from football_formula_engine.markets import asian_handicap, btts, match_odds, over_under  # noqa: E402
+from football_formula_engine.markets import PayoutProbabilities, asian_handicap, btts, match_odds, over_under  # noqa: E402
 from football_formula_engine.score_matrix import build_score_matrix  # noqa: E402
 from football_formula_engine.market_goals import (infer_market_goals,
     blend_goal_projection)  # noqa: E402
@@ -55,7 +56,8 @@ from football_formula_engine.national_teams import (MODEL_CODE as NATIONAL_CODE,
     nonneutral_baseline_coverage)  # noqa: E402
 
 FORMULA_VERSION = 'dc-loglink-time-decay-v1'
-DECISION_FORMULA_VERSION = 'fc-market-goal-blend-v2'
+DECISION_FORMULA_VERSION = 'fc-market-goal-blend-v3-btts-shrink'
+BTTS_MODEL_WEIGHT = 0.5  # Conservative market shrinkage; prospective validation required.
 UNCERTAINTY_PENALTY = 0.02
 EV_GATE = 0.01
 ODDS_FLOOR = 1.6
@@ -597,10 +599,24 @@ def secondary_pick_payload(info, offer, observation, captured_at, decision_at, c
             odds = float(odds)
         except (TypeError, ValueError):
             odds = None
-    if odds and odds > 1 and probability > 0:
-        ev = probability * odds - 1.0
-        market_probability = 1.0 / odds
+    payout = offer.get('payout')
+    fair_price = None
+    if odds is not None and (not math.isfinite(odds) or odds <= 1):
+        odds = None
+    if odds is not None and payout:
+        distribution = SimpleNamespace(**payout)
+        ev = expected_value(distribution, odds)
+        fair_price = fair_odds(distribution)
+        market_probability = offer.get('p_market_novig')
     priced = odds is not None
+    reasons = ['SECONDARY_MODEL_UNVALIDATED']
+    if not priced:
+        reasons.append('SECONDARY_MARKET_NO_ODDS')
+    else:
+        if not ODDS_FLOOR <= odds <= ODDS_CAP: reasons.append('ODDS_OUTSIDE_VALUE_RANGE')
+        if ev is None or ev < EV_GATE: reasons.append('EV_BELOW_VALUE_THRESHOLD')
+        if ev is None or ev - UNCERTAINTY_PENALTY < 0: reasons.append('CONSERVATIVE_EV_BELOW_THRESHOLD')
+        if market_probability is None: reasons.append('NOVIG_UNAVAILABLE')
     return {
         'match_id': str(info['match_id']),
         'match': f"{info.get('home')} vs {info.get('away')}",
@@ -622,9 +638,9 @@ def secondary_pick_payload(info, offer, observation, captured_at, decision_at, c
         'payout': offer.get('payout'),
         'odds': odds,
         'ev': round(ev, 4) if ev is not None else None,
-        'conservative_ev': round(ev, 4) if ev is not None else None,
-        'uncertainty_penalty': 0.0,
-        'fair_odds': round(1.0 / probability, 3) if probability > 0 else None,
+        'conservative_ev': round(ev - UNCERTAINTY_PENALTY, 4) if ev is not None else None,
+        'uncertainty_penalty': UNCERTAINTY_PENALTY,
+        'fair_odds': round(fair_price, 3) if fair_price else None,
         'market_probability': round(market_probability, 4) if market_probability else None,
         'edge_pct': round(probability - (market_probability or 0), 4) if priced else None,
         'line_source': offer.get('line_source'),
@@ -636,9 +652,9 @@ def secondary_pick_payload(info, offer, observation, captured_at, decision_at, c
         'league_model': code,
         'selection_status': 'watch', 'decision': 'watch', 'tier': 'watch',
         'is_top_pick': False, 'calibrated_prob': None,
-        'rank_score': round((ev or probability) * 100, 2), 'locked': False,
+        'rank_score': round((ev if ev is not None else probability) * 100, 2), 'locked': False,
         'analysis_status': 'projection',
-        'gate_reasons': [] if priced else ['SECONDARY_MARKET_NO_ODDS'],
+        'gate_reasons': reasons,
         'official_eligible': False,
         'quote_provider': '1xbit' if priced else None, 'quote_is_closing': False,
         'secondary_provider': None,
@@ -702,9 +718,13 @@ def price_fixture(dist, mk, *, gated=True):
             nv = (None, None)
         payouts = btts(dist)
         for side, label, idx in (('yes', 'BTTS Yes', 0), ('no', 'BTTS No', 1)):
-            o = offer(payouts[side], b[side], nv[idx])
+            raw_probability = payouts[side].full_win
+            probability = (BTTS_MODEL_WEIGHT * raw_probability + (1-BTTS_MODEL_WEIGHT) * nv[idx]) if nv[idx] is not None else raw_probability
+            adjusted = PayoutProbabilities(full_win=probability, full_loss=1-probability)
+            o = offer(adjusted, b[side], nv[idx])
             if o:
                 o.update(side=side, line_quarters=None)
+                o.update(raw_probability=raw_probability, probability_adjustment='btts-market-shrink-v1')
                 out.append(('btts', label, o))
     for line, sides in (mk.get('odds_ou') or {}).items():
         sides = {str(key): value for key, value in sides.items()}
@@ -888,7 +908,7 @@ def main(argv=()):
         code = model_code(info.get('league'))
         m['analysis']['secondary_markets'] = secondary_analysis(info, secondary_data)
         try:
-            raw_book = sc.extract_secondary_markets(info['match_id'])
+            raw_book = sc.extract_secondary_markets(info['match_id']) if m['analysis']['secondary_markets'].get('availability') == 'B' else {}
         except Exception:
             raw_book = {}
         # Scraper keys are 'odds_corners_ou' / 'odds_corner_ah' / 'odds_cards_ou';
@@ -898,9 +918,10 @@ def main(argv=()):
             'corner_hdp': raw_book.get('odds_corner_ah') or {},
             'cards_ou': raw_book.get('odds_cards_ou') or {},
         }
-        if raw_book.get('odds_cards_ou'):
-            secondary_book['cards_units'] = 'points'
+        # Cards book units remain unverified; do not assume points from TI=10.
         m['analysis']['secondary_book'] = secondary_book
+        m['analysis']['secondary_markets'] = secondary_analysis(info, secondary_data, book=secondary_book)
+        m['analysis']['secondary_quote_captured_at'] = time.time()
         if not code:
             m['analysis']['reason_codes'] = ['LEAGUE_MODEL_UNAVAILABLE']
             league_name = info.get('league') or 'Unknown league'
@@ -1058,6 +1079,8 @@ def main(argv=()):
                 'quote_captured_at': captured_at, 'decision_at': decision_at,
                 'uncertainty_status': 'UNAVAILABLE_HEURISTIC_PENALTY_ONLY',
                 'market': market, 'pick': label, 'side': o['side'],
+                'raw_probability': o.get('raw_probability'),
+                'probability_adjustment': o.get('probability_adjustment'),
                 'line_quarters': o['line_quarters'],
                 'probability': round(o['probability'], 4),
                 'effective_win_probability': round(o['effective_win_probability'], 4),
@@ -1113,22 +1136,49 @@ def main(argv=()):
         # Book pricing emits every offered line (over+under per line, up to 24
         # lines). Publishing all of them floods the pick list with the same
         # market 40+ times. Keep the one best side per market.
-        best_by_market = {}
-        for offer in secondary_result.get('markets', []):
-            market = offer.get('market')
-            price = offer.get('book_over') if offer.get('side') == 'over' else offer.get('book_under')
-            current = best_by_market.get(market)
-            if current is None or (offer.get('probability') or 0) > (current.get('probability') or 0):
-                offer = dict(offer)
-                offer['book_odds'] = price
-                best_by_market[market] = offer
-        for offer in best_by_market.values():
-            item = secondary_pick_payload(info, offer, None, None, now,
+        offers = secondary_result.get('markets', [])
+        evaluated = []
+        for offer in offers:
+            offer = dict(offer)
+            price = offer.get('book_odds')
+            if price is None:
+                price = offer.get('book_over') if offer.get('side') == 'over' else offer.get('book_under')
+            offer['book_odds'] = price
+            opposite_price = None
+            if offer.get('market') == 'corners_ou':
+                opposite_price = offer.get('book_under') if offer['side'] == 'over' else offer.get('book_over')
+            elif offer.get('market') == 'corner_hdp':
+                opposite_price = next((o.get('book_odds') for o in offers
+                    if o.get('market') == 'corner_hdp' and o.get('side') != offer['side']
+                    and o.get('line') == -offer['line']), None)
+            if price and opposite_price:
+                offer['p_market_novig'] = proportional_no_vig([float(price), float(opposite_price)])[0]
+            item = secondary_pick_payload(info, offer, None,
+                m['analysis'].get('secondary_quote_captured_at'), now,
                 model_code(info.get('league')), secondary_result.get('model_version'),
                 secondary_result.get('referee_status'))
-            picks.append(item)
-            m.setdefault('projections', []).append(item)
-            m.setdefault('picks', []).append(item)
+            offer.update(odds=item['odds'], ev=item['ev'], conservative_ev=item['conservative_ev'], quote_captured_at=item['quote_captured_at'], gate_reasons=item['gate_reasons'])
+            evaluated.append((offer, item))
+        selected = []
+        for market in dict.fromkeys(offer['market'] for offer, _ in evaluated):
+            rows = [(offer, item) for offer, item in evaluated if offer['market'] == market]
+            priced = [(offer, item) for offer, item in rows
+                      if item['ev'] is not None and offer.get('p_market_novig') is not None]
+            if priced:
+                # Display a balanced bookmaker line, never an extreme line selected solely for win probability.
+                main = min(priced, key=lambda row: (abs(row[0]['p_market_novig']-.5), abs(row[0].get('line') or 0)))[0]
+                home_line = lambda o: -o['line'] if market == 'corner_hdp' and o['side'] == 'away' else o['line']
+                candidates = [r for r in priced if home_line(r[0]) == home_line(main)]
+                chosen = max(candidates, key=lambda row: row[1]['ev'])
+            else:
+                chosen = rows[0]
+            selected.append(chosen)
+            picks.append(chosen[1])
+            m.setdefault('projections', []).append(chosen[1])
+            m.setdefault('picks', []).append(chosen[1])
+        secondary_result['markets'] = [offer for offer, _ in selected]
+        secondary_result['market_options'] = [offer for offer, _ in evaluated]
+        secondary_result['market_odds_available'] = any(offer.get('odds') for offer, _ in selected)
 
     # 4. atomic writes
     def atomic_write(path, data):

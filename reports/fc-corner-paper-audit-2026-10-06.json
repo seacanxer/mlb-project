@@ -1,0 +1,23 @@
+{
+  "mode": "paper_trade_no_lock",
+  "model_version": "fc-secondary-counts-v1",
+  "fixtures_scanned": 0,
+  "fixtures": [],
+  "offers_evaluated": 0,
+  "offers": [],
+  "passing_offers": 0,
+  "by_market": {},
+  "gates": {
+    "odds_floor": 1.6,
+    "odds_cap": 2.5,
+    "ev_gate": 0.01,
+    "uncertainty_penalty": 0.02
+  },
+  "limitations": [
+    "goal_projection=None: no market-goal dominance blend applied",
+    "corners only unless --cards-points (TI=10 points-vs-count mapping unverified)",
+    "no calibration: probabilities are raw model outputs, calibrated_prob null",
+    "paper prices at scan time: no closing-line value, no settlement of these legs"
+  ],
+  "roi_claim": "unavailable_paper_trade_no_settlement"
+}

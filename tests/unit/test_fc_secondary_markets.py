@@ -288,3 +288,17 @@ def test_papertrade_evaluate_applies_primary_gates_without_locking():
     assert 'ODDS_OUTSIDE_VALUE_RANGE' in longshot['gate_reasons']
     assert paper['evaluate_offer'](certain, 'bad', 0.45, scan) is None
     assert paper['evaluate_offer'](certain, 2.0, None, scan)['pass'] is False
+
+
+def test_secondary_quarter_ev_uses_half_and_push_payouts():
+    import runpy
+    scanner = runpy.run_path(str(ROOT / 'scripts' / 'fc-scan-live.py'))
+    info = {'match_id':'q','home':'Home','away':'Away','league':'England. Premier League','start_ts':1900000000}
+    offer = {'market':'corners_ou','side':'over','line':10.25,'pick':'Over 10.25',
+             'probability':.5,'book_odds':2.0,'p_market_novig':.5,
+             'payout':{'full_win':.4,'half_win':.1,'push':.1,'half_loss':.1,'full_loss':.3}}
+    result = scanner['secondary_pick_payload'](info,offer,None,1800000000,1800000001,'E0','test','unknown')
+    assert result['ev'] == pytest.approx(.1)
+    assert result['conservative_ev'] == pytest.approx(.08)
+    assert result['fair_odds'] == pytest.approx(1+.35/.45,abs=.001)
+    assert not result['official_eligible']

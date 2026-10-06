@@ -11,7 +11,7 @@ betting-machine-fc/projection_grades.jsonl:
     (HC/AC/HY/AY/HR/AR), booking-points convention yellow=1 + red=2.
 
 Outcome granularity is win/half_win/push/half_loss/loss; Brier uses the
-effective outcome (half = 0.5). No odds, no stake, no money — this measures
+positive-payout event (win/half-win = 1; push/half-loss/loss = 0). No odds, no stake, no money — this measures
 MODEL skill, never betting performance. The ROI tracker (bets.db ->
 tracker_snapshot.json) is untouched and remains the only money report.
 
@@ -22,6 +22,7 @@ reported as counts, never imputed.
 Usage:
   python scripts/fc-grade-projections.py [--report-out reports/fc-model-performance.json]
 """
+import math
 import argparse
 import json
 import os
@@ -285,34 +286,38 @@ def grade_pending(entries, graded_ids, now=None):
 def build_report(entries, grades, *, recent_n=100):
     by_id = {e['ledger_id']: e for e in entries if is_card_row(e)}
     card_ids = set(by_id)
-    card_grades = [g for g in grades if g.get('ledger_id') in card_ids]
+    card_grades = list({g['ledger_id']: g for g in grades if g.get('ledger_id') in card_ids}.values())
     graded_ids = {g['ledger_id'] for g in card_grades}
     by_market, overall = {}, {'n': 0, 'score': 0.0, 'brier': 0.0,
-                              'mean_prob': 0.0, 'wins': 0, 'pushes': 0}
+                              'mean_prob': 0.0, 'wins': 0, 'pushes': 0, 'half_wins': 0, 'log_loss': 0.0, 'winning_events': 0}
     for grade in card_grades:
         entry = by_id.get(grade['ledger_id'], {})
         market = grade.get('market') or entry.get('market') or 'unknown'
         bucket = by_market.setdefault(market, {'n': 0, 'score': 0.0, 'brier': 0.0,
                                                'mean_prob': 0.0, 'wins': 0,
                                                'losses': 0, 'pushes': 0,
-                                               'half_wins': 0, 'half_losses': 0})
+                                               'half_wins': 0, 'half_losses': 0, 'log_loss': 0.0, 'winning_events': 0})
         bucket['n'] += 1
         prob = grade.get('model_probability')
         y_eff = grade.get('y_effective')
-        if grade.get('outcome') == 'push':
+        if grade.get('outcome') == 'unsupported' or prob is None or grade.get('outcome') not in ('win','half_win','push','half_loss','loss'):
+            bucket['n'] -= 1
+            continue
+        # Probability means full-win + half-win, not fractional payout.
+        y_win = float(grade['outcome'] in ('win', 'half_win'))
+        prob = float(prob)
+        clipped = min(1-1e-12, max(1e-12, prob))
+        for aggregate in (bucket, overall):
+            aggregate['score'] += y_win
+            aggregate['winning_events'] += int(y_win)
+            aggregate['brier'] += (prob-y_win)**2
+            aggregate['log_loss'] += -(y_win*math.log(clipped)+(1-y_win)*math.log(1-clipped))
+            aggregate['mean_prob'] += prob
+        overall['n'] += 1
+        if grade['outcome'] == 'push':
             bucket['pushes'] += 1
             overall['pushes'] += 1
             continue
-        if grade.get('outcome') == 'unsupported' or y_eff is None or prob is None:
-            bucket['n'] -= 1
-            continue
-        bucket['score'] += y_eff
-        bucket['brier'] += (prob - y_eff) ** 2
-        bucket['mean_prob'] += prob
-        overall['n'] += 1
-        overall['score'] += y_eff
-        overall['brier'] += (prob - y_eff) ** 2
-        overall['mean_prob'] += prob
         if grade['outcome'] == 'win':
             bucket['wins'] += 1
             overall['wins'] += 1
@@ -320,15 +325,18 @@ def build_report(entries, grades, *, recent_n=100):
             bucket['losses'] += 1
         elif grade['outcome'] == 'half_win':
             bucket['half_wins'] += 1
+            overall['half_wins'] += 1
         elif grade['outcome'] == 'half_loss':
             bucket['half_losses'] += 1
     for bucket in list(by_market.values()) + [overall]:
         decisive = bucket['n'] - bucket.get('pushes', 0)
         bucket['decisive'] = decisive
         bucket['hit_rate'] = round(bucket['score'] / decisive, 4) if decisive else None
-        bucket['mean_predicted'] = round(bucket['mean_prob'] / decisive, 4) if decisive else None
-        bucket['brier'] = round(bucket['brier'] / decisive, 4) if decisive else None
-        bucket['calibration_gap'] = (round(bucket['hit_rate'] - bucket['mean_predicted'], 4)
+        bucket['mean_predicted'] = round(bucket['mean_prob'] / bucket['n'], 4) if bucket['n'] else None
+        bucket['brier'] = round(bucket['brier'] / bucket['n'], 4) if bucket['n'] else None
+        bucket['log_loss'] = round(bucket['log_loss'] / bucket['n'], 4) if bucket['n'] else None
+        bucket['observed_win_probability'] = round(bucket['winning_events'] / bucket['n'], 4) if bucket['n'] else None
+        bucket['calibration_gap'] = (round(bucket['observed_win_probability'] - bucket['mean_predicted'], 4)
                                     if bucket['hit_rate'] is not None else None)
         del bucket['score']
         del bucket['mean_prob']
@@ -370,15 +378,19 @@ def build_report(entries, grades, *, recent_n=100):
         recent.append(row)
     return {'generated_at': datetime.now(timezone.utc).isoformat(),
             'ledger_entries': len(by_id), 'graded': len(graded_ids),
+            'unique_fixtures': len({e.get('match_id') or (e.get('match'), e.get('start_ts')) for e in by_id.values()}),
             'pending': len(pending),
             'by_market': by_market, 'overall': overall,
             'recent': recent,
+            'metric_definition': 'Hit rate excludes push and counts half-win as win; Brier/log-loss/calibration score full-win+half-win on all outcomes including push.',
             'scope': 'card-only: one displayed pick per market per fixture '
                      '(alternate book lines never logged, never graded)',
             'note': ('Kinerja MODEL (probabilitas vs hasil). Bukan ROI: tanpa odds, '
                      'stake, atau lock. ROI tetap hanya dari tracker_snapshot.json. '
                      'Hanya pick yang tampil di card yang dinilai — satu sisi per '
-                     'market — sehingga hit rate mencerminkan pilihan model.')}
+                     'market. Hit rate menghitung win/half-win dan mengecualikan push; '
+                     'kalibrasi memakai seluruh hasil termasuk push. Beberapa line/snapshot '
+                     'dari fixture yang sama tidak independen.')}
 
 
 def render_markdown(report):

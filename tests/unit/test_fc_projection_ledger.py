@@ -100,9 +100,10 @@ def test_payout_label_and_report_math():
     bucket = report['by_market']['ou']
     assert bucket['decisive'] == 2 and bucket['pushes'] == 1
     assert bucket['hit_rate'] == 0.5
-    assert bucket['mean_predicted'] == 0.7
-    assert bucket['brier'] == round(((0.6 - 1) ** 2 + (0.8 - 0) ** 2) / 2, 4)
-    assert bucket['calibration_gap'] == round(0.5 - 0.7, 4)
+    assert bucket['mean_predicted'] == round(1.9/3,4)
+    assert bucket['brier'] == round(((0.6 - 1) ** 2 + 0.8 ** 2 + 0.5 ** 2) / 3, 4)
+    assert bucket['calibration_gap'] == round(round(1/3,4) - round(1.9/3,4),4)
+    assert report['overall']['decisive'] == 2
     assert report['pending'] == 0
     assert 'Bukan ROI' in report['note']
     # Card-only scope must be disclosed, not hidden.
@@ -168,3 +169,16 @@ def test_report_excludes_never_shown_alternate_lines():
     assert report['pending'] == 0
     assert report['by_market']['ou']['decisive'] == 1
     assert [row['pick'] for row in report['recent']] == ['Over 2.5']
+
+
+def test_probability_metrics_count_half_win_and_push_with_matching_event():
+    grader = runpy.run_path(GRADE_PATH)
+    entries = [{'ledger_id':key, 'source':'card', 'market':'ah'} for key in ('hw','hl','p')]
+    grades = [dict(ledger_id=key,market='ah',outcome=outcome,model_probability=.6,y_effective=.5)
+              for key,outcome in [('hw','half_win'),('hl','half_loss'),('p','push')]]
+    result = grader['build_report'](entries,grades+[grades[0]])
+    bucket = result['by_market']['ah']
+    assert bucket['n']==3 and result['graded']==3
+    assert bucket['hit_rate']==.5
+    assert bucket['brier']==round((.4**2+.6**2+.6**2)/3,4)
+    assert result['overall']['decisive']==2

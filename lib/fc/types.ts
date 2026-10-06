@@ -355,7 +355,7 @@ export interface MatchAnalysis {
     cards?: { home: number; away: number; total: number; home_points?: number; away_points?: number;
       n_eff: number; dispersion: number; referee_status: string };
     markets: { market: string; side: string; line: number | null; pick: string; probability: number;
-      odds: number | null; p_market_novig: number | null; edge: number | null;
+      odds: number | null; ev?: number | null; conservative_ev?: number | null; line_source?: string; p_market_novig: number | null; edge: number | null;
       availability: 'A' | 'B'; status: 'projection' | 'value'; label: string; team?: string | null }[];
     market_odds_available?: boolean;
   };

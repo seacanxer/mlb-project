@@ -142,6 +142,9 @@ def collect_rows(matches, first_seen_at):
                 'line': (None if line_quarters is None
                          else line_quarters / 4),
                 'probability': round(probability, 4),
+                'raw_probability': proj.get('raw_probability'),
+                'probability_adjustment': proj.get('probability_adjustment'),
+                'payout': proj.get('payout'),
                 'odds': proj.get('odds'),
                 'ev': proj.get('ev'),
                 'formula_version': (proj.get('formula_version')
@@ -173,7 +176,7 @@ def collect_rows(matches, first_seen_at):
             if market in SECONDARY_CARD_MARKETS and market not in shown_secondary:
                 shown_secondary.add(market)
                 record({**proj, 'league_model': base['league_model'],
-                        'quote_captured_at': None}, 'card-secondary')
+                        'quote_captured_at': proj.get('quote_captured_at') or analysis.get('secondary_quote_captured_at')}, 'card-secondary')
     return rows
 
 

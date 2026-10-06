@@ -88,7 +88,8 @@ function PredictionCard({ match, market, valueOnly, saved, lockedIds, onToggle }
               ? `Home ${data.home.toFixed(2)} · Away ${data.away.toFixed(2)} · Projection corner ${data.total.toFixed(2)}`
               : `Kuning ${data.home.toFixed(1)} – ${data.away.toFixed(1)}; poin kartu total ${data.total.toFixed(1)}`}</small>}
             {projection ? <div className="prediction-secondary-pick"><strong>{projection.pick}</strong>
-              <small>Line {projection.line ?? '—'} · P(model) {formatProb(projection.probability)}</small><span className="prediction-tag">Proyeksi</span>
+              <small>Line {projection.line ?? '—'} · P(model) {formatProb(projection.probability)}</small>
+              <small>{projection.odds != null ? `Odds @${formatOdds(projection.odds)} · EV ${formatEv(projection.ev)}` : 'Odds pasar belum tersedia'}</small><span className="prediction-tag">Proyeksi</span>
             </div> : <div className="prediction-no-market"><strong>—</strong><small>Data belum cukup</small></div>}
           </div>;
         })}
@@ -97,7 +98,8 @@ function PredictionCard({ match, market, valueOnly, saved, lockedIds, onToggle }
           const title = key === 'corner_hdp' ? 'Corner HDP' : 'Kartu per tim';
           return <div className="prediction-market" key={key}><div className="prediction-market-heading">{title}</div>
             {projection ? <div className="prediction-secondary-pick"><strong>{projection.pick}</strong>
-              <small>Line {projection.line ?? '—'} · P(model) {formatProb(projection.probability)}</small><span className="prediction-tag">Proyeksi</span>
+              <small>Line {projection.line ?? '—'} · P(model) {formatProb(projection.probability)}</small>
+              <small>{projection.odds != null ? `Odds @${formatOdds(projection.odds)} · EV ${formatEv(projection.ev)}` : 'Odds pasar belum tersedia'}</small><span className="prediction-tag">Proyeksi</span>
             </div> : <div className="prediction-no-market"><strong>—</strong><small>Data belum cukup</small></div>}
           </div>;
         })}
@@ -105,11 +107,12 @@ function PredictionCard({ match, market, valueOnly, saved, lockedIds, onToggle }
           const projection = match.analysis!.secondary_markets!.markets.find((row) => row.market === 'red_card')!;
           return <div className="prediction-market"><div className="prediction-market-heading">Kartu merah</div>
             <div className="prediction-secondary-pick"><strong>{projection.pick}</strong>
-              <small>Line {projection.line ?? '—'} · P(model) {formatProb(projection.probability)}</small><span className="prediction-tag">Proyeksi</span>
+              <small>Line {projection.line ?? '—'} · P(model) {formatProb(projection.probability)}</small>
+              <small>{projection.odds != null ? `Odds @${formatOdds(projection.odds)} · EV ${formatEv(projection.ev)}` : 'Odds pasar belum tersedia'}</small><span className="prediction-tag">Proyeksi</span>
             </div></div>;
         })()}
       </div>}
-      {match.analysis.secondary_markets.availability !== 'C' && <small className="prediction-secondary-note">Odds sekunder belum tersedia; proyeksi ini belum dapat dikunci sebagai pick value.
+      {match.analysis.secondary_markets.availability !== 'C' && <small className="prediction-secondary-note">{match.analysis.secondary_markets.market_odds_available ? 'Line dan odds corner berasal dari pasar; model sekunder masih dalam evaluasi prospektif.' : 'Odds sekunder belum tersedia; line model adalah proyeksi, bukan harga pasar.'}
         {match.analysis?.secondary_markets?.referee_status === 'unknown' ? ' Wasit belum diumumkan; variasi prediksi kartu diperlebar.' : ''}</small>
       }
     </div>}

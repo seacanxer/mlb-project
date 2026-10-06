@@ -173,3 +173,12 @@ def test_primary_handicap_follows_1x2_even_when_opponent_has_higher_ev(favorite,
     assert not any(r[0]=='ah' for r in picks)  # aligning the display never fabricates value
     assert 'DIRECTION_ALTERNATIVE' in rows[-1][2]['gate_reasons']
     assert rows[-1][2]['ev'] == .15
+
+
+def test_btts_shrinkage_preserves_complements_and_reduces_model_market_gap():
+    dist = build_score_matrix(2.5,2.0,0)
+    rows = scan.price_fixture(dist,{'odds_btts':{'yes':1.95,'no':1.95}},gated=False)
+    assert sum(row[2]['probability'] for row in rows) == pytest.approx(1)
+    for _,_,offer in rows:
+        assert abs(offer['probability']-.5) == pytest.approx(.5*abs(offer['raw_probability']-.5))
+        assert offer['ev'] == pytest.approx(1.95*offer['probability']-1)
