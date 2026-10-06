@@ -269,6 +269,34 @@ def test_offered_handicap_is_symmetric_and_skips_bad_legs():
     assert (headed[0]['side'], headed[0]['line']) == ('home', 0.0)
 
 
+def test_corners_never_use_quarter_lines():
+    import numpy as np
+    distribution = np.asarray([.05, .1, .2, .3, .2, .1, .05])
+    book = {9.5: {9: 1.9, 10: 1.9}, 9.25: {9: 2.0, 10: 1.8},
+            9.75: {9: 1.8, 10: 2.0}, 10.0: {9: 2.2, 10: 1.65}}
+    offers = price_offered_totals(distribution, 'corners_ou', book,
+                                  mean=9.3, quarter_lines=False)
+    assert {o['line'] for o in offers} == {9.5, 10.0}
+    assert all(sum(o['payout'].values()) == 1 for o in offers)
+    # Cards keep quarter support.
+    cards = price_offered_totals(distribution, 'cards_ou', book, mean=9.3)
+    assert {o['line'] for o in cards} == {9.5, 9.25, 9.75, 10.0}
+    # Shopped corner fallback is whole/half only.
+    shopped = _best_total(distribution, 9.3, 'corners_ou', quarter_lines=False)
+    assert shopped['line'] in (9.0, 9.5)
+    # Shopped corner handicap snaps the fair line to whole/half.
+    symmetric = np.asarray([.05, .15, .3, .3, .15, .05])
+    hdp = _best_corner_handicap(symmetric, symmetric, 'Home', 'Away', 0.3,
+                                quarter_lines=False)
+    assert hdp['line'] in (0.0, -0.5, 0.5, -1.0, 1.0)
+    assert (hdp['line'] * 2).is_integer()
+    # handicap book legs drop quarters, keep whole/half.
+    legs = price_offered_handicap(symmetric, symmetric, 'Home', 'Away',
+                                  {'home': [(-1.5, 1.9), (-1.75, 2.0)],
+                                   'away': [(1.5, 1.9)]}, quarter_lines=False)
+    assert {(o['side'], o['line']) for o in legs} == {('home', -1.5), ('away', 1.5)}
+
+
 def test_project_fixture_with_book_replaces_shopped_corners():
     kickoff = int(datetime(2026, 9, 1, tzinfo=timezone.utc).timestamp())
     rows = make_rows()

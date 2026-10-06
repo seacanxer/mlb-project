@@ -180,9 +180,18 @@ def _payout(distribution, line, side):
             'half_loss': outcomes[3], 'full_loss': outcomes[4]}
 
 
-def _best_total(distribution, mean, market, *, minimum=0.5):
+def _is_whole_or_half(line):
+    quarters = round(float(line) * 4)
+    return abs(float(line) * 4 - quarters) < 1e-8 and quarters % 2 == 0
+
+
+def _best_total(distribution, mean, market, *, minimum=0.5, quarter_lines=True):
     center = max(minimum, math.floor(mean * 2) / 2)
     candidates = [center + offset * 0.25 for offset in (-4, -3, -2, -1, 0, 1, 2, 3, 4)]
+    if not quarter_lines:
+        # Corners stay on whole/half lines only: every outcome is a full
+        # win/loss/push, never a split half-win/half-loss.
+        candidates = [line for line in candidates if _is_whole_or_half(line)]
     choices = []
     for line in candidates:
         for side in ('over', 'under'):
@@ -211,7 +220,8 @@ def _book_price(value):
     return price if math.isfinite(price) and price > 1 else None
 
 
-def price_offered_totals(distribution, market, book_lines, *, max_lines=24, mean=None):
+def price_offered_totals(distribution, market, book_lines, *, max_lines=24, mean=None,
+                         quarter_lines=True):
     """Evaluate every bookmaker-offered total line — no line shopping.
 
     book_lines mirrors the scraper OU shape: {line: {9: over, 10: under}}.
@@ -233,6 +243,8 @@ def price_offered_totals(distribution, market, book_lines, *, max_lines=24, mean
         except (TypeError, ValueError):
             continue
         if not math.isfinite(line) or not 0 <= line <= 40:
+            continue
+        if not quarter_lines and not _is_whole_or_half(line):
             continue
         prices = prices if isinstance(prices, dict) else {}
         lines.append((line, _book_price(prices.get(9)), _book_price(prices.get(10))))
@@ -256,7 +268,7 @@ def price_offered_totals(distribution, market, book_lines, *, max_lines=24, mean
 
 
 def price_offered_handicap(home_distribution, away_distribution, home, away, book_legs,
-                           *, max_legs=16):
+                           *, max_legs=16, quarter_lines=True):
     """Evaluate every bookmaker-offered corner handicap leg — no shopping.
 
     book_legs mirrors the scraper AH shape: {'home': [(line, price)],
@@ -283,6 +295,8 @@ def price_offered_handicap(home_distribution, away_distribution, home, away, boo
                 continue
             if not math.isfinite(line) or abs(line) > 20:
                 continue
+            if not quarter_lines and not _is_whole_or_half(line):
+                continue
             if not math.isfinite(price) or price <= 1:
                 continue
             legs.append((side, line, price))
@@ -304,12 +318,18 @@ def price_offered_handicap(home_distribution, away_distribution, home, away, boo
 
 
 def _best_corner_handicap(home_distribution, away_distribution, home, away,
-                          expected_difference):
+                           expected_difference, *, quarter_lines=True):
     difference = np.convolve(home_distribution, away_distribution[::-1])
     offset = len(away_distribution) - 1
     fair_home_line = round(-expected_difference * 4) / 4
+    if quarter_lines:
+        line_set = (fair_home_line, fair_home_line - .25, fair_home_line + .25)
+    else:
+        # Whole/half only: snap the fair line, no quarter variants.
+        fair_home_line = round(fair_home_line * 2) / 2
+        line_set = (fair_home_line,)
     candidates = []
-    for line in (fair_home_line, fair_home_line - .25, fair_home_line + .25):
+    for line in line_set:
         for side in ('home', 'away'):
             adjusted = line if side == 'home' else -line
             shifted_line = adjusted - offset if side == 'home' else adjusted + offset
@@ -345,6 +365,9 @@ def project_fixture(rows, home, away, kickoff_utc, *, goal_projection=None,
     shopped central projection per market with line_source 'model-central'.
     Book-priced offers carry line_source 'book' plus the offered prices so
     scan-time EV gating can consume them without re-shopping.
+    Corner markets (corners_ou, corner_hdp) never use quarter lines —
+    whole/half only, so every outcome is a full win/loss/push. Cards keep
+    quarter support.
     """
     cfg = load_config()
     if config:
@@ -485,15 +508,17 @@ def project_fixture(rows, home, away, kickoff_utc, *, goal_projection=None,
         result['corners'] = {key: value for key, value in corner.items() if 'distribution' not in key}
         corner_totals = price_offered_totals(
             corner['distribution'], 'corners_ou', book.get('corners_ou'),
-            mean=corner['total'])
+            mean=corner['total'], quarter_lines=False)
         result['markets'].extend(corner_totals if corner_totals else
-            [_best_total(corner['distribution'], corner['total'], 'corners_ou')])
+            [_best_total(corner['distribution'], corner['total'], 'corners_ou',
+                         quarter_lines=False)])
         corner_spreads = price_offered_handicap(
             corner['home_distribution'], corner['away_distribution'],
-            home, away, book.get('corner_hdp'))
+            home, away, book.get('corner_hdp'), quarter_lines=False)
         result['markets'].extend(corner_spreads if corner_spreads else
             [_best_corner_handicap(corner['home_distribution'],
-                corner['away_distribution'], home, away, corner['home'] - corner['away'])])
+                corner['away_distribution'], home, away, corner['home'] - corner['away'],
+                quarter_lines=False)])
     if cards:
         result['cards'] = {key: value for key, value in cards.items() if 'distribution' not in key}
         card_totals = (price_offered_totals(
