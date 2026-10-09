@@ -29,6 +29,7 @@ import os
 import runpy
 import sys
 import time
+import unicodedata
 from datetime import datetime, timezone
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -283,24 +284,54 @@ def grade_pending(entries, graded_ids, now=None):
     return grades
 
 
+def report_fixture_key(entry):
+    def norm(value):
+        return ' '.join(''.join(c for c in unicodedata.normalize('NFKD', str(value or ''))
+                              if not unicodedata.combining(c)).casefold().split())
+    names = (entry.get('home'), entry.get('away'))
+    match = str(entry.get('match') or '')
+    if not all(names) and ' vs ' in match:
+        names = tuple(match.split(' vs ', 1))
+    if all(names) and entry.get('start_ts'):
+        return ('teams', norm(names[0]), norm(names[1]), int(float(entry['start_ts'])))
+    return ('id', str(entry.get('match_id') or entry.get('match') or entry.get('ledger_id')))
+
+
+def first_seen_key(entry):
+    try:
+        value = entry.get('first_seen_at')
+        stamp = datetime.fromisoformat(str(value).replace('Z', '+00:00')) if value else None
+        if stamp and stamp.tzinfo is None:
+            stamp = stamp.replace(tzinfo=timezone.utc)
+        return stamp.timestamp() if stamp else float('inf')
+    except (ValueError, TypeError):
+        return float('inf')
+
+
 def build_report(entries, grades, *, recent_n=100):
-    by_id = {e['ledger_id']: e for e in entries if is_card_row(e)}
+    # Choose immutable earliest forecasts before joining results; selecting
+    # the largest probability across rescans biases evaluation and can select
+    # a different side/line. Provider IDs must not count the same game twice.
+    unique_entries = {}
+    after_kickoff = 0
+    for entry in entries:
+        if not is_card_row(entry):
+            continue
+        first_seen = first_seen_key(entry)
+        kickoff = entry.get('start_ts')
+        captured = entry.get('quote_captured_at')
+        if kickoff and ((math.isfinite(first_seen) and first_seen >= float(kickoff)) or
+                        (isinstance(captured, (int,float)) and captured >= float(kickoff))):
+            after_kickoff += 1
+            continue
+        key = (report_fixture_key(entry), entry.get('market'))
+        prior = unique_entries.get(key)
+        if prior is None or first_seen_key(entry) < first_seen_key(prior):
+            unique_entries[key] = entry
+    by_id = {e['ledger_id']: e for e in unique_entries.values()}
     card_ids = set(by_id)
     raw_card_grades = list({g['ledger_id']: g for g in grades if g.get('ledger_id') in card_ids}.values())
-    unique = {}
-    for grade in raw_card_grades:
-        entry = by_id.get(grade.get('ledger_id'), {})
-        key = (str(entry.get('match_id') or entry.get('match') or ''), str(grade.get('market') or entry.get('market') or ''))
-        prior = unique.get(key)
-        probability = float(grade.get('model_probability') or entry.get('probability') or 0)
-        prior_probability = float((prior or {}).get('_dedup_probability') or 0)
-        if prior is None or probability > prior_probability:
-            grade = dict(grade)
-            grade['_dedup_probability'] = probability
-            unique[key] = grade
-    card_grades = list(unique.values())
-    for grade in card_grades:
-        grade.pop('_dedup_probability', None)
+    card_grades = raw_card_grades
     graded_ids = {g['ledger_id'] for g in card_grades}
     by_market, overall = {}, {'n': 0, 'score': 0.0, 'brier': 0.0,
                               'mean_prob': 0.0, 'wins': 0, 'pushes': 0, 'half_wins': 0, 'log_loss': 0.0, 'winning_events': 0}
@@ -397,13 +428,17 @@ def build_report(entries, grades, *, recent_n=100):
         recent.append(row)
     return {'generated_at': datetime.now(timezone.utc).isoformat(),
             'ledger_entries': len(by_id), 'graded': len(graded_ids),
-            'unique_fixtures': len({e.get('match_id') or (e.get('match'), e.get('start_ts')) for e in by_id.values()}),
+            'unique_fixtures': len({report_fixture_key(e) for e in by_id.values()}),
+            'dedup_policy': 'earliest first_seen per home/away/kickoff/market; fallback provider identity if teams unavailable',
+            'duplicates_removed': sum(is_card_row(e) for e in entries)-after_kickoff-len(by_id),
+            'after_kickoff_entries_excluded': after_kickoff,
+            'timing_unknown_entries': sum(not math.isfinite(first_seen_key(e)) for e in by_id.values()),
             'pending': len(pending),
             'by_market': by_market, 'overall': overall,
             'recent': recent,
             'metric_definition': 'Hit rate excludes push and counts half-win as win; Brier/log-loss/calibration score full-win+half-win on all outcomes including push.',
             'scope': 'card-only: one displayed pick per market per fixture '
-                     '(alternate book lines never logged, never graded)',
+                     '(alternate book lines excluded; after-kickoff entries excluded)',
             'note': ('Kinerja MODEL (probabilitas vs hasil). Bukan ROI: tanpa odds, '
                      'stake, atau lock. ROI tetap hanya dari tracker_snapshot.json. '
                      'Hanya pick yang tampil di card yang dinilai — satu sisi per '
@@ -451,6 +486,8 @@ def main(argv=None):
     parser.add_argument('--ledger', default=LEDGER_PATH)
     parser.add_argument('--grades', default=GRADES_PATH)
     parser.add_argument('--report-out', default=None)
+    parser.add_argument('--recent-n', type=int, default=100,
+                        help='Number of settled detail rows exported; use a high count for full audit')
     parser.add_argument('--no-grade', action='store_true',
                         help='skip grading, only rebuild the report')
     args = parser.parse_args(argv)
@@ -467,7 +504,7 @@ def main(argv=None):
     summary = {'status': 'ok', 'ledger_entries': len(entries),
                'newly_graded': len(fresh), 'total_graded': len(all_grades)}
     if args.report_out:
-        report = build_report(entries, all_grades)
+        report = build_report(entries, all_grades, recent_n=args.recent_n)
         with open(args.report_out, 'w', encoding='utf-8') as handle:
             json.dump(report, handle, ensure_ascii=False, indent=2, allow_nan=False)
         md_path = args.report_out[:-5] + '.md' if args.report_out.endswith('.json') else args.report_out + '.md'

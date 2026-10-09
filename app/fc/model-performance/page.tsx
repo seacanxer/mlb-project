@@ -65,7 +65,7 @@ export default function FcModelPerformance() {
         <div>
           <h1 className="page-title">Kinerja Model</h1>
           <p className="page-subtitle">
-            Semua proyeksi per scan vs hasil aktual · hit rate / Brier / kalibrasi · bukan ROI
+            Pick kartu sebelum kickoff vs hasil aktual · hit rate / Brier / kalibrasi · bukan ROI
           </p>
         </div>
       </div>
@@ -100,6 +100,10 @@ export default function FcModelPerformance() {
               {data.pending} menunggu hasil
               {data.generated_at ? ` · digenerate ${data.generated_at}` : ''}
             </p>
+            {data.after_kickoff_entries_excluded != null && <p className="muted">
+              {data.after_kickoff_entries_excluded} entri setelah kickoff dikeluarkan ·{' '}
+              {data.duplicates_removed ?? 0} duplikat dikeluarkan. Evaluasi memakai pilihan pertama per pertandingan/pasar.
+            </p>}
           </div>
 
           {data.graded === 0 ? (

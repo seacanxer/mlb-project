@@ -1,6 +1,6 @@
 # FC model performance report (projections ledger)
 
-Digenerate: 2026-10-06T11:40:06.045247+00:00 · Ledger: 1123 entri · Ter-grade: 790 · Pending: 333
+Digenerate: 2026-10-09T15:57:08.445099+00:00 · Ledger: 980 entri · Ter-grade: 345 · Pending: 635
 
 > Kinerja MODEL, bukan ROI. Tanpa odds/stake/lock. ROI tetap hanya dari tracker.
 
@@ -8,33 +8,33 @@ Digenerate: 2026-10-06T11:40:06.045247+00:00 · Ledger: 1123 entri · Ter-grade:
 
 | Market | N decisif | Hit rate | Mean pred | Brier | Cal gap | W / HW / HL / L / Push |
 |---|---:|---:|---:|---:|---:|---|
-| 1x2 | 194 | 0.5773 | 0.5573 | 0.2401 | 0.02 | 112 / 0 / 0 / 82 / 0 |
-| ah | 185 | 0.4459 | 0.4969 | 0.1994 | -0.051 | 61 / 22 / 21 / 81 / 16 |
-| btts | 191 | 0.4817 | 0.5704 | 0.2521 | -0.0887 | 92 / 0 / 0 / 99 / 0 |
-| ou | 197 | 0.5228 | 0.5478 | 0.2281 | -0.025 | 86 / 17 / 17 / 77 / 7 |
-| **overall** | 744 | 0.5235 | 0.5604 | 0.2373 | -0.0369 | 351 / — / — / — / 23 |
+| 1x2 | 86 | 0.5814 | 0.5551 | 0.2249 | 0.0263 | 50 / 0 / 0 / 36 / 0 |
+| ah | 85 | 0.4824 | 0.4607 | 0.2328 | 0.016 | 27 / 14 / 11 / 33 / 1 |
+| btts | 86 | 0.5233 | 0.5538 | 0.2547 | -0.0305 | 45 / 0 / 0 / 41 / 0 |
+| ou | 82 | 0.5488 | 0.5351 | 0.2645 | -0.0179 | 36 / 9 / 3 / 34 / 5 |
+| **overall** | 339 | 0.5339 | 0.5262 | 0.2443 | -0.0016 | 158 / — / — / — / 6 |
 
 ## Detail pick terbaru (20 terakhir ter-grade)
 
 | Match | Market | Pick | Prob | Hasil |
 |---|---|---|---:|---|
-| Honduras vs Jamaica | btts | BTTS No | 0.5827 | loss |
-| Honduras vs Jamaica | ou | Under 2.25 | 0.5902 | half_win |
-| Honduras vs Jamaica | ah | AH Home -0.25 | 0.5714 | half_loss |
-| Honduras vs Jamaica | 1x2 | Home | 0.5714 | loss |
-| Guatemala vs Suriname | ah | AH Home -0.75 | 0.5119 | half_win |
-| Bermuda vs Barbados | ah | AH Away -1 | 0.4065 | push |
-| Bermuda vs Barbados | ou | Over 3.5 | 0.6639 | loss |
-| Guatemala vs Suriname | btts | BTTS Yes | 0.5559 | loss |
-| Guatemala vs Suriname | ou | Over 2.5 | 0.5281 | loss |
-| Guatemala vs Suriname | ah | AH Home -0.25 | 0.4657 | win |
-| Guatemala vs Suriname | 1x2 | Home | 0.4657 | win |
-| Bermuda vs Barbados | btts | BTTS Yes | 0.7867 | win |
-| Bermuda vs Barbados | ou | Over 3.25 | 0.6596 | half_loss |
-| Bermuda vs Barbados | ah | AH Away -0.75 | 0.5416 | half_win |
-| Bermuda vs Barbados | 1x2 | Away | 0.5416 | win |
-| Cerro Porteno vs 2 de Mayo | btts | BTTS Yes | 0.4517 | loss |
-| Cerro Porteno vs 2 de Mayo | ou | Over 2.25 | 0.4637 | half_loss |
-| Martinique vs El Salvador | ah | AH Home -0.25 | 0.3943 | half_loss |
-| Cerro Porteno vs 2 de Mayo | btts | BTTS No | 0.5631 | win |
-| Cerro Porteno vs 2 de Mayo | ou | Under 2.25 | 0.5475 | half_win |
+| Ceara vs Criciuma | btts | BTTS No | 0.5339 | win |
+| Ceara vs Criciuma | ou | Over 2 | 0.4031 | loss |
+| Ceara vs Criciuma | ah | AH Home -0.25 | 0.3948 | half_loss |
+| Ceara vs Criciuma | 1x2 | Home | 0.3948 | loss |
+| Shamrock Rovers vs Drogheda United | btts | BTTS Yes | 0.4992 | win |
+| Shamrock Rovers vs Drogheda United | ou | Over 2.75 | 0.5602 | win |
+| Shamrock Rovers vs Drogheda United | ah | AH Home -1.25 | 0.3983 | win |
+| Shamrock Rovers vs Drogheda United | 1x2 | Home | 0.6412 | win |
+| Vila Nova vs Cuiaba | btts | BTTS Yes | 0.4522 | loss |
+| Vila Nova vs Cuiaba | ou | Over 2 | 0.4035 | loss |
+| Vila Nova vs Cuiaba | ah | AH Home -0.25 | 0.4358 | half_loss |
+| Vila Nova vs Cuiaba | 1x2 | Home | 0.4358 | loss |
+| Forge vs Pacific | btts | BTTS No | 0.4905 | win |
+| Forge vs Pacific | ou | Under 3.25 | 0.5932 | win |
+| Forge vs Pacific | ah | AH Home -1.75 | 0.5162 | half_win |
+| Forge vs Pacific | 1x2 | Home | 0.74 | win |
+| Avai vs Londrina | btts | BTTS Yes | 0.5083 | win |
+| Avai vs Londrina | ou | Over 2.25 | 0.4989 | win |
+| Avai vs Londrina | ah | AH Home -0.25 | 0.4568 | win |
+| Avai vs Londrina | 1x2 | Home | 0.4568 | win |

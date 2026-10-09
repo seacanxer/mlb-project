@@ -25,6 +25,7 @@ Usage:
 import argparse
 import hashlib
 import json
+import math
 import os
 import sys
 import time
@@ -112,6 +113,13 @@ def collect_rows(matches, first_seen_at):
             market = (proj.get('market') or '').lower()
             if not market:
                 return
+            if market == '1x2':
+                try:
+                    odds = float(proj.get('odds'))
+                    if not math.isfinite(odds) or odds < 1.30:
+                        return
+                except (TypeError, ValueError):
+                    return
             side = proj.get('side')
             line_quarters = proj.get('line_quarters')
             if line_quarters is None and proj.get('line') is not None:
@@ -130,7 +138,6 @@ def collect_rows(matches, first_seen_at):
                 probability = float(proj.get('probability'))
             except (TypeError, ValueError):
                 return
-            import math
             if not math.isfinite(probability) or not 0 <= probability <= 1:
                 return
             rows.append({
@@ -144,6 +151,9 @@ def collect_rows(matches, first_seen_at):
                 'probability': round(probability, 4),
                 'raw_probability': proj.get('raw_probability'),
                 'probability_adjustment': proj.get('probability_adjustment'),
+                'raw_price_probability': proj.get('raw_price_probability'),
+                'market_probability': proj.get('market_probability'),
+                'probability_model_weight': proj.get('probability_model_weight'),
                 'payout': proj.get('payout'),
                 'odds': proj.get('odds'),
                 'ev': proj.get('ev'),

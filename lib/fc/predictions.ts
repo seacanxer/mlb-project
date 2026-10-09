@@ -26,7 +26,8 @@ const REASONS: Record<string, string> = {
   TEAM_LOW_COVERAGE: 'Sampel tim masih terbatas.',
   NATIONAL_BASELINE_UNVALIDATED: 'Analisis tim nasional masih memakai baseline riset yang belum tervalidasi.',
   NEUTRAL_VENUE_UNVERIFIED: 'Lokasi netral pertandingan belum dapat diverifikasi.',
-  MODEL_MARKET_DISAGREEMENT: 'Proyeksi tim nasional terlalu jauh dari harga pasar; analisis ditahan.',
+  MODEL_MARKET_DISAGREEMENT: 'Probabilitas model terlalu jauh dari pasar; pilihan ditahan.',
+  NO_QUALIFIED_FORECAST: 'Model tersedia, tetapi tidak ada pilihan yang lolos pemeriksaan kualitas.',
   MARKET_BENCHMARK_UNAVAILABLE: 'Odds 1X2 lengkap diperlukan untuk memeriksa baseline tim nasional.',
   DUPLICATE_FIXTURE: 'Pertandingan yang sama sudah dianalisis dari fixture lain.',
 };
@@ -38,7 +39,11 @@ export function reasonLabel(code: string): string {
 export function forecastPicks(match: DetailedMatch): ForecastPick[] {
   // Pre-migration scanner picks are genuine engine outputs. They can be shown
   // as legacy results; never recreate the removed generic-rating analyzer.
-  return match.projections ?? match.qualified_picks ?? match.picks ?? [];
+  return (match.projections ?? match.qualified_picks ?? match.picks ?? []).filter(isCardVisible);
+}
+
+export function isCardVisible(pick: ForecastPick): boolean {
+  return pick.market !== '1x2' || (pick.odds != null && Number.isFinite(pick.odds) && pick.odds >= 1.30);
 }
 
 export function isValue(pick: ForecastPick): boolean {

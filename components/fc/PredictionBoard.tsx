@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import type { DetailedMatch, ForecastPick, Market } from '@/lib/fc/types';
-import { forecastPicks, isValue, matchKey, pickLabel, PREDICTION_MARKETS, reasonLabel } from '@/lib/fc/predictions';
+import { forecastPicks, isCardVisible, isValue, matchKey, pickLabel, PREDICTION_MARKETS, reasonLabel } from '@/lib/fc/predictions';
 import { formatEv, formatOdds, formatProb } from '@/lib/fc/format';
 import { formatKickoffWIB } from '@/lib/fc/kickoff';
 import { splitLeague } from '@/lib/fc/grouping';
@@ -19,7 +19,7 @@ const LOCK_STORAGE_KEY = 'fc-prediction-locked-v1';
 const PAGE_SIZE = 24;
 
 function choicesFor(match: DetailedMatch, valueOnly = false): ForecastPick[] {
-  return valueOnly ? (match.qualified_picks ?? []).filter(isValue) : forecastPicks(match);
+  return valueOnly ? (match.qualified_picks ?? []).filter((pick) => isCardVisible(pick) && isValue(pick)) : forecastPicks(match);
 }
 
 function PredictionCard({ match, market, valueOnly, saved, lockedIds, onToggle }: {
@@ -30,13 +30,13 @@ function PredictionCard({ match, market, valueOnly, saved, lockedIds, onToggle }
   const goals = match.analysis?.model_goals;
   const available = projections.length > 0;
   const reasons = match.analysis?.reason_codes.length ? match.analysis.reason_codes : ['RESCAN_REQUIRED'];
-  const options = (match.market_options ?? projections).filter((p) => market === 'all' || p.market === market);
+  const options = (match.market_options ?? projections).filter((p) => isCardVisible(p) && (market === 'all' || p.market === market));
   const cells = PREDICTION_MARKETS.filter((m) => ['1x2', 'ah', 'ou', 'btts'].includes(m.key) && (market === 'all' || m.key === market));
   return <article className={`prediction-card${available ? '' : ' prediction-card-empty'}`}>
     <header className="prediction-meta">
       <span className="prediction-league"><span aria-hidden="true">◈</span> {info.league || 'Liga belum tersedia'}</span>
       <time>{formatKickoffWIB(info.start_ts)}</time>
-      <span className={`prediction-status ${available ? 'is-ready' : ''}`}>{available ? 'Model tersedia' : 'Data belum lengkap'}</span>
+      <span className={`prediction-status ${available ? 'is-ready' : ''}`}>{available ? 'Model tersedia' : goals ? 'Tanpa pick layak' : 'Data belum lengkap'}</span>
     </header>
     <div className="prediction-main">
       <div className="prediction-teams">
@@ -56,7 +56,7 @@ function PredictionCard({ match, market, valueOnly, saved, lockedIds, onToggle }
               <span className="prediction-odds">@{formatOdds(pick.odds)} <span>{locked ? '🔒' : selected ? '✓' : '+'}</span></span>
               <small>P(menang) {formatProb(pick.probability)}</small>
               <span className={`prediction-tag ${isValue(pick) ? 'is-value' : ''}`}>{isValue(pick) ? 'Kandidat value' : 'Proyeksi'}</span>
-            </button> : <div className="prediction-no-market"><strong>—</strong><small>{available ? 'Pasar belum tersedia' : 'Menunggu data'}</small></div>}
+            </button> : <div className="prediction-no-market"><strong>—</strong><small>{match.analysis?.model_goals ? 'Tidak ada pick layak' : 'Menunggu data'}</small></div>}
           </div>;
         })}
       </div>}
@@ -123,7 +123,7 @@ function PredictionCard({ match, market, valueOnly, saved, lockedIds, onToggle }
     <details className="prediction-details">
       <summary>{available ? 'Detail analisis & alternatif line' : 'Lihat kebutuhan data'} <span aria-hidden="true">↗</span></summary>
       <div className="prediction-explanation">
-        <p>{available ? '1X2 menampilkan hasil paling mungkin. Jika 1X2 memilih home/away, AH utama mengikuti tim yang sama pada line pasar seimbang. Handicap tim lawan ditandai sebagai alternatif di tabel. Proyeksi dengan EV negatif tetap bukan kandidat value.' : reasons.map(reasonLabel).join(' ')}</p>
+        <p>{match.analysis?.model_goals ? 'Pilihan ditahan bila EV setelah penalti negatif atau model terlalu jauh dari pasar. 1X2 di bawah odds 1,30 disembunyikan. AH mengikuti arah utama 1X2 hanya jika layak; model dapat tidak memberikan pick. Detail alternatif tetap tersedia untuk analisis.' : reasons.map(reasonLabel).join(' ')}</p>
         <p>Official: {reasonLabel(match.analysis?.official_reason || 'MODEL_NOT_VALIDATED')} Probabilitas menang menghitung menang penuh dan setengah menang; EV memperhitungkan push dan hasil setengah.</p>
         {match.analysis?.quote_captured_at && <p>Odds 1xbit diambil: {formatKickoffWIB(match.analysis.quote_captured_at)}. Harga dapat berubah.</p>}
         {match.analysis?.model_data_as_of && <p>Hasil terakhir pada data model: {formatKickoffWIB(match.analysis.model_data_as_of)}.</p>}

@@ -5,7 +5,13 @@ The display line is the bookmaker's most balanced complete pair, so choosing
 an extreme line for its high win probability cannot masquerade as confidence.
 """
 MARKET_ORDER = ('1x2', 'ah', 'ou', 'btts')
-POLICY_VERSION = 'fc-market-catalog-v3-direction'
+POLICY_VERSION = 'fc-market-catalog-v4-abstain'
+MIN_1X2_CARD_ODDS = 1.30
+
+
+def card_eligible(offer):
+    return (offer.get('ev', -1) > 0 and offer.get('conservative_ev', -1) >= 0
+            and 'MODEL_MARKET_DISAGREEMENT' not in offer['gate_reasons'])
 
 
 def select_markets(opportunities):
@@ -21,7 +27,7 @@ def select_markets(opportunities):
             for row in rows:
                 if row[2]['side'] != primary_side and 'DIRECTION_ALTERNATIVE' not in row[2]['gate_reasons']:
                     row[2]['gate_reasons'].append('DIRECTION_ALTERNATIVE')
-        eligible = [row for row in rows if not row[2]['gate_reasons']]
+        eligible = [row for row in rows if not row[2]['gate_reasons'] and card_eligible(row[2])]
         if eligible:
             value_picks.append(max(eligible, key=lambda row: (row[2]['conservative_ev'], row[1])))
         if market in ('ah', 'ou'):
@@ -42,7 +48,15 @@ def select_markets(opportunities):
         # 1X2 displays the most probable result. Binary priced markets display
         # the better expected return on a fixed line, treating both signs alike.
         score = 'probability' if market == '1x2' else 'ev'
-        forecasts.append(max(rows, key=lambda row: (row[2][score], row[1])))
+        # Do not replace a low-price favorite by an unlikely 1X2 outcome.
+        if market == '1x2':
+            chosen = max(rows, key=lambda row: (row[2][score], row[1]))
+            if chosen[2].get('odds', 0) < MIN_1X2_CARD_ODDS:
+                continue
+            rows = [chosen]
+        rows = [row for row in rows if card_eligible(row[2])]
+        if rows:
+            forecasts.append(max(rows, key=lambda row: (row[2][score], row[1])))
     return forecasts, value_picks
 
 

@@ -129,7 +129,8 @@ def test_report_embeds_newest_pick_detail_first():
     assert report['recent'][0]['match'] == 'H vs A'
     assert set(report['recent'][0]) == {'match', 'league', 'market', 'pick', 'side',
                                         'line', 'model_probability', 'odds', 'ev',
-                                        'outcome', 'kickoff', 'kickoff_ts', 'graded_at'}
+                                        'outcome', 'kickoff', 'kickoff_ts', 'graded_at',
+                                        'score', 'home_goals', 'away_goals'}
     capped = grade['build_report'](entries, grades, recent_n=1)
     assert len(capped['recent']) == 1
 
@@ -182,3 +183,23 @@ def test_probability_metrics_count_half_win_and_push_with_matching_event():
     assert bucket['hit_rate']==.5
     assert bucket['brier']==round((.4**2+.6**2+.6**2)/3,4)
     assert result['overall']['decisive']==2
+
+
+def test_report_uses_first_forecast_across_provider_ids_and_excludes_after_kickoff():
+    grader = runpy.run_path(GRADE_PATH)
+    base = dict(home='Home',away='Away',match='Home vs Away',start_ts=1791500000,market='btts',source='card')
+    entries = [dict(base,ledger_id='first',match_id='provider-1',probability=.55,first_seen_at='2026-10-08T00:00:00Z'),
+               dict(base,ledger_id='later',match_id='provider-2',probability=.9,first_seen_at='2026-10-08T01:00:00Z'),
+               dict(base,ledger_id='late',match_id='provider-3',probability=.99,first_seen_at='2026-10-09T00:00:00Z')]
+    grades = [dict(ledger_id=e['ledger_id'],market='btts',outcome='loss',model_probability=e['probability']) for e in entries]
+    report = grader['build_report'](entries,grades)
+    assert report['graded']==1 and report['pending']==0
+    assert report['overall']['mean_predicted']==.55
+    assert report['duplicates_removed']==1 and report['after_kickoff_entries_excluded']==1
+
+
+def test_hidden_low_price_1x2_never_enters_new_card_ledger():
+    log = runpy.run_path(LOG_PATH)
+    match = make_matches()[0]
+    match['projections'] = [{**match['projections'][0], 'market':'1x2','odds':1.29}]
+    assert log['collect_rows']([match],'2026-09-01T00:00:00Z') == []

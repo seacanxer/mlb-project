@@ -168,6 +168,9 @@ export interface ModelPerformanceResponse {
   ledger_entries: number;
   graded: number;
   pending: number;
+  duplicates_removed?: number;
+  after_kickoff_entries_excluded?: number;
+  timing_unknown_entries?: number;
   by_market: Record<string, ModelMarketBucket>;
   overall: ModelMarketBucket & { n: number };
   /** Newest graded picks first (cap 100); absent until the next cron regen. */

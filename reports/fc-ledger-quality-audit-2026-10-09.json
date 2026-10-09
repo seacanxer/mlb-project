@@ -1,0 +1,710 @@
+{
+  "input_entries": 12458,
+  "input_grades": 10321,
+  "input_source_counts": {
+    "projection": 895,
+    "market_option": 10505,
+    "card-secondary": 290,
+    "card": 768
+  },
+  "unique_card_entries": 1675,
+  "scored_card_rows": 871,
+  "unscored_or_secondary": 0,
+  "post_kickoff_or_missing_timing": 526,
+  "grading_mismatches": [],
+  "binary_ev_formula_mismatches": [],
+  "legacy_csv_highest_probability_all_sources": {
+    "n": 863,
+    "fixtures": 219,
+    "profit_units": -54.07900000000001,
+    "paper_roi_pct": -6.266396292004636,
+    "roi_fixture_bootstrap_95_pct": [
+      -11.82029466960083,
+      -0.799386643135628
+    ],
+    "hit_rate": 0.6836616454229433,
+    "positive_payout_rate": 0.6836616454229433,
+    "brier": 0.1817824533603708,
+    "log_loss": 0.528872538505034,
+    "mean_predicted": 0.7044986095017381,
+    "calibration_gap": -0.02083696407879491
+  },
+  "legacy_csv_binary_only": {
+    "n": 432,
+    "fixtures": 218,
+    "profit_units": -24.137,
+    "paper_roi_pct": -5.587268518518518,
+    "roi_fixture_bootstrap_95_pct": [
+      -13.981296162954425,
+      2.553632250422089
+    ],
+    "hit_rate": 0.5555555555555556,
+    "positive_payout_rate": 0.5555555555555556,
+    "brier": 0.24508095622685186,
+    "log_loss": 0.6809537617607998,
+    "mean_predicted": 0.5790928240740741,
+    "calibration_gap": -0.02353726851851854,
+    "inverse_single_odds_brier": 0.23601905144866808,
+    "benchmark_note": "Inverse single odds includes bookmaker margin; not a no-vig market benchmark."
+  },
+  "legacy_csv_by_market": {
+    "1x2": {
+      "n": 216,
+      "fixtures": 216,
+      "profit_units": 0.8199999999999996,
+      "paper_roi_pct": 0.37962962962962943,
+      "roi_fixture_bootstrap_95_pct": [
+        -11.644155092592593,
+        12.520277777777771
+      ],
+      "hit_rate": 0.5833333333333334,
+      "positive_payout_rate": 0.5833333333333334,
+      "brier": 0.2356744438888889,
+      "log_loss": 0.6588793089874554,
+      "mean_predicted": 0.562625,
+      "calibration_gap": 0.02070833333333333
+    },
+    "ah": {
+      "n": 215,
+      "fixtures": 215,
+      "profit_units": -22.567,
+      "paper_roi_pct": -10.496279069767441,
+      "roi_fixture_bootstrap_95_pct": [
+        -17.078261627906976,
+        -3.7619534883720993
+      ],
+      "hit_rate": 0.7813953488372093,
+      "positive_payout_rate": 0.7813953488372093,
+      "brier": 0.13860457302325582,
+      "log_loss": 0.4461495384908211,
+      "mean_predicted": 0.8095655813953488,
+      "calibration_gap": -0.02817023255813955
+    },
+    "ou": {
+      "n": 216,
+      "fixtures": 216,
+      "profit_units": -7.375000000000005,
+      "paper_roi_pct": -3.4143518518518543,
+      "roi_fixture_bootstrap_95_pct": [
+        -9.79498842592593,
+        2.6442824074074003
+      ],
+      "hit_rate": 0.8425925925925926,
+      "positive_payout_rate": 0.8425925925925926,
+      "brier": 0.09816343037037037,
+      "log_loss": 0.30705011515579805,
+      "mean_predicted": 0.8507296296296296,
+      "calibration_gap": -0.00813703703703702
+    },
+    "btts": {
+      "n": 216,
+      "fixtures": 216,
+      "profit_units": -24.957,
+      "paper_roi_pct": -11.554166666666667,
+      "roi_fixture_bootstrap_95_pct": [
+        -22.837638888888886,
+        0.33164351851850815
+      ],
+      "hit_rate": 0.5277777777777778,
+      "positive_payout_rate": 0.5277777777777778,
+      "brier": 0.25448746856481486,
+      "log_loss": 0.703028214534144,
+      "mean_predicted": 0.5955606481481481,
+      "calibration_gap": -0.06778287037037034
+    }
+  },
+  "prospective_complete_quote_benchmark": {
+    "1x2": {
+      "n": 34,
+      "model_brier": 0.23062773470588235,
+      "market_brier": 0.2340818701014103
+    },
+    "btts": {
+      "n": 34,
+      "model_brier": 0.2576468094117647,
+      "market_brier": 0.25792509604703123
+    }
+  },
+  "walk_forward_weight_experiment": {
+    "1x2": {
+      "eligible_complete_quote_rows": 34,
+      "oos_n": 0,
+      "weights_used": {},
+      "raw_brier": null,
+      "anchored_brier": null,
+      "deploy_fitted_weights": false,
+      "reason": "Insufficient independent out-of-sample sample; fixed safety weights remain unvalidated."
+    },
+    "btts": {
+      "eligible_complete_quote_rows": 34,
+      "oos_n": 0,
+      "weights_used": {},
+      "raw_brier": null,
+      "anchored_brier": null,
+      "deploy_fitted_weights": false,
+      "reason": "Insufficient independent out-of-sample sample; fixed safety weights remain unvalidated."
+    }
+  },
+  "fixed_safety_policy_binary_replay": {
+    "1x2": {
+      "input_n": 34,
+      "held": {
+        "nonpositive_conservative_ev": 23,
+        "low_odds": 4
+      },
+      "kept_metrics": {
+        "n": 7,
+        "fixtures": 7,
+        "profit_units": 1.0020000000000002,
+        "paper_roi_pct": 14.314285714285717,
+        "roi_fixture_bootstrap_95_pct": [
+          -66.1,
+          87.31428571428572
+        ],
+        "hit_rate": 0.5714285714285714,
+        "positive_payout_rate": 0.5714285714285714,
+        "brier": 0.22010132571428573,
+        "log_loss": 0.6325300991680628,
+        "mean_predicted": 0.5051714285714286,
+        "calibration_gap": 0.06625714285714286
+      },
+      "baseline_metrics": {
+        "n": 34,
+        "fixtures": 34,
+        "profit_units": 3.0709999999999997,
+        "paper_roi_pct": 9.03235294117647,
+        "roi_fixture_bootstrap_95_pct": [
+          -21.350220588235295,
+          39.264926470588236
+        ],
+        "hit_rate": 0.6176470588235294,
+        "positive_payout_rate": 0.6176470588235294,
+        "brier": 0.23062773470588235,
+        "log_loss": 0.6473922472954782,
+        "mean_predicted": 0.5449,
+        "calibration_gap": 0.07274705882352936
+      }
+    },
+    "btts": {
+      "input_n": 34,
+      "held": {
+        "nonpositive_conservative_ev": 31,
+        "model_market_gap": 1
+      },
+      "kept_metrics": {
+        "n": 2,
+        "fixtures": 2,
+        "profit_units": -0.08000000000000007,
+        "paper_roi_pct": -4.0000000000000036,
+        "roi_fixture_bootstrap_95_pct": null,
+        "hit_rate": 0.5,
+        "positive_payout_rate": 0.5,
+        "brier": 0.21011049877103816,
+        "log_loss": 0.6131815786747457,
+        "mean_predicted": 0.5042439545257832,
+        "calibration_gap": -0.004243954525783189
+      },
+      "baseline_metrics": {
+        "n": 34,
+        "fixtures": 34,
+        "profit_units": -2.768,
+        "paper_roi_pct": -8.141176470588235,
+        "roi_fixture_bootstrap_95_pct": [
+          -39.3572794117647,
+          23.276617647058817
+        ],
+        "hit_rate": 0.5,
+        "positive_payout_rate": 0.5,
+        "brier": 0.2576468094117647,
+        "log_loss": 0.7109104734072929,
+        "mean_predicted": 0.5592882352941176,
+        "calibration_gap": -0.05928823529411761
+      }
+    }
+  },
+  "all_confirmed": {
+    "overall": {
+      "n": 871,
+      "fixtures": 219,
+      "profit_units": -47.862,
+      "paper_roi_pct": -5.495063145809414,
+      "roi_fixture_bootstrap_95_pct": [
+        -13.560322901174167,
+        2.147223308537438
+      ],
+      "hit_rate": 0.5147232037691402,
+      "positive_payout_rate": 0.5017221584385764,
+      "brier": 0.24782578873708383,
+      "log_loss": 0.6885016087188602,
+      "mean_predicted": 0.539984730195178,
+      "calibration_gap": -0.038262571756601624
+    },
+    "by_market": {
+      "1x2": {
+        "n": 218,
+        "fixtures": 218,
+        "profit_units": 2.0189999999999992,
+        "paper_roi_pct": 0.9261467889908254,
+        "roi_fixture_bootstrap_95_pct": [
+          -11.440183486238531,
+          12.823084862385318
+        ],
+        "hit_rate": 0.5825688073394495,
+        "positive_payout_rate": 0.5825688073394495,
+        "brier": 0.2364932394495413,
+        "log_loss": 0.66062276644895,
+        "mean_predicted": 0.5606917431192661,
+        "calibration_gap": 0.021877064220183477
+      },
+      "ah": {
+        "n": 216,
+        "fixtures": 216,
+        "profit_units": -29.3275,
+        "paper_roi_pct": -13.577546296296296,
+        "roi_fixture_bootstrap_95_pct": [
+          -24.922968750000003,
+          -2.640931712962977
+        ],
+        "hit_rate": 0.4504950495049505,
+        "positive_payout_rate": 0.4212962962962963,
+        "brier": 0.24147996828703705,
+        "log_loss": 0.6757490778701735,
+        "mean_predicted": 0.4867902777777778,
+        "calibration_gap": -0.06549398148148146
+      },
+      "btts": {
+        "n": 218,
+        "fixtures": 218,
+        "profit_units": -16.439,
+        "paper_roi_pct": -7.540825688073395,
+        "roi_fixture_bootstrap_95_pct": [
+          -19.967752293577984,
+          5.301582568807303
+        ],
+        "hit_rate": 0.5045871559633027,
+        "positive_payout_rate": 0.5045871559633027,
+        "brier": 0.25467196651376145,
+        "log_loss": 0.7033569432980384,
+        "mean_predicted": 0.5668981651376147,
+        "calibration_gap": -0.06231100917431191
+      },
+      "ou": {
+        "n": 219,
+        "fixtures": 219,
+        "profit_units": -4.1145,
+        "paper_roi_pct": -1.8787671232876708,
+        "roi_fixture_bootstrap_95_pct": [
+          -14.193595890410961,
+          9.304960045662096
+        ],
+        "hit_rate": 0.5165876777251185,
+        "positive_payout_rate": 0.4977168949771689,
+        "brier": 0.25855056593607306,
+        "log_loss": 0.714043486983225,
+        "mean_predicted": 0.5450474885844748,
+        "calibration_gap": -0.04733059360730591
+      }
+    }
+  },
+  "prospective_timestamps_only": {
+    "overall": {
+      "n": 345,
+      "fixtures": 87,
+      "profit_units": -12.08,
+      "paper_roi_pct": -3.5014492753623188,
+      "roi_fixture_bootstrap_95_pct": [
+        -16.409224137931034,
+        9.396401236881555
+      ],
+      "hit_rate": 0.5339233038348082,
+      "positive_payout_rate": 0.5246376811594203,
+      "brier": 0.2443005732753623,
+      "log_loss": 0.6814776363964201,
+      "mean_predicted": 0.5262121739130435,
+      "calibration_gap": -0.0015744927536232261
+    },
+    "by_market": {
+      "1x2": {
+        "n": 86,
+        "fixtures": 86,
+        "profit_units": -1.7130000000000003,
+        "paper_roi_pct": -1.9918604651162795,
+        "roi_fixture_bootstrap_95_pct": [
+          -21.09895348837209,
+          17.396802325581394
+        ],
+        "hit_rate": 0.5813953488372093,
+        "positive_payout_rate": 0.5813953488372093,
+        "brier": 0.22488308360465117,
+        "log_loss": 0.6375530829670232,
+        "mean_predicted": 0.5551127906976744,
+        "calibration_gap": 0.026282558139534895
+      },
+      "ah": {
+        "n": 86,
+        "fixtures": 86,
+        "profit_units": -9.0545,
+        "paper_roi_pct": -10.528488372093024,
+        "roi_fixture_bootstrap_95_pct": [
+          -27.91656976744186,
+          6.747369186046501
+        ],
+        "hit_rate": 0.4823529411764706,
+        "positive_payout_rate": 0.47674418604651164,
+        "brier": 0.2328315423255814,
+        "log_loss": 0.6564761075350333,
+        "mean_predicted": 0.460746511627907,
+        "calibration_gap": 0.01599767441860463
+      },
+      "btts": {
+        "n": 86,
+        "fixtures": 86,
+        "profit_units": -2.3989999999999996,
+        "paper_roi_pct": -2.7895348837209295,
+        "roi_fixture_bootstrap_95_pct": [
+          -23.330872093023256,
+          18.14738372093022
+        ],
+        "hit_rate": 0.5232558139534884,
+        "positive_payout_rate": 0.5232558139534884,
+        "brier": 0.2547121136046512,
+        "log_loss": 0.7036319303077586,
+        "mean_predicted": 0.5537755813953488,
+        "calibration_gap": -0.030519767441860433
+      },
+      "ou": {
+        "n": 87,
+        "fixtures": 87,
+        "profit_units": 1.0865,
+        "paper_roi_pct": 1.2488505747126437,
+        "roi_fixture_bootstrap_95_pct": [
+          -16.662327586206896,
+          19.453778735632177
+        ],
+        "hit_rate": 0.5487804878048781,
+        "positive_payout_rate": 0.5172413793103449,
+        "brier": 0.2645402089655172,
+        "log_loss": 0.7277118180128833,
+        "mean_predicted": 0.5351103448275862,
+        "calibration_gap": -0.017868965517241386
+      }
+    }
+  },
+  "calibration_buckets": [
+    {
+      "lower": 0.1,
+      "upper": 0.2,
+      "n": 2,
+      "fixtures": 2,
+      "profit_units": -2.0,
+      "paper_roi_pct": -100.0,
+      "roi_fixture_bootstrap_95_pct": null,
+      "hit_rate": 0.0,
+      "positive_payout_rate": 0.0,
+      "brier": 0.022910930000000003,
+      "log_loss": 0.16260949133194358,
+      "mean_predicted": 0.1498,
+      "calibration_gap": -0.1498
+    },
+    {
+      "lower": 0.2,
+      "upper": 0.3,
+      "n": 7,
+      "fixtures": 7,
+      "profit_units": -2.67,
+      "paper_roi_pct": -38.142857142857146,
+      "roi_fixture_bootstrap_95_pct": [
+        -85.71428571428571,
+        28.428571428571434
+      ],
+      "hit_rate": 0.2,
+      "positive_payout_rate": 0.14285714285714285,
+      "brier": 0.13046035714285714,
+      "log_loss": 0.4344117495913116,
+      "mean_predicted": 0.2610571428571429,
+      "calibration_gap": -0.11820000000000001
+    },
+    {
+      "lower": 0.3,
+      "upper": 0.4,
+      "n": 91,
+      "fixtures": 69,
+      "profit_units": 5.702,
+      "paper_roi_pct": 6.265934065934067,
+      "roi_fixture_bootstrap_95_pct": [
+        -19.119411184210524,
+        33.212201286764696
+      ],
+      "hit_rate": 0.4588235294117647,
+      "positive_payout_rate": 0.42857142857142855,
+      "brier": 0.25059546516483516,
+      "log_loss": 0.6951583783097154,
+      "mean_predicted": 0.369445054945055,
+      "calibration_gap": 0.0591263736263736
+    },
+    {
+      "lower": 0.4,
+      "upper": 0.5,
+      "n": 254,
+      "fixtures": 151,
+      "profit_units": -5.0785,
+      "paper_roi_pct": -1.9994094488188978,
+      "roi_fixture_bootstrap_95_pct": [
+        -15.723694392230575,
+        11.812962640340665
+      ],
+      "hit_rate": 0.46558704453441296,
+      "positive_payout_rate": 0.452755905511811,
+      "brier": 0.24723310807086615,
+      "log_loss": 0.6876017648562455,
+      "mean_predicted": 0.45660511811023624,
+      "calibration_gap": -0.0038492125984251916
+    },
+    {
+      "lower": 0.5,
+      "upper": 0.6,
+      "n": 267,
+      "fixtures": 161,
+      "profit_units": -11.191500000000001,
+      "paper_roi_pct": -4.191573033707866,
+      "roi_fixture_bootstrap_95_pct": [
+        -17.010120892574456,
+        8.406094779314888
+      ],
+      "hit_rate": 0.5343511450381679,
+      "positive_payout_rate": 0.5243445692883895,
+      "brier": 0.24968487632958802,
+      "log_loss": 0.6925327799304752,
+      "mean_predicted": 0.5518988764044944,
+      "calibration_gap": -0.027554307116104865
+    },
+    {
+      "lower": 0.6,
+      "upper": 0.7,
+      "n": 167,
+      "fixtures": 117,
+      "profit_units": -28.5315,
+      "paper_roi_pct": -17.084730538922155,
+      "roi_fixture_bootstrap_95_pct": [
+        -30.50951325757575,
+        -3.5037078220858997
+      ],
+      "hit_rate": 0.5180722891566265,
+      "positive_payout_rate": 0.5149700598802395,
+      "brier": 0.26608780658682635,
+      "log_loss": 0.7270793103137777,
+      "mean_predicted": 0.6385437125748502,
+      "calibration_gap": -0.12357365269461074
+    },
+    {
+      "lower": 0.7,
+      "upper": 0.8,
+      "n": 57,
+      "fixtures": 45,
+      "profit_units": -6.0375,
+      "paper_roi_pct": -10.592105263157896,
+      "roi_fixture_bootstrap_95_pct": [
+        -33.611459131545345,
+        11.750401542649696
+      ],
+      "hit_rate": 0.6071428571428571,
+      "positive_payout_rate": 0.5964912280701754,
+      "brier": 0.26123572157894737,
+      "log_loss": 0.7239808541759615,
+      "mean_predicted": 0.7410473684210526,
+      "calibration_gap": -0.1445561403508772
+    },
+    {
+      "lower": 0.8,
+      "upper": 0.9,
+      "n": 20,
+      "fixtures": 18,
+      "profit_units": 1.1370000000000002,
+      "paper_roi_pct": 5.6850000000000005,
+      "roi_fixture_bootstrap_95_pct": [
+        -21.459444444444443,
+        30.355499999999992
+      ],
+      "hit_rate": 0.8,
+      "positive_payout_rate": 0.8,
+      "brier": 0.16321232349999998,
+      "log_loss": 0.5157798950258544,
+      "mean_predicted": 0.842305,
+      "calibration_gap": -0.042304999999999995
+    },
+    {
+      "lower": 0.9,
+      "upper": 1.0,
+      "n": 6,
+      "fixtures": 6,
+      "profit_units": 0.8079999999999998,
+      "paper_roi_pct": 13.466666666666663,
+      "roi_fixture_bootstrap_95_pct": [
+        6.183333333333326,
+        22.5
+      ],
+      "hit_rate": 1.0,
+      "positive_payout_rate": 1.0,
+      "brier": 0.006435428333333336,
+      "log_loss": 0.08292260204484571,
+      "mean_predicted": 0.9204833333333333,
+      "calibration_gap": 0.07951666666666668
+    }
+  ],
+  "ev_filters": {
+    "0": {
+      "n": 416,
+      "fixtures": 177,
+      "profit_units": -36.795,
+      "paper_roi_pct": -8.844951923076923,
+      "roi_fixture_bootstrap_95_pct": [
+        -20.698205278861924,
+        3.103295301773416
+      ],
+      "hit_rate": 0.4725,
+      "positive_payout_rate": 0.4543269230769231,
+      "brier": 0.2558612836057692,
+      "log_loss": 0.7063040177029966,
+      "mean_predicted": 0.5679245192307693,
+      "calibration_gap": -0.11359759615384614
+    },
+    "0.03": {
+      "n": 312,
+      "fixtures": 147,
+      "profit_units": -34.424,
+      "paper_roi_pct": -11.033333333333333,
+      "roi_fixture_bootstrap_95_pct": [
+        -23.893387299655103,
+        2.5061863523861865
+      ],
+      "hit_rate": 0.45302013422818793,
+      "positive_payout_rate": 0.4326923076923077,
+      "brier": 0.26273902993589743,
+      "log_loss": 0.721785057333866,
+      "mean_predicted": 0.5794282051282051,
+      "calibration_gap": -0.14673589743589743
+    },
+    "0.05": {
+      "n": 259,
+      "fixtures": 129,
+      "profit_units": -38.3875,
+      "paper_roi_pct": -14.821428571428573,
+      "roi_fixture_bootstrap_95_pct": [
+        -29.103089996357344,
+        0.5387141594577962
+      ],
+      "hit_rate": 0.4291497975708502,
+      "positive_payout_rate": 0.4092664092664093,
+      "brier": 0.26822181845559845,
+      "log_loss": 0.7336199437786054,
+      "mean_predicted": 0.589823166023166,
+      "calibration_gap": -0.1805567567567567
+    },
+    "0.1": {
+      "n": 161,
+      "fixtures": 90,
+      "profit_units": -25.3645,
+      "paper_roi_pct": -15.754347826086956,
+      "roi_fixture_bootstrap_95_pct": [
+        -33.05000786163522,
+        2.625654200094377
+      ],
+      "hit_rate": 0.41830065359477125,
+      "positive_payout_rate": 0.39751552795031053,
+      "brier": 0.27857903347826085,
+      "log_loss": 0.7575165850445952,
+      "mean_predicted": 0.6107223602484472,
+      "calibration_gap": -0.21320683229813667
+    }
+  },
+  "negative_ev_count": 455,
+  "prospective_positive_ev_screen_only": {
+    "n": 106,
+    "fixtures": 55,
+    "profit_units": -4.4285000000000005,
+    "paper_roi_pct": -4.177830188679246,
+    "roi_fixture_bootstrap_95_pct": [
+      -26.3017380847308,
+      18.47173990802247
+    ],
+    "hit_rate": 0.4854368932038835,
+    "positive_payout_rate": 0.4716981132075472,
+    "brier": 0.26392652801886796,
+    "log_loss": 0.7260589031226726,
+    "mean_predicted": 0.5630801886792453,
+    "calibration_gap": -0.09138207547169813
+  },
+  "by_version": {
+    "dc-loglink-time-decay-v1": {
+      "n": 36,
+      "fixtures": 9,
+      "profit_units": -5.109,
+      "paper_roi_pct": -14.191666666666666,
+      "roi_fixture_bootstrap_95_pct": [
+        -51.57875,
+        23.452777777777776
+      ],
+      "hit_rate": 0.46875,
+      "positive_payout_rate": 0.4166666666666667,
+      "brier": 0.23902142305555557,
+      "log_loss": 0.6685762056699848,
+      "mean_predicted": 0.5392194444444445,
+      "calibration_gap": -0.12255277777777776
+    },
+    "fc-market-goal-blend-v2": {
+      "n": 655,
+      "fixtures": 165,
+      "profit_units": -51.9015,
+      "paper_roi_pct": -7.923893129770992,
+      "roi_fixture_bootstrap_95_pct": [
+        -16.69449247720365,
+        0.8529257521879544
+      ],
+      "hit_rate": 0.4984520123839009,
+      "positive_payout_rate": 0.4916030534351145,
+      "brier": 0.24892736239694654,
+      "log_loss": 0.6907349493940248,
+      "mean_predicted": 0.5308377099236641,
+      "calibration_gap": -0.039234656488549575
+    },
+    "fc-market-goal-blend-v3-btts-shrink": {
+      "n": 60,
+      "fixtures": 15,
+      "profit_units": 2.1784999999999997,
+      "paper_roi_pct": 3.630833333333333,
+      "roi_fixture_bootstrap_95_pct": [
+        -28.047270833333332,
+        35.02231249999999
+      ],
+      "hit_rate": 0.576271186440678,
+      "positive_payout_rate": 0.5666666666666667,
+      "brier": 0.21939178066666667,
+      "log_loss": 0.6305982866470283,
+      "mean_predicted": 0.5141266666666666,
+      "calibration_gap": 0.05254
+    },
+    "ratio-baseline-v1": {
+      "n": 120,
+      "fixtures": 30,
+      "profit_units": 6.97,
+      "paper_roi_pct": 5.808333333333334,
+      "roi_fixture_bootstrap_95_pct": [
+        -14.865583333333337,
+        27.507812499999986
+      ],
+      "hit_rate": 0.5892857142857143,
+      "positive_payout_rate": 0.55,
+      "brier": 0.25867134625,
+      "log_loss": 0.7112405728174991,
+      "mean_predicted": 0.6030708333333333,
+      "calibration_gap": -0.05307083333333331
+    }
+  },
+  "limitations": [
+    "Scores checked against supplied actuals, not independent provider refetch.",
+    "Prospective timestamps do not establish historical training cutoff or closing-line value.",
+    "After-event logged rows are not out-of-sample validation.",
+    "Binary safety replay retains historical side and line; not a new full scan or independently validated model backtest.",
+    "Flat 1u paper ROI does not modify or replace tracker ROI."
+  ]
+}

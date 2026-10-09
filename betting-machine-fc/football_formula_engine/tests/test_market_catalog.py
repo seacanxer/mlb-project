@@ -34,43 +34,48 @@ def test_national_forecast_is_held_on_large_market_gap():
 
 def markets():
     return {'odds_1x2': {1: 2.0, 2: 3.5, 3: 3.5},
-            'odds_btts': {'yes': 1.95, 'no': 1.95},
+            'odds_btts': {'yes': 2.0, 'no': 2.0},
             'odds_ou': {2.5: {9: 1.95, 10: 1.95}},
-            'odds_ah': {'home': [(-0.5, 1.95)], 'away': [(0.5, 1.95)]}}
+            'odds_ah': {'home': [(-0.5, 2.1)], 'away': [(0.5, 2.1)]}}
 
 
-@pytest.mark.parametrize('home,away,expected', [(2.4, 1.8, 'over'), (0.7, 0.6, 'under')])
+@pytest.mark.parametrize('home,away,expected', [(1.6, 1.4, 'over'), (1.1, 1.1, 'under')])
 def test_total_direction_responds_to_actual_goal_model(home, away, expected):
     forecasts, _ = select_markets(scan.price_fixture(build_score_matrix(home, away, 0), markets(), gated=False))
     assert next(row[2]['side'] for row in forecasts if row[0] == 'ou') == expected
 
 
-@pytest.mark.parametrize('home,away,expected', [(2.7, 0.5, 'home'), (0.7, 1.8, 'away')])
+@pytest.mark.parametrize('home,away,expected', [(1.8, 1.1, 'home'), (1.1, 1.8, 'away')])
 def test_handicap_selects_minus_or_plus_without_sign_quota(home, away, expected):
-    forecasts, _ = select_markets(scan.price_fixture(build_score_matrix(home, away, 0), markets(), gated=False))
+    mk = markets()
+    if expected == 'away':
+        mk['odds_1x2'] = {1:3.5, 2:3.5, 3:2.0}
+        mk['odds_ah'] = {'home': [(0.5,2.1)], 'away':[(-0.5,2.1)]}
+    forecasts, _ = select_markets(scan.price_fixture(build_score_matrix(home, away, 0), mk, gated=False))
     ah = next(row[2] for row in forecasts if row[0] == 'ah')
     assert ah['side'] == expected
-    assert ah['line_quarters'] == (-2 if expected == 'home' else 2)
+    assert ah['line_quarters'] == -2
 
 
 def test_away_favorite_can_give_handicap_and_home_can_receive():
-    mk = {'odds_ah': {'home': [(0.5, 1.95)], 'away': [(-0.5, 1.95)]}}
-    forecasts, _ = select_markets(scan.price_fixture(build_score_matrix(0.5, 2.7, 0), mk, gated=False))
+    mk = {'odds_ah': {'home': [(0.5, 2.1)], 'away': [(-0.5, 2.1)]}}
+    forecasts, _ = select_markets(scan.price_fixture(build_score_matrix(1.1, 1.8, 0), mk, gated=False))
     assert forecasts[0][2]['side'] == 'away'
     assert forecasts[0][2]['line_quarters'] == -2
 
 
-def test_forecasts_remain_visible_below_value_gate():
+def test_negative_ev_forecasts_abstain_but_analysis_options_remain():
     mk = {'odds_ou': {2.5: {9: 1.1, 10: 1.1}}, 'odds_btts': {'yes': 1.1, 'no': 1.1}}
     offers = scan.price_fixture(build_score_matrix(1.35, 1.35, 0), mk, gated=False)
     forecasts, picks = select_markets(offers)
-    assert len(forecasts) == 2
+    assert forecasts == []
+    assert offers
     assert picks == []
-    assert all('ODDS_OUTSIDE_VALUE_RANGE' in row[2]['gate_reasons'] for row in forecasts)
+    assert all('ODDS_OUTSIDE_VALUE_RANGE' in row[2]['gate_reasons'] for row in offers)
 
 
 def test_one_value_option_per_market_replaces_one_per_fixture():
-    forecasts, picks = select_markets(scan.price_fixture(build_score_matrix(2.7, 0.5, 0), markets(), gated=False))
+    forecasts, picks = select_markets(scan.price_fixture(build_score_matrix(1.8, 1.1, 0), markets(), gated=False))
     assert len(forecasts) == 4
     assert len(picks) >= 2
     assert len({row[0] for row in picks}) == len(picks)
@@ -149,8 +154,9 @@ def test_scan_writes_four_market_catalog_and_clears_old_missing_team_picks(tmp_p
     monkeypatch.setattr(scan.QuoteJournal, 'record_research_decision', lambda *args, **kwargs: {'artifact_id': 'test-research'})
     assert scan.main() == 0
     matches = json.loads((tmp_path / 'matches_detailed.json').read_text())
-    assert len(matches[0]['projections']) == 4
-    assert len(matches[0]['qualified_picks']) >= 2
+    assert {p['market'] for p in matches[0]['market_options']} == {'1x2','ah','ou','btts'}
+    assert all(p['ev']>0 and p['conservative_ev']>=0 for p in matches[0]['projections'])
+    assert all('MODEL_MARKET_DISAGREEMENT' not in p['gate_reasons'] for p in matches[0]['qualified_picks'])
     assert all(not p['official_eligible'] for p in matches[0]['market_options'])
     assert matches[1]['picks'] == []
     assert matches[1]['analysis']['reason_codes'] == ['TEAM_COVERAGE_MISSING']
@@ -169,7 +175,7 @@ def test_primary_handicap_follows_1x2_even_when_opponent_has_higher_ev(favorite,
             ('ah','Favorite AH',offer(favorite,.40,-.10,favorite_line)),
             ('ah','Opponent AH',offer(opponent,.60,.15,opponent_line))]
     forecasts, picks = select_markets(rows)
-    assert next(r[2]['side'] for r in forecasts if r[0]=='ah') == favorite
+    assert not any(r[0]=='ah' for r in forecasts)
     assert not any(r[0]=='ah' for r in picks)  # aligning the display never fabricates value
     assert 'DIRECTION_ALTERNATIVE' in rows[-1][2]['gate_reasons']
     assert rows[-1][2]['ev'] == .15

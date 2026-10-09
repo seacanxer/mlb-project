@@ -44,6 +44,8 @@ from football_formula_engine.secondary_markets import (load_stat_rows as load_se
 from football_formula_engine.model import (FitConfig, fit_dixon_coles,
     build_ratio_baseline_artifact, project_fixture)  # noqa: E402
 from football_formula_engine.value import expected_value, fair_odds, proportional_no_vig  # noqa: E402
+from football_formula_engine.market_safety import (anchor_payout, MODEL_WEIGHTS,
+    MAX_MODEL_MARKET_GAP, SHRINK_VERSION)  # noqa: E402
 from football_formula_engine.live_quotes import QuoteJournal  # noqa: E402
 from football_formula_engine.second_source import collect as collect_second_source  # noqa: E402
 from football_formula_engine.catalog import POLICY_VERSION, select_markets, direction_counts  # noqa: E402
@@ -56,8 +58,7 @@ from football_formula_engine.national_teams import (MODEL_CODE as NATIONAL_CODE,
     nonneutral_baseline_coverage)  # noqa: E402
 
 FORMULA_VERSION = 'dc-loglink-time-decay-v1'
-DECISION_FORMULA_VERSION = 'fc-market-goal-blend-v3-btts-shrink'
-BTTS_MODEL_WEIGHT = 0.5  # Conservative market shrinkage; prospective validation required.
+DECISION_FORMULA_VERSION = 'fc-market-goal-blend-v4-quality-abstain'
 UNCERTAINTY_PENALTY = 0.02
 EV_GATE = 0.01
 ODDS_FLOOR = 1.6
@@ -671,7 +672,7 @@ def secondary_pick_payload(info, offer, observation, captured_at, decision_at, c
     }
 
 
-def opp(payout, odds, no_vig_probs, *, gated=True):
+def opp(payout, odds, no_vig_probs, *, gated=True, market=None):
     """Price a valid offer; value thresholds affect eligibility, not visibility."""
     try:
         odds = float(odds)
@@ -679,12 +680,16 @@ def opp(payout, odds, no_vig_probs, *, gated=True):
         return None
     if not math.isfinite(odds) or odds <= 1 or no_vig_probs is None:
         return None
+    raw_probability = payout.full_win + payout.half_win
+    payout, raw_price_probability = anchor_payout(payout, no_vig_probs, MODEL_WEIGHTS.get(market, 1.0))
     fo = fair_odds(payout)
     if fo is None:
         return None
     ev = expected_value(payout, odds)
     cev = ev - UNCERTAINTY_PENALTY
     reasons = []
+    if raw_price_probability is not None and abs(raw_price_probability-no_vig_probs) > MAX_MODEL_MARKET_GAP:
+        reasons.append('MODEL_MARKET_DISAGREEMENT')
     if not (ODDS_FLOOR <= odds <= ODDS_CAP):
         reasons.append('ODDS_OUTSIDE_VALUE_RANGE')
     if ev < EV_GATE:
@@ -697,13 +702,17 @@ def opp(payout, odds, no_vig_probs, *, gated=True):
             'probability': payout.full_win + payout.half_win,
             'effective_win_probability': payout.full_win + 0.5 * payout.half_win,
             'payout': {key: getattr(payout, key) for key in ('full_win', 'half_win', 'push', 'half_loss', 'full_loss')},
-            'market_probability': no_vig_probs, 'gate_reasons': reasons}
+            'market_probability': no_vig_probs, 'gate_reasons': reasons,
+            'raw_probability': raw_probability,
+            'raw_price_probability': raw_price_probability,
+            'probability_adjustment': SHRINK_VERSION if market in MODEL_WEIGHTS else None,
+            'probability_model_weight': MODEL_WEIGHTS.get(market, 1.0)}
 
 
 def price_fixture(dist, mk, *, gated=True):
     """Evaluate both sides of every complete market from the same distribution."""
     out = []
-    offer = lambda payout, odds, nv: opp(payout, odds, nv, gated=gated)
+    offer = lambda payout, odds, nv, market: opp(payout, odds, nv, gated=gated, market=market)
     one_x_two = {int(key): value for key, value in (mk.get('odds_1x2') or {}).items() if str(key) in ('1', '2', '3')}
     if all(t in one_x_two for t in (1, 2, 3)):
         try:
@@ -712,7 +721,7 @@ def price_fixture(dist, mk, *, gated=True):
             nv = (None, None, None)
         payouts = match_odds(dist)
         for t, side, label in ((1, 'home', 'Home'), (2, 'draw', 'Draw'), (3, 'away', 'Away')):
-            o = offer(payouts[side], one_x_two[t], nv[{1: 0, 2: 1, 3: 2}[t]])
+            o = offer(payouts[side], one_x_two[t], nv[{1: 0, 2: 1, 3: 2}[t]], '1x2')
             if o:
                 o.update(side=side, line_quarters=None)
                 out.append(('1x2', label, o))
@@ -724,13 +733,9 @@ def price_fixture(dist, mk, *, gated=True):
             nv = (None, None)
         payouts = btts(dist)
         for side, label, idx in (('yes', 'BTTS Yes', 0), ('no', 'BTTS No', 1)):
-            raw_probability = payouts[side].full_win
-            probability = (BTTS_MODEL_WEIGHT * raw_probability + (1-BTTS_MODEL_WEIGHT) * nv[idx]) if nv[idx] is not None else raw_probability
-            adjusted = PayoutProbabilities(full_win=probability, full_loss=1-probability)
-            o = offer(adjusted, b[side], nv[idx])
+            o = offer(payouts[side], b[side], nv[idx], 'btts')
             if o:
                 o.update(side=side, line_quarters=None)
-                o.update(raw_probability=raw_probability, probability_adjustment='btts-market-shrink-v1')
                 out.append(('btts', label, o))
     for line, sides in (mk.get('odds_ou') or {}).items():
         sides = {str(key): value for key, value in sides.items()}
@@ -751,7 +756,7 @@ def price_fixture(dist, mk, *, gated=True):
                 payout = over_under(dist, side, q)
             except Exception:
                 continue
-            o = offer(payout, sides[t], nv[0 if side == 'over' else 1])
+            o = offer(payout, sides[t], nv[0 if side == 'over' else 1], 'ou')
             if o:
                 o.update(side=side, line_quarters=q)
                 out.append(('ou', label, o))
@@ -784,7 +789,7 @@ def price_fixture(dist, mk, *, gated=True):
                 payout = asian_handicap(dist, side, q if side == 'home' else -q)
             except Exception:
                 continue
-            o = offer(payout, sides[side], nv[idx])
+            o = offer(payout, sides[side], nv[idx], 'ah')
             if o:
                 o.update(side=side, line_quarters=q if side == 'home' else -q)
                 out.append(('ah', label, o))
@@ -1057,7 +1062,7 @@ def main(argv=()):
         info['coverage_status'] = 'shadow' if model_reasons else 'full'
         m['analysis'].update(
             status='ready' if forecasts else 'unavailable',
-            reason_codes=model_reasons if forecasts else ['COMPLETE_MARKET_UNAVAILABLE'],
+            reason_codes=model_reasons if forecasts else ['NO_QUALIFIED_FORECAST'] if opportunities else ['COMPLETE_MARKET_UNAVAILABLE'],
             model_data_as_of=last_result,
             model_goals={'home': blended_home, 'away': blended_away},
             raw_model_goals={'home': proj.lambda_home, 'away': proj.lambda_away},
@@ -1087,6 +1092,8 @@ def main(argv=()):
                 'market': market, 'pick': label, 'side': o['side'],
                 'raw_probability': o.get('raw_probability'),
                 'probability_adjustment': o.get('probability_adjustment'),
+                'raw_price_probability': o.get('raw_price_probability'),
+                'probability_model_weight': o.get('probability_model_weight'),
                 'line_quarters': o['line_quarters'],
                 'probability': round(o['probability'], 4),
                 'effective_win_probability': round(o['effective_win_probability'], 4),

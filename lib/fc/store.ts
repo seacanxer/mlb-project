@@ -261,13 +261,46 @@ export function readGradeDetails(): GradeDetailRow[] {
   const ledger = readJsonlLines('betting-machine-fc/projection_ledger.jsonl');
   const grades = readJsonlLines('betting-machine-fc/projection_grades.jsonl');
   const byId = new Map<string, Record<string, unknown>>();
+  const firstEntries = new Map<string, Record<string, unknown>>();
+  const primary = new Set(['1x2', 'ah', 'ou', 'btts']);
+  const secondary = new Set(['corners_ou', 'corner_hdp', 'cards_ou', 'team_cards_ou', 'red_card']);
+  const normalized = (value: unknown): string => String(value ?? '').normalize('NFKD').replace(/\p{M}/gu, '').toLowerCase().trim().replace(/\s+/g, ' ');
+  const firstSeen = (entry: Record<string, unknown>): number => {
+    const stamp = Date.parse(String(entry['first_seen_at'] ?? ''));
+    return Number.isFinite(stamp) ? stamp / 1000 : Infinity;
+  };
   for (const entry of ledger) {
+    const market = String(entry['market'] ?? '');
+    const source = String(entry['source'] ?? '');
+    if (!(primary.has(market) && ['projection', 'qualified', 'pick', 'card'].includes(source)) &&
+        !(secondary.has(market) && ['card-secondary', 'projection'].includes(source))) continue;
+    const kickoff = num(entry['start_ts']);
+    const captured = num(entry['quote_captured_at']);
+    const seen = firstSeen(entry);
+    if (kickoff && ((Number.isFinite(seen) && seen >= kickoff) || (captured != null && captured >= kickoff))) continue;
+    const pair = String(entry['match'] ?? '').split(' vs ');
+    const home = entry['home'] ?? (pair.length === 2 ? pair[0] : undefined);
+    const away = entry['away'] ?? (pair.length === 2 ? pair[1] : undefined);
+    const fixture = home && away && kickoff
+      ? JSON.stringify([normalized(home), normalized(away), kickoff])
+      : String(entry['match_id'] ?? entry['match'] ?? entry['ledger_id']);
+    const key = `${fixture}|${market}`;
+    const prior = firstEntries.get(key);
+    if (!prior || seen < firstSeen(prior)) firstEntries.set(key, entry);
+  }
+  for (const entry of firstEntries.values()) {
     const id = str(entry['ledger_id']);
     if (id && !byId.has(id)) byId.set(id, entry);
   }
   const rows: GradeDetailRow[] = [];
-  for (const grade of grades) {
+  const uniqueGrades = new Map<string, Record<string, unknown>>();
+  for (const grade of grades) if (str(grade['ledger_id'])) uniqueGrades.set(String(grade['ledger_id']), grade);
+  for (const grade of uniqueGrades.values()) {
+    if (!byId.has(str(grade['ledger_id']) ?? '')) continue;
     const entry = byId.get(str(grade['ledger_id']) ?? '') ?? {};
+    const actual = (grade['actual'] ?? {}) as Record<string, unknown>;
+    const homeGoals = num(actual['home_goals']) ?? num(grade['home_goals']) ?? num(entry['home_goals']) ?? null;
+    const awayGoals = num(actual['away_goals']) ?? num(grade['away_goals']) ?? num(entry['away_goals']) ?? null;
     const pick = (key: string): string | undefined => str(grade[key]) ?? str(entry[key]);
     const market = pick('market');
     if (!market) continue;
@@ -289,21 +322,15 @@ export function readGradeDetails(): GradeDetailRow[] {
       odds: (num(grade['odds']) ?? num(entry['odds'])) ?? null,
       ev: (num(grade['ev']) ?? num(entry['ev'])) ?? null,
       outcome: pick('outcome'),
-      score: str(grade['score']) ?? str(entry['score']) ?? null,
-      home_goals: num(grade['home_goals']) ?? num(entry['home_goals']) ?? null,
-      away_goals: num(grade['away_goals']) ?? num(entry['away_goals']) ?? null,
+      score: homeGoals != null && awayGoals != null ? `${homeGoals}-${awayGoals}` : str(grade['score']) ?? str(entry['score']) ?? null,
+      home_goals: homeGoals,
+      away_goals: awayGoals,
       kickoff,
       kickoff_ts: kickoffTs,
       graded_at: pick('graded_at'),
     });
   }
-  const unique = new Map<string, GradeDetailRow>();
-  for (const row of rows) {
-    const key = `${row.match ?? ''}|${row.market ?? ''}`;
-    const prior = unique.get(key);
-    if (!prior || (row.model_probability ?? 0) > (prior.model_probability ?? 0)) unique.set(key, row);
-  }
-  return [...unique.values()];
+  return rows;
 }
 
 const CSV_COLUMNS: (keyof GradeDetailRow)[] = [
