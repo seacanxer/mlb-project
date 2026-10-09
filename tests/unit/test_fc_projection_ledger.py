@@ -1,6 +1,7 @@
 """Ledger + grading report for ALL projections (model skill, not ROI)."""
 import json
 import runpy
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -203,3 +204,30 @@ def test_hidden_low_price_1x2_never_enters_new_card_ledger():
     match = make_matches()[0]
     match['projections'] = [{**match['projections'][0], 'market':'1x2','odds':1.29}]
     assert log['collect_rows']([match],'2026-09-01T00:00:00Z') == []
+
+
+def test_new_secondary_markets_are_recorded_and_graded_with_available_stats_only():
+    log = runpy.run_path(LOG_PATH)
+    grader = runpy.run_path(GRADE_PATH)
+    kickoff = datetime(2026, 8, 1, 18, tzinfo=timezone.utc).timestamp()
+    match = {'info': dict(match_id='q', home='H', away='A', start_ts=kickoff),
+             'analysis': {'league_model': 'E0', 'secondary_markets': {'markets': [
+                 dict(market='corner_1x2', pick='A', side='away', probability=.6, line=None,
+                      model_version='secondary-v2', league_model='E0'),
+                 dict(market='cards_1x2', pick='Sama banyak', side='draw', probability=.4, line=None),
+                 dict(market='cards_hdp', pick='A -0.25', side='away', probability=.5, line=-.25),
+             ]}}}
+    entries = log['collect_rows']([match], '2026-08-01T00:00:00Z')
+    assert len(entries) == 3
+    assert entries[0]['formula_version'] == 'secondary-v2'
+    match['analysis']['league_model'] = None
+    match['analysis']['secondary_quote_captured_at'] = kickoff-100
+    independent = log['collect_rows']([match], '2026-08-01T00:00:00Z')
+    assert independent[0]['league_model'] == 'E0'
+    assert independent[0]['quote_captured_at'] is None
+    actual = dict(date=date(2026, 8, 1), home='H', away='A', home_corners=4, away_corners=7,
+                  home_yellow=2, away_yellow=2, home_red=0, away_red=0)
+    assert [grader['grade_secondary'](e, {'E0': [actual]})['outcome'] for e in entries] == ['win', 'win', 'half_loss']
+    corners_only = {**actual, 'home_yellow': None, 'away_red': None}
+    assert grader['grade_secondary'](entries[0], {'E0': [corners_only]})['outcome'] == 'win'
+    assert grader['grade_secondary'](entries[1], {'E0': [corners_only]}) is None

@@ -263,7 +263,7 @@ export function readGradeDetails(): GradeDetailRow[] {
   const byId = new Map<string, Record<string, unknown>>();
   const firstEntries = new Map<string, Record<string, unknown>>();
   const primary = new Set(['1x2', 'ah', 'ou', 'btts']);
-  const secondary = new Set(['corners_ou', 'corner_hdp', 'cards_ou', 'team_cards_ou', 'red_card']);
+  const secondary = new Set(['corners_ou', 'corner_hdp', 'corner_1x2', 'cards_1x2', 'cards_hdp', 'cards_ou', 'team_cards_ou', 'red_card']);
   const normalized = (value: unknown): string => String(value ?? '').normalize('NFKD').replace(/\p{M}/gu, '').toLowerCase().trim().replace(/\s+/g, ' ');
   const firstSeen = (entry: Record<string, unknown>): number => {
     const stamp = Date.parse(String(entry['first_seen_at'] ?? ''));

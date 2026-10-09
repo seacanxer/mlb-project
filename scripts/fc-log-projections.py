@@ -45,7 +45,7 @@ CONFIG_PATH = os.path.join(FC_DIR, 'config.json')
 # exploded the ledger 10x and forced every aggregate hit rate to a structural
 # 0.5/0.33 (both complementary sides always graded together).
 PRIMARY_CARD_MARKETS = ('1x2', 'ah', 'ou', 'btts')
-SECONDARY_CARD_MARKETS = ('corners_ou', 'corner_hdp', 'cards_ou',
+SECONDARY_CARD_MARKETS = ('corners_ou', 'corner_hdp', 'corner_1x2', 'cards_1x2', 'cards_hdp', 'cards_ou',
                           'team_cards_ou', 'red_card')
 
 
@@ -142,6 +142,7 @@ def collect_rows(matches, first_seen_at):
                 return
             rows.append({
                 **base,
+                'league_model': proj.get('league_model') or base['league_model'],
                 'ledger_id': key,
                 'first_seen_at': first_seen_at,
                 'market': market, 'pick': pick, 'side': side,
@@ -158,7 +159,7 @@ def collect_rows(matches, first_seen_at):
                 'odds': proj.get('odds'),
                 'ev': proj.get('ev'),
                 'formula_version': (proj.get('formula_version')
-                                    or proj.get('base_formula_version')),
+                                    or proj.get('base_formula_version') or proj.get('model_version')),
                 'base_formula_version': proj.get('base_formula_version'),
                 'policy_version': proj.get('policy_version'),
                 'coverage_status': proj.get('coverage_status'),
@@ -185,8 +186,8 @@ def collect_rows(matches, first_seen_at):
             market = ((proj or {}).get('market') or '').lower()
             if market in SECONDARY_CARD_MARKETS and market not in shown_secondary:
                 shown_secondary.add(market)
-                record({**proj, 'league_model': base['league_model'],
-                        'quote_captured_at': proj.get('quote_captured_at') or analysis.get('secondary_quote_captured_at')}, 'card-secondary')
+                record({**proj, 'league_model': proj.get('league_model') or base['league_model'],
+                        'quote_captured_at': proj.get('quote_captured_at') if proj.get('odds') is not None else None}, 'card-secondary')
     return rows
 
 

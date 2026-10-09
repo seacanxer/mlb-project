@@ -552,7 +552,10 @@ def secondary_analysis(info, cache, goal_projection=None, book=None):
     if code not in LEAGUES and code != NATIONAL_CODE:
         return {'availability': 'C', 'reason': 'NO_HISTORICAL_MATCH_STATS', 'markets': [], 'limited': True}
     if code not in cache:
-        cache[code] = load_secondary_rows(secondary_stat_files(code))
+        aliases = {'Republic of North Macedonia': 'North Macedonia', 'Czech Republic': 'Czechia'}
+        normalizer = lambda name: normalize_team_name(aliases.get(name, name)) if code == NATIONAL_CODE else normalize_team_name(name)
+        allowed = None if code == NATIONAL_CODE else {normalizer(name) for name in csv_teams(code)}
+        cache[code] = load_secondary_rows(secondary_stat_files(code), normalize_team=normalizer, allowed_teams=allowed)
     rows = cache[code]
     teams = {r[side] for r in rows for side in ('home', 'away')}
     aliases = {'Republic of North Macedonia': 'North Macedonia',
@@ -562,9 +565,22 @@ def secondary_analysis(info, cache, goal_projection=None, book=None):
     away = match_team(aliases.get(away_name, away_name), teams)
     if not home or not away:
         return {'availability': 'C', 'reason': 'SECONDARY_TEAM_UNMATCHED', 'markets': [], 'limited': True}
-    return project_secondary_fixture(rows, home, away, info['start_ts'],
+    result = project_secondary_fixture(rows, home, away, info['start_ts'],
         goal_projection=goal_projection, referee=info.get('referee'),
         book=book)
+    for offer in result.get('markets', []):
+        side = offer.get('team') or offer.get('side')
+        if side in ('home', 'away'):
+            internal = home if side == 'home' else away
+            display = home_name if side == 'home' else away_name
+            if offer['pick'].startswith(internal):
+                offer['pick'] = display + offer['pick'][len(internal):]
+        if offer.get('line_source') == 'book':
+            offer['quote_captured_at'] = (book or {}).get('captured_at', {}).get(
+                'corners' if offer['market'].startswith('corner') else 'cards')
+    result['corners_reason'] = None if result.get('corners') else 'INSUFFICIENT_CORNER_HISTORY'
+    result['cards_reason'] = None if result.get('cards') else 'INSUFFICIENT_COMPLETE_CARD_HISTORY'
+    return result
 
 
 def csv_teams(code):
@@ -630,7 +646,7 @@ def secondary_pick_payload(info, offer, observation, captured_at, decision_at, c
         'home': info.get('home'), 'away': info.get('away'),
         'league': info.get('league'), 'start_ts': int(float(info['start_ts'])),
         'quote_observation_id': observation['artifact_id'] if observation else None,
-        'quote_captured_at': captured_at, 'decision_at': decision_at,
+        'quote_captured_at': captured_at if priced else None, 'decision_at': decision_at,
         'uncertainty_status': 'SECONDARY_BOOK_PRICED' if priced else 'SECONDARY_MARKET_NO_ODDS',
         'market': offer.get('market') or 'secondary',
         'pick': offer.get('pick') or offer.get('side') or '',
@@ -641,7 +657,7 @@ def secondary_pick_payload(info, offer, observation, captured_at, decision_at, c
         'team': offer.get('team'),
         'line_quarters': None if line is None else int(round(float(line) * 4)),
         'probability': round(probability, 4),
-        'effective_win_probability': round(probability, 4),
+        'effective_win_probability': round(payout['full_win']+.5*payout['half_win'], 4) if payout else round(probability, 4),
         'payout': offer.get('payout'),
         'odds': odds,
         'ev': round(ev, 4) if ev is not None else None,
@@ -649,7 +665,7 @@ def secondary_pick_payload(info, offer, observation, captured_at, decision_at, c
         'uncertainty_penalty': UNCERTAINTY_PENALTY,
         'fair_odds': round(fair_price, 3) if fair_price else None,
         'market_probability': round(market_probability, 4) if market_probability else None,
-        'edge_pct': round(probability - (market_probability or 0), 4) if priced else None,
+        'edge_pct': round(1/fair_price-market_probability, 4) if fair_price and market_probability is not None else None,
         'line_source': offer.get('line_source'),
         'formula_version': model_version,
         'base_formula_version': model_version,
@@ -670,6 +686,65 @@ def secondary_pick_payload(info, offer, observation, captured_at, decision_at, c
         'primary_source': '1xbit',
         'projection_referee_status': referee_status,
     }
+
+
+def publish_secondary_picks(m, now):
+    """Select display picks without writing scan files or placing bets."""
+    picks = []
+    info = m['info']
+    secondary_result = m.get('analysis', {}).get('secondary_markets') or {}
+    if secondary_result.get('availability') != 'B':
+        return []
+    # Book pricing emits every offered line (over+under per line).
+    # Publishing all of them floods the pick list with the same
+    # market 40+ times. Keep the one best side per market.
+    offers = secondary_result.get('markets', [])
+    evaluated = []
+    for offer in offers:
+        offer = dict(offer)
+        price = offer.get('book_odds')
+        if price is None:
+            price = offer.get('book_over') if offer.get('side') == 'over' else offer.get('book_under')
+        offer['book_odds'] = price
+        opposite_price = None
+        if offer.get('market') in ('corners_ou', 'cards_ou'):
+            opposite_price = offer.get('book_under') if offer['side'] == 'over' else offer.get('book_over')
+        elif offer.get('market') in ('corner_hdp', 'cards_hdp'):
+            opposite_price = next((o.get('book_odds') for o in offers
+                if o.get('market') == offer['market'] and o.get('side') != offer['side']
+                and o.get('line') == -offer['line']), None)
+        if price and opposite_price:
+            offer['p_market_novig'] = proportional_no_vig([float(price), float(opposite_price)])[0]
+        item = secondary_pick_payload(info, offer, None,
+            offer.get('quote_captured_at', m['analysis'].get('secondary_quote_captured_at')), now,
+            model_code(info.get('league')), secondary_result.get('model_version'),
+            secondary_result.get('referee_status'))
+        offer.update(odds=item['odds'], ev=item['ev'], conservative_ev=item['conservative_ev'],
+            quote_captured_at=item['quote_captured_at'], gate_reasons=item['gate_reasons'],
+            formula_version=item['formula_version'], league_model=item['league_model'])
+        evaluated.append((offer, item))
+    selected = []
+    for market in dict.fromkeys(offer['market'] for offer, _ in evaluated):
+        rows = [(offer, item) for offer, item in evaluated if offer['market'] == market]
+        priced = [(offer, item) for offer, item in rows
+                  if item['ev'] is not None and offer.get('p_market_novig') is not None]
+        if priced:
+            # Display a balanced bookmaker line, never an extreme line selected solely for win probability.
+            main = min(priced, key=lambda row: (abs(row[0]['p_market_novig']-.5), abs(row[0].get('line') or 0)))[0]
+            home_line = lambda o: -o['line'] if market in ('corner_hdp', 'cards_hdp') and o['side'] == 'away' else o['line']
+            candidates = [r for r in priced if home_line(r[0]) == home_line(main)]
+            chosen = max(candidates, key=lambda row: row[1]['ev'])
+        else:
+            chosen = next((row for row in rows if row[1]['odds'] is not None), rows[0])
+        selected.append(chosen)
+        picks.append(chosen[1])
+        m.setdefault('projections', []).append(chosen[1])
+        m.setdefault('picks', []).append(chosen[1])
+    secondary_result['markets'] = [offer for offer, _ in selected]
+    secondary_result['market_options'] = [offer for offer, _ in evaluated]
+    secondary_result['market_odds_available'] = any(offer.get('odds') for offer, _ in selected)
+
+    return picks
 
 
 def opp(payout, odds, no_vig_probs, *, gated=True, market=None):
@@ -928,11 +1003,14 @@ def main(argv=()):
             'corners_ou': raw_book.get('odds_corners_ou') or {},
             'corner_hdp': raw_book.get('odds_corner_ah') or {},
             'cards_ou': raw_book.get('odds_cards_ou') or {},
+            'captured_at': {key: value.get('captured_at') for key, value in
+                (raw_book.get('secondary_fetch', {}).get('markets') or {}).items()},
         }
         # Cards book units remain unverified; do not assume points from TI=10.
         m['analysis']['secondary_book'] = secondary_book
         m['analysis']['secondary_markets'] = secondary_analysis(info, secondary_data, book=secondary_book)
-        m['analysis']['secondary_quote_captured_at'] = time.time()
+        m['analysis']['secondary_fetch'] = raw_book.get('secondary_fetch')
+        m['analysis']['secondary_quote_captured_at'] = secondary_book['captured_at'].get('corners')
         if not code:
             m['analysis']['reason_codes'] = ['LEAGUE_MODEL_UNAVAILABLE']
             league_name = info.get('league') or 'Unknown league'
@@ -1140,58 +1218,9 @@ def main(argv=()):
             m['qualified_picks'].append(item)
         m['picks'] = list(m['qualified_picks'])
 
-    # Publish count projections independently of goal-model and quote gates.
+    # Secondary projections are independent of goal-model gates.
     for m in merged.values():
-        info = m['info']
-        secondary_result = m.get('analysis', {}).get('secondary_markets') or {}
-        if secondary_result.get('availability') != 'B':
-            continue
-        # Book pricing emits every offered line (over+under per line, up to 24
-        # lines). Publishing all of them floods the pick list with the same
-        # market 40+ times. Keep the one best side per market.
-        offers = secondary_result.get('markets', [])
-        evaluated = []
-        for offer in offers:
-            offer = dict(offer)
-            price = offer.get('book_odds')
-            if price is None:
-                price = offer.get('book_over') if offer.get('side') == 'over' else offer.get('book_under')
-            offer['book_odds'] = price
-            opposite_price = None
-            if offer.get('market') == 'corners_ou':
-                opposite_price = offer.get('book_under') if offer['side'] == 'over' else offer.get('book_over')
-            elif offer.get('market') == 'corner_hdp':
-                opposite_price = next((o.get('book_odds') for o in offers
-                    if o.get('market') == 'corner_hdp' and o.get('side') != offer['side']
-                    and o.get('line') == -offer['line']), None)
-            if price and opposite_price:
-                offer['p_market_novig'] = proportional_no_vig([float(price), float(opposite_price)])[0]
-            item = secondary_pick_payload(info, offer, None,
-                m['analysis'].get('secondary_quote_captured_at'), now,
-                model_code(info.get('league')), secondary_result.get('model_version'),
-                secondary_result.get('referee_status'))
-            offer.update(odds=item['odds'], ev=item['ev'], conservative_ev=item['conservative_ev'], quote_captured_at=item['quote_captured_at'], gate_reasons=item['gate_reasons'])
-            evaluated.append((offer, item))
-        selected = []
-        for market in dict.fromkeys(offer['market'] for offer, _ in evaluated):
-            rows = [(offer, item) for offer, item in evaluated if offer['market'] == market]
-            priced = [(offer, item) for offer, item in rows
-                      if item['ev'] is not None and offer.get('p_market_novig') is not None]
-            if priced:
-                # Display a balanced bookmaker line, never an extreme line selected solely for win probability.
-                main = min(priced, key=lambda row: (abs(row[0]['p_market_novig']-.5), abs(row[0].get('line') or 0)))[0]
-                home_line = lambda o: -o['line'] if market == 'corner_hdp' and o['side'] == 'away' else o['line']
-                candidates = [r for r in priced if home_line(r[0]) == home_line(main)]
-                chosen = max(candidates, key=lambda row: row[1]['ev'])
-            else:
-                chosen = rows[0]
-            selected.append(chosen)
-            picks.append(chosen[1])
-            m.setdefault('projections', []).append(chosen[1])
-            m.setdefault('picks', []).append(chosen[1])
-        secondary_result['markets'] = [offer for offer, _ in selected]
-        secondary_result['market_options'] = [offer for offer, _ in evaluated]
-        secondary_result['market_odds_available'] = any(offer.get('odds') for offer, _ in selected)
+        picks.extend(publish_secondary_picks(m, now))
 
     # 4. Keep one highest-probability pick per match and market.
     deduped = {}

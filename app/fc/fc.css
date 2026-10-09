@@ -76,6 +76,17 @@ body:has(.fc-shell) .main-content { max-width: 1460px; padding: 1.5rem 2rem 3rem
 .prediction-secondary-pick { display: grid; gap: .3rem; min-height: 86px; align-content: center; padding: .6rem; color: #e9f4ee; }
 .prediction-secondary-pick small,.prediction-secondary-note { color: #8eab9b; font-size: .65rem; }
 .prediction-secondary-note { display: block; padding: .5rem .2rem 0; }
+.prediction-count-groups { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,280px),1fr)); gap: 1rem; }
+.prediction-count-group { min-width: 0; border: 1px solid #234332; border-radius: 8px; padding: .75rem; }
+.prediction-count-group h4 { margin: 0 0 .6rem; color: #5eead4; font-size: .8rem; }
+.prediction-count-summary { display: grid; gap: .3rem; color: #afcabc; font-size: .7rem; margin-bottom: .6rem; }
+.prediction-count-summary span { overflow-wrap: anywhere; }
+.prediction-count-results { margin: 0; }
+.prediction-count-row { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.4fr); gap: .5rem; padding: .65rem 0; border-top: 1px dashed #234332; font-size: .75rem; }
+.prediction-count-row dt { color: #afcabc; }
+.prediction-count-row dd { margin: 0; text-align: right; display: grid; gap: .25rem; overflow-wrap: anywhere; }
+.prediction-count-row dd strong { color: #e5f5eb; }
+.prediction-count-row dd small { color: #8eab9b; font-size: .63rem; }
 .prediction-market { min-width: 0; border-right: 1px solid #1e392b; padding: 0 .4rem; }
 .prediction-market:last-child { border-right: none; }
 .prediction-market-heading { font-size: .64rem; font-weight: 600; color: #91a99f; padding-bottom: .5rem; margin-bottom: .4rem; border-bottom: 1px solid #234332; }

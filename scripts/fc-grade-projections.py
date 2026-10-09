@@ -45,7 +45,7 @@ SCAN_PATH = os.path.join(BASE_DIR, 'scripts', 'fc-scan-live.py')
 SETTLE_DELAY_S = 6300
 
 GOAL_MARKETS = {'1x2', 'ah', 'ou', 'btts'}
-SECONDARY_MARKETS = {'corners_ou', 'corner_hdp', 'cards_ou', 'team_cards_ou', 'red_card'}
+SECONDARY_MARKETS = {'corners_ou', 'corner_hdp', 'corner_1x2', 'cards_1x2', 'cards_hdp', 'cards_ou', 'team_cards_ou', 'red_card'}
 
 # Card-only scope (mirrors components/fc/PredictionBoard.tsx): the report
 # grades ONLY picks the card displays — one per market per fixture. The full
@@ -150,7 +150,10 @@ def stat_rows_for(code, cache):
     if code not in cache:
         sn = scan_ns()
         try:
-            cache[code] = sn['load_secondary_rows'](sn['secondary_stat_files'](code))
+            norm = sn['normalize_team_name']
+            allowed = None if code == sn['NATIONAL_CODE'] else {norm(team) for team in sn['csv_teams'](code)}
+            cache[code] = sn['load_secondary_rows'](sn['secondary_stat_files'](code),
+                normalize_team=norm, allowed_teams=allowed)
         except Exception:
             cache[code] = []
     return cache[code]
@@ -201,17 +204,31 @@ def grade_secondary(entry, cache):
     row = find_stat_row(rows, entry)
     if row is None:
         return None
-    for key in ('home_corners', 'away_corners', 'home_yellow', 'away_yellow',
-                'home_red', 'away_red'):
+    required = (('home_corners', 'away_corners') if market.startswith('corner') else
+                ('home_red', 'away_red') if market == 'red_card' else
+                ('home_yellow', 'away_yellow', 'home_red', 'away_red'))
+    for key in required:
         if row.get(key) is None:
             return None
-    actual = {'home_corners': int(row['home_corners']), 'away_corners': int(row['away_corners']),
-              'home_points': int(row['home_yellow']) + 2 * int(row['home_red']),
-              'away_points': int(row['away_yellow']) + 2 * int(row['away_red']),
-              'red_total': int(row['home_red']) + int(row['away_red']),
-              'source': 'fotmob_stat_history'}
+    actual = {'source': 'historical_match_stats'}
+    if market.startswith('corner'):
+        actual.update(home_corners=int(row['home_corners']), away_corners=int(row['away_corners']))
+    elif market == 'red_card':
+        actual['red_total'] = int(row['home_red']) + int(row['away_red'])
+    else:
+        actual.update(home_points=int(row['home_yellow'])+2*int(row['home_red']),
+                      away_points=int(row['away_yellow'])+2*int(row['away_red']))
     try:
-        if market == 'corners_ou':
+        if market in ('corner_1x2', 'cards_1x2'):
+            if side not in ('home', 'draw', 'away'):
+                return None
+            prefix = 'corners' if market == 'corner_1x2' else 'points'
+            payout = settle_score('1x2', side, 0, actual['home_'+prefix], actual['away_'+prefix])
+        elif market == 'cards_hdp':
+            if side not in ('home', 'away') or lq is None:
+                return None
+            payout = settle_score('ah', side, int(lq), actual['home_points'], actual['away_points'])
+        elif market == 'corners_ou':
             if side not in ('over', 'under') or lq is None:
                 return None
             payout = settle_score('ou', side, int(lq),

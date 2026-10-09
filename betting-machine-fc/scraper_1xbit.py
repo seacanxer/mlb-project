@@ -1,6 +1,7 @@
 import gzip
 import io
 import json
+import math
 import time
 import urllib.request
 
@@ -60,7 +61,7 @@ def get_match(mid, country=169):
 # Sub-game type IDs seen in GetGameZip?SG (GroupEvents=true):
 #   TI=2  -> Corners (full-time OU/AH mirror the goal-market G/T codes)
 #   TI=8  -> Yellow Cards (count OU)
-#   TI=10 -> Cards / booking points (points OU, yellow=1 + red=2 per house rules)
+#   TI=10 -> Cards (units not verified; do not price booking points from TI alone)
 # Verified 2026-10-03 against a live Nations League fixture: corner OU lines
 # 6.5-10.5 sit in G=17/G=99, handicap in G=2 — same T codes as goals.
 SECONDARY_TI = {'corners': 2, 'yellow_cards': 8, 'cards': 10}
@@ -81,30 +82,45 @@ def get_match_grouped(mid, country=169):
     return j.get("Value", {}) if isinstance(j, dict) else {}
 
 
-def get_subgame_ids(mid, country=169):
+def _secondary_grouped(mid, country):
+    """Read-only, bounded retry; never fall back to an old cached quote."""
+    for attempt in range(2):
+        try:
+            value = get_match_grouped(mid, country=country)
+            if not value or str(value.get('I')) != str(mid):
+                raise ValueError('SECONDARY_FIXTURE_ID_MISMATCH')
+            return value
+        except (OSError, TimeoutError):
+            if attempt:
+                raise
+
+
+def get_subgame_ids(mid, country=169, *, strict=False):
     """Return {'corners': id, 'yellow_cards': id, 'cards': id} for FT only.
 
     FT = no period (P absent) and empty PN. Half sub-games (P=1/2) are
-    ignored: the secondary model is full-time only. Never raises — a
-    missing/renamed sub-game yields a missing key, not a crash.
+    ignored: the secondary model is full-time only. By default failures return
+    an empty mapping; strict mode propagates failures for fetch diagnostics.
     """
     try:
-        v = get_match_grouped(mid, country=country)
+        v = _secondary_grouped(mid, country)
     except Exception:
+        if strict:
+            raise
         return {}
     out = {}
     for sg in v.get("SG", []) or []:
         try:
             if sg.get("P") is not None or (sg.get("PN") or "") != "":
                 continue
-            ti = sg.get("TI")
+            ti = int(sg.get("TI"))
             sid = sg.get("I")
-            if sid is None:
+            if sid is None or (sg.get('MG') is not None and str(sg['MG']) != str(mid)):
                 continue
             for name, want in SECONDARY_TI.items():
                 if ti == want and name not in out:
                     out[name] = sid
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, ValueError):
             continue
     return out
 
@@ -112,15 +128,25 @@ def get_subgame_ids(mid, country=169):
 def _parse_ou_ah(entries):
     """Shared goal/corner/card OU+AH parser over flat or grouped entries."""
     odds_ou, odds_ah = {}, {"home": [], "away": []}
-    stack = list(entries)
+    stack = [(e, None) for e in entries]
     while stack:
-        e = stack.pop()
+        e, parent_group = stack.pop()
         if isinstance(e, list):
-            stack.extend(e)
+            stack.extend((item, parent_group) for item in e)
             continue
         if not isinstance(e, dict):
             continue
-        t, c, g, p = e.get("T"), e.get("C"), e.get("G"), e.get("P")
+        group = e.get('G', parent_group)
+        for key in ('E', 'GE'):
+            if isinstance(e.get(key), list):
+                stack.extend((item, group) for item in e[key])
+        try:
+            t, g = int(e.get('T')), int(group)
+            c, p = float(e.get('C')), float(e.get('P'))
+        except (TypeError, ValueError):
+            continue
+        if not math.isfinite(c) or c <= 1 or not math.isfinite(p) or abs(p*4-round(p*4))>1e-8:
+            continue
         if ((g == 17 and t in (9, 10)) or
                 (g == 99 and t in (3827, 3828))) and p is not None:
             try:
@@ -154,15 +180,11 @@ def _parse_ou_ah(entries):
 
 def get_subgame_markets(sub_id, country=169):
     """Fetch one FT sub-game and return {'odds_ou': {...}, 'odds_ah': {...}}."""
-    v = get_match_grouped(sub_id, country=country)
-    groups = v.get("GE") or []
-    entries = []
-    for g in groups:
-        entries.extend(g.get("E", []) or [])
-    if not entries and v.get("E"):
-        entries = v.get("E")
+    v = _secondary_grouped(sub_id, country)
+    entries = v.get('GE') or v.get('E') or []
     odds_ou, odds_ah = _parse_ou_ah(entries)
-    return {"odds_ou": odds_ou, "odds_ah": odds_ah}
+    return {"odds_ou": odds_ou, "odds_ah": odds_ah, 'captured_at': time.time(),
+            'parent_id': v.get('MG')}
 
 
 def extract_secondary_markets(mid, country=169):
@@ -173,9 +195,11 @@ def extract_secondary_markets(mid, country=169):
     """
     out = {key: {} for key in SECONDARY_KEYS}
     out["secondary_subgame_ids"] = {}
+    out['secondary_fetch'] = {'provider': '1xbit', 'status': 'unavailable', 'markets': {}}
     try:
-        ids = get_subgame_ids(mid, country=country)
-    except Exception:
+        ids = get_subgame_ids(mid, country=country, strict=True)
+    except Exception as error:
+        out['secondary_fetch']['error'] = type(error).__name__ + ': ' + str(error)
         return out
     out["secondary_subgame_ids"] = dict(ids)
     mapping = (("corners", "odds_corners_ou", "odds_corner_ah"),
@@ -184,15 +208,28 @@ def extract_secondary_markets(mid, country=169):
     for name, ou_key, ah_key in mapping:
         sid = ids.get(name)
         if sid is None:
+            out['secondary_fetch']['markets'][name] = {'status': 'subgame_unavailable'}
             continue
         try:
             mk = get_subgame_markets(sid, country=country)
-        except Exception:
+            if mk.get('parent_id') is not None and str(mk['parent_id']) != str(mid):
+                raise ValueError('SECONDARY_PARENT_ID_MISMATCH')
+        except Exception as error:
+            out['secondary_fetch']['markets'][name] = {'status': 'fetch_failed',
+                'error': type(error).__name__ + ': ' + str(error)}
             continue
         if mk.get("odds_ou"):
             out[ou_key] = mk["odds_ou"]
         if ah_key and mk.get("odds_ah"):
             out[ah_key] = mk["odds_ah"]
+        available = bool(mk.get('odds_ou') or (ah_key and mk.get('odds_ah')))
+        out['secondary_fetch']['markets'][name] = {
+            'status': 'available' if available else 'no_offered_lines', 'subgame_id': sid,
+            'captured_at': mk.get('captured_at') if available else None,
+            'total_lines': len(mk.get('odds_ou') or {}),
+            'handicap_legs': sum(len(legs) for legs in (mk.get('odds_ah') or {}).values())}
+    if any(out[key] for key in SECONDARY_KEYS):
+        out['secondary_fetch']['status'] = 'available'
     return out
 
 

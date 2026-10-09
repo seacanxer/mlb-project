@@ -5,6 +5,8 @@ export const PREDICTION_MARKETS: { key: Market; label: string }[] = [
   { key: '1x2', label: '1X2' }, { key: 'ah', label: 'Asian HDP' },
   { key: 'ou', label: 'O/U' }, { key: 'btts', label: 'BTTS' },
   { key: 'corners_ou', label: 'Corner O/U' }, { key: 'corner_hdp', label: 'Corner HDP' },
+  { key: 'corner_1x2', label: 'Pemenang corner' }, { key: 'cards_1x2', label: 'Lebih banyak kartu' },
+  { key: 'cards_hdp', label: 'Kartu HDP' },
   { key: 'cards_ou', label: 'Kartu O/U' }, { key: 'team_cards_ou', label: 'Kartu tim' }, { key: 'red_card', label: 'Kartu merah' },
 ];
 

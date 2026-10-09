@@ -35,10 +35,12 @@ export function FilterBar({
         Market
         <select value={filters.market} onChange={(e) => set('market', e.target.value)} aria-label="Market">
           {['all', 'ah', 'ou', 'btts', '1x2', 'corners_ou', 'corner_hdp',
-            'cards_ou', 'team_cards_ou', 'red_card'].map((m) => (
+            'corner_1x2', 'cards_1x2', 'cards_hdp', 'cards_ou', 'team_cards_ou', 'red_card'].map((m) => (
             <option key={m} value={m}>
               {m === 'all' ? 'Semua' : m === 'corners_ou' ? 'Corner O/U'
                 : m === 'corner_hdp' ? 'Corner HDP' : m === 'cards_ou' ? 'Kartu O/U'
+                : m === 'corner_1x2' ? 'Pemenang corner' : m === 'cards_1x2' ? 'Lebih banyak kartu'
+                : m === 'cards_hdp' ? 'Kartu HDP'
                 : m === 'team_cards_ou' ? 'Kartu Tim' : m === 'red_card' ? 'Cartu Merah'
                 : m.toUpperCase()}
             </option>

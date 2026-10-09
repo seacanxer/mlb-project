@@ -46,7 +46,7 @@
 
 // ---- Enum & base types (verified: main.py select_top_picks + gate_reason) ----
 export type Market = 'ah' | 'ou' | 'btts' | '1x2'
-  | 'corners_ou' | 'corner_hdp' | 'cards_ou' | 'team_cards_ou' | 'red_card';
+  | 'corners_ou' | 'corner_hdp' | 'corner_1x2' | 'cards_1x2' | 'cards_hdp' | 'cards_ou' | 'team_cards_ou' | 'red_card';
 export type CoverageStatus = 'full' | 'shadow' | 'market_only' | 'projection';
 // NOTE: brief §7 listed tier as full|shadow|watch|blocked|market_only.
 // Real engine sets tier = "watch" for shadow coverage, "top_pick"|"official"
@@ -331,7 +331,7 @@ export interface ForecastPick extends FcPick {
   fair_odds?: number;
   effective_win_probability?: number;
   payout?: { full_win: number; half_win: number; push: number; half_loss: number; full_loss: number };
-  analysis_status?: 'forecast' | 'value_candidate';
+  analysis_status?: 'forecast' | 'value_candidate' | 'projection';
   gate_reasons?: string[];
   official_eligible?: boolean;
   quote_captured_at?: number | string;
@@ -359,7 +359,7 @@ export interface MatchAnalysis {
     referee_status?: string;
     corners?: { home: number; away: number; total: number; n_eff: number; dispersion: number };
     cards?: { home: number; away: number; total: number; home_points?: number; away_points?: number;
-      n_eff: number; dispersion: number; referee_status: string };
+      yellow_points?: number; red_points?: number; units?: string; n_eff: number; dispersion: number; referee_status: string };
     markets: { market: string; side: string; line: number | null; pick: string; probability: number;
       odds: number | null; ev?: number | null; conservative_ev?: number | null; line_source?: string; p_market_novig: number | null; edge: number | null;
       availability: 'A' | 'B'; status: 'projection' | 'value'; label: string; team?: string | null }[];

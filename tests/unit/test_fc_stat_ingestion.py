@@ -38,3 +38,11 @@ def test_feed_failure_is_reported(tmp_path, capsys):
     run.__globals__['finished_matches'] = broken
     assert run('INT_MEN', [], 1, date(2026, 10, 5), 1) == 1
     assert json.loads(capsys.readouterr().out)['feed_failed'] == 1
+
+
+def test_domestic_stats_require_correct_country_and_competition():
+    match = runpy.run_path(str(ROOT / 'scripts/fc-fetch-match-stats.py'))['competition_matches']
+    assert match({'league': 'Bundesliga', 'ccode': 'GER'}, 'D1', ['Bundesliga'])
+    assert not match({'league': 'Bundesliga', 'ccode': 'AUT'}, 'D1', ['Bundesliga'])
+    assert not match({'league': '2. Bundesliga', 'ccode': 'GER'}, 'D1', ['Bundesliga'])
+    assert not match({'league': 'Bundesliga'}, 'D1', ['Bundesliga'])

@@ -14,7 +14,7 @@ from scipy.stats import nbinom, poisson
 
 
 DEFAULT_CONFIG = {
-    'version': 'fc-secondary-counts-v1',
+    'version': 'fc-secondary-counts-v2',
     'half_life_team_matches': 8.0,
     'pseudo_matches': 8.0,
     'minimum_effective_team_side': 3.0,
@@ -49,6 +49,8 @@ def load_config(path=CONFIG_PATH):
         raise ValueError('Invalid secondary-market shrinkage config')
     if not 0 < config['probability_tail'] < .01:
         raise ValueError('Invalid probability tail config')
+    if any(type(config[k]) is not int or config[k] < 1 for k in ('yellow_points', 'red_points')):
+        raise ValueError('Card point weights must be positive integers')
     return config
 
 
@@ -73,7 +75,7 @@ def _date(value):
     return None
 
 
-def load_stat_rows(paths):
+def load_stat_rows(paths, *, normalize_team=None, allowed_teams=None):
     """Read actual football-data statistics; unavailable fields remain None."""
     rows, seen = [], {}
     for path in paths:
@@ -85,6 +87,10 @@ def load_stat_rows(paths):
                 for raw in csv.DictReader(handle):
                     day = _date(raw.get('Date'))
                     home, away = (raw.get('HomeTeam') or '').strip(), (raw.get('AwayTeam') or '').strip()
+                    if normalize_team:
+                        home, away = normalize_team(home), normalize_team(away)
+                    if allowed_teams is not None and (home not in allowed_teams or away not in allowed_teams):
+                        continue
                     if not day or not home or not away:
                         continue
                     identity = (day, home, away)
@@ -186,7 +192,8 @@ def _is_whole_or_half(line):
 
 
 def _best_total(distribution, mean, market, *, minimum=0.5, quarter_lines=True):
-    center = max(minimum, math.floor(mean * 2) / 2)
+    step = 4 if quarter_lines else 2
+    center = max(minimum, round(mean * step) / step)
     candidates = [center + offset * 0.25 for offset in (-4, -3, -2, -1, 0, 1, 2, 3, 4)]
     if not quarter_lines:
         # Corners stay on whole/half lines only: every outcome is a full
@@ -207,9 +214,13 @@ def _best_total(distribution, mean, market, *, minimum=0.5, quarter_lines=True):
                             'model_version': CONFIG['version']})
     # Show the central line and the more probable side; avoid shopping a noisy
     # tail line whose probability merely looks high.
-    at_center = [row for row in choices if abs(row['line'] - center) <= .25]
-    return max(at_center, key=lambda row: (row['probability'], abs(row['line'] - center),
-                                            row['side'] == 'under'))
+    at_center = [row for row in choices if abs(row['line'] - center) < 1e-8]
+    def conditional_win(row):
+        payout = row['payout']
+        win = payout['full_win']+.5*payout['half_win']
+        loss = payout['full_loss']+.5*payout['half_loss']
+        return win/(win+loss) if win+loss else .5
+    return max(at_center, key=conditional_win)
 
 
 def _book_price(value):
@@ -220,7 +231,7 @@ def _book_price(value):
     return price if math.isfinite(price) and price > 1 else None
 
 
-def price_offered_totals(distribution, market, book_lines, *, max_lines=24, mean=None,
+def price_offered_totals(distribution, market, book_lines, *, max_lines=None, mean=None,
                          quarter_lines=True):
     """Evaluate every bookmaker-offered total line — no line shopping.
 
@@ -246,10 +257,17 @@ def price_offered_totals(distribution, market, book_lines, *, max_lines=24, mean
             continue
         if not quarter_lines and not _is_whole_or_half(line):
             continue
+        if abs(line*4-round(line*4))>1e-8:
+            continue
         prices = prices if isinstance(prices, dict) else {}
-        lines.append((line, _book_price(prices.get(9)), _book_price(prices.get(10))))
+        over = _book_price(prices.get(9, prices.get('9')))
+        under = _book_price(prices.get(10, prices.get('10')))
+        if over is None and under is None:
+            continue
+        lines.append((line, over, under))
     offers = []
-    for line, over, under in sorted(lines)[:max_lines]:
+    ordered = sorted(lines, key=lambda row: (abs(row[0]-mean),row[0])) if mean is not None else sorted(lines)
+    for line, over, under in ordered if max_lines is None else ordered[:max_lines]:
         for side in ('over', 'under'):
             payout = _payout(distribution, line, side)
             offers.append({'market': market, 'side': side, 'line': line,
@@ -268,7 +286,7 @@ def price_offered_totals(distribution, market, book_lines, *, max_lines=24, mean
 
 
 def price_offered_handicap(home_distribution, away_distribution, home, away, book_legs,
-                           *, max_legs=16, quarter_lines=True):
+                           *, max_legs=None, quarter_lines=True, market='corner_hdp'):
     """Evaluate every bookmaker-offered corner handicap leg — no shopping.
 
     book_legs mirrors the scraper AH shape: {'home': [(line, price)],
@@ -295,17 +313,20 @@ def price_offered_handicap(home_distribution, away_distribution, home, away, boo
                 continue
             if not math.isfinite(line) or abs(line) > 20:
                 continue
+            if abs(line*4-round(line*4))>1e-8:
+                continue
             if not quarter_lines and not _is_whole_or_half(line):
                 continue
             if not math.isfinite(price) or price <= 1:
                 continue
             legs.append((side, line, price))
     offers = []
-    for side, line, price in legs[:max_legs]:
+    legs.sort(key=lambda row: (abs(row[1]-(fair_home if row[0]=='home' else -fair_home)), row[1]))
+    for side, line, price in legs if max_legs is None else legs[:max_legs]:
         shifted_line = line - offset if side == 'home' else line + offset
         payout = _payout(difference, shifted_line, side)
         name = home if side == 'home' else away
-        offers.append({'market': 'corner_hdp', 'side': side,
+        offers.append({'market': market, 'side': side,
             'line': line, 'pick': f'{name} {line:+g}',
             'probability': payout['full_win'] + payout['half_win'],
             'odds': None, 'p_market_novig': None, 'edge': None,
@@ -318,7 +339,7 @@ def price_offered_handicap(home_distribution, away_distribution, home, away, boo
 
 
 def _best_corner_handicap(home_distribution, away_distribution, home, away,
-                           expected_difference, *, quarter_lines=True):
+                           expected_difference, *, quarter_lines=True, market='corner_hdp'):
     difference = np.convolve(home_distribution, away_distribution[::-1])
     offset = len(away_distribution) - 1
     fair_home_line = round(-expected_difference * 4) / 4
@@ -336,7 +357,7 @@ def _best_corner_handicap(home_distribution, away_distribution, home, away,
             p = _payout(difference, shifted_line, side)
             probability = p['full_win'] + p['half_win']
             name = home if side == 'home' else away
-            candidates.append({'market': 'corner_hdp', 'side': side,
+            candidates.append({'market': market, 'side': side,
                 'line': adjusted, 'pick': f'{name} {adjusted:+g}',
                 'probability': probability, 'odds': None, 'p_market_novig': None,
                 'edge': None, 'payout': p, 'availability': 'B',
@@ -345,6 +366,25 @@ def _best_corner_handicap(home_distribution, away_distribution, home, away,
                 'model_version': CONFIG['version']})
     at_center = [row for row in candidates if row['line'] in (fair_home_line, -fair_home_line)]
     return max(at_center or candidates, key=lambda row: row['probability'])
+
+
+def _winner(home_distribution, away_distribution, home, away, market):
+    """Three-way count winner, including ties, from the SAME count matrix."""
+    difference = _normalize(np.convolve(home_distribution, away_distribution[::-1]))
+    zero = len(away_distribution) - 1
+    probabilities = {'home': float(sum(difference[zero+1:])),
+                     'draw': float(difference[zero]),
+                     'away': float(sum(difference[:zero]))}
+    side = max(probabilities, key=probabilities.get)
+    label = 'Sama banyak' if side == 'draw' else (home if side == 'home' else away)
+    probability = probabilities[side]
+    return {'market': market, 'side': side, 'line': None, 'pick': label,
+            'probability': probability, 'outcome_probabilities': probabilities,
+            'payout': {'full_win': probability, 'half_win': 0., 'push': 0.,
+                       'half_loss': 0., 'full_loss': 1-probability},
+            'odds': None, 'p_market_novig': None, 'edge': None,
+            'availability': 'B', 'status': 'projection', 'label': 'Proyeksi',
+            'line_source': 'model-central', 'model_version': CONFIG['version']}
 
 
 def project_fixture(rows, home, away, kickoff_utc, *, goal_projection=None,
@@ -365,21 +405,23 @@ def project_fixture(rows, home, away, kickoff_utc, *, goal_projection=None,
     shopped central projection per market with line_source 'model-central'.
     Book-priced offers carry line_source 'book' plus the offered prices so
     scan-time EV gating can consume them without re-shopping.
-    Corner markets (corners_ou, corner_hdp) never use quarter lines —
-    whole/half only, so every outcome is a full win/loss/push. Cards keep
-    quarter support.
+    Book-offered quarter corner lines preserve split payouts. Without book
+    lines the synthetic central corner fallback stays whole/half only.
     """
     cfg = load_config()
     if config:
         cfg.update(config)
     cutoff_date = datetime.fromtimestamp(float(kickoff_utc), timezone.utc).date()
-    eligible = [row for row in rows if row['date'] < cutoff_date and row.get('home_goals') is not None
-                and row.get('away_goals') is not None]
+    eligible = sorted([row for row in rows if row['date'] < cutoff_date and row.get('home_goals') is not None
+                       and row.get('away_goals') is not None], key=lambda row: row['date'])
     if not eligible:
         return {'availability': 'C', 'reason': 'NO_HISTORICAL_MATCH_STATS', 'markets': [], 'limited': True}
 
     corner_rows = [r for r in eligible if r['home_corners'] is not None and r['away_corners'] is not None]
-    card_rows = [r for r in eligible if r['home_yellow'] is not None and r['away_yellow'] is not None]
+    # Booking points require observed yellow AND red counts. Unknown reds are
+    # not zero: otherwise both points and the red-card prediction are biased.
+    card_rows = [r for r in eligible if all(r.get(k) is not None for k in
+                 ('home_yellow', 'away_yellow', 'home_red', 'away_red'))]
     result = {'availability': 'C', 'reason': None, 'markets': [], 'limited': False,
               'referee': referee, 'referee_status': 'unknown' if not referee else 'named',
               'model_version': cfg['version'], 'market_odds_available': False}
@@ -407,7 +449,10 @@ def project_fixture(rows, home, away, kickoff_utc, *, goal_projection=None,
             team_rows['home'].append((row['home'], row[for_key], row[against_key], weight))
             team_rows['away'].append((row['away'], row[away_for_key], row['home_' + stat], weight))
 
-        def attack_defense(team, role, baseline):
+        if global_home <= 0 or global_away <= 0:
+            return None
+
+        def attack_defense(team, role, baseline, against_baseline):
             selected = [entry for entry in team_rows[role] if entry[0] == team]
             n_eff = effective_sample([entry[3] for entry in selected])
             if n_eff < cfg['minimum_effective_team_side']:
@@ -417,11 +462,11 @@ def project_fixture(rows, home, away, kickoff_utc, *, goal_projection=None,
             conceded = sum(entry[2] * entry[3] for entry in selected)
             pseudo = cfg['pseudo_matches']
             attack = (scored + pseudo * baseline) / (weight_sum + pseudo) / baseline
-            defense = (conceded + pseudo * baseline) / (weight_sum + pseudo) / baseline
+            defense = (conceded + pseudo * against_baseline) / (weight_sum + pseudo) / against_baseline
             return (attack, defense), n_eff
 
-        home_strength, home_n = attack_defense(home, 'home', global_home)
-        away_strength, away_n = attack_defense(away, 'away', global_away)
+        home_strength, home_n = attack_defense(home, 'home', global_home, global_away)
+        away_strength, away_n = attack_defense(away, 'away', global_away, global_home)
         if not home_strength or not away_strength:
             return None
         dominance = 0.0
@@ -444,11 +489,12 @@ def project_fixture(rows, home, away, kickoff_utc, *, goal_projection=None,
                     'n_eff': min(home_n, away_n), 'team_home_n_eff': home_n,
                     'team_away_n_eff': away_n, 'referee_status': 'not_applicable'}
         # Yellow-card points plus an independent low-rate red-card process.
-        reds = [row['home_red'] + row['away_red'] for row, _ in observations
-                if row['home_red'] is not None and row['away_red'] is not None]
-        red_mean = float(np.mean(reds)) if reds else 0.0
-        red_home = float(np.mean([r['home_red'] for r, _ in observations if r['home_red'] is not None])) if reds else 0.0
-        red_away = float(np.mean([r['away_red'] for r, _ in observations if r['away_red'] is not None])) if reds else 0.0
+        # Gamma-Poisson smoothing avoids asserting a 100% no-red probability
+        # merely because the sample has no red cards (weak Gamma(.5,.5) prior).
+        exposure = sum(w for _, w in observations)
+        red_home = (sum(r['home_red']*w for r, w in observations)+.5)/(exposure+.5)
+        red_away = (sum(r['away_red']*w for r, w in observations)+.5)/(exposure+.5)
+        red_mean = red_home + red_away
         ref_rows = []
         if referee:
             ref_rows = [row for row, _ in observations if row.get('referee') == referee]
@@ -471,30 +517,32 @@ def project_fixture(rows, home, away, kickoff_utc, *, goal_projection=None,
                 red_away = red_mean - red_home
         yellow_mean = home_mean + away_mean
         size = dispersion if referee and len(ref_rows) >= cfg['minimum_referee_matches'] else max(cfg['dispersion_min'], dispersion * 0.5)
-        yellow_dist = _nb(yellow_mean, size, cfg['probability_tail'])
-        red_dist = _poisson(red_mean, cfg['probability_tail'])
-        shifted = np.zeros(len(yellow_dist) + max(0, (len(red_dist) - 1) * cfg['red_points']))
-        for red_count, probability in enumerate(red_dist):
-            start = red_count * cfg['red_points']
-            shifted[start:start + len(yellow_dist)] += probability * yellow_dist
-        shifted = _normalize(shifted)
         home_yellow = _nb(home_mean, size, cfg['probability_tail'])
         away_yellow = _nb(away_mean, size, cfg['probability_tail'])
         red_home_dist = _poisson(red_home, cfg['probability_tail'])
         red_away_dist = _poisson(red_away, cfg['probability_tail'])
         def points(yellows, reds):
+            # Units are explicit even when the configured yellow weight changes.
+            expanded = np.zeros((len(yellows)-1)*cfg['yellow_points']+1)
+            expanded[::cfg['yellow_points']] = yellows
+            yellows = expanded
             out = np.zeros(len(yellows) + max(0, (len(reds) - 1) * cfg['red_points']))
             for red_count, probability in enumerate(reds):
                 start = red_count * cfg['red_points']
                 out[start:start + len(yellows)] += probability * yellows
             return _normalize(out)
+        home_points_dist = points(home_yellow, red_home_dist)
+        away_points_dist = points(away_yellow, red_away_dist)
+        # Total, winner and handicap must refer to one coherent joint model.
+        shifted = _normalize(np.convolve(home_points_dist, away_points_dist))
         return {'home': home_mean, 'away': away_mean,
                 'home_points': home_mean * cfg['yellow_points'] + red_home * cfg['red_points'],
                 'away_points': away_mean * cfg['yellow_points'] + red_away * cfg['red_points'],
                 'total': yellow_mean * cfg['yellow_points'] + red_mean * cfg['red_points'],
                 'distribution': shifted, 'dispersion': dispersion,
-                'home_distribution': points(home_yellow, red_home_dist),
-                'away_distribution': points(away_yellow, red_away_dist),
+                'home_distribution': home_points_dist,
+                'away_distribution': away_points_dist,
+                'units': 'points', 'yellow_points': cfg['yellow_points'], 'red_points': cfg['red_points'],
                 'red_yes_probability': 1 - math.exp(-red_mean),
                 'red_mean': red_mean, 'yellow_mean': yellow_mean,
                 'n_eff': min(home_n, away_n), 'team_home_n_eff': home_n,
@@ -506,21 +554,31 @@ def project_fixture(rows, home, away, kickoff_utc, *, goal_projection=None,
     book = book if isinstance(book, dict) else {}
     if corner:
         result['corners'] = {key: value for key, value in corner.items() if 'distribution' not in key}
+        result['markets'].append(_winner(corner['home_distribution'], corner['away_distribution'],
+                                         home, away, 'corner_1x2'))
         corner_totals = price_offered_totals(
             corner['distribution'], 'corners_ou', book.get('corners_ou'),
-            mean=corner['total'], quarter_lines=False)
+            mean=corner['total'], quarter_lines=True)
         result['markets'].extend(corner_totals if corner_totals else
             [_best_total(corner['distribution'], corner['total'], 'corners_ou',
                          quarter_lines=False)])
         corner_spreads = price_offered_handicap(
             corner['home_distribution'], corner['away_distribution'],
-            home, away, book.get('corner_hdp'), quarter_lines=False)
+            home, away, book.get('corner_hdp'), quarter_lines=True)
         result['markets'].extend(corner_spreads if corner_spreads else
             [_best_corner_handicap(corner['home_distribution'],
                 corner['away_distribution'], home, away, corner['home'] - corner['away'],
                 quarter_lines=False)])
     if cards:
         result['cards'] = {key: value for key, value in cards.items() if 'distribution' not in key}
+        result['markets'].append(_winner(cards['home_distribution'], cards['away_distribution'],
+                                         home, away, 'cards_1x2'))
+        card_spreads = (price_offered_handicap(cards['home_distribution'], cards['away_distribution'],
+            home, away, book.get('cards_hdp'), market='cards_hdp')
+            if book.get('cards_units') == 'points' else [])
+        result['markets'].extend(card_spreads or [_best_corner_handicap(
+            cards['home_distribution'], cards['away_distribution'], home, away,
+            cards['home_points']-cards['away_points'], market='cards_hdp')])
         card_totals = (price_offered_totals(
             cards['distribution'], 'cards_ou', book.get('cards_ou'),
             mean=cards['total'])
@@ -537,8 +595,11 @@ def project_fixture(rows, home, away, kickoff_utc, *, goal_projection=None,
         result['referee_status'] = cards['referee_status']
         if cards['red_mean'] > 0:
             yes_probability = cards['red_yes_probability']
+            probability = max(yes_probability, 1-yes_probability)
             result['markets'].append({'market': 'red_card', 'side': 'yes' if yes_probability >= .5 else 'no',
-                'line': None, 'pick': 'Red card yes' if yes_probability >= .5 else 'Red card no',
+                'line': None, 'pick': 'Merah Ya' if yes_probability >= .5 else 'Merah Tidak',
+                'payout': {'full_win': probability, 'half_win': 0., 'push': 0.,
+                           'half_loss': 0., 'full_loss': 1-probability},
                 'probability': max(yes_probability, 1 - yes_probability), 'odds': None,
                 'p_market_novig': None, 'edge': None, 'availability': 'B',
                 'status': 'projection', 'label': 'Proyeksi',

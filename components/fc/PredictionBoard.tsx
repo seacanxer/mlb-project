@@ -5,6 +5,7 @@ import { forecastPicks, isCardVisible, isValue, matchKey, pickLabel, PREDICTION_
 import { formatEv, formatOdds, formatProb } from '@/lib/fc/format';
 import { formatKickoffWIB } from '@/lib/fc/kickoff';
 import { splitLeague } from '@/lib/fc/grouping';
+import { SecondaryPredictionPanel } from './SecondaryPredictionPanel';
 import { fcPost } from '@/lib/fc/client';
 
 export type BoardView = 'all' | 'ready' | 'model' | 'value' | 'unavailable' | 'saved';
@@ -73,49 +74,7 @@ function PredictionCard({ match, market, valueOnly, saved, lockedIds, onToggle }
         <span>{info.away || 'Away'} goal point</span><strong>{goals ? goals.away.toFixed(2) : '—'}</strong>
       </div>
     </section>
-    {match.analysis?.secondary_markets && <div className="prediction-secondary" aria-label="Prediksi corner dan kartu">
-      <div className="prediction-secondary-heading"><strong>Prediksi corner & kartu</strong>
-        <span>{match.analysis.secondary_markets.availability === 'C' ? 'Belum tersedia' : match.analysis.secondary_markets.limited ? 'Data terbatas' : 'Model tersedia'}</span></div>
-      {match.analysis.secondary_markets.availability === 'C'
-        ? <p className="prediction-secondary-unavailable">Prediksi corner/kartu belum dapat dihitung karena data statistik pertandingan historis belum cukup.</p>
-        : <div className="prediction-market-grid prediction-secondary-grid">
-        {(['corners_ou', 'cards_ou'] as const).filter((key) => market === 'all' || key === market).map((key) => {
-          const projection = match.analysis?.secondary_markets?.markets.find((row) => row.market === key);
-          const title = key === 'corners_ou' ? 'Total corners' : 'Total kartu';
-          const data = key === 'corners_ou' ? match.analysis?.secondary_markets?.corners : match.analysis?.secondary_markets?.cards;
-          return <div className="prediction-market" key={key}><div className="prediction-market-heading">{title}</div>
-            {data && <small>{key === 'corners_ou'
-              ? `Home ${data.home.toFixed(2)} · Away ${data.away.toFixed(2)} · Projection corner ${data.total.toFixed(2)}`
-              : `Kuning ${data.home.toFixed(1)} – ${data.away.toFixed(1)}; poin kartu total ${data.total.toFixed(1)}`}</small>}
-            {projection ? <div className="prediction-secondary-pick"><strong>{projection.pick}</strong>
-              <small>Line {projection.line ?? '—'} · P(model) {formatProb(projection.probability)}</small>
-              <small>{projection.odds != null ? `Odds @${formatOdds(projection.odds)} · EV ${formatEv(projection.ev)}` : 'Odds pasar belum tersedia'}</small><span className="prediction-tag">Proyeksi</span>
-            </div> : <div className="prediction-no-market"><strong>—</strong><small>Data belum cukup</small></div>}
-          </div>;
-        })}
-        {(['corner_hdp', 'team_cards_ou'] as const).filter((key) => market === 'all' || key === market).map((key) => {
-          const projection = match.analysis?.secondary_markets?.markets.find((row) => row.market === key);
-          const title = key === 'corner_hdp' ? 'Corner HDP' : 'Kartu per tim';
-          return <div className="prediction-market" key={key}><div className="prediction-market-heading">{title}</div>
-            {projection ? <div className="prediction-secondary-pick"><strong>{projection.pick}</strong>
-              <small>Line {projection.line ?? '—'} · P(model) {formatProb(projection.probability)}</small>
-              <small>{projection.odds != null ? `Odds @${formatOdds(projection.odds)} · EV ${formatEv(projection.ev)}` : 'Odds pasar belum tersedia'}</small><span className="prediction-tag">Proyeksi</span>
-            </div> : <div className="prediction-no-market"><strong>—</strong><small>Data belum cukup</small></div>}
-          </div>;
-        })}
-        {(market === 'all' || market === 'red_card') && match.analysis.secondary_markets.markets.find((row) => row.market === 'red_card') && (() => {
-          const projection = match.analysis!.secondary_markets!.markets.find((row) => row.market === 'red_card')!;
-          return <div className="prediction-market"><div className="prediction-market-heading">Kartu merah</div>
-            <div className="prediction-secondary-pick"><strong>{projection.pick}</strong>
-              <small>Line {projection.line ?? '—'} · P(model) {formatProb(projection.probability)}</small>
-              <small>{projection.odds != null ? `Odds @${formatOdds(projection.odds)} · EV ${formatEv(projection.ev)}` : 'Odds pasar belum tersedia'}</small><span className="prediction-tag">Proyeksi</span>
-            </div></div>;
-        })()}
-      </div>}
-      {match.analysis.secondary_markets.availability !== 'C' && <small className="prediction-secondary-note">{match.analysis.secondary_markets.market_odds_available ? 'Line dan odds corner berasal dari pasar; model sekunder masih dalam evaluasi prospektif.' : 'Odds sekunder belum tersedia; line model adalah proyeksi, bukan harga pasar.'}
-        {match.analysis?.secondary_markets?.referee_status === 'unknown' ? ' Wasit belum diumumkan; variasi prediksi kartu diperlebar.' : ''}</small>
-      }
-    </div>}
+    {match.analysis?.secondary_markets && <SecondaryPredictionPanel secondary={match.analysis.secondary_markets} info={info} market={market} />}
     <div className="prediction-footer">
       {available ? <span>{match.analysis?.league_model || projections[0]?.league_model || 'Model liga'}<span className="prediction-divider">/</span><span>Belum tervalidasi</span></span> : <span>{reasonLabel(reasons[0])}</span>}
       {available && <span className="prediction-hint">Klik pilihan untuk menyimpan</span>}
@@ -190,7 +149,7 @@ export function PredictionBoard({ matches, initialView = 'all', marketScope = 'a
   const updateLocked = (next: LockedChoice[]) => { setLockedChoices(next); try { localStorage.setItem(LOCK_STORAGE_KEY, JSON.stringify(next)); } catch { setMessage('Lock hanya bertahan selama sesi ini; penyimpanan perangkat tidak tersedia.'); } };
   const lockedIds = new Set(lockedChoices.filter((choice) => choice.settlementId).map((choice) => choice.id));
   const toggle = (m: DetailedMatch, p: ForecastPick) => {
-    if (!['1x2', 'ah', 'ou', 'btts'].includes(p.market)) { setMessage('Proyeksi corner/kartu belum memiliki odds pasar untuk dikunci.'); return; }
+    if (!['1x2', 'ah', 'ou', 'btts'].includes(p.market)) { setMessage('Pilihan corner/kartu masih berupa proyeksi dan belum dapat dikunci.'); return; }
     const id = choiceId(m, p);
     if (lockedIds.has(id)) { setMessage('Pilihan ini terkunci. Buka lock di daftar pilihan sebelum mengubahnya.'); return; }
     const prefix = `${matchKey(m)}|${p.market}|`;

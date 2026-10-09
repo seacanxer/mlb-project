@@ -122,7 +122,7 @@ def test_secondary_analysis_does_not_require_goal_model_or_market_quote():
             'start_ts': kickoff, 'match_id': 'fixture-1'}
     result = scanner['secondary_analysis'](info, {'E0': make_rows()})
     assert result['availability'] == 'B'
-    offer = result['markets'][0]
+    offer = next(row for row in result['markets'] if row['market'] == 'corners_ou')
     payload = scanner['secondary_pick_payload'](info, offer, None, None, kickoff-3600,
                                                'E0', 'secondary-test', 'unknown')
     assert payload['odds'] is None and payload['ev'] is None
@@ -358,3 +358,78 @@ def test_secondary_quarter_ev_uses_half_and_push_payouts():
     assert result['conservative_ev'] == pytest.approx(.08)
     assert result['fair_odds'] == pytest.approx(1+.35/.45,abs=.001)
     assert not result['official_eligible']
+    assert result['effective_win_probability'] == .45
+
+
+def test_secondary_role_baselines_preserve_actual_home_away_rates():
+    rows = [{**row, 'home_corners': 8, 'away_corners': 3} for row in make_rows()]
+    result = project_fixture(rows, 'Spain', 'Croatia', 1800000000)
+    assert result['corners']['home'] == pytest.approx(8)
+    assert result['corners']['away'] == pytest.approx(3)
+    assert result['cards']['total'] == pytest.approx(
+        result['cards']['home_points']+result['cards']['away_points'])
+
+
+def test_secondary_winner_includes_ties_and_uses_correct_side():
+    from football_formula_engine.secondary_markets import _winner
+    import numpy as np
+    winner = _winner(np.asarray([.2, .8]), np.asarray([.6, .4]), 'Home', 'Away', 'corner_1x2')
+    assert winner['outcome_probabilities'] == pytest.approx({'home': .48, 'draw': .44, 'away': .08})
+    assert winner['pick'] == 'Home'
+    tied = _winner(np.asarray([0., 1.]), np.asarray([0., 1.]), 'Home', 'Away', 'cards_1x2')
+    assert tied['side'] == 'draw' and tied['probability'] == 1
+
+
+def test_zero_observed_reds_generate_no_red_projection_without_false_certainty():
+    rows = [{**r, 'home_red': 0, 'away_red': 0} for r in make_rows()]
+    result = project_fixture(rows, 'Spain', 'Croatia', 1800000000)
+    red = next(o for o in result['markets'] if o['market'] == 'red_card')
+    assert red['side'] == 'no' and .5 < red['probability'] < 1
+    unknown = project_fixture([{**r, 'home_red': None} for r in rows], 'Spain', 'Croatia', 1800000000)
+    assert not any(o['market'].startswith('cards') or o['market'] == 'red_card' for o in unknown['markets'])
+
+
+def test_quarter_offered_lines_survive_json_and_publish_with_real_odds():
+    import runpy
+    scanner = runpy.run_path(str(ROOT / 'scripts/fc-scan-live.py'))
+    info = dict(match_id='q', home='Spain', away='Croatia', league='England. Premier League', start_ts=1800000000)
+    book = {'corners_ou': {'9.75': {'9': 1.9, '10': 1.9}},
+            'corner_hdp': {'home': [(-2.25, 1.9)], 'away': [(2.25, 1.9)]},
+            'captured_at': {'corners': 1799990000}}
+    result = scanner['secondary_analysis'](info, {'E0': make_rows()}, book=book)
+    match = {'info': info, 'analysis': {'secondary_markets': result}}
+    picks = scanner['publish_secondary_picks'](match, 1799990001)
+    assert len({p['market'] for p in picks}) == len(picks) == 8
+    total = next(p for p in picks if p['market'] == 'corners_ou')
+    assert total['line_quarters'] == 39 and total['odds'] == 1.9
+    assert total['quote_captured_at'] == 1799990000
+    spread = next(p for p in picks if p['market'] == 'corner_hdp')
+    assert abs(spread['line_quarters']) == 9 and spread['market_probability'] == .5
+    assert all(not p['official_eligible'] for p in picks)
+    assert all(p['odds'] is None and p['quote_captured_at'] is None for p in picks if p['market'].startswith('cards'))
+
+
+def test_alias_statistics_are_merged_and_foreign_teams_are_excluded(tmp_path):
+    path = tmp_path / 'stats.csv'
+    path.write_text('Date,HomeTeam,AwayTeam,FTHG,FTAG,HC,AC\n'
+                    '01/08/26,Dortmund,Bremen,1,0,,\n'
+                    '01/08/26,Borussia Dortmund,Bremen,1,0,7,3\n'
+                    '02/08/26,Salzburg,Hartberg,1,0,5,4\n')
+    normalizer = lambda s: s.lower().replace('borussia ', '')
+    rows = load_stat_rows([path], normalize_team=normalizer, allowed_teams={'dortmund', 'bremen'})
+    assert len(rows) == 1 and rows[0]['home_corners'] == 7
+
+
+def test_line_limit_keeps_central_quotes_instead_of_low_tail():
+    import numpy as np
+    offers = price_offered_totals(np.asarray([.5, .5]), 'corners_ou',
+        {i/4: {9: 1.9, 10: 1.9} for i in range(80)}, mean=10.25, max_lines=2)
+    assert offers[0]['line'] == 10.25
+    assert len(offers) == 4
+
+
+def test_model_total_line_is_nearest_projection_without_probability_shopping():
+    import numpy as np
+    distribution = np.asarray([.05, .1, .2, .3, .2, .1, .05])
+    assert _best_total(distribution, 3.42, 'cards_ou')['line'] == 3.5
+    assert _best_total(distribution, 3.22, 'cards_ou')['line'] == 3.25

@@ -12,6 +12,8 @@ from datetime import datetime, timedelta, timezone
 
 FC_DIR = os.environ.get('FC_DIR', os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'betting-machine-fc'))
 DATA_DIR = os.path.join(FC_DIR, 'data')
+sys.path.insert(0, FC_DIR)
+from football_formula_engine.leagues import LEAGUES
 FEED_URL = 'https://apigw.fotmob.com/matches?date={day}'
 MATCH_URL = 'https://www.fotmob.com/match/{mid}'
 DESKTOP_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
@@ -46,6 +48,7 @@ def finished_matches(day):
             out.append({
                 'match_id': attr.get('id'),
                 'league': league.get('name'),
+                'ccode': league.get('ccode'),
                 'home': ascii_name(attr.get('hTeam')),
                 'away': ascii_name(attr.get('aTeam')),
                 'home_goals': attr.get('hScore'),
@@ -81,15 +84,29 @@ def match_stats(match_id):
     return out if 'corners' in out else None
 
 
-def _matches_for(day, feed_names):
+def competition_matches(match, code, feed_names):
+    league = (match.get('league') or '').strip().casefold()
+    if code == 'INT_MEN':
+        return league.startswith('uefa nations league') and not any(
+            tag in league for tag in ('women', 'u17', 'u19', 'u21', 'final', 'playoff'))
+    entry = LEAGUES.get(code)
+    feed = entry.feed if entry else None
+    if not feed or feed.get('kind') != 'fotmob':
+        return False
+    if (match.get('ccode') or '').upper() != feed.get('ccode'):
+        return False
+    return any(league.startswith(name[:-1].casefold()) if name.endswith('*')
+               else league == name.casefold() for name in feed.get('names', []))
+
+
+def _matches_for(day, feed_names, code=None):
     try:
         matches = finished_matches(day)
     except Exception:
         return []
     keep = []
     for match in matches:
-        league = (match['league'] or '').lower()
-        if any(name.lower().rstrip('*') in league for name in feed_names):
+        if competition_matches(match, code, feed_names):
             keep.append(match)
     return keep
 
@@ -124,14 +141,7 @@ def run(code, feed_names, days, end, workers, day_keys=None):
                 feed_failed += 1
                 continue
             for match in matches:
-                league = (match['league'] or '').lower()
-                if code == 'INT_MEN':
-                    # Only senior UEFA Nations League, never club National League,
-                    # women's/youth competitions or extra-time knockout games.
-                    if not league.startswith('uefa nations league') or any(
-                            tag in league for tag in ('women', 'u17', 'u19', 'u21', 'final', 'playoff')):
-                        continue
-                elif not any(name.lower().rstrip('*') in league for name in feed_names):
+                if not competition_matches(match, code, feed_names):
                     continue
                 key = (datetime.strptime(day, '%Y%m%d').strftime('%d/%m/%Y'), match['home'], match['away'])
                 if key not in seen:
