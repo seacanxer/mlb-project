@@ -26,7 +26,7 @@ describe('FC model-performance route', () => {
     const text = await response.text();
     const [header] = text.split('\n');
     expect(header).toBe(
-      'match,league,market,pick,side,line,model_probability,odds,ev,outcome,kickoff,kickoff_ts,graded_at',
+      'match,league,market,pick,side,line,model_probability,odds,ev,outcome,score,home_goals,away_goals,kickoff,kickoff_ts,graded_at',
     );
   });
 });

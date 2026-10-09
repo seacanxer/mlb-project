@@ -1186,7 +1186,16 @@ def main(argv=()):
         secondary_result['market_options'] = [offer for offer, _ in evaluated]
         secondary_result['market_odds_available'] = any(offer.get('odds') for offer, _ in selected)
 
-    # 4. atomic writes
+    # 4. Keep one highest-probability pick per match and market.
+    deduped = {}
+    for item in picks:
+        key = (str(item.get('match_id') or item.get('match')), str(item.get('market')))
+        prior = deduped.get(key)
+        if prior is None or float(item.get('probability') or 0) > float(prior.get('probability') or 0):
+            deduped[key] = item
+    picks = list(deduped.values())
+
+    # 5. atomic writes
     def atomic_write(path, data):
         tmp = path + '.tmp'
         with open(tmp, 'w', encoding='utf-8') as f:

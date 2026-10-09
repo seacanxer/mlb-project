@@ -351,6 +351,11 @@ def build_report(entries, grades, *, recent_n=100):
         for key in ('match', 'league', 'market', 'pick', 'side',
                     'outcome', 'graded_at'):
             row[key] = grade.get(key) if grade.get(key) is not None else entry.get(key)
+        actual = grade.get('actual') or {}
+        row['home_goals'] = actual.get('home_goals')
+        row['away_goals'] = actual.get('away_goals')
+        row['score'] = (f"{actual['home_goals']}-{actual['away_goals']}"
+                        if actual.get('home_goals') is not None and actual.get('away_goals') is not None else None)
         kickoff = entry.get('start_ts')
         if isinstance(kickoff, (int, float)) and kickoff > 0:
             row['kickoff_ts'] = kickoff

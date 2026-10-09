@@ -199,6 +199,7 @@ export default function FcModelPerformance() {
                         <th scope="col">Pick</th>
                         <th scope="col">Prob</th>
                         <th scope="col">Odds</th>
+                        <th scope="col">Skor</th>
                         <th scope="col">Hasil</th>
                       </tr>
                     </thead>
@@ -228,6 +229,7 @@ export default function FcModelPerformance() {
                           </td>
                           <td>{fmt(row.model_probability)}</td>
                           <td>{row.odds ? row.odds.toFixed(2) : '—'}</td>
+                          <td>{row.score ?? ((row.home_goals != null && row.away_goals != null) ? `${row.home_goals}-${row.away_goals}` : '—')}</td>
                           <td>{outcomeChip(row.outcome)}</td>
                         </tr>
                         );

@@ -229,6 +229,9 @@ export interface GradeDetailRow {
   odds?: number | null;
   ev?: number | null;
   outcome?: string;
+  score?: string | null;
+  home_goals?: number | null;
+  away_goals?: number | null;
   kickoff?: string;
   kickoff_ts?: number | null;
   graded_at?: string;
@@ -286,6 +289,9 @@ export function readGradeDetails(): GradeDetailRow[] {
       odds: (num(grade['odds']) ?? num(entry['odds'])) ?? null,
       ev: (num(grade['ev']) ?? num(entry['ev'])) ?? null,
       outcome: pick('outcome'),
+      score: str(grade['score']) ?? str(entry['score']) ?? null,
+      home_goals: num(grade['home_goals']) ?? num(entry['home_goals']) ?? null,
+      away_goals: num(grade['away_goals']) ?? num(entry['away_goals']) ?? null,
       kickoff,
       kickoff_ts: kickoffTs,
       graded_at: pick('graded_at'),
@@ -296,8 +302,8 @@ export function readGradeDetails(): GradeDetailRow[] {
 
 const CSV_COLUMNS: (keyof GradeDetailRow)[] = [
   'match', 'league', 'market', 'pick', 'side', 'line',
-  'model_probability', 'odds', 'ev', 'outcome',
-  'kickoff', 'kickoff_ts', 'graded_at',
+  'model_probability', 'odds', 'ev', 'outcome', 'score',
+  'home_goals', 'away_goals', 'kickoff', 'kickoff_ts', 'graded_at',
 ];
 
 function csvCell(value: unknown): string {

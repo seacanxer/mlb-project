@@ -155,6 +155,9 @@ export interface RecentGrade {
   odds?: number | null;
   ev?: number | null;
   outcome?: string;
+  score?: string | null;
+  home_goals?: number | null;
+  away_goals?: number | null;
   kickoff?: string | null;
   kickoff_ts?: number | null;
   graded_at?: string;
