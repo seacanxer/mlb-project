@@ -297,7 +297,13 @@ export function readGradeDetails(): GradeDetailRow[] {
       graded_at: pick('graded_at'),
     });
   }
-  return rows;
+  const unique = new Map<string, GradeDetailRow>();
+  for (const row of rows) {
+    const key = `${row.match ?? ''}|${row.market ?? ''}`;
+    const prior = unique.get(key);
+    if (!prior || (row.model_probability ?? 0) > (prior.model_probability ?? 0)) unique.set(key, row);
+  }
+  return [...unique.values()];
 }
 
 const CSV_COLUMNS: (keyof GradeDetailRow)[] = [

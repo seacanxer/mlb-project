@@ -286,7 +286,21 @@ def grade_pending(entries, graded_ids, now=None):
 def build_report(entries, grades, *, recent_n=100):
     by_id = {e['ledger_id']: e for e in entries if is_card_row(e)}
     card_ids = set(by_id)
-    card_grades = list({g['ledger_id']: g for g in grades if g.get('ledger_id') in card_ids}.values())
+    raw_card_grades = list({g['ledger_id']: g for g in grades if g.get('ledger_id') in card_ids}.values())
+    unique = {}
+    for grade in raw_card_grades:
+        entry = by_id.get(grade.get('ledger_id'), {})
+        key = (str(entry.get('match_id') or entry.get('match') or ''), str(grade.get('market') or entry.get('market') or ''))
+        prior = unique.get(key)
+        probability = float(grade.get('model_probability') or entry.get('probability') or 0)
+        prior_probability = float((prior or {}).get('_dedup_probability') or 0)
+        if prior is None or probability > prior_probability:
+            grade = dict(grade)
+            grade['_dedup_probability'] = probability
+            unique[key] = grade
+    card_grades = list(unique.values())
+    for grade in card_grades:
+        grade.pop('_dedup_probability', None)
     graded_ids = {g['ledger_id'] for g in card_grades}
     by_market, overall = {}, {'n': 0, 'score': 0.0, 'brier': 0.0,
                               'mean_prob': 0.0, 'wins': 0, 'pushes': 0, 'half_wins': 0, 'log_loss': 0.0, 'winning_events': 0}
