@@ -5,149 +5,538 @@
   "formula": {
     "version": "dc-loglink-time-decay-v1"
   },
-  "last_successful_scan_at": "2026-10-06T11:40:27.443772+00:00",
-  "last_successful_scan_count": 41,
-  "last_successful_scan_picks": 0,
+  "last_successful_scan_at": "2026-10-09T15:41:43.971907+00:00",
+  "last_successful_scan_count": 211,
+  "last_successful_scan_picks": 232,
   "last_scan_diagnostics": {
     "skipped": {
-      "TEAM_COVERAGE_MISSING": 9,
-      "QUOTE_CAPTURE_FAILED": 7,
-      "NO_VALUE": 16,
-      "TEAM_LOW_COVERAGE": 9
+      "TEAM_COVERAGE_MISSING": 107,
+      "NO_VALUE": 38,
+      "QUOTE_CAPTURE_FAILED": 14
     },
     "leagues": [
-      "BRASB",
-      "EPL2",
-      "INT_MEN",
-      "PAR1"
+      "ARGBM",
+      "B1",
+      "D1",
+      "D2",
+      "D3",
+      "DEN2",
+      "DEN3",
+      "E0",
+      "E1",
+      "E2",
+      "E3",
+      "EC",
+      "F1",
+      "F2",
+      "FINY",
+      "GRLB",
+      "GRLN",
+      "GRLNE",
+      "GRLSW",
+      "I1",
+      "I2",
+      "IRL0",
+      "IRL1",
+      "J2",
+      "MEX1",
+      "MEX2",
+      "N1",
+      "N2",
+      "NIRP",
+      "NOR3",
+      "P1",
+      "PRFEF2",
+      "SC1",
+      "SC2",
+      "SC3",
+      "SCOHL",
+      "SP1",
+      "SP2",
+      "USL1"
     ],
-    "fixtures_future": 346,
-    "modelable_league_fixtures": 41,
-    "coverage_verdict": "VALUE_CHECK_REQUIRED",
-    "league_model_unavailable": 305,
+    "fixtures_future": 1533,
+    "modelable_league_fixtures": 211,
+    "coverage_verdict": "VALUE_PICKS_AVAILABLE",
+    "league_model_unavailable": 1322,
     "unavailable_leagues": {
-      "UEFA European U21 Championship Qualification": 21,
-      "England. Northern League Div One": 20,
-      "England. Football League Trophy": 19,
-      "Japan. Emperors Cup": 16,
-      "Turkish Cup": 13,
-      "Norway. Division 4": 11,
-      "England. Isthmian League. 1st Division. South Central": 10,
-      "England. Northern Premier League": 10,
-      "Africa Cup of Nations U23": 8,
-      "Mexico Promesas Cup": 8,
-      "Argentina. Primera C Metropolitana": 7,
-      "England. Isthmian League. 1st Division. North": 7,
-      "Argentina. Reserve League": 6,
-      "Brazil. Goiano Cup U20. Division 2": 6,
-      "Kazakhstan. League 2": 6,
-      "Norway. Division 5": 6,
-      "Ukraine Championship U19": 6,
-      "Bolivia Cup": 5,
-      "England. FA Cup": 5,
-      "England. Isthmian League": 5,
+      "Norway. Division 5": 28,
+      "Spain. Youth Championship": 25,
+      "Poland Championship. Liga 3": 23,
+      "Netherlands. Tweede Divisie": 19,
+      "Germany. Oberliga Bayern": 18,
+      "Czech Republic. 3 Liga": 17,
+      "Italy. Campionato Nazionale Primavera 2": 17,
+      "Mexico. Division 4": 17,
+      "Czech Republic. 4 Liga": 16,
+      "Germany Bundesliga U19": 16,
+      "Norway. Division 4": 15,
+      "England. Premier League Cup U21": 14,
+      "England. Premier League. Team vs Player": 14,
+      "World Cup Qualification 2027. Europe. Women": 13,
+      "England. National League North": 12,
+      "England. National League South": 12,
+      "Hungary. NB III": 12,
+      "Norway. Division 3. Group 1": 12,
+      "Poland Championship. Liga 4": 12,
+      "England. Isthmian League": 11,
+      "England. Northern Premier League": 11,
+      "England. Southern Premier League. Central": 11,
+      "England. Southern Premier League. South": 11,
+      "Sweden. Superettan U19": 11,
+      "Austria. StFV. Landesliga": 10,
+      "Friendlies. National Teams. Women": 10,
+      "Sweden. Division 1": 10,
+      "Germany. Oberliga Rheinland-Pfalz": 9,
+      "Slovakia. Liga 3": 9,
+      "Thailand. 3rd Division": 9,
+      "Denmark. Zealand Series": 8,
+      "Germany. Regionalliga West": 8,
+      "Romania. Liga 2": 8,
+      "Sweden Championship U19": 8,
+      "Turkey. PAF League U19": 8,
+      "Turkey. TFF 2. Lig": 8,
+      "Wales. Championship. North": 8,
+      "Wales. Championship. South": 8,
+      "Austria. Second League": 7,
+      "Austria. WFV. Landesliga 2": 7,
+      "Belarus. 1st League": 7,
+      "Belgium. Youth League": 7,
+      "Finland. Kakkonen. Division 2": 7,
+      "Finland. Ykkonen. Division 1": 7,
+      "Germany. Oberliga Hamburg": 7,
+      "Italy. Campionato Nazionale Primavera 3": 7,
+      "Japan. Japan Football League": 7,
+      "Northern Ireland. Championship": 7,
+      "Russian Championship. League 1": 7,
+      "Spain. La Liga. Team vs Player": 7,
+      "Wales. Premier League": 7,
+      "Austria. Regionalliga East": 6,
+      "Austria. Regionalliga Sud": 6,
+      "Austria. WFV. Landesliga": 6,
+      "Brazil. Campeonato Paulista. U20": 6,
+      "Bulgaria. Second League": 6,
+      "Denmark Championship U19": 6,
+      "Denmark Championship. Division U19": 6,
+      "Greece. Super League U19": 6,
+      "Hungary. NB II": 6,
+      "Ireland. Munster Senior League": 6,
+      "Italy. Serie C. Group A": 6,
+      "Lithuania Championship. League 1": 6,
+      "New Zealand Championship": 6,
+      "Poland Championship U19": 6,
+      "Russian Championship. League 2. Division B. Group 1": 6,
+      "Sweden. Division 2. Norrland": 6,
+      "Vietnam. V-League": 6,
+      "Austria. KFV. Landesliga": 5,
+      "Austria. NOFV. Landesliga 2": 5,
+      "Czech Republic. 2 Liga": 5,
+      "Czech Republic. 5 Liga": 5,
+      "Estonia. Esiliiga": 5,
+      "Germany. Oberliga Baden-Württemberg": 5,
+      "Germany. Oberliga Niedersachsen": 5,
+      "Indonesia Championship U20": 5,
+      "Ireland. National League": 5,
+      "Israel Championship U19": 5,
+      "Kazakhstan. Premier League": 5,
+      "Norway. Division 3. Group 6": 5,
+      "Paraguay. Division Intermedia": 5,
+      "Russian Championship. League 2. Division B. Group 3": 5,
+      "San Marino. Campionato Sammarinese": 5,
       "Slovakia Championship U19": 5,
-      "Argentina. Primera C Metropolitana. Reserve League": 4,
-      "Colombia. Regional League": 4,
-      "England. Central League Cup": 4,
-      "Ivory Coast. League 1": 4,
-      "South Korea. WK-League": 4,
-      "Uruguay. Reserve League": 4,
+      "Spain. Segunda Division RFEF. Women": 5,
+      "Sweden. Division 2. Norra Svealand": 5,
+      "Sweden. Division 2. Western Gotaland": 5,
+      "Switzerland. Challenge League": 5,
+      "Argentina. Primera Division": 4,
+      "Belarus. Premier League": 4,
+      "Belgium. Challenger Pro League": 4,
+      "Bolivia. Division 3": 4,
+      "Bosnia and Herzegovina. First League of the Republika Srpska": 4,
+      "Botswana Championship": 4,
+      "Brazil. Goiano Cup U20": 4,
+      "China. League One. Women": 4,
+      "Croatia. 2. NL": 4,
+      "Cyprus. Second Division": 4,
+      "Czech Republic. Chance Liga": 4,
+      "Denmark. 1st Division": 4,
+      "Denmark. Serie 1. Women": 4,
+      "England. Northern League Div One": 4,
+      "Honduras. Liga Ascenso": 4,
+      "Indonesia. Super League": 4,
+      "Italy. Serie C. Group C": 4,
+      "Japan. J-League": 4,
+      "Japan. J3 League": 4,
+      "Lesotho. Premier League": 4,
+      "Montenegro. Second League U19": 4,
+      "Netherlands Championship U19": 4,
+      "Olympics. Women": 4,
+      "Panama. Division 2": 4,
+      "Poland Championship. Liga 1": 4,
+      "Poland. Ekstraklasa": 4,
+      "Portugal. Liga 3": 4,
+      "Portugal. Segunda Liga": 4,
+      "Republic of Malawi. Super League": 4,
+      "Russia. Premier League": 4,
+      "Scotland. Premier League": 4,
+      "Slovenia. 2. SNL": 4,
+      "South Korea. K League 2": 4,
+      "South Korea. League K3": 4,
+      "Spain. Tercera Division RFEF. Group 11": 4,
+      "Spain. Tercera Division RFEF. Group 12": 4,
+      "Spain. Tercera Division RFEF. Group 13": 4,
+      "Spain. Tercera Division RFEF. Group 15": 4,
+      "Spain. Tercera Division RFEF. Group 18": 4,
+      "Spain. Tercera Division RFEF. Group 6": 4,
+      "Sweden. Allsvenskan": 4,
+      "Sweden. Division 2. Northern Gotaland": 4,
+      "Sweden. Division 2. Southern Svealand": 4,
+      "Sweden. Superettan": 4,
+      "Switzerland Championship U19": 4,
+      "Switzerland. 1. Liga Classic": 4,
+      "Switzerland. 1. Liga Promotion": 4,
+      "Thailand. 2nd Division": 4,
+      "Tunisia. Ligue 1": 4,
+      "Tunisia. Ligue 2": 4,
+      "Turkey. SuperLiga": 4,
+      "Turkey. TFF 1. Lig": 4,
+      "Argentina. Torneo Argentino A": 3,
+      "Austria. BFV. Landesliga": 3,
+      "Belgium. First Division. Women": 3,
+      "Bosnia and Herzegovina. First League": 3,
+      "Brazil. Campeonato Mineiro. Segunda Division": 3,
       "China. League One": 3,
-      "China. Second League": 3,
-      "England. National League Cup": 3,
-      "England. National League South": 3,
-      "England. Southern Premier League. Central": 3,
-      "Friendlies U20. National Teams": 3,
-      "India. Bangalore. Super Division": 3,
-      "Norway Championship U19": 3,
-      "Peru. Liga 2": 3,
-      "Turkey. Development League U19": 3,
-      "UEFA European U19 Championship. Qualification. Women": 3,
-      "Abkhazia Championship": 2,
-      "Africa Cup of Nations U20": 2,
-      "Brazil. Campeonato Carioca B2": 2,
-      "England. South Division 1": 2,
-      "Hong Kong. Premier League U22": 2,
-      "Jordan Championship U20": 2,
-      "Malaysian President's Cup": 2,
+      "China. Superleague. Women": 3,
+      "Croatia. 1. NL": 3,
+      "Denmark. Serie 2. Women": 3,
+      "El Salvador. Division 2": 3,
+      "Estonia. Meistriliiga": 3,
+      "Estonia. Second League": 3,
+      "Germany. Oberliga Niederrhein": 3,
+      "Iceland. Urvalsdeild": 3,
+      "Indonesia. Championship": 3,
+      "Iraq. Stars League": 3,
+      "Italy. Serie C. Group B": 3,
+      "Japan. League Cup. Women": 3,
+      "Laos Premier League": 3,
+      "Latvia. 1st League": 3,
+      "Montenegro. First League U19": 3,
+      "Morocco. Botola 2": 3,
+      "Netherlands. Derde": 3,
+      "Nigeria. Premier League": 3,
+      "Northern Ireland. National Conference League. Premier Division": 3,
+      "Norway. Division 2": 3,
+      "Poland Championship. Liga 2": 3,
+      "Romania. Liga 3": 3,
+      "Russian Championship. League 2. Division A. Silver": 3,
+      "Rwanda. National League": 3,
+      "Saudi Arabia. Saudi Professional League": 3,
+      "Slovakia. Liga 2": 3,
+      "Slovakia. Super League": 3,
+      "South Africa. 1st Division": 3,
+      "South Korea. League K4": 3,
+      "Spain. Segunda Division RFEF. Group 2": 3,
+      "Spain. Tercera Division RFEF. Group 4": 3,
+      "Thailand. Thai Premier League": 3,
+      "Ukraine. Premier League": 3,
+      "Uruguay. Primera Division": 3,
+      "Albania. Division 1": 2,
+      "Algeria. Ligue 1": 2,
+      "Armenia. Premier League": 2,
+      "Austria. Bundesliga": 2,
+      "Austria. Regionalliga West": 2,
+      "Austria. SFV. Landesliga": 2,
+      "Azerbaijan. Premier League": 2,
+      "Bahrain. Premier League": 2,
+      "Bulgaria. First League": 2,
+      "Burkina Faso": 2,
+      "China Championship U20": 2,
+      "China. Super League": 2,
+      "Colombia. Categoria Primera A": 2,
+      "Costa Rica Championship U20": 2,
+      "Costa Rica. Primera Division": 2,
+      "Croatia. HNL": 2,
+      "Cyprus. First Division": 2,
+      "Ecuador. Serie A": 2,
+      "Ethiopia. Premier League": 2,
+      "FAI Cup": 2,
+      "Georgia Championship": 2,
+      "Greece. SuperLeague 2": 2,
+      "Hong Kong. Premier League": 2,
+      "Hungary Championship U19": 2,
+      "Hungary. NB I": 2,
+      "India. Mizoram Premier League": 2,
+      "India. Premier League. Shillong": 2,
+      "India. Super League": 2,
+      "Ireland Championship U20": 2,
+      "Israel. Liga Bet. North": 2,
+      "Italy. Serie D": 2,
+      "Jordan. Premier League": 2,
+      "Kenya. Premier League": 2,
+      "Kosovo. Superleague": 2,
+      "Kuwait. Premier League": 2,
+      "Latvia. Virsliga": 2,
+      "Malta. Premier League": 2,
       "Montenegro. Second League": 2,
-      "Myanmar Championship U20": 2,
-      "Paraguay. Division Intermedia": 2,
-      "Portugal Championship U23": 2,
-      "Thailand Championship U21": 2,
-      "Afghanistan. Champions League": 1,
-      "Algeria. Ligue 1": 1,
-      "Argentina. Primera B Metropolitana. Reserve League": 1,
+      "Mozambique Championship": 2,
+      "Netherlands. Division 2 U21": 2,
+      "Nicaragua Championship": 2,
+      "Norway. Division 3. Group 3": 2,
+      "Norway. Division 3. Group 5": 2,
+      "Norway. Eliteserien": 2,
+      "Oman Professional League": 2,
+      "Qatar Championship": 2,
+      "Republic of North Macedonia. First League": 2,
+      "Romania. Liga 1": 2,
+      "Russian Championship. League 2. Division A. Gold": 2,
+      "Serbia. 1st League": 2,
+      "Serbia. SuperLiga": 2,
+      "Slovenia. League 1": 2,
+      "South Africa. Diski Challenge": 2,
+      "South Korea. K League 1": 2,
+      "Spain. Segunda Division RFEF. Group 1": 2,
+      "Spain. Tercera Division RFEF. Group 10": 2,
+      "Spain. Tercera Division RFEF. Group 17": 2,
+      "Spain. Tercera Division RFEF. Group 8": 2,
+      "Spain. Tercera Division. Women": 2,
+      "Sweden. Division 2. Southern Gotaland": 2,
+      "Tanzania. Premier League": 2,
+      "UAE. Division 2": 2,
+      "UEFA European U19 Championship. Qualification. Women": 2,
+      "Uganda. Premier League": 2,
+      "Ukraine. First League": 2,
+      "Ukraine. Second League": 2,
+      "Uzbekistan. Professional League": 2,
+      "Algeria. Ligue 2": 1,
+      "Algerian Championship. Women": 1,
+      "Angola Championship": 1,
+      "Australia Cup": 1,
+      "Austria. NOFV. Landesliga": 1,
+      "Austria. Regionalliga North": 1,
       "Azerbaijan. Division 1": 1,
-      "Chile Cup": 1,
+      "Bangladesh. Premier League": 1,
+      "Bolivia. Primera Division": 1,
+      "Bosnia and Herzegovina. Premier League": 1,
+      "Brazil. Campeonato Carioca B": 1,
+      "Brazil. Campeonato Paraense A3": 1,
+      "Brazil. Copa do Brasil U20": 1,
+      "Brazil. Cup Santa-Catarina": 1,
+      "Brazil. Guanabara Cup U20": 1,
+      "Chile. Primera B": 1,
       "Club Friendlies": 1,
-      "Copa EFE. Women": 1,
-      "Czech Republic. 3 Liga": 1,
-      "Friendlies U19. National Teams": 1,
-      "Friendly Club Tournament": 1,
-      "India. Premier League. Shillong": 1,
-      "Ireland. National League": 1,
-      "Israel. Liga Alef. North": 1,
-      "Kenya. Qualification": 1,
-      "Nicaragua Championship": 1,
-      "Norway. Division 3. Group 5": 1,
-      "Norwegian Cup": 1,
-      "Peru. Copa de la Liga": 1,
-      "Slovenia. 2. SNL": 1,
-      "Spain. Segunda Division RFEF. Group 5": 1,
-      "Swedish Cup": 1,
-      "USA. MLS": 1,
-      "Uruguay. Primera Divisional C": 1,
-      "Wales. Championship. South": 1
+      "Colombia. Categoria Primera B": 1,
+      "Costa Rica. Primera Division. Women": 1,
+      "Costa Rica. Segunda Division": 1,
+      "Croatia. 3. NL": 1,
+      "Czech Republic. Liga 2. Women": 1,
+      "Denmark. Denmark Series": 1,
+      "Denmark. Superliga": 1,
+      "El Salvador. Primera Division": 1,
+      "England. Isthmian League. 1st Division. North": 1,
+      "England. Premier League 2": 1,
+      "Estonia. Esiliiga B": 1,
+      "Faroe Islands. Division 1": 1,
+      "Finland Championship U21": 1,
+      "Finland. Veikkausliiga": 1,
+      "France. Youth League": 1,
+      "Friendlies U19. National Teams. Women": 1,
+      "Georgia. League 3": 1,
+      "Georgia. National League 2": 1,
+      "Germany. Oberliga Mittelrhein": 1,
+      "Ghana. Premier League": 1,
+      "Greece. League 3": 1,
+      "Honduras. Liga Nacional": 1,
+      "Iran. Pro League": 1,
+      "Ireland. Leinster League": 1,
+      "Italy. Campionato Nazionale Primavera 4": 1,
+      "Japan. Regional League": 1,
+      "Jordan Cup": 1,
+      "Kosovo. Superleague U19": 1,
+      "Kyrgyzstan Championship. Higher League": 1,
+      "Lithuania Championship. League 2": 1,
+      "Lithuania. A Liga": 1,
+      "Malaysia. FA Cup": 1,
+      "Mexico Championship U19": 1,
+      "Mexico Championship U21": 1,
+      "Mexico. Liga Premier. Primera": 1,
+      "Moldova. Super Liga": 1,
+      "Mongolia. National Premier League": 1,
+      "Morocco. Botola": 1,
+      "Myanmar. Premier League": 1,
+      "Panama. Liga Panamena de Futbol": 1,
+      "Paraguay. Third Division": 1,
+      "Peru. Liga 1": 1,
+      "Poland Championship. Liga 5": 1,
+      "Republic of North Macedonia Championship U19": 1,
+      "Russia. Youth Championship. Division A": 1,
+      "Russian Championship. League 2. Division B. Group 2": 1,
+      "Saudi Arabia. Division 2": 1,
+      "Serbia Championship U19": 1,
+      "Singapore. Premier League": 1,
+      "South Africa. 2nd Division": 1,
+      "Spain. Primera Division RFEF. Group 1": 1,
+      "Spain. Segunda Division RFEF. Group 3": 1,
+      "Spain. Tercera Division RFEF. Group 1": 1,
+      "Spain. Tercera Division RFEF. Group 14": 1,
+      "Spain. Tercera Division RFEF. Group 16": 1,
+      "Spain. Tercera Division RFEF. Group 7": 1,
+      "Suriname Cup": 1,
+      "Switzerland. 2. Liga Interregional": 1,
+      "UAE Cup": 1,
+      "UEFA Youth League": 1,
+      "USA. USL. SuperLiga. Women": 1,
+      "Uruguay. Segunda Division": 1
     },
     "unmatched_teams": {
-      "BRASB: Associacao Atletica Ponte Preta": 1,
-      "BRASB: Esporte Clube Juventude": 1,
-      "BRASB: Goias Esporte Clube": 1,
-      "BRASB: Sport Club do Recife": 1,
-      "EPL2: Bristol City U21": 1,
-      "EPL2: Charlton Athletic U21": 1,
-      "EPL2: Colchester United U21": 1,
-      "EPL2: Coventry City U21": 1,
-      "EPL2: Hull City U21": 1,
-      "EPL2: Queens Park Rangers U21": 1,
-      "EPL2: Swansea City U21": 1,
-      "EPL2: Wigan Athletic U21": 1,
-      "INT_MEN: Algeria": 1,
-      "INT_MEN: Antigua And Barbuda": 1,
-      "INT_MEN: Argentina": 1,
-      "INT_MEN: Aruba": 1,
-      "INT_MEN: Bahamas": 1,
-      "INT_MEN: Belize": 1,
-      "INT_MEN: Benin": 1,
-      "INT_MEN: Canada": 1,
-      "INT_MEN: French Guiana": 1,
-      "INT_MEN: Montserrat": 1,
-      "INT_MEN: Niger": 1,
-      "INT_MEN: Republic of North Macedonia": 1,
-      "INT_MEN: Saint Martin": 1,
-      "INT_MEN: Saint Vincent and the Grenadines": 1,
-      "INT_MEN: Sint Maarten": 1,
-      "INT_MEN: Switzerland": 1,
-      "INT_MEN: Turks and Caicos Islands": 1,
-      "INT_MEN: USA": 1,
-      "PAR1: Club Olimpia": 1,
-      "PAR1: Club Rubio Nu": 1
+      "ARGBM: Atletico Camioneros": 1,
+      "ARGBM: Club Atletico Talleres Remedios de Escalada": 1,
+      "B1: S.K. Beveren": 1,
+      "D1: Paderborn 07": 1,
+      "D1: TSG 1899 Hoffenheim": 1,
+      "D2: Darmstadt 98": 1,
+      "D2: Dynamo Dresden": 1,
+      "D2: Hannover 96": 1,
+      "D2: Holstein": 1,
+      "D3: Rot-Weiss Essen": 1,
+      "D3: Sonnenhof": 1,
+      "D3: TSG 1899 Hoffenheim II": 1,
+      "DEN2: B.93 Copenhagen": 1,
+      "DEN2: Hellerup IK": 1,
+      "DEN2: Middelfart G&BK": 1,
+      "DEN3: Bronshoj": 1,
+      "DEN3: Holstebro": 1,
+      "DEN3: Horsholm-Usserod": 1,
+      "DEN3: Ishoj": 1,
+      "DEN3: Naesby": 1,
+      "DEN3: Sundby": 1,
+      "DEN3: Vanlose": 1,
+      "E0: Ipswich Town": 1,
+      "E1: Birmingham City": 1,
+      "E1: Blackburn Rovers": 1,
+      "E1: Bolton Wanderers": 1,
+      "E1: Cardiff City": 1,
+      "E1: Charlton Athletic": 1,
+      "E1: Derby County": 1,
+      "E1: Lincoln City": 1,
+      "E1: Norwich City": 1,
+      "E1: Preston North End": 1,
+      "E1: Queens Park Rangers": 1,
+      "E1: Stoke City": 1,
+      "E1: Swansea City": 1,
+      "E1: West Bromwich Albion": 1,
+      "E2: Bradford City": 1,
+      "E2: Burton Albion": 1,
+      "E2: Cambridge United": 1,
+      "E2: Doncaster Rovers": 1,
+      "E2: Huddersfield Town": 1,
+      "E2: Leicester City": 1,
+      "E2: Luton Town": 1,
+      "E2: Mansfield Town": 1,
+      "E2: Oxford United": 1,
+      "E2: Peterborough United": 1,
+      "E2: Plymouth Argyle": 1,
+      "E2: Sheffield Wednesday": 1,
+      "E2: Stockport County": 1,
+      "E2: Wigan Athletic": 1,
+      "E2: Wimbledon": 1,
+      "E2: Wycombe Wanderers": 1,
+      "E3: Accrington Stanley": 1,
+      "E3: Cheltenham Town": 1,
+      "E3: Colchester United": 1,
+      "E3: Crewe Alexandra": 1,
+      "E3: Exeter City": 1,
+      "E3: Grimsby Town": 1,
+      "E3: Northampton Town": 1,
+      "E3: Oldham Athletic": 1,
+      "E3: Rotherham United": 1,
+      "E3: Salford City": 1,
+      "E3: Shrewsbury Town": 1,
+      "E3: Swindon Town": 1,
+      "E3: Tranmere Rovers": 1,
+      "E3: York City": 1,
+      "EC: Aldershot Town": 1,
+      "EC: Carlisle United": 1,
+      "EC: Halifax Town": 1,
+      "EC: Harrogate Town": 1,
+      "EC: Kidderminster Harriers": 1,
+      "EC: Scunthorpe United": 1,
+      "EC: Solihull Moors": 1,
+      "EC: Southend United": 1,
+      "EC: Sutton United": 1,
+      "EC: Yeovil Town": 1,
+      "F2: En Avant de Guingamp": 1,
+      "F2: Grenoble Foot 38": 1,
+      "F2: Montpellier HSC": 1,
+      "F2: Red Star Saint-Ouen": 1,
+      "F2: Sochaux-Montbeliard": 1,
+      "F2: Stade Lavallois": 1,
+      "F2: Stade de Reims": 1,
+      "FINY: Ekenas": 1,
+      "FINY: PK-35 Helsinki": 1,
+      "GRLB: 1. Schweinfurt 05": 1,
+      "GRLB: Aubstadt": 1,
+      "GRLB: Landsberg": 1,
+      "GRLB: Wacker Burghausen": 1,
+      "GRLN: Hamburger II": 1,
+      "GRLNE: Berliner Dynamo": 1,
+      "GRLNE: Hertha II": 1,
+      "GRLSW: 08 Homburg": 1,
+      "GRLSW: 1. FSV Mainz 05 II": 1,
+      "GRLSW: 1. Kaiserslautern II": 1,
+      "GRLSW: VfR Aalen": 1,
+      "I2: Ascoli Calcio 1898": 1,
+      "I2: Benevento Calcio": 1,
+      "I2: Vicenza Calcio": 1,
+      "MEX1: Deportivo Toluca": 1,
+      "MEX1: Tigres de la UANL": 1,
+      "MEX2: Tepatitlan de Morelos": 1,
+      "N2: AFC Ajax II": 1,
+      "N2: AZ Alkmaar II": 1,
+      "N2: Den Bosch": 1,
+      "N2: Eindhoven": 1,
+      "N2: Emmen": 1,
+      "N2: Oss": 1,
+      "N2: PSV Eindhoven II": 1,
+      "N2: Utrecht II": 1,
+      "N2: Volendam": 1,
+      "N2: Waalwijk": 1,
+      "NIRP: Limavady United": 1,
+      "NOR3: Hinna": 1,
+      "NOR3: Kvik Trondheim": 1,
+      "P1: Braga": 1,
+      "P1: Sporting Clube de Portugal": 1,
+      "PRFEF2: Aguilas": 1,
+      "PRFEF2: Gimnastic de Tarragona": 1,
+      "PRFEF2: Huesca": 1,
+      "PRFEF2: Real Madrid II": 1,
+      "SC1: Dunfermline Athletic": 1,
+      "SC1: Partick Thistle": 1,
+      "SC2: Airdrieonians": 1,
+      "SC2: Alloa Athletic": 1,
+      "SC2: Hamilton Academical": 1,
+      "SC2: Queen of the South": 1,
+      "SC3: Edinburgh FC": 1,
+      "SC3: Elgin City": 1,
+      "SC3: Forfar Athletic": 1,
+      "SC3: Stirling Albion": 1,
+      "SP1: Athletic Bilbao": 1,
+      "SP1: Atletico Madrid": 1,
+      "SP1: Rayo Vallecano": 1,
+      "SP2: AD Ceuta": 1
     },
-    "value_matches": 0,
-    "value_picks": 0,
+    "value_matches": 52,
+    "value_picks": 232,
     "policy_version": "fc-market-catalog-v3-direction",
-    "forecast_matches": 16,
-    "forecast_count": 64,
+    "forecast_matches": 100,
+    "forecast_count": 532,
     "official_enabled": false,
     "official_reason": "MODEL_NOT_VALIDATED",
     "training_data": {
-      "BRASB": {
-        "last_result_at": 1790148600,
+      "ARGBM": {
+        "last_result_at": 1789966800,
         "source_files": [
-          "BRASB_2526_dayfeed.csv",
-          "BRASB_2627_dayfeed.csv"
+          "ARGBM_2526_dayfeed.csv",
+          "ARGBM_2627_dayfeed.csv"
         ],
         "refresh": {
           "status": "skipped",
@@ -155,11 +544,44 @@
           "reason": "NON_FOOTBALL_DATA_SOURCE"
         }
       },
-      "EPL2": {
-        "last_result_at": 1790031600,
+      "B1": {
+        "last_result_at": 1789935300,
         "source_files": [
-          "EPL2_2526_dayfeed.csv",
-          "EPL2_2627_dayfeed.csv"
+          "B1_2526.csv",
+          "B1_2627_live_scores.csv"
+        ],
+        "refresh": {
+          "status": "cached",
+          "season": "2627"
+        }
+      },
+      "D1": {
+        "last_result_at": 1789936200,
+        "source_files": [
+          "D1_2526.csv",
+          "D1_2627_live_scores.csv"
+        ],
+        "refresh": {
+          "status": "cached",
+          "season": "2627"
+        }
+      },
+      "D2": {
+        "last_result_at": 1789914600,
+        "source_files": [
+          "D2_2526.csv",
+          "D2_2627_live_scores.csv"
+        ],
+        "refresh": {
+          "status": "cached",
+          "season": "2627"
+        }
+      },
+      "D3": {
+        "last_result_at": 1789939800,
+        "source_files": [
+          "D3_2526_dayfeed.csv",
+          "D3_2627_dayfeed.csv"
         ],
         "refresh": {
           "status": "skipped",
@@ -167,19 +589,394 @@
           "reason": "NON_FOOTBALL_DATA_SOURCE"
         }
       },
-      "INT_MEN": {
-        "last_result_at": 1787788800,
+      "DEN2": {
+        "last_result_at": 1789916400,
         "source_files": [
-          "international_results.csv"
+          "DEN2_2526_dayfeed.csv",
+          "DEN2_2627_dayfeed.csv"
         ],
-        "training_matches": 2436,
-        "neutral_excluded_matches": 1301
+        "refresh": {
+          "status": "skipped",
+          "season": "2627",
+          "reason": "NON_FOOTBALL_DATA_SOURCE"
+        }
       },
-      "PAR1": {
-        "last_result_at": 1789972200,
+      "DEN3": {
+        "last_result_at": 1789833600,
         "source_files": [
-          "PAR1_2526_dayfeed.csv",
-          "PAR1_2627_dayfeed.csv"
+          "DEN3_2526_dayfeed.csv",
+          "DEN3_2627_dayfeed.csv"
+        ],
+        "refresh": {
+          "status": "skipped",
+          "season": "2627",
+          "reason": "NON_FOOTBALL_DATA_SOURCE"
+        }
+      },
+      "E0": {
+        "last_result_at": 1789932600,
+        "source_files": [
+          "E0_2425.csv",
+          "E0_2526.csv",
+          "E0_2627_live_scores.csv"
+        ],
+        "refresh": {
+          "status": "cached",
+          "season": "2627"
+        }
+      },
+      "E1": {
+        "last_result_at": 1789921800,
+        "source_files": [
+          "E1_2526.csv",
+          "E1_2627_live_scores.csv"
+        ],
+        "refresh": {
+          "status": "cached",
+          "season": "2627"
+        }
+      },
+      "E2": {
+        "last_result_at": 1791050400,
+        "source_files": [
+          "E2_2526.csv",
+          "E2_2627_live_scores.csv"
+        ],
+        "refresh": {
+          "status": "cached",
+          "season": "2627"
+        }
+      },
+      "E3": {
+        "last_result_at": 1791050400,
+        "source_files": [
+          "E3_2526.csv",
+          "E3_2627_live_scores.csv"
+        ],
+        "refresh": {
+          "status": "cached",
+          "season": "2627"
+        }
+      },
+      "EC": {
+        "last_result_at": 1791050400,
+        "source_files": [
+          "EC_2526.csv",
+          "EC_2627_live_scores.csv"
+        ],
+        "refresh": {
+          "status": "cached",
+          "season": "2627"
+        }
+      },
+      "F1": {
+        "last_result_at": 1789940700,
+        "source_files": [
+          "F1_2526.csv",
+          "F1_2627_live_scores.csv"
+        ],
+        "refresh": {
+          "status": "cached",
+          "season": "2627"
+        }
+      },
+      "F2": {
+        "last_result_at": 1789851600,
+        "source_files": [
+          "F2_2526.csv",
+          "F2_2627_live_scores.csv"
+        ],
+        "refresh": {
+          "status": "cached",
+          "season": "2627"
+        }
+      },
+      "FINY": {
+        "last_result_at": 1789840800,
+        "source_files": [
+          "FINY_2526_dayfeed.csv",
+          "FINY_2627_dayfeed.csv"
+        ],
+        "refresh": {
+          "status": "skipped",
+          "season": "2627",
+          "reason": "NON_FOOTBALL_DATA_SOURCE"
+        }
+      },
+      "GRLB": {
+        "last_result_at": 1789923600,
+        "source_files": [
+          "GRLB_2526_dayfeed.csv",
+          "GRLB_2627_dayfeed.csv"
+        ],
+        "refresh": {
+          "status": "skipped",
+          "season": "2627",
+          "reason": "NON_FOOTBALL_DATA_SOURCE"
+        }
+      },
+      "GRLN": {
+        "last_result_at": 1789927200,
+        "source_files": [
+          "GRLN_2526_dayfeed.csv",
+          "GRLN_2627_dayfeed.csv"
+        ],
+        "refresh": {
+          "status": "skipped",
+          "season": "2627",
+          "reason": "NON_FOOTBALL_DATA_SOURCE"
+        }
+      },
+      "GRLNE": {
+        "last_result_at": 1789935300,
+        "source_files": [
+          "GRLNE_2526_dayfeed.csv",
+          "GRLNE_2627_dayfeed.csv"
+        ],
+        "refresh": {
+          "status": "skipped",
+          "season": "2627",
+          "reason": "NON_FOOTBALL_DATA_SOURCE"
+        }
+      },
+      "GRLSW": {
+        "last_result_at": 1790370000,
+        "source_files": [
+          "GRLSW_2526_dayfeed.csv",
+          "GRLSW_2627_dayfeed.csv"
+        ],
+        "refresh": {
+          "status": "skipped",
+          "season": "2627",
+          "reason": "NON_FOOTBALL_DATA_SOURCE"
+        }
+      },
+      "I1": {
+        "last_result_at": 1789940700,
+        "source_files": [
+          "I1_2526.csv",
+          "I1_2627_live_scores.csv"
+        ],
+        "refresh": {
+          "status": "cached",
+          "season": "2627"
+        }
+      },
+      "I2": {
+        "last_result_at": 1789936200,
+        "source_files": [
+          "I2_2526.csv",
+          "I2_2627_live_scores.csv"
+        ],
+        "refresh": {
+          "status": "cached",
+          "season": "2627"
+        }
+      },
+      "IRL0": {
+        "last_result_at": 1789861500,
+        "source_files": [
+          "IRL0_2526_dayfeed.csv",
+          "IRL0_2627_dayfeed.csv"
+        ],
+        "refresh": {
+          "status": "skipped",
+          "season": "2627",
+          "reason": "NON_FOOTBALL_DATA_SOURCE"
+        }
+      },
+      "IRL1": {
+        "last_result_at": 1789775100,
+        "source_files": [
+          "IRL1_2526_dayfeed.csv",
+          "IRL1_2627_dayfeed.csv"
+        ],
+        "refresh": {
+          "status": "skipped",
+          "season": "2627",
+          "reason": "NON_FOOTBALL_DATA_SOURCE"
+        }
+      },
+      "J2": {
+        "last_result_at": 1789880400,
+        "source_files": [
+          "J2_2526_dayfeed.csv",
+          "J2_2627_dayfeed.csv"
+        ],
+        "refresh": {
+          "status": "skipped",
+          "season": "2627",
+          "reason": "NON_FOOTBALL_DATA_SOURCE"
+        }
+      },
+      "MEX1": {
+        "last_result_at": 1789999800,
+        "source_files": [
+          "MEX1_2526_dayfeed.csv",
+          "MEX1_2627_dayfeed.csv"
+        ],
+        "refresh": {
+          "status": "skipped",
+          "season": "2627",
+          "reason": "NON_FOOTBALL_DATA_SOURCE"
+        }
+      },
+      "MEX2": {
+        "last_result_at": 1790341200,
+        "source_files": [
+          "MEX2_2526_dayfeed.csv",
+          "MEX2_2627_dayfeed.csv"
+        ],
+        "refresh": {
+          "status": "skipped",
+          "season": "2627",
+          "reason": "NON_FOOTBALL_DATA_SOURCE"
+        }
+      },
+      "N1": {
+        "last_result_at": 1789926300,
+        "source_files": [
+          "N1_2526.csv",
+          "N1_2627_live_scores.csv"
+        ],
+        "refresh": {
+          "status": "cached",
+          "season": "2627"
+        }
+      },
+      "N2": {
+        "last_result_at": 1789929900,
+        "source_files": [
+          "N2_2526_dayfeed.csv",
+          "N2_2627_dayfeed.csv"
+        ],
+        "refresh": {
+          "status": "skipped",
+          "season": "2627",
+          "reason": "NON_FOOTBALL_DATA_SOURCE"
+        }
+      },
+      "NIRP": {
+        "last_result_at": 1789855200,
+        "source_files": [
+          "NIRP_2526_dayfeed.csv",
+          "NIRP_2627_dayfeed.csv"
+        ],
+        "refresh": {
+          "status": "skipped",
+          "season": "2627",
+          "reason": "NON_FOOTBALL_DATA_SOURCE"
+        }
+      },
+      "NOR3": {
+        "last_result_at": 1790105400,
+        "source_files": [
+          "NOR3_2526_dayfeed.csv",
+          "NOR3_2627_dayfeed.csv"
+        ],
+        "refresh": {
+          "status": "skipped",
+          "season": "2627",
+          "reason": "NON_FOOTBALL_DATA_SOURCE"
+        }
+      },
+      "P1": {
+        "last_result_at": 1789947000,
+        "source_files": [
+          "P1_2526.csv",
+          "P1_2627_live_scores.csv"
+        ],
+        "refresh": {
+          "status": "cached",
+          "season": "2627"
+        }
+      },
+      "PRFEF2": {
+        "last_result_at": 1790204400,
+        "source_files": [
+          "PRFEF2_2526_dayfeed.csv",
+          "PRFEF2_2627_dayfeed.csv"
+        ],
+        "refresh": {
+          "status": "skipped",
+          "season": "2627",
+          "reason": "NON_FOOTBALL_DATA_SOURCE"
+        }
+      },
+      "SC1": {
+        "last_result_at": 1791050400,
+        "source_files": [
+          "historical/SC1_2324.csv",
+          "historical/SC1_2425.csv",
+          "SC1_2526.csv",
+          "SC1_2627_live_scores.csv"
+        ],
+        "refresh": {
+          "status": "cached",
+          "season": "2627"
+        }
+      },
+      "SC2": {
+        "last_result_at": 1791059400,
+        "source_files": [
+          "SC2_2526.csv",
+          "SC2_2627_live_scores.csv"
+        ],
+        "refresh": {
+          "status": "cached",
+          "season": "2627"
+        }
+      },
+      "SC3": {
+        "last_result_at": 1791050400,
+        "source_files": [
+          "SC3_2526.csv",
+          "SC3_2627_live_scores.csv"
+        ],
+        "refresh": {
+          "status": "cached",
+          "season": "2627"
+        }
+      },
+      "SCOHL": {
+        "last_result_at": 1789845300,
+        "source_files": [
+          "SCOHL_2526_dayfeed.csv",
+          "SCOHL_2627_dayfeed.csv"
+        ],
+        "refresh": {
+          "status": "skipped",
+          "season": "2627",
+          "reason": "NON_FOOTBALL_DATA_SOURCE"
+        }
+      },
+      "SP1": {
+        "last_result_at": 1789941600,
+        "source_files": [
+          "SP1_2526.csv",
+          "SP1_2627_live_scores.csv"
+        ],
+        "refresh": {
+          "status": "cached",
+          "season": "2627"
+        }
+      },
+      "SP2": {
+        "last_result_at": 1791235800,
+        "source_files": [
+          "SP2_2526.csv",
+          "SP2_2627_live_scores.csv"
+        ],
+        "refresh": {
+          "status": "cached",
+          "season": "2627"
+        }
+      },
+      "USL1": {
+        "last_result_at": 1790215200,
+        "source_files": [
+          "USL1_2526_dayfeed.csv",
+          "USL1_2627_dayfeed.csv"
         ],
         "refresh": {
           "status": "skipped",

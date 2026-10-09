@@ -1,6 +1,6 @@
 # FC model performance report (projections ledger)
 
-Digenerate: 2026-10-09T15:57:08.445099+00:00 · Ledger: 980 entri · Ter-grade: 345 · Pending: 635
+Digenerate: 2026-10-09T16:00:06.890490+00:00 · Ledger: 1972 entri · Ter-grade: 919 · Pending: 1053
 
 > Kinerja MODEL, bukan ROI. Tanpa odds/stake/lock. ROI tetap hanya dari tracker.
 
@@ -8,23 +8,23 @@ Digenerate: 2026-10-09T15:57:08.445099+00:00 · Ledger: 980 entri · Ter-grade: 
 
 | Market | N decisif | Hit rate | Mean pred | Brier | Cal gap | W / HW / HL / L / Push |
 |---|---:|---:|---:|---:|---:|---|
-| 1x2 | 86 | 0.5814 | 0.5551 | 0.2249 | 0.0263 | 50 / 0 / 0 / 36 / 0 |
-| ah | 85 | 0.4824 | 0.4607 | 0.2328 | 0.016 | 27 / 14 / 11 / 33 / 1 |
-| btts | 86 | 0.5233 | 0.5538 | 0.2547 | -0.0305 | 45 / 0 / 0 / 41 / 0 |
-| ou | 82 | 0.5488 | 0.5351 | 0.2645 | -0.0179 | 36 / 9 / 3 / 34 / 5 |
-| **overall** | 339 | 0.5339 | 0.5262 | 0.2443 | -0.0016 | 158 / — / — / — / 6 |
+| 1x2 | 232 | 0.5819 | 0.5644 | 0.2341 | 0.0175 | 135 / 0 / 0 / 97 / 0 |
+| ah | 214 | 0.4486 | 0.4947 | 0.239 | -0.0736 | 70 / 26 / 22 / 96 / 14 |
+| btts | 229 | 0.4978 | 0.5667 | 0.2527 | -0.0689 | 114 / 0 / 0 / 115 / 0 |
+| ou | 225 | 0.5111 | 0.5497 | 0.2572 | -0.0497 | 93 / 22 / 17 / 93 / 5 |
+| **overall** | 900 | 0.5111 | 0.544 | 0.2457 | -0.0435 | 412 / — / — / — / 19 |
 
 ## Detail pick terbaru (20 terakhir ter-grade)
 
 | Match | Market | Pick | Prob | Hasil |
 |---|---|---|---:|---|
+| Ceara vs Criciuma | ah | AH Home +0.25 | 0.6428 | half_win |
+| Ceara vs Criciuma | ou | Over 2.25 | 0.4184 | loss |
 | Ceara vs Criciuma | btts | BTTS No | 0.5339 | win |
-| Ceara vs Criciuma | ou | Over 2 | 0.4031 | loss |
-| Ceara vs Criciuma | ah | AH Home -0.25 | 0.3948 | half_loss |
 | Ceara vs Criciuma | 1x2 | Home | 0.3948 | loss |
+| Shamrock Rovers vs Drogheda United | ah | AH Home -1.5 | 0.4226 | win |
 | Shamrock Rovers vs Drogheda United | btts | BTTS Yes | 0.4992 | win |
 | Shamrock Rovers vs Drogheda United | ou | Over 2.75 | 0.5602 | win |
-| Shamrock Rovers vs Drogheda United | ah | AH Home -1.25 | 0.3983 | win |
 | Shamrock Rovers vs Drogheda United | 1x2 | Home | 0.6412 | win |
 | Vila Nova vs Cuiaba | btts | BTTS Yes | 0.4522 | loss |
 | Vila Nova vs Cuiaba | ou | Over 2 | 0.4035 | loss |
