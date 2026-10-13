@@ -19,11 +19,17 @@ from .value import proportional_no_vig
 REFERENCE_VERSION = 'sharp-reference-v1'
 # Selection constants from the walk-forward replay; see docs/fc-sharp-reference-v5.md.
 REFERENCE_EV_GATE = 0.02
-REFERENCE_ODDS_FLOOR = 1.5
+REFERENCE_ODDS_FLOOR = 1.30
 REFERENCE_ODDS_CAP = 5.0
 # Larger apparent edges against a sharp book are stale or mismatched quotes.
 REFERENCE_EV_CAP = 0.25
 REFERENCE_MAX_AGE_SECONDS = 900
+# High-win tier: value picks the sharp book already rates >= 55% likely.
+# Replay (best market price vs Pinnacle fair): 68-71% hit, +21% ROI, +3% CLV
+# in both dev and test; at a single soft book they are rare.
+HIGH_WIN_MIN_PROBABILITY = 0.55
+# Line-movement lookback: earliest reference quote kept for open-vs-now.
+MOVEMENT_LOOKBACK_SECONDS = 3 * 86400
 
 _COMPLEMENTS = {
     '1x2': (('home', 'draw', 'away'),),
@@ -92,3 +98,25 @@ def reference_gate_reasons(odds, ev):
     if ev > REFERENCE_EV_CAP:
         reasons.append('REFERENCE_EDGE_IMPLAUSIBLE')
     return reasons
+
+
+def value_tier(reference_probability):
+    return 'high_win' if reference_probability >= HIGH_WIN_MIN_PROBABILITY else 'value'
+
+
+def reference_movement(observations, bookmaker):
+    """Earliest and latest no-vig probability per contract from one bookmaker.
+
+    Observations may be in any order. Returns {contract: (open, now)}. This is
+    recorded for prospective evaluation only: the replay showed the sharp
+    current price already contains the move, and backing a move after it
+    happened did not beat the closing line.
+    """
+    snapshots = sorted((obs for obs in observations
+                        if str(obs.get('bookmaker', '')).lower() == bookmaker.lower()),
+                       key=lambda obs: obs.get('captured_at') or 0)
+    if not snapshots:
+        return {}
+    first = fair_probabilities(latest_reference_quotes(snapshots, bookmaker))
+    last = fair_probabilities(latest_reference_quotes(list(reversed(snapshots)), bookmaker))
+    return {key: (first[key], last[key]) for key in last if key in first}

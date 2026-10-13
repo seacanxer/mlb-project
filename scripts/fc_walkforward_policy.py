@@ -394,7 +394,7 @@ def evaluate_main(path):
     # pre-match no-vig is the sharp reference; constants match sharp_reference.py.
     sharp_v5 = Policy('v5 sharp reference', goal_book='ps', novig_book='ps', price_book='b365',
                       market_weight=1.0, anchor={'1x2': 0.0, 'ou': 0.0, 'ah': 0.0, 'btts': 0.0},
-                      penalty=0.0, ev_gate=0.02, max_gap=1.0, odds_floor=1.5, odds_cap=5.0, ev_cap=0.25)
+                      penalty=0.0, ev_gate=0.02, max_gap=1.0, odds_floor=1.30, odds_cap=5.0, ev_cap=0.25)
     print('-- card forecasts (v4)')
     report(records, [live_v4], mode='card', boot=1000)
     print('-- value picks')

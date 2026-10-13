@@ -93,6 +93,10 @@ export interface FcPick {
   calibrated_prob: number | null;
   rank_score?: number;
   locked?: boolean;
+  /** Sharp-reference v5: 'high_win' when the sharp no-vig probability is >= 55%. */
+  value_tier?: 'high_win' | 'value' | null;
+  reference_probability?: number | null;
+  reference_move?: number | null;
   /** Engine provenance for secondary-market cards (see secondary_pick_payload). */
   uncertainty_status?: string;
   line_source?: string;

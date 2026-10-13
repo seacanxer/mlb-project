@@ -93,3 +93,35 @@ Six league-season jobs fail closed: the strict CSV loader rejects malformed arch
 - Football-Data prices have no capture timestamps. Bet365 is a proxy for 1xbit, and the replay covers 1X2, O/U 2.5 and the main AH line only (no BTTS or alternate lines).
 - Corner and card markets are not changed by this patch.
 - Official remains disabled.
+
+## v5.1 — high-win tier, line movement, lighter scan
+
+### High-win tier
+
+A value pick whose sharp no-vig probability is at least 55% gets the tier `value_tier=high_win`. It is ranked first and shown as HIGH-WIN in the pick table. The rule itself is unchanged: price beats sharp fair by ≥ 2%. The odds floor is lowered to 1.30 so favourites can qualify.
+
+| Price used in the replay | Tier | Dev | Test |
+| --- | --- | --- | --- |
+| Best market price (Max) vs Pinnacle | high_win | 128 picks, 70.6% hit, +21.5% ROI, CLV +3.0% | 57 picks, 69.1% hit, +21.2% ROI, CLV +2.8% |
+| Best market price (Max) vs Pinnacle | value | 3,055 picks, 35.3% hit, +4.5% ROI | 1,489 picks, 31.9% hit, +1.2% ROI |
+| Bet365 vs Pinnacle | high_win | 10 picks, 80% hit | 13 picks, 64% hit |
+
+High win rate is real only together with a price edge. Simply backing favourites gives roughly zero ROI:
+- Pinnacle fair ≥ 70%: 80.6% hit, ROI +1.1% (dev) and +0.6% (test).
+- Pinnacle fair ≥ 60%: 72–73% hit, ROI +0.3% (dev) and -1.9% (test).
+
+A single soft book rarely beats Pinnacle on favourites, so this tier will be uncommon.
+
+### Line movement (Pinnacle open → close, 115,837 side-rows)
+
+- Betting a favourite **after** it steamed, at the closing price, lost: -0.5% to -7.7% ROI.
+- The same picks taken at the **opening** price earned +3.3% to +6.0%. This is closing-line value: the profit belongs to whoever bets before the move, not after.
+- The sharp current price already contains the move. v5 captures it by pricing against Pinnacle now.
+- Movement is logged as `reference_open_probability` and `reference_move` on every pick for prospective study. It does not gate picks.
+
+### Lighter scan
+
+- The flashscore fixture feed is downloaded once per 5 minutes instead of once per fixture.
+- The sharp reference is re-fetched per league once it is 10 minutes old, so long scans do not lose it.
+
+Repository weight: `betting-machine-fc/matches_detailed.json` (18 MB), `picks.json` and `config.json` are scanner outputs. Because they are tracked, every scan dirties the tree that `deploy.sh` refuses to deploy. Untracking them is recommended, but the next `git pull` on the VPS will delete the live copies until the following scan, so plan a scan right after the deploy. `football_formula_engine/artifacts/` (15 MB, 177 files) is Phase 4/5 research output and is not used by the scanner.

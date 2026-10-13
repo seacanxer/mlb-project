@@ -31,11 +31,22 @@ def _feed_rows(body):
             rows.append(fields)
     return rows
 
+FEED_TTL_SECONDS = 300
+_feed_cache = {'at': 0.0, 'rows': []}
+
+
+def _feed():
+    # One fixture feed download serves a whole scan instead of one per fixture.
+    if time.time() - _feed_cache['at'] > FEED_TTL_SECONDS:
+        _feed_cache['rows'] = _feed_rows(_get(FEED + 'f_1_0_8_en_1'))
+        _feed_cache['at'] = time.time()
+    return _feed_cache['rows']
+
+
 def discover_event(home, away, start_ts):
     date = datetime.fromtimestamp(float(start_ts), timezone.utc).strftime('%Y-%m-%d')
-    body = _get(FEED + 'f_1_0_8_en_1')
     candidates = []
-    for row in _feed_rows(body):
+    for row in _feed():
         rh, ra = _norm(row.get('AE')), _norm(row.get('FH'))
         if rh != _norm(home) or ra != _norm(away):
             continue

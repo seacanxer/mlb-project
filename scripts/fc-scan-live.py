@@ -50,8 +50,8 @@ from football_formula_engine.market_safety import (anchor_payout, MODEL_WEIGHTS,
 from football_formula_engine.live_quotes import QuoteJournal  # noqa: E402
 from football_formula_engine.second_source import collect as collect_second_source  # noqa: E402
 from football_formula_engine.sharp_reference import (REFERENCE_VERSION,  # noqa: E402
-    REFERENCE_MAX_AGE_SECONDS, fair_probabilities, latest_reference_quotes,
-    reference_gate_reasons)
+    REFERENCE_MAX_AGE_SECONDS, MOVEMENT_LOOKBACK_SECONDS, fair_probabilities,
+    latest_reference_quotes, reference_gate_reasons, reference_movement, value_tier)
 from football_formula_engine import reference_odds  # noqa: E402
 from football_formula_engine.catalog import POLICY_VERSION, select_markets, direction_counts  # noqa: E402
 from football_formula_engine.live_training import current_season, refresh_scores  # noqa: E402
@@ -69,6 +69,8 @@ DECISION_FORMULA_VERSION = 'fc-sharp-reference-v5'
 # for rollback; the walk-forward replay found it loses with negative CLV.
 DECISION_MODE = os.environ.get('FC_DECISION_MODE', 'sharp_reference')
 REFERENCE_BOOKMAKER = os.environ.get('FC_REFERENCE_BOOKMAKER', 'pinnacle')
+# Re-fetch a league's reference before it ages out of REFERENCE_MAX_AGE_SECONDS.
+REFERENCE_REFRESH_SECONDS = 600
 UNCERTAINTY_PENALTY = 0.02
 EV_GATE = 0.01
 ODDS_FLOOR = 1.6
@@ -788,6 +790,7 @@ def opp(payout, odds, no_vig_probs, *, gated=True, market=None, reference=None,
                 'payout': {key: getattr(payout, key) for key in ('full_win', 'half_win', 'push', 'half_loss', 'full_loss')},
                 'market_probability': no_vig_probs, 'reference_probability': reference,
                 'reference_bookmaker': REFERENCE_BOOKMAKER, 'gate_reasons': reasons,
+                'value_tier': value_tier(reference),
                 'raw_probability': raw_probability,
                 'raw_price_probability': raw_win / (raw_win + raw_loss) if raw_win + raw_loss else None,
                 'probability_adjustment': REFERENCE_VERSION,
@@ -1034,18 +1037,23 @@ def main(argv=()):
     reference_key = os.environ.get('FC_REFERENCE_ODDS_API_KEY') or second_key
     reference_status = {'mode': DECISION_MODE, 'bookmaker': REFERENCE_BOOKMAKER,
                         'status': 'NOT_CONFIGURED', 'leagues': {}, 'fixtures_priced': 0}
+    fixtures_by_code, reference_fetched_at = {}, {}
+
+    def refresh_reference(codes):
+        resolvers = {c: (lambda name, teams=teams_by_code[c]: match_team(name, teams)) for c in codes}
+        report = reference_odds.capture(
+            {c: fixtures_by_code[c] for c in codes}, resolvers, journal, api_key=reference_key,
+            bookmaker=REFERENCE_BOOKMAKER, regions=os.environ.get('FC_REFERENCE_REGIONS', 'eu'))
+        reference_status['leagues'].update(report)
+        for c in codes:
+            reference_fetched_at[c] = time.time()
+
     if DECISION_MODE == 'sharp_reference' and reference_key:
-        fixtures_by_code = {}
         for fixture in future:
             fixture_code = model_code(fixture['info'].get('league'))
             if fixture_code in teams_by_code and fixture_code != NATIONAL_CODE:
                 fixtures_by_code.setdefault(fixture_code, []).append(fixture['info'])
-        resolvers = {fixture_code: (lambda name, teams=teams_by_code[fixture_code]: match_team(name, teams))
-                     for fixture_code in fixtures_by_code}
-        reference_status['leagues'] = reference_odds.capture(
-            fixtures_by_code, resolvers, journal, api_key=reference_key,
-            bookmaker=REFERENCE_BOOKMAKER,
-            regions=os.environ.get('FC_REFERENCE_REGIONS', 'eu'))
+        refresh_reference(sorted(fixtures_by_code))
         reference_status['status'] = 'CONFIGURED'
     seen_national_fixtures = set()
     secondary_data = {}
@@ -1169,6 +1177,8 @@ def main(argv=()):
             skipped[key] = skipped.get(key, 0) + 1
             m['analysis']['reason_codes'] = list(proj.reason_codes) or ['PROJECTION_BLOCKED']
             continue
+        if code in reference_fetched_at and time.time() - reference_fetched_at[code] > REFERENCE_REFRESH_SECONDS:
+            refresh_reference([code])
         decision_at = time.time()
         if decision_at >= float(info['start_ts']) or decision_at - captured_at > 300:
             skipped['QUOTE_EXPIRED'] = skipped.get('QUOTE_EXPIRED', 0) + 1
@@ -1181,15 +1191,22 @@ def main(argv=()):
         # The market component already represents low-score pricing, so do not
         # apply the historical Dixon-Coles rho a second time after pooling.
         decision_distribution = build_score_matrix(blended_home, blended_away, 0.0)
-        reference_fair = None
+        reference_fair, movement = None, {}
         if DECISION_MODE == 'sharp_reference':
             reference_fair = fair_probabilities(latest_reference_quotes(
                 journal.as_of(info['match_id'], decision_at,
                               max_age_seconds=REFERENCE_MAX_AGE_SECONDS),
                 REFERENCE_BOOKMAKER))
+            movement = reference_movement(journal.as_of(
+                info['match_id'], decision_at, max_age_seconds=MOVEMENT_LOOKBACK_SECONDS),
+                REFERENCE_BOOKMAKER)
             reference_status['fixtures_priced'] += bool(reference_fair)
         opportunities = price_fixture(decision_distribution, mk, gated=False,
                                       reference_fair=reference_fair)
+        for _market, _label, o in opportunities:
+            opened, current = movement.get((_market, o['side'], o['line_quarters']), (None, None))
+            o['reference_open_probability'] = opened
+            o['reference_move'] = current - opened if opened is not None else None
         m['analysis']['secondary_markets'] = secondary_analysis(info, secondary_data,
             {'home': blended_home, 'away': blended_away}, book=secondary_book)
         if code == NATIONAL_CODE:
@@ -1256,6 +1273,11 @@ def main(argv=()):
                 'reference_probability': (round(o['reference_probability'], 4)
                                           if o.get('reference_probability') is not None else None),
                 'reference_bookmaker': o.get('reference_bookmaker'),
+                'value_tier': o.get('value_tier'),
+                'reference_open_probability': (round(o['reference_open_probability'], 4)
+                                               if o.get('reference_open_probability') is not None else None),
+                'reference_move': (round(o['reference_move'], 4)
+                                   if o.get('reference_move') is not None else None),
                 'decision_mode': DECISION_MODE,
                 'edge_pct': round(1 / o['fair_odds'] - o['market_probability'], 4),
                 'formula_version': DECISION_FORMULA_VERSION,
@@ -1279,7 +1301,9 @@ def main(argv=()):
         if national_key and forecasts:
             seen_national_fixtures.add(national_key)
         m['market_options'] = [row_payload(row) for row in opportunities]
-        ranked_value = sorted(value_rows, key=lambda r: r[2]['conservative_ev'], reverse=True)
+        # High-win tier first, then expected value.
+        ranked_value = sorted(value_rows, key=lambda r: (r[2].get('value_tier') == 'high_win',
+                                                         r[2]['conservative_ev']), reverse=True)
         kept_value = ranked_value[:1]
         if len(ranked_value) > 1 and ranked_value[1][2]['conservative_ev'] >= SECOND_PICK_MIN_CEV:
             kept_value.append(ranked_value[1])

@@ -149,3 +149,28 @@ def test_capture_records_reference_quotes_readable_by_the_scanner(tmp_path):
     assert set(fair) == {('1x2', 'home', None), ('1x2', 'draw', None), ('1x2', 'away', None),
                          ('ou', 'over', 10), ('ou', 'under', 10),
                          ('ah', 'home', -2), ('ah', 'away', 2)}
+
+
+def test_high_win_tier_and_low_odds_floor():
+    from football_formula_engine.sharp_reference import value_tier
+    payout = PayoutProbabilities(full_win=.6, full_loss=.4)
+    fav = SCAN['opp'](payout, 1.40, .70, market='1x2', reference=.74, reference_mode=True)
+    assert fav is not None and fav['value_tier'] == 'high_win'      # 1.40 now inside floor 1.30
+    dog = SCAN['opp'](payout, 3.40, .28, market='1x2', reference=.31, reference_mode=True)
+    assert dog['value_tier'] == 'value'
+    assert value_tier(.55) == 'high_win' and value_tier(.549) == 'value'
+    assert SCAN['opp'](payout, 1.25, .8, market='1x2', reference=.9, reference_mode=True) is None
+
+
+def test_reference_movement_reports_open_and_current_fair():
+    from football_formula_engine.sharp_reference import reference_movement
+
+    def obs(at, home, draw, away, book='pinnacle'):
+        return {'bookmaker': book, 'captured_at': at, 'quotes': [
+            {'market': '1x2', 'side': s, 'line_quarters': None, 'decimal_odds': o}
+            for s, o in (('home', home), ('draw', draw), ('away', away))]}
+    moves = reference_movement([obs(3, 1.80, 3.8, 4.6), obs(1, 2.10, 3.4, 3.7),
+                                obs(2, 1.50, 4.0, 7.0, book='1xbit')], 'pinnacle')
+    opened, now = moves[('1x2', 'home', None)]
+    assert now > opened                       # home steamed from 2.10 to 1.80
+    assert reference_movement([], 'pinnacle') == {}

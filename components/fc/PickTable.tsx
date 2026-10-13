@@ -140,7 +140,7 @@ export function PickTable({ picks }: { picks: FcPick[] }) {
                 </td>
                 <td className="mono-val" style={{ fontSize: '0.8rem' }}>{formatKickoffWIB(p.start_ts)}</td>
                 <td><MarketBadge market={p.market} /></td>
-                <td style={{ fontWeight: 600 }}>{p.pick ?? NULL_GLYPH}</td>
+                <td style={{ fontWeight: 600 }}>{p.pick ?? NULL_GLYPH}{p.value_tier === 'high_win' ? <span className="muted" style={{ fontSize: '0.7rem', marginLeft: 6 }}>HIGH-WIN</span> : null}</td>
                 <td className="mono-val">{formatOdds(p.odds)}</td>
                 <td className="mono-val">{formatProb(p.probability)}</td>
                 <td className="mono-val">{formatEv(p.ev)}</td>
@@ -171,7 +171,7 @@ export function PickCards({ picks }: { picks: FcPick[] }) {
             <h3 className="fc-card-match">{p.match ?? NULL_GLYPH}</h3>
             <p className="muted fc-card-league">{p.league ?? NULL_GLYPH} · {formatKickoffWIB(p.start_ts)}</p>
             <dl className="fc-card-grid">
-              <div><dt>Pick</dt><dd>{p.pick ?? NULL_GLYPH}</dd></div>
+              <div><dt>Pick</dt><dd>{p.pick ?? NULL_GLYPH}{p.value_tier === 'high_win' ? ' · HIGH-WIN' : ''}</dd></div>
               <div><dt>Odds</dt><dd className="mono-val">{formatOdds(p.odds)}</dd></div>
               <div><dt>Prob</dt><dd className="mono-val">{formatProb(p.probability)}</dd></div>
               <div><dt>EV</dt><dd className="mono-val">{formatEv(p.ev)}</dd></div>
