@@ -88,7 +88,15 @@ export interface PickQuery {
   offset?: number;
 }
 
-const ODDS_FLOOR_ABS = 1.6;
+const ODDS_FLOOR_ABS = 1.3;
+const SECONDARY_MARKETS = new Set(['corner_1x2', 'corners_ou', 'corner_hdp', 'cards_1x2', 'cards_hdp',
+  'cards_ou', 'team_cards_ou', 'red_card']);
+
+/** Engine-provided class, falling back to market type for rows from older scans. */
+export function pickClass(p: FcPick): string {
+  if (p.pick_class) return p.pick_class;
+  return SECONDARY_MARKETS.has(String(p.market)) ? 'secondary_display' : 'value_v5';
+}
 
 /** Picks mirrors engine GET /api/picks (future-only, filter/sort/paginate). */
 export function readPicks(q: PickQuery): PicksResponse {
@@ -108,7 +116,8 @@ export function readPicks(q: PickQuery): PicksResponse {
     return typeof p?.odds === 'number' && typeof p?.ev === 'number';
   });
 
-  const minOdds = Math.max(q.min_odds ?? 1.5, ODDS_FLOOR_ABS);
+  // v5 floor is 1.30 (sharp_reference.REFERENCE_ODDS_FLOOR); high-win favourites live in 1.30-1.50.
+  const minOdds = Math.max(q.min_odds ?? ODDS_FLOOR_ABS, ODDS_FLOOR_ABS);
   const market = (q.market ?? '').toLowerCase();
   const league = (q.league ?? '').toLowerCase();
   const search = (q.search ?? '').toLowerCase();
@@ -166,6 +175,9 @@ export function readPicks(q: PickQuery): PicksResponse {
       top_pick_count: filtered.filter((p) => p.is_top_pick).length,
 official_count: filtered.filter((p) => p.tier === 'official' && p.selection_status === 'official').length,
       watch_count: filtered.filter((p) => p.tier === 'watch').length,
+      value_v5_count: filtered.filter((p) => pickClass(p) === 'value_v5').length,
+      reference_only_count: filtered.filter((p) => pickClass(p) === 'reference_only').length,
+      secondary_display_count: filtered.filter((p) => pickClass(p) === 'secondary_display').length,
       formula_version: formulaVersion(cfg),
       avg_ev_pct: Math.round(avg(filtered.map((p) => p.ev ?? 0)) * 10000) / 100,
       avg_odds: Math.round(avg(filtered.map((p) => p.odds ?? 0)) * 1000) / 1000,

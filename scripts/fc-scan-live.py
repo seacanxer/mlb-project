@@ -51,7 +51,8 @@ from football_formula_engine.live_quotes import QuoteJournal  # noqa: E402
 from football_formula_engine.second_source import collect as collect_second_source  # noqa: E402
 from football_formula_engine.sharp_reference import (REFERENCE_VERSION,  # noqa: E402
     REFERENCE_MAX_AGE_SECONDS, MOVEMENT_LOOKBACK_SECONDS, fair_probabilities,
-    latest_reference_quotes, reference_gate_reasons, reference_movement, value_tier)
+    latest_reference_quotes, quotes_to_markets, reference_gate_reasons, reference_movement,
+    value_tier)
 from football_formula_engine import reference_odds  # noqa: E402
 from football_formula_engine.catalog import POLICY_VERSION, select_markets, direction_counts  # noqa: E402
 from football_formula_engine.live_training import current_season, refresh_scores  # noqa: E402
@@ -71,6 +72,13 @@ DECISION_MODE = os.environ.get('FC_DECISION_MODE', 'sharp_reference')
 REFERENCE_BOOKMAKER = os.environ.get('FC_REFERENCE_BOOKMAKER', 'pinnacle')
 # Re-fetch a league's reference before it ages out of REFERENCE_MAX_AGE_SECONDS.
 REFERENCE_REFRESH_SECONDS = 600
+# Competitions without a validated goal model (UCL, UEL, ...) or whose domestic
+# model cannot project a fixture are priced against the sharp reference only.
+# The replay's v5 policy itself used market-implied goals, not the DC model.
+REFERENCE_ONLY_FORMULA_VERSION = 'fc-reference-only-v1'
+REFERENCE_ONLY_MODEL_STATUS = 'UNVALIDATED_REFERENCE_ONLY'
+# Domestic projection failures that may fall back to the reference-only lane.
+REFERENCE_FALLBACK_REASONS = ('MODEL_UNAVAILABLE', 'TEAM_COVERAGE_MISSING', 'PROJECTION_BLOCKED')
 UNCERTAINTY_PENALTY = 0.02
 EV_GATE = 0.01
 ODDS_FLOOR = 1.6
@@ -688,7 +696,7 @@ def secondary_pick_payload(info, offer, observation, captured_at, decision_at, c
         'selection_status': 'watch', 'decision': 'watch', 'tier': 'watch',
         'is_top_pick': False, 'calibrated_prob': None,
         'rank_score': round((ev if ev is not None else probability) * 100, 2), 'locked': False,
-        'analysis_status': 'projection',
+        'analysis_status': 'projection', 'pick_class': 'secondary_display',
         'gate_reasons': reasons,
         'official_eligible': False,
         'quote_provider': '1xbit' if priced else None, 'quote_is_closing': False,
@@ -949,6 +957,7 @@ def main(argv=()):
         return 1
     now = time.time()
     fresh = {}
+    artifact_rows = 0
     for v in rows:
         try:
             mid = str(v.get('I'))
@@ -956,6 +965,9 @@ def main(argv=()):
         except (TypeError, ValueError):
             continue
         if not mid or start <= now:
+            continue
+        if reference_odds.is_market_artifact(v.get('L')):
+            artifact_rows += 1
             continue
         fresh[mid] = {
             'info': {'match_id': mid, 'home': v.get('O1'), 'away': v.get('O2'),
@@ -982,7 +994,7 @@ def main(argv=()):
             start = float(info.get('start_ts') or 0)
         except (TypeError, ValueError):
             continue
-        if start <= now:
+        if start <= now or reference_odds.is_market_artifact(info.get('league')):
             continue
         if mid in merged:
             for k in ('coverage_status', 'source'):
@@ -1037,23 +1049,37 @@ def main(argv=()):
     reference_key = os.environ.get('FC_REFERENCE_ODDS_API_KEY') or second_key
     reference_status = {'mode': DECISION_MODE, 'bookmaker': REFERENCE_BOOKMAKER,
                         'status': 'NOT_CONFIGURED', 'leagues': {}, 'fixtures_priced': 0}
-    fixtures_by_code, reference_fetched_at = {}, {}
+    reference_enabled = DECISION_MODE == 'sharp_reference' and bool(reference_key)
+    coverage = {'fixtures': len(future), 'artifact_rows': artifact_rows, 'model_lane': 0,
+                'reference_only_lane': 0, 'reference_fallback': 0, 'league_unavailable': 0,
+                'reference_missing': 0}
+    fixtures_by_sport, reference_fetched_at = {}, {}
 
-    def refresh_reference(codes):
-        resolvers = {c: (lambda name, teams=teams_by_code[c]: match_team(name, teams)) for c in codes}
+    def same_team_for(sport_key):
+        codes = [c for c, key in reference_odds.SPORT_KEYS.items() if key == sport_key and c in teams_by_code]
+        if not codes:
+            return None
+        teams = teams_by_code[codes[0]]
+        return lambda a, b: bool(match_team(a, teams)) and match_team(a, teams) == match_team(b, teams)
+
+    def refresh_reference(sport_keys):
         report = reference_odds.capture(
-            {c: fixtures_by_code[c] for c in codes}, resolvers, journal, api_key=reference_key,
-            bookmaker=REFERENCE_BOOKMAKER, regions=os.environ.get('FC_REFERENCE_REGIONS', 'eu'))
+            {k: fixtures_by_sport[k] for k in sport_keys}, journal, api_key=reference_key,
+            bookmaker=REFERENCE_BOOKMAKER, regions=os.environ.get('FC_REFERENCE_REGIONS', 'eu'),
+            same_team={k: same_team_for(k) for k in sport_keys})
         reference_status['leagues'].update(report)
-        for c in codes:
-            reference_fetched_at[c] = time.time()
+        for k in sport_keys:
+            reference_fetched_at[k] = time.time()
 
-    if DECISION_MODE == 'sharp_reference' and reference_key:
+    if reference_enabled:
         for fixture in future:
             fixture_code = model_code(fixture['info'].get('league'))
-            if fixture_code in teams_by_code and fixture_code != NATIONAL_CODE:
-                fixtures_by_code.setdefault(fixture_code, []).append(fixture['info'])
-        refresh_reference(sorted(fixtures_by_code))
+            if fixture_code == NATIONAL_CODE:
+                continue
+            sport_key = reference_odds.reference_sport_key(fixture['info'].get('league'), fixture_code)
+            if sport_key:
+                fixtures_by_sport.setdefault(sport_key, []).append(fixture['info'])
+        refresh_reference(sorted(fixtures_by_sport))
         reference_status['status'] = 'CONFIGURED'
     seen_national_fixtures = set()
     secondary_data = {}
@@ -1065,6 +1091,8 @@ def main(argv=()):
                          'policy_version': POLICY_VERSION, 'generated_at': now}
         info['coverage_status'] = 'market_only'
         code = model_code(info.get('league'))
+        sport_key = (reference_odds.reference_sport_key(info.get('league'), code)
+                     if code != NATIONAL_CODE else None)
         m['analysis']['secondary_markets'] = secondary_analysis(info, secondary_data)
         try:
             raw_book = sc.extract_secondary_markets(info['match_id']) if m['analysis']['secondary_markets'].get('availability') == 'B' else {}
@@ -1084,10 +1112,11 @@ def main(argv=()):
         m['analysis']['secondary_markets'] = secondary_analysis(info, secondary_data, book=secondary_book)
         m['analysis']['secondary_fetch'] = raw_book.get('secondary_fetch')
         m['analysis']['secondary_quote_captured_at'] = secondary_book['captured_at'].get('corners')
-        if not code:
+        if not code and not (sport_key and reference_enabled):
             m['analysis']['reason_codes'] = ['LEAGUE_MODEL_UNAVAILABLE']
             league_name = info.get('league') or 'Unknown league'
             unavailable_leagues[league_name] = unavailable_leagues.get(league_name, 0) + 1
+            coverage['league_unavailable'] += 1
             continue
         national_key = None
         if code == NATIONAL_CODE:
@@ -1143,64 +1172,117 @@ def main(argv=()):
                     second_matched += 1
             except Exception:
                 skipped['SECOND_SOURCE_FAILED'] = skipped.get('SECOND_SOURCE_FAILED', 0) + 1
-        if code not in models:
-            skipped['MODEL_UNAVAILABLE'] = skipped.get('MODEL_UNAVAILABLE', 0) + 1
-            m['analysis']['reason_codes'] = ['MODEL_UNAVAILABLE']
-            continue
-        if code == NATIONAL_CODE:
-            resolved = resolve_national_fixture(info.get('home'), info.get('away'), teams_by_code[code])
-            home_csv, away_csv = resolved if resolved else (None, None)
+
+        # Lane selection: domestic goal model when it can project this fixture,
+        # otherwise the reference-only lane when a sharp competition exists.
+        lane, lane_reason, artifact, proj = 'model', None, None, None
+        if not code:
+            lane = 'reference_only'
+        elif code not in models:
+            lane_reason = 'MODEL_UNAVAILABLE'
         else:
-            home_csv = match_team(info.get('home') or '', teams_by_code[code])
-            away_csv = match_team(info.get('away') or '', teams_by_code[code])
-        if not home_csv or not away_csv:
-            reason = 'TEAM_LOW_COVERAGE' if code == NATIONAL_CODE else 'TEAM_COVERAGE_MISSING'
-            skipped[reason] = skipped.get(reason, 0) + 1
-            m['analysis']['reason_codes'] = [reason]
-            for name, matched in ((info.get('home'), home_csv), (info.get('away'), away_csv)):
-                if not matched and name:
-                    key = f'{code}: {name}'
-                    unmatched_teams[key] = unmatched_teams.get(key, 0) + 1
-            continue
-        artifact = models[code]
-        season = ('2026' if code == NATIONAL_CODE else
-                  sorted(artifact['parameters']['season_effects'])[-1])
-        if code == NATIONAL_CODE:
-            home_id, away_id = ('intl-team-' + stable_id(home_csv),
-                                'intl-team-' + stable_id(away_csv))
-        else:
-            home_id, away_id = team_id(code, home_csv), team_id(code, away_csv)
-        proj = project_fixture(artifact, home_team_id=home_id,
-                               away_team_id=away_id, season=season)
-        if proj.distribution is None:
-            key = ','.join(proj.reason_codes) or 'PROJECTION_BLOCKED'
-            skipped[key] = skipped.get(key, 0) + 1
-            m['analysis']['reason_codes'] = list(proj.reason_codes) or ['PROJECTION_BLOCKED']
-            continue
-        if code in reference_fetched_at and time.time() - reference_fetched_at[code] > REFERENCE_REFRESH_SECONDS:
-            refresh_reference([code])
+            if code == NATIONAL_CODE:
+                resolved = resolve_national_fixture(info.get('home'), info.get('away'), teams_by_code[code])
+                home_csv, away_csv = resolved if resolved else (None, None)
+            else:
+                home_csv = match_team(info.get('home') or '', teams_by_code[code])
+                away_csv = match_team(info.get('away') or '', teams_by_code[code])
+            if not home_csv or not away_csv:
+                lane_reason = 'TEAM_LOW_COVERAGE' if code == NATIONAL_CODE else 'TEAM_COVERAGE_MISSING'
+                for name, matched in ((info.get('home'), home_csv), (info.get('away'), away_csv)):
+                    if not matched and name:
+                        key = f'{code}: {name}'
+                        unmatched_teams[key] = unmatched_teams.get(key, 0) + 1
+            else:
+                artifact = models[code]
+                season = ('2026' if code == NATIONAL_CODE else
+                          sorted(artifact['parameters']['season_effects'])[-1])
+                if code == NATIONAL_CODE:
+                    home_id, away_id = ('intl-team-' + stable_id(home_csv),
+                                        'intl-team-' + stable_id(away_csv))
+                else:
+                    home_id, away_id = team_id(code, home_csv), team_id(code, away_csv)
+                proj = project_fixture(artifact, home_team_id=home_id,
+                                       away_team_id=away_id, season=season)
+                if proj.distribution is None:
+                    lane_reason = ','.join(proj.reason_codes) or 'PROJECTION_BLOCKED'
+        if lane_reason:
+            fallback = (sport_key and reference_enabled and code != NATIONAL_CODE and
+                        (lane_reason in REFERENCE_FALLBACK_REASONS or proj is not None))
+            if not fallback:
+                skipped[lane_reason] = skipped.get(lane_reason, 0) + 1
+                m['analysis']['reason_codes'] = (list(proj.reason_codes) if proj is not None and proj.reason_codes
+                                                 else [lane_reason])
+                continue
+            lane = 'reference_only'
+            coverage['reference_fallback'] += 1
+            m['analysis']['model_fallback_reason'] = lane_reason
+        coverage['model_lane' if lane == 'model' else 'reference_only_lane'] += 1
+
+        if sport_key in reference_fetched_at and time.time() - reference_fetched_at[sport_key] > REFERENCE_REFRESH_SECONDS:
+            refresh_reference([sport_key])
         decision_at = time.time()
         if decision_at >= float(info['start_ts']) or decision_at - captured_at > 300:
             skipped['QUOTE_EXPIRED'] = skipped.get('QUOTE_EXPIRED', 0) + 1
             m['analysis']['reason_codes'] = ['QUOTE_EXPIRED']
             continue
-        market_goals = infer_market_goals(mk)
-        blended_home, blended_away = blend_goal_projection(
-            proj.lambda_home, proj.lambda_away, market_goals,
-            market_weight=MARKET_GOAL_WEIGHT)
-        # The market component already represents low-score pricing, so do not
-        # apply the historical Dixon-Coles rho a second time after pooling.
-        decision_distribution = build_score_matrix(blended_home, blended_away, 0.0)
-        reference_fair, movement = None, {}
+        reference_fair, movement, reference_quotes = None, {}, {}
         if DECISION_MODE == 'sharp_reference':
-            reference_fair = fair_probabilities(latest_reference_quotes(
+            reference_quotes = latest_reference_quotes(
                 journal.as_of(info['match_id'], decision_at,
                               max_age_seconds=REFERENCE_MAX_AGE_SECONDS),
-                REFERENCE_BOOKMAKER))
+                REFERENCE_BOOKMAKER)
+            reference_fair = fair_probabilities(reference_quotes)
             movement = reference_movement(journal.as_of(
                 info['match_id'], decision_at, max_age_seconds=MOVEMENT_LOOKBACK_SECONDS),
                 REFERENCE_BOOKMAKER)
             reference_status['fixtures_priced'] += bool(reference_fair)
+
+        if lane == 'reference_only':
+            if not reference_fair:
+                coverage['reference_missing'] += 1
+                skipped['REFERENCE_UNAVAILABLE'] = skipped.get('REFERENCE_UNAVAILABLE', 0) + 1
+                m['analysis'].update(reason_codes=['REFERENCE_UNAVAILABLE'], lane='reference_only',
+                                     model_status=REFERENCE_ONLY_MODEL_STATUS,
+                                     reference_sport_key=sport_key)
+                continue
+            # Score shape from the sharp book's own implied goals; 1xbit as fallback.
+            market_goals = (infer_market_goals(quotes_to_markets(reference_quotes))
+                            or infer_market_goals(mk))
+            if market_goals is None:
+                skipped['COMPLETE_MARKET_UNAVAILABLE'] = skipped.get('COMPLETE_MARKET_UNAVAILABLE', 0) + 1
+                m['analysis']['reason_codes'] = ['COMPLETE_MARKET_UNAVAILABLE']
+                continue
+            blended_home, blended_away = market_goals['home'], market_goals['away']
+            raw_goals = None
+            model_reasons = []
+            decision_mode = 'reference_only'
+            formula_version = REFERENCE_ONLY_FORMULA_VERSION
+            model_status = REFERENCE_ONLY_MODEL_STATUS
+            league_model = f'REF:{sport_key}'
+            lambda_source = 'sharp-reference-implied-goals'
+            pick_class = 'reference_only'
+        else:
+            market_goals = infer_market_goals(mk)
+            blended_home, blended_away = blend_goal_projection(
+                proj.lambda_home, proj.lambda_away, market_goals,
+                market_weight=MARKET_GOAL_WEIGHT)
+            raw_goals = {'home': proj.lambda_home, 'away': proj.lambda_away}
+            model_reasons = list(proj.reason_codes)
+            if code == NATIONAL_CODE:
+                model_reasons.extend(('NATIONAL_BASELINE_UNVALIDATED', 'NEUTRAL_VENUE_UNVERIFIED'))
+            last_result = MODEL_DATA_INFO.get(code, {}).get('last_result_at')
+            if last_result and now - last_result > 90 * 86400:
+                model_reasons.append('STALE_TRAINING_DATA')
+            decision_mode = DECISION_MODE
+            formula_version = DECISION_FORMULA_VERSION
+            model_status = 'DC_MODEL_UNVALIDATED'
+            league_model = code
+            lambda_source = 'historical-market-geometric-pool'
+            pick_class = 'value_v5' if DECISION_MODE == 'sharp_reference' else 'value_model_blend'
+        # The market component already represents low-score pricing, so do not
+        # apply the historical Dixon-Coles rho a second time after pooling.
+        decision_distribution = build_score_matrix(blended_home, blended_away, 0.0)
         opportunities = price_fixture(decision_distribution, mk, gated=False,
                                       reference_fair=reference_fair)
         for _market, _label, o in opportunities:
@@ -1209,7 +1291,7 @@ def main(argv=()):
             o['reference_move'] = current - opened if opened is not None else None
         m['analysis']['secondary_markets'] = secondary_analysis(info, secondary_data,
             {'home': blended_home, 'away': blended_away}, book=secondary_book)
-        if code == NATIONAL_CODE:
+        if code == NATIONAL_CODE and lane == 'model':
             reason = national_market_reason(opportunities)
             if reason:
                 skipped[reason] = skipped.get(reason, 0) + 1
@@ -1217,37 +1299,36 @@ def main(argv=()):
                 m['analysis']['reason_codes'] = [reason]
                 m['analysis']['league_model'] = code
                 continue
-        model_reasons = list(proj.reason_codes)
-        if code == NATIONAL_CODE:
-            model_reasons.extend(('NATIONAL_BASELINE_UNVALIDATED', 'NEUTRAL_VENUE_UNVERIFIED'))
-        last_result = MODEL_DATA_INFO.get(code, {}).get('last_result_at')
-        if last_result and now - last_result > 90 * 86400:
-            model_reasons.append('STALE_TRAINING_DATA')
         if model_reasons:
             for _market, _label, offer in opportunities:
                 offer['gate_reasons'].extend(model_reasons)
         forecasts, value_rows = select_markets(opportunities)
-        info['coverage_status'] = 'shadow' if model_reasons else 'full'
+        info['coverage_status'] = ('reference_only' if lane == 'reference_only'
+                                   else 'shadow' if model_reasons else 'full')
         m['analysis'].update(
-            status='ready' if forecasts else 'unavailable',
-            reason_codes=model_reasons if forecasts else ['NO_QUALIFIED_FORECAST'] if opportunities else ['COMPLETE_MARKET_UNAVAILABLE'],
-            model_data_as_of=last_result,
+            status='ready' if forecasts or opportunities else 'unavailable',
+            reason_codes=(model_reasons if forecasts else
+                          ['REFERENCE_NO_EDGE'] if opportunities and lane == 'reference_only' else
+                          ['NO_QUALIFIED_FORECAST'] if opportunities else ['COMPLETE_MARKET_UNAVAILABLE']),
+            lane=lane, model_status=model_status, decision_mode=decision_mode,
+            reference_sport_key=sport_key,
+            model_data_as_of=MODEL_DATA_INFO.get(code, {}).get('last_result_at') if lane == 'model' else None,
             model_goals={'home': blended_home, 'away': blended_away},
-            raw_model_goals={'home': proj.lambda_home, 'away': proj.lambda_away},
+            raw_model_goals=raw_goals,
             market_goal_anchor=market_goals,
-            goal_blend={'market_weight': MARKET_GOAL_WEIGHT,
-                        'method': 'geometric_pool_v1'},
-            model_artifact_id=artifact.get('artifact_id'),
-            model_training_cutoff=artifact['training']['cutoff_utc'],
-            league_model=code, quote_captured_at=captured_at,
-            formula_version=DECISION_FORMULA_VERSION,
-            base_formula_version=artifact.get('formula_version', FORMULA_VERSION),
+            goal_blend=({'market_weight': MARKET_GOAL_WEIGHT, 'method': 'geometric_pool_v1'}
+                        if lane == 'model' else {'market_weight': 1.0, 'method': 'sharp_reference_implied'}),
+            model_artifact_id=artifact.get('artifact_id') if artifact else None,
+            model_training_cutoff=artifact['training']['cutoff_utc'] if artifact else None,
+            league_model=league_model, quote_captured_at=captured_at,
+            formula_version=formula_version,
+            base_formula_version=artifact.get('formula_version', FORMULA_VERSION) if artifact else None,
             direction_counts=direction_counts(forecasts),
         )
         if not value_rows:
             skipped['NO_VALUE'] = skipped.get('NO_VALUE', 0) + 1
 
-        def row_payload(row):
+        def row_payload(row, row_class):
             market, label, o = row
             return {
                 'match_id': str(info['match_id']),
@@ -1278,14 +1359,16 @@ def main(argv=()):
                                                if o.get('reference_open_probability') is not None else None),
                 'reference_move': (round(o['reference_move'], 4)
                                    if o.get('reference_move') is not None else None),
-                'decision_mode': DECISION_MODE,
+                'decision_mode': decision_mode, 'model_status': model_status,
+                'pick_class': row_class,
                 'edge_pct': round(1 / o['fair_odds'] - o['market_probability'], 4),
-                'formula_version': DECISION_FORMULA_VERSION,
-                'base_formula_version': artifact.get('formula_version', FORMULA_VERSION),
+                'formula_version': formula_version,
+                'base_formula_version': (artifact.get('formula_version', FORMULA_VERSION)
+                                         if artifact else None),
                 'policy_version': POLICY_VERSION,
-                'lambda_source': 'historical-market-geometric-pool',
+                'lambda_source': lambda_source,
                 'coverage_status': info['coverage_status'],
-                'league_model': code, 'selection_status': 'watch', 'decision': 'watch',
+                'league_model': league_model, 'selection_status': 'watch', 'decision': 'watch',
                 'tier': 'watch', 'is_top_pick': False, 'calibrated_prob': None,
                 'rank_score': round(o['conservative_ev'] * 100, 2), 'locked': False,
                 'analysis_status': 'forecast' if o['gate_reasons'] else 'value_candidate',
@@ -1297,10 +1380,10 @@ def main(argv=()):
                 'primary_source': '1xbit',
             }
 
-        m['projections'] = [row_payload(row) for row in forecasts]
+        m['projections'] = [row_payload(row, 'forecast') for row in forecasts]
         if national_key and forecasts:
             seen_national_fixtures.add(national_key)
-        m['market_options'] = [row_payload(row) for row in opportunities]
+        m['market_options'] = [row_payload(row, 'market_option') for row in opportunities]
         # High-win tier first, then expected value.
         ranked_value = sorted(value_rows, key=lambda r: (r[2].get('value_tier') == 'high_win',
                                                          r[2]['conservative_ev']), reverse=True)
@@ -1312,8 +1395,10 @@ def main(argv=()):
             research = journal.record_research_decision(
                 observation['artifact_id'], {'market': market, 'side': o['side'],
                     'line_quarters': o['line_quarters'], 'decimal_odds': o['odds']},
-                decision_at=decision_at, policy_id=POLICY_VERSION, model=artifact)
-            item = row_payload(row)
+                decision_at=decision_at, policy_id=POLICY_VERSION,
+                model=artifact or {'lane': 'reference_only', 'formula_version': formula_version,
+                                   'reference_bookmaker': REFERENCE_BOOKMAKER})
+            item = row_payload(row, pick_class)
             item['research_decision_id'] = research['artifact_id']
             picks.append(item)
             m['qualified_picks'].append(item)
@@ -1380,7 +1465,8 @@ def main(argv=()):
                                     'second_source_fixtures_matched': second_matched,
                                     'decision_mode': DECISION_MODE,
                                     'decision_formula_version': DECISION_FORMULA_VERSION,
-                                    'sharp_reference': reference_status}
+                                    'sharp_reference': reference_status,
+                                    'coverage': coverage}
     atomic_write(config_path, cfg)
 
     print(json.dumps({

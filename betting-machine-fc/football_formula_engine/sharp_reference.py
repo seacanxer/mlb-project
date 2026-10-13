@@ -120,3 +120,14 @@ def reference_movement(observations, bookmaker):
     first = fair_probabilities(latest_reference_quotes(snapshots, bookmaker))
     last = fair_probabilities(latest_reference_quotes(list(reversed(snapshots)), bookmaker))
     return {key: (first[key], last[key]) for key in last if key in first}
+
+
+def quotes_to_markets(quotes):
+    """Reference quotes -> scanner market dict (1X2 and O/U only) for goal inference."""
+    markets = {'odds_1x2': {}, 'odds_ou': {}}
+    for (market, side, line), quote in quotes.items():
+        if market == '1x2':
+            markets['odds_1x2'][{'home': 1, 'draw': 2, 'away': 3}[side]] = quote['decimal_odds']
+        elif market == 'ou' and line is not None:
+            markets['odds_ou'].setdefault(str(line / 4), {})['9' if side == 'over' else '10'] = quote['decimal_odds']
+    return markets

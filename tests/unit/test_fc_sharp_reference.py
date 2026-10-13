@@ -140,10 +140,9 @@ def test_capture_records_reference_quotes_readable_by_the_scanner(tmp_path):
 
     journal = QuoteJournal(tmp_path/'quotes.db')
     fixture = {'match_id': '77', 'home': 'Arsenal FC', 'away': 'Chelsea FC', 'start_ts': KICKOFF}
-    resolve = lambda name: name.replace(' FC', '')
-    report = capture({'E0': [fixture]}, {'E0': resolve}, journal, api_key='k',
+    report = capture({'soccer_epl': [fixture]}, journal, api_key='k',
                      bookmaker='pinnacle', opener=opener, now=KICKOFF - 600)
-    assert report['E0']['matched'] == 1 and report['E0']['recorded'] == 1
+    assert report['soccer_epl']['matched'] == 1 and report['soccer_epl']['recorded'] == 1
     fair = fair_probabilities(latest_reference_quotes(
         journal.as_of('77', KICKOFF - 300, max_age_seconds=900), 'pinnacle'))
     assert set(fair) == {('1x2', 'home', None), ('1x2', 'draw', None), ('1x2', 'away', None),
@@ -174,3 +173,70 @@ def test_reference_movement_reports_open_and_current_fair():
     opened, now = moves[('1x2', 'home', None)]
     assert now > opened                       # home steamed from 2.10 to 1.80
     assert reference_movement([], 'pinnacle') == {}
+
+
+# --- Coverage incident 13 Oct 2026: UCL, artifacts, pairing, output classes ---
+from football_formula_engine.reference_odds import (is_market_artifact, pair_events,
+    reference_sport_key)
+
+
+def test_team_vs_player_rows_are_market_artifacts_not_fixtures():
+    assert is_market_artifact('England. Premier League. Team vs Player')
+    assert is_market_artifact('UEFA Champions League. Team vs Player')
+    assert not is_market_artifact('UEFA Champions League')
+    assert not is_market_artifact('England. Premier League')
+
+
+def test_ucl_maps_to_reference_only_not_a_domestic_model():
+    assert SCAN['model_code']('UEFA Champions League') is None
+    assert reference_sport_key('UEFA Champions League') == 'soccer_uefa_champs_league'
+    assert reference_sport_key('UEFA Europa League') == 'soccer_uefa_europa_league'
+    assert reference_sport_key('England. Championship', 'E1') == 'soccer_efl_champ'
+    assert reference_sport_key('Spain. Youth Championship') is None
+    assert SCAN['model_code']('Turkey. SuperLiga') == 'T1'
+
+
+UCL = [('RC Lens', 'Sporting', 'Lens', 'Sporting Lisbon'),
+       ('Sabah Baku', 'Slavia Prague', 'Sabah FK', 'Slavia Praha'),
+       ('Arsenal', 'Lille', 'Arsenal', 'Lille'),
+       ('Atletico Madrid', 'Manchester United', 'Atlético Madrid', 'Manchester United'),
+       ('Galatasaray', 'Barcelona', 'Galatasaray', 'Barcelona'),
+       ('Inter', 'Club Brugge', 'Inter Milan', 'Club Brugge KV'),
+       ('RB Leipzig', 'PSV', 'RasenBallsport Leipzig', 'PSV Eindhoven'),
+       ('Viking', 'Bayern', 'Viking FK', 'Bayern Munich'),
+       ('Villarreal', 'Napoli', 'Villarreal', 'SSC Napoli')]
+
+
+def test_ucl_provider_variants_pair_uniquely_within_kickoff_slot():
+    iso = '2033-05-18T03:33:20Z'
+    fixtures = [{'match_id': str(i), 'home': h, 'away': a, 'start_ts': KICKOFF}
+                for i, (h, a, _, _) in enumerate(UCL)]
+    events = [{'id': f'e{i}', 'home_team': h, 'away_team': a, 'commence_time': iso}
+              for i, (_, _, h, a) in enumerate(UCL)]
+    pairs = pair_events(events, fixtures)
+    assert sorted((info['match_id'], event['id']) for info, event in pairs) == \
+        sorted((str(i), f'e{i}') for i in range(len(UCL)))
+
+
+def test_pairing_rejects_swapped_sides_wrong_kickoff_and_ambiguity():
+    iso = '2033-05-18T03:33:20Z'
+    fixture = {'match_id': '1', 'home': 'Arsenal', 'away': 'Lille', 'start_ts': KICKOFF}
+    swapped = [{'id': 's', 'home_team': 'Lille', 'away_team': 'Arsenal', 'commence_time': iso}]
+    late = [{'id': 'l', 'home_team': 'Arsenal', 'away_team': 'Lille',
+             'commence_time': '2033-05-18T03:35:30Z'}]
+    assert pair_events(swapped, [fixture]) == []
+    assert pair_events(late, [fixture]) == []
+    twins = [{'id': 'm1', 'home_team': 'Manchester United', 'away_team': 'Lille', 'commence_time': iso},
+             {'id': 'm2', 'home_team': 'Manchester City', 'away_team': 'Lille', 'commence_time': iso}]
+    assert pair_events(twins, [{'match_id': '2', 'home': 'Manchester', 'away': 'Lille',
+                                'start_ts': KICKOFF}]) == []
+
+
+def test_reference_quotes_build_a_market_implied_distribution():
+    from football_formula_engine.market_goals import infer_market_goals
+    from football_formula_engine.sharp_reference import quotes_to_markets
+    q = quotes([('1x2', 'home', None, 1.80), ('1x2', 'draw', None, 3.80), ('1x2', 'away', None, 4.60),
+                ('ou', 'over', 11, 2.05), ('ou', 'under', 11, 1.85)])
+    goals = infer_market_goals(quotes_to_markets(q))
+    assert goals is not None and goals['home'] > goals['away']
+    assert 2.3 < goals['total'] < 3.3

@@ -24,6 +24,8 @@ const REASONS: Record<string, string> = {
   ODDS_OUTSIDE_VALUE_RANGE: 'Odds di luar rentang value.',
   EV_BELOW_VALUE_THRESHOLD: 'EV belum mencapai ambang value.',
   REFERENCE_UNAVAILABLE: 'Harga referensi sharp (Pinnacle) belum tersedia; hanya forecast, bukan value pick.',
+  REFERENCE_NO_EDGE: 'Dianalisis terhadap harga wajar Pinnacle (jalur referensi), tetapi odds 1xbit belum memberi edge ≥ 2%.',
+  LEAGUE_MODEL_UNAVAILABLE_REFERENCE: 'Kompetisi tanpa model statistik; dinilai hanya terhadap referensi sharp.',
   REFERENCE_EDGE_IMPLAUSIBLE: 'Selisih harga dengan referensi sharp terlalu besar; kemungkinan odds basi atau salah cocok.',
   CONSERVATIVE_EV_BELOW_THRESHOLD: 'EV setelah penalti masih negatif.',
   TEAM_COVERAGE_MISSING: 'Histori tim belum cukup.',

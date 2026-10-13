@@ -125,3 +125,22 @@ A single soft book rarely beats Pinnacle on favourites, so this tier will be unc
 - The sharp reference is re-fetched per league once it is 10 minutes old, so long scans do not lose it.
 
 Repository weight: `betting-machine-fc/matches_detailed.json` (18 MB), `picks.json` and `config.json` are scanner outputs. Because they are tracked, every scan dirties the tree that `deploy.sh` refuses to deploy. Untracking them is recommended, but the next `git pull` on the VPS will delete the live copies until the following scan, so plan a scan right after the deploy. `football_formula_engine/artifacts/` (15 MB, 177 files) is Phase 4/5 research output and is not used by the scanner.
+
+## v5.2 — coverage fix (incident 13 October 2026)
+
+Production had 440 fixtures, but 409 stopped at `LEAGUE_MODEL_UNAVAILABLE`. That included all 9 real UEFA Champions League fixtures, which never reached v5 pricing.
+
+| Fix | Behaviour |
+| --- | --- |
+| Artifact filter | 1xbit "Team vs Player" leagues are dropped at ingestion and counted as `coverage.artifact_rows`. |
+| Reference-only lane | Competitions without a goal model but with a sharp market are priced only against Pinnacle. This covers UCL, UEL, UECL and other top leagues listed in `reference_odds.REFERENCE_ONLY_COMPETITIONS`. Score shape comes from the sharp book's implied goals, which is the same construction as the replayed v5 policy. Rows are labelled `decision_mode=reference_only`, `formula_version=fc-reference-only-v1`, `model_status=UNVALIDATED_REFERENCE_ONLY`, `pick_class=reference_only`, and stay non-official. |
+| Domestic fallback | When a domestic model cannot project a fixture (model unavailable, team coverage missing, projection blocked), the fixture falls back to the reference-only lane if its league has a sharp market. |
+| Pairing | Pairing is kickoff-scoped: kickoff within ±60 s, both teams must score ≥ 0.80, and the best candidate must lead the next by ≥ 0.15. Home/away are never swapped, and an event claimed by two fixtures is dropped. A reviewed alias map covers provider variants such as Inter/Internazionale, RB Leipzig, Sporting, PSV and Bayern. This replaces training-name-only matching, which matched only 1/5, 0/8 and 0/1 fixtures in three domestic leagues. |
+| Visible status | Reference-only fixtures without an edge show `REFERENCE_NO_EDGE`; fixtures without a sharp quote show `REFERENCE_UNAVAILABLE`. |
+| Output classes | `/api/fc/picks` summary adds `value_v5_count`, `reference_only_count` and `secondary_display_count`. Secondary corner/card rows are tagged `secondary_display`. |
+| Odds floor | The API floor is now 1.30, matching v5, so high-win favourites are no longer hidden. |
+| League name | The 1xbit label `Turkey. SuperLiga` now maps to T1. |
+
+Diagnostics are in `config.json` under `last_scan_diagnostics.coverage` and `last_scan_diagnostics.sharp_reference.leagues`, keyed by sport key. The latter includes matched/unmatched fixture names.
+
+Still open (P1): a validated UCL club-strength model with its own time-split backtest. Until then, UCL picks remain reference-only.

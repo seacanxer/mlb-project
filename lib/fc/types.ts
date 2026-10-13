@@ -97,6 +97,10 @@ export interface FcPick {
   value_tier?: 'high_win' | 'value' | null;
   reference_probability?: number | null;
   reference_move?: number | null;
+  /** Output class: v5 value pick, reference-only candidate, or secondary display row. */
+  pick_class?: 'value_v5' | 'value_model_blend' | 'reference_only' | 'secondary_display' | 'forecast' | 'market_option';
+  model_status?: string;
+  decision_mode?: string;
   /** Engine provenance for secondary-market cards (see secondary_pick_payload). */
   uncertainty_status?: string;
   line_source?: string;
@@ -108,6 +112,10 @@ export interface PicksSummary {
   top_pick_count: number;
   official_count: number;
   watch_count: number;
+  /** Counts by output class; secondary rows are display-only, not qualified picks. */
+  value_v5_count?: number;
+  reference_only_count?: number;
+  secondary_display_count?: number;
   formula_version: string;
   avg_ev_pct: number;
   avg_odds: number;

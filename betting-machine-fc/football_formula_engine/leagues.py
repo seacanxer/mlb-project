@@ -88,7 +88,7 @@ LEAGUES = {
               ['Belgium. First Division A', 'Belgium. Division 1',
                'Belgium. Jupiler League'], 'BEL', ['Belgian Pro League']),
     'T1': _fd([('T1_2526.csv', '2526')], 'Europe/Istanbul',
-              ['Turkiye. Super Lig', 'Turkey. Super Lig'], 'TUR', ['Super Lig']),
+              ['Turkiye. Super Lig', 'Turkey. Super Lig', 'Turkey. SuperLiga'], 'TUR', ['Super Lig']),
     'G1': _fd([('G1_2526.csv', '2526')], 'Europe/Athens', ['Greece. Super League'],
               'GRE', ['Super League']),
     # football-data codes are SC0 Premiership, SC1 Championship,
