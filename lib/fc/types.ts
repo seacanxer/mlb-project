@@ -347,6 +347,14 @@ export interface ForecastPick extends FcPick {
   gate_reasons?: string[];
   official_eligible?: boolean;
   quote_captured_at?: number | string;
+  /** Best-calibrated win probability: sharp no-vig, else 1xbit no-vig. */
+  confidence?: number | null;
+  confidence_source?: 'sharp' | 'market' | null;
+  confidence_tier?: 'TINGGI' | 'SEDANG' | 'RENDAH' | 'SPEKULATIF';
+  /** Historical hit rate of this tier (pick = most likely side), not a guarantee. */
+  tier_hit_rate?: number | null;
+  is_value?: boolean;
+  lane?: 'model' | 'reference_only' | 'market_only';
 }
 
 export interface MatchAnalysis {
@@ -363,6 +371,9 @@ export interface MatchAnalysis {
   league_model?: string;
   quote_captured_at?: number;
   formula_version?: string;
+  lane?: 'model' | 'reference_only' | 'market_only';
+  model_status?: string;
+  model_fallback_reason?: string;
   secondary_markets?: {
     availability: 'A' | 'B' | 'C';
     reason?: string | null;

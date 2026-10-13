@@ -144,3 +144,24 @@ Production had 440 fixtures, but 409 stopped at `LEAGUE_MODEL_UNAVAILABLE`. That
 Diagnostics are in `config.json` under `last_scan_diagnostics.coverage` and `last_scan_diagnostics.sharp_reference.leagues`, keyed by sport key. The latter includes matched/unmatched fixture names.
 
 Still open (P1): a validated UCL club-strength model with its own time-split backtest. Until then, UCL picks remain reference-only.
+
+## v5.3 — every fixture and every market gets a projection with a confidence tier
+
+v5.0–v5.2 linked card display to value: a market was shown only with EV > 0. Against Pinnacle that rarely happens, so cards lost most markets, and German fixtures without a value pick showed nothing. v5.3 decouples the two.
+
+- **Card projection, every market.** For 1X2, AH, O/U and BTTS the card shows the value candidate if one exists. Otherwise it shows the most likely side on the balanced main line. Nothing is eliminated for lacking value.
+- **Confidence.** Confidence is the best-calibrated win probability: Pinnacle no-vig when matched, otherwise 1xbit no-vig. The DC probability stays in `raw_probability`, because the replay found it overconfident.
+- **Tiers.** Tier hit rates are historical. The pick is the most likely side at the Pinnacle no-vig price, over 63,000 market-sides:
+
+| Tier | Confidence | Hit rate | ROI (no edge) |
+| --- | --- | ---: | ---: |
+| TINGGI | ≥ 65% | 74.1% | ≈ -0.4% |
+| SEDANG | 55–65% | 60.1% | ≈ -1.9% |
+| RENDAH | 45–55% | 51.9% | ≈ -3.1% |
+| SPEKULATIF | < 45% | 40.5% | ≈ -3.0% |
+
+- **High tier ≠ profit.** A high tier means a high win rate, not a profit edge. Only `Kandidat value` (EV ≥ 2% against Pinnacle) carries price edge.
+- **Market-only lane.** It covers fixtures with no goal model and no sharp market: lower leagues, youth, women, cups, Africa/Asia. It also covers domestic fixtures whose model fails and whose league has no sharp market, such as Regionalliga Bayern with an unmatched team. Score shape and confidence come from 1xbit's own no-vig prices. Every row carries `MARKET_ONLY_NO_REFERENCE` and can never be a value pick. Labels: `decision_mode=market_only`, `formula_version=fc-market-only-v1`, `model_status=MARKET_IMPLIED_NO_EDGE`. The flashscore cross-check is skipped for this lane to keep the scan light.
+- **Duplicate fixtures** (same teams and kickoff under different 1xbit IDs) are scanned once and counted in `coverage.duplicates`.
+- **Card visibility.** 1X2 projections below 1.30 are no longer hidden. Their tier states the confidence.
+- **New sharp competitions.** Copa Sudamericana and Copa Libertadores are added to the sharp reference list.

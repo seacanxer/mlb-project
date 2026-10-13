@@ -240,3 +240,51 @@ def test_reference_quotes_build_a_market_implied_distribution():
     goals = infer_market_goals(quotes_to_markets(q))
     assert goals is not None and goals['home'] > goals['away']
     assert 2.3 < goals['total'] < 3.3
+
+
+# --- Card projections: confidence tier instead of elimination ---
+from football_formula_engine.confidence import confidence_tier, display_markets, tier_hit_rate
+
+
+def test_confidence_tiers_and_hit_rates():
+    assert confidence_tier(.74) == 'TINGGI' and confidence_tier(.65) == 'TINGGI'
+    assert confidence_tier(.6) == 'SEDANG' and confidence_tier(.5) == 'RENDAH'
+    assert confidence_tier(.3) == 'SPEKULATIF' and confidence_tier(None) == 'SPEKULATIF'
+    assert tier_hit_rate('TINGGI') > tier_hit_rate('SEDANG') > tier_hit_rate('RENDAH')
+
+
+def test_display_shows_every_market_even_without_value():
+    dist = build_score_matrix(1.6, 0.9, 0.0)
+    mk = dict(book(), odds_btts={'yes': 1.95, 'no': 1.85})
+    mk['odds_ou']['3.5'] = {'9': 3.1, '10': 1.36}       # extreme alt line must not be shown
+    rows = SCAN['price_fixture'](dist, mk, gated=False, reference_fair={})
+    shown = display_markets(rows)
+    assert [m for m, _, _ in shown] == ['1x2', 'ah', 'ou', 'btts']
+    assert all('REFERENCE_UNAVAILABLE' in o['gate_reasons'] for _, _, o in shown)   # display, not value
+    ou = [o for m, _, o in shown if m == 'ou'][0]
+    assert ou['line_quarters'] == 10                     # balanced main line
+    one = [(label, o) for m, label, o in shown if m == '1x2'][0]
+    assert one[0] == 'Home' and one[1]['confidence_source'] == 'market'
+
+
+def test_display_uses_sharp_confidence_when_matched():
+    dist = build_score_matrix(1.2, 1.2, 0.0)
+    fair = {('1x2', 'home', None): .30, ('1x2', 'draw', None): .28, ('1x2', 'away', None): .42}
+    rows = SCAN['price_fixture'](dist, book(), gated=False, reference_fair=fair)
+    one = [(label, o) for m, label, o in display_markets(rows) if m == '1x2'][0]
+    assert one[0] == 'Away' and one[1]['confidence'] == pytest.approx(.42)
+    assert one[1]['confidence_source'] == 'sharp'
+
+
+def test_unmodelled_leagues_get_a_lane():
+    from football_formula_engine.reference_odds import reference_sport_key
+    assert reference_sport_key('Copa Sudamericana') == 'soccer_conmebol_copa_sudamericana'
+    assert reference_sport_key('Algeria. Ligue 2') is None      # -> market-only lane in the scanner
+
+
+def test_display_prefers_value_candidate_in_its_market():
+    dist = build_score_matrix(1.2, 1.2, 0.0)
+    fair = {('1x2', 'home', None): .46, ('1x2', 'draw', None): .28, ('1x2', 'away', None): .26}
+    shown = display_markets(SCAN['price_fixture'](dist, book(), gated=False, reference_fair=fair))
+    one = [(label, o) for m, label, o in shown if m == '1x2'][0]
+    assert one[0] == 'Home' and one[1]['gate_reasons'] == []

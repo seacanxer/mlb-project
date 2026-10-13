@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import type { DetailedMatch, ForecastPick, Market } from '@/lib/fc/types';
-import { forecastPicks, isCardVisible, isValue, matchKey, pickLabel, PREDICTION_MARKETS, reasonLabel } from '@/lib/fc/predictions';
+import { forecastPicks, isCardVisible, isValue, laneLabel, matchKey, pickLabel, PREDICTION_MARKETS, reasonLabel, TIER_LABEL } from '@/lib/fc/predictions';
 import { formatEv, formatOdds, formatProb } from '@/lib/fc/format';
 import { formatKickoffWIB } from '@/lib/fc/kickoff';
 import { splitLeague } from '@/lib/fc/grouping';
@@ -37,7 +37,7 @@ function PredictionCard({ match, market, valueOnly, saved, lockedIds, onToggle }
     <header className="prediction-meta">
       <span className="prediction-league"><span aria-hidden="true">◈</span> {info.league || 'Liga belum tersedia'}</span>
       <time>{formatKickoffWIB(info.start_ts)}</time>
-      <span className={`prediction-status ${available ? 'is-ready' : ''}`}>{available ? 'Model tersedia' : goals ? 'Tanpa pick layak' : 'Data belum lengkap'}</span>
+      <span className={`prediction-status ${available ? 'is-ready' : ''}`}>{available ? laneLabel(match.analysis?.lane) : goals ? 'Tanpa pick layak' : 'Data belum lengkap'}</span>
     </header>
     <div className="prediction-main">
       <div className="prediction-teams">
@@ -55,8 +55,8 @@ function PredictionCard({ match, market, valueOnly, saved, lockedIds, onToggle }
             {pick ? <button type="button" className={`prediction-selection${selected ? ' is-saved' : ''}`} aria-pressed={Boolean(selected)} aria-label={`${locked ? 'Terkunci' : selected ? 'Hapus' : 'Simpan'} ${pickLabel(pick, match)}`} onClick={() => onToggle(match, pick)}>
               <strong>{pickLabel(pick, match)}</strong>
               <span className="prediction-odds">@{formatOdds(pick.odds)} <span>{locked ? '🔒' : selected ? '✓' : '+'}</span></span>
-              <small>P(menang) {formatProb(pick.probability)}</small>
-              <span className={`prediction-tag ${isValue(pick) ? 'is-value' : ''}`}>{isValue(pick) ? 'Kandidat value' : 'Proyeksi'}</span>
+              <small>Confidence {formatProb(pick.confidence ?? pick.probability)}{pick.confidence_source === 'sharp' ? ' · Pinnacle' : pick.confidence_source === 'market' ? ' · pasar' : ''}</small>
+              <span className={`prediction-tag ${isValue(pick) ? 'is-value' : ''} tier-${(pick.confidence_tier ?? '').toLowerCase()}`}>{isValue(pick) ? 'Kandidat value' : TIER_LABEL[pick.confidence_tier ?? ''] ?? 'Proyeksi'}</span>
             </button> : <div className="prediction-no-market"><strong>—</strong><small>{match.analysis?.model_goals ? 'Tidak ada pick layak' : 'Menunggu data'}</small></div>}
           </div>;
         })}
@@ -76,13 +76,13 @@ function PredictionCard({ match, market, valueOnly, saved, lockedIds, onToggle }
     </section>
     {match.analysis?.secondary_markets && <SecondaryPredictionPanel secondary={match.analysis.secondary_markets} info={info} market={market} />}
     <div className="prediction-footer">
-      {available ? <span>{match.analysis?.league_model || projections[0]?.league_model || 'Model liga'}<span className="prediction-divider">/</span><span>Belum tervalidasi</span></span> : <span>{reasonLabel(reasons[0])}</span>}
+      {available ? <span>{laneLabel(match.analysis?.lane)}<span className="prediction-divider">/</span><span>{match.analysis?.reason_codes?.length ? reasonLabel(match.analysis.reason_codes[0]) : 'Ada kandidat value'}</span></span> : <span>{reasonLabel(reasons[0])}</span>}
       {available && <span className="prediction-hint">Klik pilihan untuk menyimpan</span>}
     </div>
     <details className="prediction-details">
       <summary>{available ? 'Detail analisis & alternatif line' : 'Lihat kebutuhan data'} <span aria-hidden="true">↗</span></summary>
       <div className="prediction-explanation">
-        <p>{match.analysis?.model_goals ? 'Pilihan ditahan bila EV setelah penalti negatif atau model terlalu jauh dari pasar. 1X2 di bawah odds 1,30 disembunyikan. AH mengikuti arah utama 1X2 hanya jika layak; model dapat tidak memberikan pick. Detail alternatif tetap tersedia untuk analisis.' : reasons.map(reasonLabel).join(' ')}</p>
+        <p>{match.analysis?.model_goals ? 'Setiap market menampilkan sisi paling mungkin pada line utama. Confidence = peluang menang dari harga Pinnacle tanpa margin (atau harga 1xbit tanpa margin bila Pinnacle tidak ada). Histori 27 ribu laga: Confidence tinggi (≥65%) menang ±74%, sedang (55–65%) ±60%, rendah (45–55%) ±52%, spekulatif ±41%. Confidence bukan profit: hanya "Kandidat value" (odds 1xbit ≥2% di atas harga wajar Pinnacle) yang punya edge harga.' : reasons.map(reasonLabel).join(' ')}</p>
         <p>Official: {reasonLabel(match.analysis?.official_reason || 'MODEL_NOT_VALIDATED')} Probabilitas menang menghitung menang penuh dan setengah menang; EV memperhitungkan push dan hasil setengah.</p>
         {match.analysis?.quote_captured_at && <p>Odds 1xbit diambil: {formatKickoffWIB(match.analysis.quote_captured_at)}. Harga dapat berubah.</p>}
         {match.analysis?.model_data_as_of && <p>Hasil terakhir pada data model: {formatKickoffWIB(match.analysis.model_data_as_of)}.</p>}

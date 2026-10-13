@@ -155,11 +155,16 @@ def test_scan_writes_four_market_catalog_and_clears_old_missing_team_picks(tmp_p
     assert scan.main() == 0
     matches = json.loads((tmp_path / 'matches_detailed.json').read_text())
     assert {p['market'] for p in matches[0]['market_options']} == {'1x2','ah','ou','btts'}
-    assert all(p['ev']>0 and p['conservative_ev']>=0 for p in matches[0]['projections'])
+    # Cards show every market with a confidence tier; value is a separate flag.
+    assert [p['market'] for p in matches[0]['projections']] == ['1x2', 'ah', 'ou', 'btts']
+    assert all(p['confidence_tier'] and p['confidence'] is not None for p in matches[0]['projections'])
     assert all('MODEL_MARKET_DISAGREEMENT' not in p['gate_reasons'] for p in matches[0]['qualified_picks'])
     assert all(not p['official_eligible'] for p in matches[0]['market_options'])
-    assert matches[1]['picks'] == []
-    assert matches[1]['analysis']['reason_codes'] == ['TEAM_COVERAGE_MISSING']
+    # An unknown team falls back to market-implied projections, never to a value pick.
+    assert matches[1]['picks'] == [] and matches[1]['qualified_picks'] == []
+    assert matches[1]['analysis']['lane'] == 'market_only'
+    assert matches[1]['analysis']['model_fallback_reason'] == 'TEAM_COVERAGE_MISSING'
+    assert matches[1]['analysis']['reason_codes'] == ['MARKET_ONLY_NO_REFERENCE']
     assert not (tmp_path / 'bets.db').exists()
 
 

@@ -66,6 +66,8 @@ REFERENCE_ONLY_COMPETITIONS = {
     'saudi arabia. saudi professional league': 'soccer_saudi_arabia_pro_league',
     'usa. mls': 'soccer_usa_mls',
     'australia. a-league': 'soccer_australia_aleague',
+    'copa sudamericana': 'soccer_conmebol_copa_sudamericana',
+    'copa libertadores': 'soccer_conmebol_copa_libertadores',
 }
 
 # 1xbit lists player-proposition markets as pseudo-fixtures in leagues such as

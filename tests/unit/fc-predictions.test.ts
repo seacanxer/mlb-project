@@ -14,14 +14,13 @@ const pick = { market: 'ou', pick: 'Over 2.5', start_ts: 4102444800, odds: 1.9, 
 beforeEach(() => files.clear());
 
 describe('FC predictions use available evidence', () => {
-  it('hides low-price 1X2 even from cached/legacy scans and keeps the 1.30 boundary', () => {
-    const favorite = { ...pick, market: '1x2', odds: 1.29 } as ForecastPick;
-    expect(isCardVisible(favorite)).toBe(false);
-    expect(forecastPicks({ info: {}, projections: [favorite, pick] })).toEqual([pick]);
-    expect(forecastPicks({ info: {}, picks: [favorite] })).toEqual([]);
-    expect(isCardVisible({ ...favorite, odds: 1.30 })).toBe(true);
+  it('shows low-price 1X2 projections (confidence tier instead of hiding) but not unpriced 1X2', () => {
+    const favorite = { ...pick, market: '1x2', odds: 1.18, confidence: .82, confidence_tier: 'TINGGI' } as ForecastPick;
+    expect(isCardVisible(favorite)).toBe(true);
+    expect(forecastPicks({ info: {}, projections: [favorite, pick] })).toEqual([favorite, pick]);
     expect(isCardVisible({ ...favorite, odds: NaN })).toBe(false);
-    expect(isCardVisible({ ...pick, odds: 1.29 })).toBe(true);
+    expect(isCardVisible({ ...favorite, odds: null })).toBe(false);
+    expect(isCardVisible({ ...pick, odds: 1.05 })).toBe(true);
   });
   it('never counts full ratings as Official approval', () => {
     files.set('picks.json', JSON.stringify([pick]));

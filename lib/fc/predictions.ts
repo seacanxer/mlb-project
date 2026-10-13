@@ -24,6 +24,8 @@ const REASONS: Record<string, string> = {
   ODDS_OUTSIDE_VALUE_RANGE: 'Odds di luar rentang value.',
   EV_BELOW_VALUE_THRESHOLD: 'EV belum mencapai ambang value.',
   REFERENCE_UNAVAILABLE: 'Harga referensi sharp (Pinnacle) belum tersedia; hanya forecast, bukan value pick.',
+  NO_VALUE_EDGE: 'Proyeksi tersedia untuk semua market, tetapi belum ada edge value ≥ 2% terhadap harga sharp.',
+  MARKET_ONLY_NO_REFERENCE: 'Tanpa model dan tanpa referensi sharp: proyeksi dari harga 1xbit tanpa margin, bukan value pick.',
   REFERENCE_NO_EDGE: 'Dianalisis terhadap harga wajar Pinnacle (jalur referensi), tetapi odds 1xbit belum memberi edge ≥ 2%.',
   LEAGUE_MODEL_UNAVAILABLE_REFERENCE: 'Kompetisi tanpa model statistik; dinilai hanya terhadap referensi sharp.',
   REFERENCE_EDGE_IMPLAUSIBLE: 'Selisih harga dengan referensi sharp terlalu besar; kemungkinan odds basi atau salah cocok.',
@@ -49,7 +51,18 @@ export function forecastPicks(match: DetailedMatch): ForecastPick[] {
 }
 
 export function isCardVisible(pick: ForecastPick): boolean {
-  return pick.market !== '1x2' || (pick.odds != null && Number.isFinite(pick.odds) && pick.odds >= 1.30);
+  // Projections are no longer hidden for low prices; the confidence tier says how sure they are.
+  return pick.market !== '1x2' || (pick.odds != null && Number.isFinite(pick.odds) && pick.odds > 1);
+}
+
+export const TIER_LABEL: Record<string, string> = {
+  TINGGI: 'Confidence tinggi', SEDANG: 'Confidence sedang', RENDAH: 'Confidence rendah', SPEKULATIF: 'Spekulatif',
+};
+
+export function laneLabel(lane?: string): string {
+  if (lane === 'reference_only') return 'Referensi Pinnacle';
+  if (lane === 'market_only') return 'Harga pasar (tanpa model)';
+  return 'Model liga';
 }
 
 export function isValue(pick: ForecastPick): boolean {
