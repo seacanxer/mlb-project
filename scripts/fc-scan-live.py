@@ -43,11 +43,16 @@ from football_formula_engine.secondary_markets import (load_stat_rows as load_se
     project_fixture as project_secondary_fixture)  # noqa: E402
 from football_formula_engine.model import (FitConfig, fit_dixon_coles,
     build_ratio_baseline_artifact, project_fixture)  # noqa: E402
-from football_formula_engine.value import expected_value, fair_odds, proportional_no_vig  # noqa: E402
+from football_formula_engine.value import (effective_win_loss, expected_value, fair_odds,  # noqa: E402
+    proportional_no_vig)
 from football_formula_engine.market_safety import (anchor_payout, MODEL_WEIGHTS,
     MAX_MODEL_MARKET_GAP, SHRINK_VERSION)  # noqa: E402
 from football_formula_engine.live_quotes import QuoteJournal  # noqa: E402
 from football_formula_engine.second_source import collect as collect_second_source  # noqa: E402
+from football_formula_engine.sharp_reference import (REFERENCE_VERSION,  # noqa: E402
+    REFERENCE_MAX_AGE_SECONDS, fair_probabilities, latest_reference_quotes,
+    reference_gate_reasons)
+from football_formula_engine import reference_odds  # noqa: E402
 from football_formula_engine.catalog import POLICY_VERSION, select_markets, direction_counts  # noqa: E402
 from football_formula_engine.live_training import current_season, refresh_scores  # noqa: E402
 from football_formula_engine.leagues import (LEAGUES, LEAGUE_BY_NAME,  # noqa: E402
@@ -58,7 +63,12 @@ from football_formula_engine.national_teams import (MODEL_CODE as NATIONAL_CODE,
     nonneutral_baseline_coverage)  # noqa: E402
 
 FORMULA_VERSION = 'dc-loglink-time-decay-v1'
-DECISION_FORMULA_VERSION = 'fc-market-goal-blend-v4-quality-abstain'
+DECISION_FORMULA_VERSION = 'fc-sharp-reference-v5'
+# 'sharp_reference' (default): value picks only where the 1xbit price beats a
+# sharp book's no-vig fair price. 'model_blend' restores the v4 goal-model EV
+# for rollback; the walk-forward replay found it loses with negative CLV.
+DECISION_MODE = os.environ.get('FC_DECISION_MODE', 'sharp_reference')
+REFERENCE_BOOKMAKER = os.environ.get('FC_REFERENCE_BOOKMAKER', 'pinnacle')
 UNCERTAINTY_PENALTY = 0.02
 EV_GATE = 0.01
 ODDS_FLOOR = 1.6
@@ -747,8 +757,14 @@ def publish_secondary_picks(m, now):
     return picks
 
 
-def opp(payout, odds, no_vig_probs, *, gated=True, market=None):
-    """Price a valid offer; value thresholds affect eligibility, not visibility."""
+def opp(payout, odds, no_vig_probs, *, gated=True, market=None, reference=None,
+        reference_mode=False):
+    """Price a valid offer; value thresholds affect eligibility, not visibility.
+
+    In sharp-reference mode ``reference`` is the sharp book's no-vig probability
+    for the identical contract. Without it the offer remains a displayed
+    forecast and can never become a value pick.
+    """
     try:
         odds = float(odds)
     except (TypeError, ValueError):
@@ -756,6 +772,26 @@ def opp(payout, odds, no_vig_probs, *, gated=True, market=None):
     if not math.isfinite(odds) or odds <= 1 or no_vig_probs is None:
         return None
     raw_probability = payout.full_win + payout.half_win
+    if reference_mode and reference is not None:
+        raw_win, raw_loss = effective_win_loss(payout)
+        payout, _ = anchor_payout(payout, reference, 0.0)
+        fo = fair_odds(payout)
+        if fo is None:
+            return None
+        ev = expected_value(payout, odds)
+        reasons = reference_gate_reasons(odds, ev)
+        if gated and reasons:
+            return None
+        return {'odds': odds, 'fair_odds': fo, 'ev': ev, 'conservative_ev': ev,
+                'probability': payout.full_win + payout.half_win,
+                'effective_win_probability': payout.full_win + 0.5 * payout.half_win,
+                'payout': {key: getattr(payout, key) for key in ('full_win', 'half_win', 'push', 'half_loss', 'full_loss')},
+                'market_probability': no_vig_probs, 'reference_probability': reference,
+                'reference_bookmaker': REFERENCE_BOOKMAKER, 'gate_reasons': reasons,
+                'raw_probability': raw_probability,
+                'raw_price_probability': raw_win / (raw_win + raw_loss) if raw_win + raw_loss else None,
+                'probability_adjustment': REFERENCE_VERSION,
+                'probability_model_weight': 0.0}
     payout, raw_price_probability = anchor_payout(payout, no_vig_probs, MODEL_WEIGHTS.get(market, 1.0))
     fo = fair_odds(payout)
     if fo is None:
@@ -771,23 +807,36 @@ def opp(payout, odds, no_vig_probs, *, gated=True, market=None):
         reasons.append('EV_BELOW_VALUE_THRESHOLD')
     if cev < 0:
         reasons.append('CONSERVATIVE_EV_BELOW_THRESHOLD')
+    if reference_mode:
+        # No sharp price for this contract: display the forecast, never a pick.
+        reasons.append('REFERENCE_UNAVAILABLE')
     if gated and reasons:
         return None
     return {'odds': odds, 'fair_odds': fo, 'ev': ev, 'conservative_ev': cev,
             'probability': payout.full_win + payout.half_win,
             'effective_win_probability': payout.full_win + 0.5 * payout.half_win,
             'payout': {key: getattr(payout, key) for key in ('full_win', 'half_win', 'push', 'half_loss', 'full_loss')},
-            'market_probability': no_vig_probs, 'gate_reasons': reasons,
+            'market_probability': no_vig_probs, 'reference_probability': None,
+            'gate_reasons': reasons,
             'raw_probability': raw_probability,
             'raw_price_probability': raw_price_probability,
             'probability_adjustment': SHRINK_VERSION if market in MODEL_WEIGHTS else None,
             'probability_model_weight': MODEL_WEIGHTS.get(market, 1.0)}
 
 
-def price_fixture(dist, mk, *, gated=True):
-    """Evaluate both sides of every complete market from the same distribution."""
+def price_fixture(dist, mk, *, gated=True, reference_fair=None):
+    """Evaluate both sides of every complete market from the same distribution.
+
+    ``reference_fair`` maps (market, side, line_quarters) to a sharp no-vig
+    probability; passing it (even empty) enables sharp-reference pricing.
+    """
     out = []
-    offer = lambda payout, odds, nv, market: opp(payout, odds, nv, gated=gated, market=market)
+    reference_mode = reference_fair is not None
+
+    def offer(payout, odds, nv, market, side=None, line_quarters=None):
+        reference = (reference_fair or {}).get((market, side, line_quarters))
+        return opp(payout, odds, nv, gated=gated, market=market, reference=reference,
+                   reference_mode=reference_mode)
     one_x_two = {int(key): value for key, value in (mk.get('odds_1x2') or {}).items() if str(key) in ('1', '2', '3')}
     if all(t in one_x_two for t in (1, 2, 3)):
         try:
@@ -796,7 +845,7 @@ def price_fixture(dist, mk, *, gated=True):
             nv = (None, None, None)
         payouts = match_odds(dist)
         for t, side, label in ((1, 'home', 'Home'), (2, 'draw', 'Draw'), (3, 'away', 'Away')):
-            o = offer(payouts[side], one_x_two[t], nv[{1: 0, 2: 1, 3: 2}[t]], '1x2')
+            o = offer(payouts[side], one_x_two[t], nv[{1: 0, 2: 1, 3: 2}[t]], '1x2', side)
             if o:
                 o.update(side=side, line_quarters=None)
                 out.append(('1x2', label, o))
@@ -808,7 +857,7 @@ def price_fixture(dist, mk, *, gated=True):
             nv = (None, None)
         payouts = btts(dist)
         for side, label, idx in (('yes', 'BTTS Yes', 0), ('no', 'BTTS No', 1)):
-            o = offer(payouts[side], b[side], nv[idx], 'btts')
+            o = offer(payouts[side], b[side], nv[idx], 'btts', side)
             if o:
                 o.update(side=side, line_quarters=None)
                 out.append(('btts', label, o))
@@ -831,7 +880,7 @@ def price_fixture(dist, mk, *, gated=True):
                 payout = over_under(dist, side, q)
             except Exception:
                 continue
-            o = offer(payout, sides[t], nv[0 if side == 'over' else 1], 'ou')
+            o = offer(payout, sides[t], nv[0 if side == 'over' else 1], 'ou', side, q)
             if o:
                 o.update(side=side, line_quarters=q)
                 out.append(('ou', label, o))
@@ -864,7 +913,7 @@ def price_fixture(dist, mk, *, gated=True):
                 payout = asian_handicap(dist, side, q if side == 'home' else -q)
             except Exception:
                 continue
-            o = offer(payout, sides[side], nv[idx], 'ah')
+            o = offer(payout, sides[side], nv[idx], 'ah', side, q if side == 'home' else -q)
             if o:
                 o.update(side=side, line_quarters=q if side == 'home' else -q)
                 out.append(('ah', label, o))
@@ -982,6 +1031,22 @@ def main(argv=()):
         with open(mapping_path, encoding='utf-8') as handle:
             second_mappings = {str(row['fixture']['match_id']): row for row in json.load(handle)}
         second_status = 'CONFIGURED_NOT_YET_VALIDATED'
+    reference_key = os.environ.get('FC_REFERENCE_ODDS_API_KEY') or second_key
+    reference_status = {'mode': DECISION_MODE, 'bookmaker': REFERENCE_BOOKMAKER,
+                        'status': 'NOT_CONFIGURED', 'leagues': {}, 'fixtures_priced': 0}
+    if DECISION_MODE == 'sharp_reference' and reference_key:
+        fixtures_by_code = {}
+        for fixture in future:
+            fixture_code = model_code(fixture['info'].get('league'))
+            if fixture_code in teams_by_code and fixture_code != NATIONAL_CODE:
+                fixtures_by_code.setdefault(fixture_code, []).append(fixture['info'])
+        resolvers = {fixture_code: (lambda name, teams=teams_by_code[fixture_code]: match_team(name, teams))
+                     for fixture_code in fixtures_by_code}
+        reference_status['leagues'] = reference_odds.capture(
+            fixtures_by_code, resolvers, journal, api_key=reference_key,
+            bookmaker=REFERENCE_BOOKMAKER,
+            regions=os.environ.get('FC_REFERENCE_REGIONS', 'eu'))
+        reference_status['status'] = 'CONFIGURED'
     seen_national_fixtures = set()
     secondary_data = {}
     for m in sorted(future, key=lambda x: float(x['info']['start_ts'])):
@@ -1116,7 +1181,15 @@ def main(argv=()):
         # The market component already represents low-score pricing, so do not
         # apply the historical Dixon-Coles rho a second time after pooling.
         decision_distribution = build_score_matrix(blended_home, blended_away, 0.0)
-        opportunities = price_fixture(decision_distribution, mk, gated=False)
+        reference_fair = None
+        if DECISION_MODE == 'sharp_reference':
+            reference_fair = fair_probabilities(latest_reference_quotes(
+                journal.as_of(info['match_id'], decision_at,
+                              max_age_seconds=REFERENCE_MAX_AGE_SECONDS),
+                REFERENCE_BOOKMAKER))
+            reference_status['fixtures_priced'] += bool(reference_fair)
+        opportunities = price_fixture(decision_distribution, mk, gated=False,
+                                      reference_fair=reference_fair)
         m['analysis']['secondary_markets'] = secondary_analysis(info, secondary_data,
             {'home': blended_home, 'away': blended_away}, book=secondary_book)
         if code == NATIONAL_CODE:
@@ -1180,6 +1253,10 @@ def main(argv=()):
                 'uncertainty_penalty': UNCERTAINTY_PENALTY,
                 'fair_odds': round(o['fair_odds'], 3),
                 'market_probability': round(o['market_probability'], 4),
+                'reference_probability': (round(o['reference_probability'], 4)
+                                          if o.get('reference_probability') is not None else None),
+                'reference_bookmaker': o.get('reference_bookmaker'),
+                'decision_mode': DECISION_MODE,
                 'edge_pct': round(1 / o['fair_odds'] - o['market_probability'], 4),
                 'formula_version': DECISION_FORMULA_VERSION,
                 'base_formula_version': artifact.get('formula_version', FORMULA_VERSION),
@@ -1276,7 +1353,10 @@ def main(argv=()):
                                     'training_data': MODEL_DATA_INFO,
                                     'second_source': second_status,
                                     'second_source_fixtures_captured': second_captured,
-                                    'second_source_fixtures_matched': second_matched}
+                                    'second_source_fixtures_matched': second_matched,
+                                    'decision_mode': DECISION_MODE,
+                                    'decision_formula_version': DECISION_FORMULA_VERSION,
+                                    'sharp_reference': reference_status}
     atomic_write(config_path, cfg)
 
     print(json.dumps({
