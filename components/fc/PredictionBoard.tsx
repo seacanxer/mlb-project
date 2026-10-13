@@ -55,7 +55,11 @@ function PredictionCard({ match, market, valueOnly, saved, lockedIds, onToggle }
             {pick ? <button type="button" className={`prediction-selection${selected ? ' is-saved' : ''}`} aria-pressed={Boolean(selected)} aria-label={`${locked ? 'Terkunci' : selected ? 'Hapus' : 'Simpan'} ${pickLabel(pick, match)}`} onClick={() => onToggle(match, pick)}>
               <strong>{pickLabel(pick, match)}</strong>
               <span className="prediction-odds">@{formatOdds(pick.odds)} <span>{locked ? '🔒' : selected ? '✓' : '+'}</span></span>
-              <small>Confidence {formatProb(pick.confidence ?? pick.probability)}{pick.confidence_source === 'sharp' ? ' · Pinnacle' : pick.confidence_source === 'market' ? ' · pasar' : ''}</small>
+              <small>Confidence {formatProb(pick.confidence ?? pick.probability)}</small>
+              <small className="prediction-source" title={pick.tier_hit_rate != null ? `Histori tier ini dari sumber ini: menang ${formatProb(pick.tier_hit_rate)}` : 'Belum ada histori untuk sumber ini'}>
+                {pick.confidence_label ?? 'Sumber belum tercatat'}{pick.tier_hit_rate != null ? ` · histori ${formatProb(pick.tier_hit_rate)}` : ''}
+              </small>
+              {pick.confidence_source !== 'market' && pick.market_confidence != null && <small className="prediction-source">Pasar 1xbit {formatProb(pick.market_confidence)}{pick.confidence_source === 'sharp' && pick.model_confidence != null ? ` · Model ${formatProb(pick.model_confidence)}` : ''}</small>}
               <span className={`prediction-tag ${isValue(pick) ? 'is-value' : ''} tier-${(pick.confidence_tier ?? '').toLowerCase()}`}>{isValue(pick) ? 'Kandidat value' : TIER_LABEL[pick.confidence_tier ?? ''] ?? 'Proyeksi'}</span>
             </button> : <div className="prediction-no-market"><strong>—</strong><small>{match.analysis?.model_goals ? 'Tidak ada pick layak' : 'Menunggu data'}</small></div>}
           </div>;

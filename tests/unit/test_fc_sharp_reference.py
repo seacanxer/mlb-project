@@ -288,3 +288,21 @@ def test_display_prefers_value_candidate_in_its_market():
     shown = display_markets(SCAN['price_fixture'](dist, book(), gated=False, reference_fair=fair))
     one = [(label, o) for m, label, o in shown if m == '1x2'][0]
     assert one[0] == 'Home' and one[1]['gate_reasons'] == []
+
+
+def test_model_lane_confidence_uses_model_when_no_sharp_price():
+    from football_formula_engine.confidence import source_label
+    dist = build_score_matrix(2.0, 0.7, 0.0)             # model strongly favours home
+    rows = SCAN['price_fixture'](dist, book(), gated=False, reference_fair={}, model_confidence=True)
+    one = [(label, o) for m, label, o in display_markets(rows) if m == '1x2'][0]
+    assert one[0] == 'Home' and one[1]['confidence_source'] == 'model'
+    assert one[1]['confidence'] == pytest.approx(one[1]['model_confidence'])
+    assert one[1]['market_confidence'] < one[1]['confidence']          # market shown for comparison
+    assert tier_hit_rate('TINGGI', 'model') < tier_hit_rate('TINGGI', 'sharp')
+    assert source_label('model') == 'Model DC + pasar'
+    assert source_label('model', national=True) == 'Model tim nasional + pasar'
+    # With a sharp price the sharp view wins, the model view is kept for display.
+    fair = {('1x2', 'home', None): .46, ('1x2', 'draw', None): .28, ('1x2', 'away', None): .26}
+    rows = SCAN['price_fixture'](dist, book(), gated=False, reference_fair=fair, model_confidence=True)
+    home = [o for m, label, o in rows if m == '1x2' and label == 'Home'][0]
+    assert home['confidence_source'] == 'sharp' and home['model_confidence'] > .5

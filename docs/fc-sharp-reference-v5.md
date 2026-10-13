@@ -165,3 +165,24 @@ v5.0–v5.2 linked card display to value: a market was shown only with EV > 0. A
 - **Duplicate fixtures** (same teams and kickoff under different 1xbit IDs) are scanned once and counted in `coverage.duplicates`.
 - **Card visibility.** 1X2 projections below 1.30 are no longer hidden. Their tier states the confidence.
 - **New sharp competitions.** Copa Sudamericana and Copa Libertadores are added to the sharp reference list.
+
+## v5.4 — confidence source shown on the card
+
+When Pinnacle is missing, a fixture that has a domestic goal model now shows the model's view: the DC goal model pooled 35/65 with market goals, the same blend as v4. The card's pick per market is the model's most likely side. Market-only fixtures still use 1xbit no-vig. Each market cell shows:
+
+- confidence % and tier;
+- the source label (`Pinnacle (sharp)`, `Model DC + pasar`, `Model tim nasional + pasar` or `Harga pasar 1xbit`) with that source's historical tier hit rate;
+- the 1xbit no-vig view for comparison, plus the model view when the source is Pinnacle.
+
+Tier hit rates by source, from the walk-forward replay:
+
+| Tier | Pinnacle | Model DC + pasar | 1xbit/market no-vig |
+| --- | ---: | ---: | ---: |
+| TINGGI ≥ 65% | 74.1% | 69.2% | 74.3% |
+| SEDANG 55–65% | 60.1% | 57.2% | 59.9% |
+| RENDAH 45–55% | 51.9% | 50.9% | 51.4% |
+| SPEKULATIF < 45% | 40.5% | 40.2% | 40.5% |
+
+Raw DC alone is not used as confidence. Its TINGGI tier claimed 72.6% and won 60.6%.
+
+The national-team model has no measured hit rate, so the card shows its label without a history figure. Value picks still require Pinnacle.

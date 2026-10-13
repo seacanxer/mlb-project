@@ -55,7 +55,7 @@ from football_formula_engine.sharp_reference import (REFERENCE_VERSION,  # noqa:
     value_tier)
 from football_formula_engine import reference_odds  # noqa: E402
 from football_formula_engine.confidence import (confidence_tier, display_markets,  # noqa: E402
-    tier_hit_rate)
+    source_label, tier_hit_rate)
 from football_formula_engine.catalog import POLICY_VERSION, select_markets, direction_counts  # noqa: E402
 from football_formula_engine.live_training import current_season, refresh_scores  # noqa: E402
 from football_formula_engine.leagues import (LEAGUES, LEAGUE_BY_NAME,  # noqa: E402
@@ -774,7 +774,7 @@ def publish_secondary_picks(m, now):
 
 
 def opp(payout, odds, no_vig_probs, *, gated=True, market=None, reference=None,
-        reference_mode=False):
+        reference_mode=False, model_confidence=False):
     """Price a valid offer; value thresholds affect eligibility, not visibility.
 
     In sharp-reference mode ``reference`` is the sharp book's no-vig probability
@@ -790,6 +790,7 @@ def opp(payout, odds, no_vig_probs, *, gated=True, market=None, reference=None,
     raw_probability = payout.full_win + payout.half_win
     if reference_mode and reference is not None:
         raw_win, raw_loss = effective_win_loss(payout)
+        model_view = raw_win / (raw_win + raw_loss) if model_confidence and raw_win + raw_loss else None
         payout, _ = anchor_payout(payout, reference, 0.0)
         fo = fair_odds(payout)
         if fo is None:
@@ -806,6 +807,7 @@ def opp(payout, odds, no_vig_probs, *, gated=True, market=None, reference=None,
                 'reference_bookmaker': REFERENCE_BOOKMAKER, 'gate_reasons': reasons,
                 'value_tier': value_tier(reference),
                 'confidence': reference, 'confidence_source': 'sharp',
+                'market_confidence': no_vig_probs, 'model_confidence': model_view,
                 'raw_probability': raw_probability,
                 'raw_price_probability': raw_win / (raw_win + raw_loss) if raw_win + raw_loss else None,
                 'probability_adjustment': REFERENCE_VERSION,
@@ -814,6 +816,10 @@ def opp(payout, odds, no_vig_probs, *, gated=True, market=None, reference=None,
     fo = fair_odds(payout)
     if fo is None:
         return None
+    model_view = None
+    if model_confidence:
+        win, loss = effective_win_loss(payout)
+        model_view = win / (win + loss) if win + loss else None
     ev = expected_value(payout, odds)
     cev = ev - UNCERTAINTY_PENALTY
     reasons = []
@@ -835,7 +841,11 @@ def opp(payout, odds, no_vig_probs, *, gated=True, market=None, reference=None,
             'effective_win_probability': payout.full_win + 0.5 * payout.half_win,
             'payout': {key: getattr(payout, key) for key in ('full_win', 'half_win', 'push', 'half_loss', 'full_loss')},
             'market_probability': no_vig_probs, 'reference_probability': None,
-            'confidence': no_vig_probs, 'confidence_source': 'market',
+            # Without a sharp price the card uses the goal model pooled with the
+            # market when this fixture has one, else 1xbit's own no-vig price.
+            'confidence': model_view if model_view is not None else no_vig_probs,
+            'confidence_source': 'model' if model_view is not None else 'market',
+            'market_confidence': no_vig_probs, 'model_confidence': model_view,
             'gate_reasons': reasons,
             'raw_probability': raw_probability,
             'raw_price_probability': raw_price_probability,
@@ -843,7 +853,7 @@ def opp(payout, odds, no_vig_probs, *, gated=True, market=None, reference=None,
             'probability_model_weight': MODEL_WEIGHTS.get(market, 1.0)}
 
 
-def price_fixture(dist, mk, *, gated=True, reference_fair=None):
+def price_fixture(dist, mk, *, gated=True, reference_fair=None, model_confidence=False):
     """Evaluate both sides of every complete market from the same distribution.
 
     ``reference_fair`` maps (market, side, line_quarters) to a sharp no-vig
@@ -855,7 +865,7 @@ def price_fixture(dist, mk, *, gated=True, reference_fair=None):
     def offer(payout, odds, nv, market, side=None, line_quarters=None):
         reference = (reference_fair or {}).get((market, side, line_quarters))
         return opp(payout, odds, nv, gated=gated, market=market, reference=reference,
-                   reference_mode=reference_mode)
+                   reference_mode=reference_mode, model_confidence=model_confidence)
     one_x_two = {int(key): value for key, value in (mk.get('odds_1x2') or {}).items() if str(key) in ('1', '2', '3')}
     if all(t in one_x_two for t in (1, 2, 3)):
         try:
@@ -1323,7 +1333,8 @@ def main(argv=()):
         # apply the historical Dixon-Coles rho a second time after pooling.
         decision_distribution = build_score_matrix(blended_home, blended_away, 0.0)
         opportunities = price_fixture(decision_distribution, mk, gated=False,
-                                      reference_fair=reference_fair)
+                                      reference_fair=reference_fair,
+                                      model_confidence=(lane == 'model'))
         for _market, _label, o in opportunities:
             opened, current = movement.get((_market, o['side'], o['line_quarters']), (None, None))
             o['reference_open_probability'] = opened
@@ -1406,7 +1417,15 @@ def main(argv=()):
                 'confidence': (round(o['confidence'], 4) if o.get('confidence') is not None else None),
                 'confidence_source': o.get('confidence_source'),
                 'confidence_tier': confidence_tier(o.get('confidence')),
-                'tier_hit_rate': tier_hit_rate(confidence_tier(o.get('confidence'))),
+                'confidence_label': source_label(o.get('confidence_source'), national=code == NATIONAL_CODE),
+                # Historical hit rates were measured on club leagues only.
+                'tier_hit_rate': (None if code == NATIONAL_CODE and o.get('confidence_source') == 'model'
+                                  else tier_hit_rate(confidence_tier(o.get('confidence')),
+                                                     o.get('confidence_source'))),
+                'market_confidence': (round(o['market_confidence'], 4)
+                                      if o.get('market_confidence') is not None else None),
+                'model_confidence': (round(o['model_confidence'], 4)
+                                     if o.get('model_confidence') is not None else None),
                 'is_value': not o['gate_reasons'] and o.get('ev', -1) > 0,
                 'edge_pct': round(1 / o['fair_odds'] - o['market_probability'], 4),
                 'formula_version': formula_version,

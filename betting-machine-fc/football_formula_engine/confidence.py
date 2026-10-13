@@ -12,24 +12,46 @@ the pick wins, not profit: without a price edge, ROI is about minus margin.
 Value (edge >= 2% against the sharp price) is flagged separately.
 """
 TIERS = (
-    # name, minimum confidence, historical hit rate (Pinnacle no-vig source)
-    ('TINGGI', 0.65, 0.741),
-    ('SEDANG', 0.55, 0.601),
-    ('RENDAH', 0.45, 0.519),
-    ('SPEKULATIF', 0.0, 0.405),
+    # name, minimum confidence
+    ('TINGGI', 0.65),
+    ('SEDANG', 0.55),
+    ('RENDAH', 0.45),
+    ('SPEKULATIF', 0.0),
 )
+# Historical hit rate per tier and confidence source (walk-forward replay,
+# pick = most likely side). 'model' is the DC goal model pooled with market
+# goals (the card's model lane); raw DC alone was overconfident (TINGGI tier
+# won 61%) and is never used as confidence.
+TIER_HIT_RATES = {
+    'sharp': {'TINGGI': 0.741, 'SEDANG': 0.601, 'RENDAH': 0.519, 'SPEKULATIF': 0.405},
+    'model': {'TINGGI': 0.692, 'SEDANG': 0.572, 'RENDAH': 0.509, 'SPEKULATIF': 0.402},
+    'market': {'TINGGI': 0.743, 'SEDANG': 0.599, 'RENDAH': 0.514, 'SPEKULATIF': 0.405},
+}
+SOURCE_LABELS = {
+    'sharp': 'Pinnacle (sharp)',
+    'model': 'Model DC + pasar',
+    'national_model': 'Model tim nasional + pasar',
+    'market': 'Harga pasar 1xbit',
+}
 DISPLAY_ORDER = ('1x2', 'ah', 'ou', 'btts')
 
 
 def confidence_tier(probability):
-    for name, floor, _hit in TIERS:
+    for name, floor in TIERS:
         if probability is not None and probability >= floor:
             return name
     return 'SPEKULATIF'
 
 
-def tier_hit_rate(tier):
-    return next((hit for name, _floor, hit in TIERS if name == tier), None)
+def tier_hit_rate(tier, source='sharp'):
+    """Historical hit rate for a tier from a given source; None when unmeasured."""
+    return TIER_HIT_RATES.get(source, {}).get(tier)
+
+
+def source_label(source, national=False):
+    if source == 'model' and national:
+        return SOURCE_LABELS['national_model']
+    return SOURCE_LABELS.get(source, source)
 
 
 def _line_key(market, offer):

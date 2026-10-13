@@ -349,7 +349,12 @@ export interface ForecastPick extends FcPick {
   quote_captured_at?: number | string;
   /** Best-calibrated win probability: sharp no-vig, else 1xbit no-vig. */
   confidence?: number | null;
-  confidence_source?: 'sharp' | 'market' | null;
+  confidence_source?: 'sharp' | 'model' | 'market' | null;
+  /** Human label of the confidence source, e.g. 'Model DC + pasar'. */
+  confidence_label?: string;
+  /** 1xbit no-vig and goal-model views, kept for comparison on the card. */
+  market_confidence?: number | null;
+  model_confidence?: number | null;
   confidence_tier?: 'TINGGI' | 'SEDANG' | 'RENDAH' | 'SPEKULATIF';
   /** Historical hit rate of this tier (pick = most likely side), not a guarantee. */
   tier_hit_rate?: number | null;
