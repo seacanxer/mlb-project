@@ -1,0 +1,291 @@
+{
+  "audit_version": "fc-terminal-phase1-v1",
+  "generated_at": "2026-10-15T14:36:59.346672+00:00",
+  "sources": [
+    {
+      "path": "betting-machine-fc/matches_detailed.json",
+      "sha256": "d1e5500c4d4ca329b3237a5c3b95a5953c0b61157ca885b299fd2de1a0fdf04e"
+    },
+    {
+      "path": "reports/fc-model-performance.json",
+      "sha256": "213339b5b267686fc79a3c2d46cb92e0ce0608b114e9f854ffa2a1e4790797dd"
+    },
+    {
+      "path": "betting-machine-fc/tracker_snapshot.json",
+      "sha256": "c4601fdb906c10faa73ecd6c068284cf8d7f02ec29fd0581b30a2e6dccb8707b"
+    },
+    {
+      "path": "betting-machine-fc/config.json",
+      "sha256": "7f43eb27061952e94d6a3113722f286ecc872c4511b9eabc196128157ee643fe"
+    }
+  ],
+  "scope": "Offline committed snapshots, not a live deployment or prospective validation.",
+  "snapshot": {
+    "fixtures": 241,
+    "lanes": {
+      "market_only": 217,
+      "unknown": 24
+    },
+    "primary_projections": 847,
+    "qualified_picks": 0,
+    "confidence_sources": {
+      "market": 847
+    },
+    "top_confidence_odds_1_4": 7,
+    "top_ev_nonpositive": 7,
+    "top_not_value": 7,
+    "top_ev_range": [
+      -0.0592,
+      -0.0266
+    ],
+    "low_odds_1x2_displayable": 31,
+    "low_odds_1x2_logged": 0,
+    "confidence_probability_gap_gt_1pp": 635,
+    "confidence_probability_max_gap": 0.2002,
+    "payout_ev_mismatches": [],
+    "binary_ev_max_absolute_error_asian": 0.26406347597250723,
+    "shared_research_ids_different_contracts": 0,
+    "projection_quote_timestamp_range": [
+      1792044026.9702222,
+      1792044215.549793
+    ]
+  },
+  "scan_diagnostics": {
+    "coverage": {
+      "fixtures": 241,
+      "artifact_rows": 47,
+      "model_lane": 0,
+      "reference_only_lane": 0,
+      "reference_fallback": 1,
+      "market_only_lane": 218,
+      "league_unavailable": 199,
+      "reference_missing": 42,
+      "duplicates": 23
+    },
+    "skipped": {
+      "NO_VALUE": 217,
+      "DUPLICATE_FIXTURE": 23,
+      "COMPLETE_MARKET_UNAVAILABLE": 1,
+      "REFERENCE_UNAVAILABLE": 42,
+      "TEAM_COVERAGE_MISSING": 1
+    },
+    "sharp_reference": {
+      "status": "CONFIGURED",
+      "fixtures_priced": 0,
+      "leagues": {
+        "soccer_argentina_primera_division": {
+          "status": "FETCH_FAILED",
+          "error_type": "HTTPError",
+          "fixtures": 1
+        },
+        "soccer_conmebol_copa_libertadores": {
+          "status": "FETCH_FAILED",
+          "error_type": "HTTPError",
+          "fixtures": 1
+        },
+        "soccer_england_league1": {
+          "status": "FETCH_FAILED",
+          "error_type": "HTTPError",
+          "fixtures": 1
+        },
+        "soccer_saudi_arabia_pro_league": {
+          "status": "FETCH_FAILED",
+          "error_type": "HTTPError",
+          "fixtures": 3
+        },
+        "soccer_uefa_europa_conference_league": {
+          "status": "FETCH_FAILED",
+          "error_type": "HTTPError",
+          "fixtures": 18
+        },
+        "soccer_uefa_europa_league": {
+          "status": "FETCH_FAILED",
+          "error_type": "HTTPError",
+          "fixtures": 18
+        }
+      }
+    }
+  },
+  "performance": {
+    "generated_at": "2026-10-15T06:00:20.801618+00:00",
+    "ledger_entries": 4915,
+    "graded": 1730,
+    "pending": 3185,
+    "unique_fixtures": 1183,
+    "overall": {
+      "n": 1730,
+      "brier": 0.2435,
+      "wins": 785,
+      "pushes": 48,
+      "half_wins": 75,
+      "log_loss": 0.68,
+      "winning_events": 860,
+      "decisive": 1682,
+      "hit_rate": 0.5113,
+      "mean_predicted": 0.5236,
+      "observed_win_probability": 0.4971,
+      "calibration_gap": -0.0265
+    },
+    "by_market": {
+      "1x2": {
+        "n": 415,
+        "brier": 0.2336,
+        "wins": 230,
+        "losses": 185,
+        "pushes": 0,
+        "half_wins": 0,
+        "half_losses": 0,
+        "log_loss": 0.6587,
+        "winning_events": 230,
+        "decisive": 415,
+        "hit_rate": 0.5542,
+        "mean_predicted": 0.5231,
+        "observed_win_probability": 0.5542,
+        "calibration_gap": 0.0311
+      },
+      "ah": {
+        "n": 439,
+        "brier": 0.2399,
+        "wins": 164,
+        "losses": 171,
+        "pushes": 23,
+        "half_wins": 38,
+        "half_losses": 43,
+        "log_loss": 0.6722,
+        "winning_events": 202,
+        "decisive": 416,
+        "hit_rate": 0.4856,
+        "mean_predicted": 0.4906,
+        "observed_win_probability": 0.4601,
+        "calibration_gap": -0.0305
+      },
+      "ou": {
+        "n": 480,
+        "brier": 0.2486,
+        "wins": 180,
+        "losses": 219,
+        "pushes": 25,
+        "half_wins": 37,
+        "half_losses": 19,
+        "log_loss": 0.6913,
+        "winning_events": 217,
+        "decisive": 455,
+        "hit_rate": 0.4769,
+        "mean_predicted": 0.5088,
+        "observed_win_probability": 0.4521,
+        "calibration_gap": -0.0567
+      },
+      "btts": {
+        "n": 396,
+        "brier": 0.2516,
+        "wins": 211,
+        "losses": 185,
+        "pushes": 0,
+        "half_wins": 0,
+        "half_losses": 0,
+        "log_loss": 0.6976,
+        "winning_events": 211,
+        "decisive": 396,
+        "hit_rate": 0.5328,
+        "mean_predicted": 0.5788,
+        "observed_win_probability": 0.5328,
+        "calibration_gap": -0.046
+      }
+    }
+  },
+  "available_recent_details": 100,
+  "full_local_ledgers": {
+    "projection_ledger.jsonl": false,
+    "projection_grades.jsonl": false
+  },
+  "tracker": {
+    "summary": {
+      "locked_picks": 0,
+      "settled_picks": 203,
+      "wins": 74,
+      "losses": 117,
+      "pushes": 12,
+      "profit_units": -25.37,
+      "roi_pct": -12.5,
+      "hit_rate_pct": 38.74,
+      "duplicates_hidden": 0,
+      "pending_picks": 6,
+      "live_picks": 0,
+      "overdue_picks": 6,
+      "manual_locked_picks": 0
+    },
+    "manual_summary": {
+      "locked_picks": 0,
+      "settled_picks": 0,
+      "wins": 0,
+      "losses": 0,
+      "pushes": 0,
+      "profit_units": 0,
+      "roi_pct": 0.0,
+      "hit_rate_pct": 0.0
+    },
+    "manual_parlay_summary": {
+      "pending_slips": 0,
+      "settled_slips": 6,
+      "wins": 0,
+      "losses": 6,
+      "pushes": 0,
+      "profit_units": -6.0,
+      "roi_pct": -100.0,
+      "hit_rate_pct": 0.0
+    }
+  },
+  "synthetic_reproductions": {
+    "stale_reference": {
+      "captured_age_seconds": 5,
+      "source_age_seconds": 3600,
+      "configured_max_age_seconds": 900,
+      "accepted_contracts": 5,
+      "ev_at_2_1": 0.050000000000000044,
+      "gate_reasons": []
+    },
+    "research_identity": {
+      "second_contract_requested": {
+        "market": "ou",
+        "side": "over",
+        "line_quarters": 10,
+        "decimal_odds": 2.0
+      },
+      "second_contract_returned": {
+        "decimal_odds": 2.0,
+        "line_quarters": null,
+        "market": "1x2",
+        "side": "home"
+      },
+      "same_artifact_id": true
+    },
+    "same_match_parlay": {
+      "legs": [
+        "Home 1X2",
+        "Away -0.5 AH"
+      ],
+      "independence_product": 0.12910101522586528,
+      "score_matrix_joint": 0.0,
+      "note": "Synthetic contradiction; no ticket was locked."
+    },
+    "split_line_ev": {
+      "payout": {
+        "full_win": 0.4,
+        "half_win": 0.2,
+        "push": 0.1,
+        "half_loss": 0.1,
+        "full_loss": 0.2
+      },
+      "odds": 2.0,
+      "positive_payout_probability": 0.6,
+      "payout_aware_ev": 0.25,
+      "binary_shortcut_ev": 0.19999999999999996
+    }
+  },
+  "limitations": [
+    "No new live feed, independent result verification or retraining.",
+    "Aggregate performance mixes formula versions; it is not a v5 holdout result.",
+    "Pending does not mean overdue. Full ledgers are required to recompute the entire cohort.",
+    "UI findings are source-code audit, not a new browser screenshot review."
+  ]
+}
