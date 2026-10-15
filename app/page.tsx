@@ -77,7 +77,17 @@ export default function DailySlate() {
         setError(data.error || 'Failed to load slate.');
         return;
       }
-      setGames(data.games ?? []);
+      const loadedGames = data.games ?? [];
+      if (loadedGames.length === 0 && d === DEFAULT_DATE) {
+        const nextRes = await fetch(`/api/slates/next/refresh?from=${d}`, { method: 'POST' });
+        const nextData = await nextRes.json();
+        if (nextRes.ok && nextData.date && nextData.date !== d) {
+          setRefreshStatus(`Tidak ada pertandingan pada ${d}; memuat slate berikutnya ${nextData.date}.`);
+          setDate(nextData.date);
+          return;
+        }
+      }
+      setGames(loadedGames);
     } catch {
       setError('Failed to load slate.');
     } finally {

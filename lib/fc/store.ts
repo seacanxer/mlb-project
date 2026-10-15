@@ -378,7 +378,7 @@ export function readMatches(limit = 50, offset = 0): MatchesResponse {
     const info = (m['info'] ?? {}) as Record<string, unknown>;
     return Number(info['start_ts'] ?? 0) > nowSec;
   });
-  const lim = Math.min(Math.max(limit, 1), 200);
+  const lim = Math.min(Math.max(limit, 1), 500);
   const off = Math.max(offset, 0);
   return {
     count: future.length,

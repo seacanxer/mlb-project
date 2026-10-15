@@ -19,25 +19,60 @@ const STORAGE_KEY = 'fc-prediction-watchlist-v2';
 const LOCK_STORAGE_KEY = 'fc-prediction-locked-v1';
 const PAGE_SIZE = 24;
 
-function choicesFor(match: DetailedMatch, valueOnly = false): ForecastPick[] {
-  return valueOnly ? (match.qualified_picks ?? []).filter((pick) => isCardVisible(pick) && isValue(pick)) : forecastPicks(match);
+const TOP_PICK_MIN_ODDS = 1.4;
+
+function isHighConfidence(pick: ForecastPick): boolean {
+  return pick.confidence_tier === 'TINGGI' || (pick.confidence != null && pick.confidence >= 0.65);
 }
 
-function PredictionCard({ match, market, valueOnly, saved, lockedIds, onToggle }: {
-  match: DetailedMatch; market: string; valueOnly: boolean; saved: string[]; lockedIds: Set<string>; onToggle: (m: DetailedMatch, p: ForecastPick) => void;
+function isTopQuality(pick: ForecastPick): boolean {
+  const odds = Number(pick.odds);
+  if (!Number.isFinite(odds) || odds < TOP_PICK_MIN_ODDS) return false;
+  return isHighConfidence(pick);
+}
+
+function valueScreenPick(match: DetailedMatch): ForecastPick | null {
+  if (match.info.coverage_status !== 'full' || match.analysis?.status !== 'ready' || !match.analysis.model_goals || !match.analysis.quote_captured_at) return null;
+  const candidates = forecastPicks(match).filter((pick) => {
+    const odds = Number(pick.odds);
+    return ['1x2', 'ah', 'ou', 'btts'].includes(pick.market) && Number.isFinite(odds) && odds >= 1.5 && pick.confidence != null && Number.isFinite(pick.probability);
+  });
+  if (!candidates.length) return null;
+  return [...candidates].sort((a, b) => {
+    const aValue = isValue(a) ? 1 : 0;
+    const bValue = isValue(b) ? 1 : 0;
+    return bValue - aValue || (b.ev ?? -1) - (a.ev ?? -1) || (b.confidence ?? 0) - (a.confidence ?? 0);
+  })[0];
+}
+
+function valueScreenUncertain(pick: ForecastPick): boolean {
+  return !isValue(pick) || pick.confidence_source !== 'sharp' || (pick.confidence ?? 0) < 0.65;
+}
+
+function choicesFor(match: DetailedMatch, valueOnly = false, filter: 'top' | 'high' | 'all' = 'all'): ForecastPick[] {
+  const screened = valueOnly ? valueScreenPick(match) : null;
+  const picks = valueOnly ? (screened ? [screened] : []) : forecastPicks(match);
+  if (filter === 'top') return picks.filter(isTopQuality);
+  if (filter === 'high') return picks.filter(isHighConfidence);
+  return picks;
+}
+
+function PredictionCard({ match, market, valueOnly, pickFilter, saved, lockedIds, onToggle }: {
+  match: DetailedMatch; market: string; valueOnly: boolean; pickFilter: 'top' | 'high' | 'all'; saved: string[]; lockedIds: Set<string>; onToggle: (m: DetailedMatch, p: ForecastPick) => void;
 }) {
   const info = match.info;
-  const projections = choicesFor(match, valueOnly);
+  const projections = choicesFor(match, valueOnly, pickFilter);
   const goals = match.analysis?.model_goals;
   const available = projections.length > 0;
   const reasons = match.analysis?.reason_codes.length ? match.analysis.reason_codes : ['RESCAN_REQUIRED'];
-  const options = (match.market_options ?? projections).filter((p) => isCardVisible(p) && (market === 'all' || p.market === market));
-  const cells = PREDICTION_MARKETS.filter((m) => ['1x2', 'ah', 'ou', 'btts'].includes(m.key) && (market === 'all' || m.key === market));
-  return <article className={`prediction-card${available ? '' : ' prediction-card-empty'}`}>
+  const options = (pickFilter !== 'all' ? projections : (match.market_options ?? projections)).filter((p) => isCardVisible(p) && (market === 'all' || p.market === market));
+  const cells = PREDICTION_MARKETS.filter((m) => ['1x2', 'ah', 'ou', 'btts'].includes(m.key) && projections.some((p) => p.market === m.key) && (market === 'all' || m.key === market));
+  const uncertain = valueOnly && projections[0] ? valueScreenUncertain(projections[0]) : false;
+  return <article className={`prediction-card${available ? '' : ' prediction-card-empty'}${uncertain ? ' prediction-card-uncertain' : ''}`}>
     <header className="prediction-meta">
       <span className="prediction-league"><span aria-hidden="true">◈</span> {info.league || 'Liga belum tersedia'}</span>
       <time>{formatKickoffWIB(info.start_ts)}</time>
-      <span className={`prediction-status ${available ? 'is-ready' : ''}`}>{available ? laneLabel(match.analysis?.lane) : goals ? 'Tanpa pick layak' : 'Data belum lengkap'}</span>
+      <span className={`prediction-status ${available ? 'is-ready' : ''}`}>{uncertain ? 'Perlu review' : available ? laneLabel(match.analysis?.lane) : goals ? 'Tanpa pick layak' : 'Data belum lengkap'}</span>
     </header>
     <div className="prediction-main">
       <div className="prediction-teams">
@@ -60,7 +95,7 @@ function PredictionCard({ match, market, valueOnly, saved, lockedIds, onToggle }
                 {pick.confidence_label ?? 'Sumber belum tercatat'}{pick.tier_hit_rate != null ? ` · histori ${formatProb(pick.tier_hit_rate)}` : ''}
               </small>
               {pick.confidence_source !== 'market' && pick.market_confidence != null && <small className="prediction-source">Pasar 1xbit {formatProb(pick.market_confidence)}{pick.confidence_source === 'sharp' && pick.model_confidence != null ? ` · Model ${formatProb(pick.model_confidence)}` : ''}</small>}
-              <span className={`prediction-tag ${isValue(pick) ? 'is-value' : ''} tier-${(pick.confidence_tier ?? '').toLowerCase()}`}>{isValue(pick) ? 'Kandidat value' : TIER_LABEL[pick.confidence_tier ?? ''] ?? 'Proyeksi'}</span>
+              <span className={`prediction-tag ${isValue(pick) ? 'is-value' : ''} tier-${(pick.confidence_tier ?? '').toLowerCase()}`}>{isValue(pick) ? 'Kandidat value' : valueOnly ? 'Belum cukup yakin' : TIER_LABEL[pick.confidence_tier ?? ''] ?? 'Proyeksi'}</span>
             </button> : <div className="prediction-no-market"><strong>—</strong><small>{match.analysis?.model_goals ? 'Tidak ada pick layak' : 'Menunggu data'}</small></div>}
           </div>;
         })}
@@ -110,6 +145,7 @@ function isTopMarketLeague(match: DetailedMatch): boolean {
 
 export function PredictionBoard({ matches, initialView = 'all', marketScope = 'all' }: { matches: DetailedMatch[]; initialView?: BoardView; marketScope?: 'all' | 'top' }) {
   const [view, setView] = useState<BoardView>(initialView);
+  const [topMode, setTopMode] = useState<'top' | 'high' | 'all'>(initialView === 'model' ? 'top' : 'all');
   const [search, setSearch] = useState('');
   const [league, setLeague] = useState('all');
   const [market, setMarket] = useState<string>('all');
@@ -216,6 +252,8 @@ export function PredictionBoard({ matches, initialView = 'all', marketScope = 'a
   const leagues = useMemo(() => [...new Set(matches.map((m) => m.info.league).filter((v): v is string => Boolean(v)))].sort(), [matches]);
   const ready = matches.filter((m) => forecastPicks(m).length > 0).length;
   const scopedReady = scopedMatches.filter((m) => forecastPicks(m).length > 0).length;
+  const topMatches = scopedMatches.filter((m) => choicesFor(m, false, 'top').length > 0);
+  const highMatches = scopedMatches.filter((m) => choicesFor(m, false, 'high').length > 0);
   const values = matches.reduce((n, m) => n + (m.qualified_picks ?? []).filter(isValue).length, 0);
   const unsupportedLeagues = matches.filter((m) => m.analysis?.reason_codes?.includes('LEAGUE_MODEL_UNAVAILABLE')).length;
   const unmatchedTeams = matches.filter((m) => m.analysis?.reason_codes?.includes('TEAM_UNMATCHED')).length;
@@ -223,7 +261,7 @@ export function PredictionBoard({ matches, initialView = 'all', marketScope = 'a
   const unavailableReasons = new Map<string, number>();
   matches.filter((m) => !forecastPicks(m).length).forEach((m) => (m.analysis?.reason_codes?.length ? m.analysis.reason_codes : ['RESCAN_REQUIRED']).forEach((code) => unavailableReasons.set(code, (unavailableReasons.get(code) ?? 0) + 1)));
   const filtered = scopedMatches.filter((m) => {
-    const picks = choicesFor(m, view === 'value');
+    const picks = choicesFor(m, view === 'value', view === 'model' ? topMode : 'all');
     if ((view === 'ready' || view === 'model') && !picks.length) return false;
     if (view === 'value' && !picks.length) return false;
     if (view === 'unavailable' && forecastPicks(m).length) return false;
@@ -252,15 +290,16 @@ export function PredictionBoard({ matches, initialView = 'all', marketScope = 'a
     <div className="prediction-workspace">
       <section className="prediction-content" aria-label="Daftar Prediksi Pertandingan">
         <div className="prediction-view-tabs" role="group" aria-label="Jenis hasil">
-          {([['all', 'Semua pertandingan'], ['model', `Pilihan model (${scopedReady})`], ['value', 'Kandidat value'], ['unavailable', 'Perlu data'], ['saved', `Tersimpan (${savedChoices.length})`]] as [BoardView, string][]).map(([key, label]) => <button key={key} type="button" aria-pressed={view === key} onClick={() => changeView(key)}>{label}</button>)}
+          {([['all', 'Semua pertandingan'], ['model', `Pilihan model (${scopedReady})`], ['value', 'Kandidat value'], ['unavailable', 'Perlu data'], ['saved', `Tersimpan (${savedChoices.length})`]] as [BoardView, string][]).map(([key, label]) => <button key={key} type="button" aria-pressed={view === key} onClick={() => { changeView(key); if (key === 'model') setTopMode('top'); }}>{label}</button>)}
         </div>
+        {view === 'model' && <div className="prediction-top-subnav" role="group" aria-label="Filter Top Picks"><button type="button" aria-pressed={topMode === 'top'} onClick={() => { setTopMode('top'); setPage(0); }}>Top Picks ({topMatches.length})</button><button type="button" aria-pressed={topMode === 'high'} onClick={() => { setTopMode('high'); setPage(0); }}>Confidence tinggi ({highMatches.length})</button><button type="button" aria-pressed={topMode === 'all'} onClick={() => { setTopMode('all'); setPage(0); }}>Semua pilihan model ({scopedReady})</button><span>Top Picks: confidence tinggi + odds minimum 1.40 · confidence tinggi ≥ 65%</span></div>}
         <div className="prediction-filters">
           <label className="prediction-search"><span>Cari pertandingan</span><input type="search" placeholder="Cari tim atau liga…" value={search} onChange={(e) => { setSearch(e.target.value); setPage(0); }} /></label>
           <label><span>Liga</span><select value={league} onChange={(e) => { setLeague(e.target.value); setPage(0); }}><option value="all">Semua liga</option>{leagues.map((l) => <option key={l}>{l}</option>)}</select></label>
           <label><span>Urutkan</span><select value={sort} onChange={(e) => { setSort(e.target.value); setPage(0); }}><option value="time">Kickoff terdekat</option><option value="value">EV tertinggi</option></select></label>
         </div>
         <div className="prediction-list-heading"><div><h2>Daftar Prediksi Pertandingan</h2><p>{filtered.length} pertandingan · waktu Indonesia Barat</p></div><div className="prediction-market-tabs" role="group" aria-label="Market"><button type="button" aria-pressed={market === 'all'} onClick={() => { setMarket('all'); setPage(0); }}>Semua</button>{PREDICTION_MARKETS.map((m) => <button key={m.key} type="button" aria-pressed={market === m.key} onClick={() => { setMarket(m.key); setPage(0); }}>{m.label}</button>)}</div></div>
-        <div className="prediction-list">{filtered.slice(activePage * PAGE_SIZE, (activePage + 1) * PAGE_SIZE).map((m) => <PredictionCard key={matchKey(m)} match={m} market={market} valueOnly={view === 'value'} saved={saved} lockedIds={lockedIds} onToggle={toggle} />)}</div>
+        <div className="prediction-list">{filtered.slice(activePage * PAGE_SIZE, (activePage + 1) * PAGE_SIZE).map((m) => <PredictionCard key={matchKey(m)} match={m} market={market} valueOnly={view === 'value'} pickFilter={view === 'model' ? topMode : 'all'} saved={saved} lockedIds={lockedIds} onToggle={toggle} />)}</div>
         {!filtered.length && <div className="prediction-empty"><span aria-hidden="true">⌕</span><h3>{view === 'value' ? 'Belum ada kandidat value' : view === 'model' ? 'Belum ada pilihan model' : 'Tidak ada pertandingan untuk filter ini'}</h3><p>{view === 'value' ? 'Lihat tab Pilihan model untuk proyeksi pertandingan. Kandidat value hanya muncul bila liga, tim, odds, dan EV memenuhi syarat.' : 'Coba liga lain atau tampilkan semua pertandingan.'}</p><button type="button" onClick={() => { setSearch(''); setLeague('all'); setMarket('all'); changeView('all'); }}>Reset filter</button></div>}
         {pages > 1 && <nav className="prediction-pagination" aria-label="Halaman pertandingan"><button disabled={activePage === 0} onClick={() => setPage(activePage - 1)}>← Sebelumnya</button><span>{activePage + 1} / {pages}</span><button disabled={activePage + 1 >= pages} onClick={() => setPage(activePage + 1)}>Berikutnya →</button></nav>}
       </section>

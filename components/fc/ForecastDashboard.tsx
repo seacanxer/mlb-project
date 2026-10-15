@@ -28,10 +28,7 @@ export function ForecastDashboard({ view = 'all', title = 'Prediksi Pertandingan
       finally { busy = false; }
     };
     void load();
-    const timer = window.setInterval(() => { if (!document.hidden) void load(); }, 60000);
-    const visible = () => { if (!document.hidden) void load(); };
-    document.addEventListener('visibilitychange', visible);
-    return () => { active = false; window.clearInterval(timer); document.removeEventListener('visibilitychange', visible); };
+    return () => { active = false; };
   }, [refresh]);
   const scan = async () => {
     setScanning(true); setMessage('Memperbarui fixture, odds, dan model liga. Proses dapat memerlukan beberapa menit.');
