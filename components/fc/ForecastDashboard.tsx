@@ -23,8 +23,12 @@ export function ForecastDashboard({ view = 'all', title = 'Prediksi Pertandingan
     const load = async () => {
       if (busy) return;
       busy = true;
-      try { const rows = await fetchAllMatches(); if (active) { setMatches(rows); setError(''); } }
-      catch (err) { if (active) setError(err instanceof Error ? err.message : 'Gagal memuat pertandingan.'); }
+      try {
+        const rows = await fetchAllMatches((partial) => {
+          if (active) { setMatches(partial); setError(''); }
+        });
+        if (active) { setMatches(rows); setError(''); }
+      } catch (err) { if (active) setError(err instanceof Error ? err.message : 'Gagal memuat pertandingan.'); }
       finally { busy = false; }
     };
     void load();

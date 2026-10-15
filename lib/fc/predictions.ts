@@ -1,7 +1,7 @@
 import type { DetailedMatch, ForecastPick, Market } from './types';
 import { isActionable } from './quant';
 
-export const FC_UI_VERSION = 'fc-market-board-v2';
+export const FC_UI_VERSION = 'fc-market-board-v3';
 export const PREDICTION_MARKETS: { key: Market; label: string }[] = [
   { key: '1x2', label: '1X2' }, { key: 'ah', label: 'Asian HDP' },
   { key: 'ou', label: 'O/U' }, { key: 'btts', label: 'BTTS' },
