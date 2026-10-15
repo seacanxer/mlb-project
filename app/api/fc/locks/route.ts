@@ -48,15 +48,18 @@ function choiceValid(item: unknown): boolean {
     typeof (item as { match_id: string }).match_id === 'string' && (item as { match_id: string }).match_id.length <= 100 &&
     typeof (item as { market: string }).market === 'string' && ALLOWED_MARKETS.includes((item as { market: string }).market) &&
     typeof (item as { pick: string }).pick === 'string' && (item as { pick: string }).pick.length <= 100 &&
-    // Corner/card projections carry no price; only priced cards are lockable.
-    (SECONDARY_MARKETS.includes((item as { market: string }).market) ||
-      (typeof (item as { odds: number }).odds === 'number' && Number.isFinite((item as { odds: number }).odds))));
+    // Unpriced projections stay on the watchlist and never enter financial ROI.
+    typeof (item as { odds: number }).odds === 'number' && Number.isFinite((item as { odds: number }).odds) &&
+    (item as { odds: number }).odds > 1);
 }
 
 export async function POST(request: Request) {
   if (!authorized(request)) return NextResponse.json({ message: 'Token operator tidak valid atau belum dikonfigurasi.' }, { status: 401 });
   let body: Record<string, unknown>;
   try { body = await request.json(); } catch { return NextResponse.json({ message: 'JSON tidak valid.' }, { status: 400 }); }
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    return NextResponse.json({ message: 'Pilihan tidak valid.' }, { status: 400 });
+  }
   if (body.mode === 'singles' || body.mode === 'parlay') {
     const choices = body.choices;
     if (!Array.isArray(choices) || choices.length < (body.mode === 'parlay' ? 2 : 1) || choices.length > 30 ||
@@ -70,7 +73,7 @@ export async function POST(request: Request) {
   if (typeof match_id !== 'string' || match_id.length > 100 ||
       typeof market !== 'string' || !ALLOWED_MARKETS.includes(market) ||
       typeof pick !== 'string' || pick.length > 100 ||
-      (!SECONDARY_MARKETS.includes(market) && (typeof odds !== 'number' || !Number.isFinite(odds)))) {
+      (typeof odds !== 'number' || !Number.isFinite(odds) || odds <= 1)) {
     return NextResponse.json({ message: 'Pilihan tidak valid.' }, { status: 400 });
   }
   const result = await ledger(['create', '--match-id', match_id, '--market', market, '--pick', pick, '--odds', String(odds)]);

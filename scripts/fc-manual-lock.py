@@ -18,6 +18,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 FC = ROOT / 'betting-machine-fc'
+sys.path.insert(0, str(FC))
+from football_formula_engine.parlays import resolve_choices, evaluate_parlay
 MATCHES = Path(os.environ.get('FC_MATCHES_PATH', str(FC / 'matches_detailed.json')))
 DB = Path(os.environ.get('FC_BETS_DB', str(FC / 'bets.db')))
 MARKETS = {'1x2', 'ah', 'ou', 'btts',
@@ -36,7 +38,7 @@ def create(match_id, market, pick_name, expected_odds):
     if market not in MARKETS or not match_id or not pick_name:
         return fail('Pilihan tidak valid.')
     unpriced = market in SECONDARY_MARKETS
-    if not unpriced and (expected_odds is None or not math.isfinite(expected_odds)):
+    if expected_odds is None or not math.isfinite(expected_odds) or expected_odds <= 1:
         return fail('Pilihan tidak valid.')
     try:
         matches = json.loads(MATCHES.read_text(encoding='utf-8'))
@@ -49,15 +51,15 @@ def create(match_id, market, pick_name, expected_odds):
         choice = next(p for p in candidates if p.get('market') == market and p.get('pick') == pick_name)
         odds = choice.get('odds')
         odds = float(odds) if odds is not None else None
-        if odds is None and not unpriced:
+        if odds is None:
             return fail('Odds tidak tersedia untuk pilihan ini.')
         if odds is not None and (not math.isfinite(odds) or odds <= 1 or abs(odds - expected_odds) > 0.0001):
             return fail('Odds sudah berubah. Muat ulang pertandingan sebelum lock.')
         captured = float(choice.get('quote_captured_at') or match.get('analysis', {}).get('quote_captured_at') or 0)
         if captured <= 0 or captured > now + 5 or now - captured > MAX_QUOTE_AGE:
             return fail('Odds scan sudah kedaluwarsa. Jalankan Perbarui analisis sebelum lock.')
-        probability = float(choice.get('probability') or 0)
-        ev = float(choice.get('ev') or 0)
+        probability = float(choice['probability'])
+        ev = float(choice['ev'])
         if not 0 <= probability <= 1 or not math.isfinite(ev):
             return fail('Data model tidak valid untuk settlement.')
     except (OSError, ValueError, KeyError, StopIteration, TypeError):
@@ -187,7 +189,7 @@ def batch_lock(payload):
             expected_odds = float(raw_odds) if raw_odds is not None else None
             if market not in MARKETS or not match_id or not pick_name:
                 raise ValueError('Pilihan tidak valid.')
-            if expected_odds is None and not unpriced:
+            if expected_odds is None or not math.isfinite(expected_odds) or expected_odds <= 1:
                 raise ValueError('Pilihan tidak valid.')
             key = (match_id, market)
             if key in seen:
@@ -202,7 +204,7 @@ def batch_lock(payload):
             choice = next(p for p in candidates if p.get('market') == market and p.get('pick') == pick_name)
             odds = choice.get('odds')
             odds = float(odds) if odds is not None else None
-            if odds is None and not unpriced:
+            if odds is None:
                 raise ValueError('Odds tidak tersedia untuk pilihan ini.')
             if odds is not None and expected_odds is not None and (
                     not math.isfinite(odds) or odds <= 1 or abs(odds - expected_odds) > 0.0001):
@@ -210,10 +212,16 @@ def batch_lock(payload):
             captured = float(choice.get('quote_captured_at') or match.get('analysis', {}).get('quote_captured_at') or 0)
             if captured <= 0 or captured > now + 5 or now - captured > MAX_QUOTE_AGE:
                 raise ValueError('Odds scan sudah kedaluwarsa. Jalankan Perbarui analisis sebelum lock.')
-            probability, ev = float(choice.get('probability') or 0), float(choice.get('ev') or 0)
+            probability, ev = float(choice['probability']), float(choice['ev'])
             if not 0 <= probability <= 1 or not math.isfinite(ev):
                 raise ValueError('Data model tidak valid untuk settlement.')
             validated.append((match_id, market, pick_name, info, choice, kickoff, odds, probability, ev))
+        assessment = None
+        if mode == 'parlay':
+            legs, distributions = resolve_choices(matches, requested)
+            assessment = evaluate_parlay(legs, now=now, fixture_distributions=distributions)
+            if not assessment['eligible']:
+                return fail('Parlay tidak lolos evaluasi: ' + ', '.join(assessment['reason_codes']))
     except (OSError, KeyError, TypeError, StopIteration, ValueError) as exc:
         return fail(str(exc) if isinstance(exc, ValueError) and str(exc) else 'Pilihan tidak ditemukan pada scan terbaru.')
 
@@ -265,10 +273,14 @@ def batch_lock(payload):
                 source_match_id TEXT, match TEXT, home TEXT, away TEXT, league TEXT,
                 start_ts INTEGER, market TEXT, pick TEXT, odds REAL, result TEXT DEFAULT 'pending',
                 leg_return REAL, home_score INTEGER, away_score INTEGER, settled_at TEXT)''')
+            conn.execute('''CREATE TABLE IF NOT EXISTS parlay_assessments (
+                parlay_id INTEGER PRIMARY KEY, payload TEXT NOT NULL)''')
             fingerprint = hashlib.sha256(json.dumps(sorted((v[0], v[1], v[2], v[6]) for v in validated)).encode()).hexdigest()
             existing = conn.execute("SELECT id,combined_odds,generated_at FROM parlay_slips WHERE fingerprint=? AND source='manual_lock'", (fingerprint,)).fetchone()
             if existing:
                 slip_id, combined, item_time = existing['id'], existing['combined_odds'], existing['generated_at']
+                saved = conn.execute('SELECT payload FROM parlay_assessments WHERE parlay_id=?', (slip_id,)).fetchone()
+                assessment = json.loads(saved['payload']) if saved else None
             else:
                 unpriced_legs = [f'{v[1]} {v[2]}' for v in validated if v[6] is None]
                 if unpriced_legs:
@@ -276,11 +288,14 @@ def batch_lock(payload):
                                      '. Hanya pilihan corner/card yang sudah memiliki harga buku.')
                 combined = math.prod(v[6] for v in validated)
                 cur = conn.execute('''INSERT INTO parlay_slips
-                    (generation_key,fingerprint,tier,label,source,combined_odds,generated_at,status,match_signature)
-                    VALUES (?,?,?,?,?,?,?,?,?)''',
-                    (locked_at, fingerprint, 'manual', 'Operator parlay', 'manual_lock', combined, locked_at,
+                    (generation_key,fingerprint,tier,label,source,combined_odds,model_joint_probability,generated_at,status,match_signature)
+                    VALUES (?,?,?,?,?,?,?,?,?,?)''',
+                    (locked_at, fingerprint, 'manual', 'Operator parlay', 'manual_lock', combined,
+                     assessment['all_legs_positive_probability'], locked_at,
                      'pending', ','.join(sorted({v[0] for v in validated}))))
                 slip_id, item_time = cur.lastrowid, locked_at
+                conn.execute('INSERT INTO parlay_assessments VALUES (?,?)',
+                             (slip_id, json.dumps(assessment, allow_nan=False)))
                 for match_id, market, pick_name, info, choice, kickoff, odds, _, _ in validated:
                     conn.execute('''INSERT INTO parlay_legs
                         (parlay_id,candidate_id,source_match_id,match,home,away,league,start_ts,market,pick,odds,result)
@@ -289,6 +304,7 @@ def batch_lock(payload):
                          f"{info['home']} vs {info['away']}", info['home'], info['away'],
                          info.get('league') or '', kickoff, market, pick_name, odds, 'pending'))
             result = {'status': 'locked', 'mode': mode, 'parlay_id': slip_id, 'odds': combined,
+                      'assessment': assessment,
                       'locked_at': item_time, 'already_locked': bool(existing)}
         conn.commit()
     except (sqlite3.Error, ValueError) as exc:

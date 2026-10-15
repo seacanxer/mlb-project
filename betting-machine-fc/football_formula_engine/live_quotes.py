@@ -2,6 +2,7 @@
 import json
 import math
 import sqlite3
+import hashlib
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -52,6 +53,15 @@ class QuoteJournal:
                     BEFORE UPDATE ON research_decisions BEGIN SELECT RAISE(ABORT, 'immutable'); END;
                 CREATE TRIGGER IF NOT EXISTS research_no_delete
                     BEFORE DELETE ON research_decisions BEGIN SELECT RAISE(ABORT, 'immutable'); END;
+                CREATE TABLE IF NOT EXISTS research_decisions_v2 (
+                    fixture_id TEXT NOT NULL, policy_id TEXT NOT NULL,
+                    contract_key TEXT NOT NULL, decision_version TEXT NOT NULL,
+                    payload TEXT NOT NULL,
+                    PRIMARY KEY(fixture_id, policy_id, contract_key, decision_version));
+                CREATE TRIGGER IF NOT EXISTS research_v2_no_update
+                    BEFORE UPDATE ON research_decisions_v2 BEGIN SELECT RAISE(ABORT, 'immutable'); END;
+                CREATE TRIGGER IF NOT EXISTS research_v2_no_delete
+                    BEFORE DELETE ON research_decisions_v2 BEGIN SELECT RAISE(ABORT, 'immutable'); END;
             ''')
 
     @contextmanager
@@ -110,7 +120,9 @@ class QuoteJournal:
         return [json.loads(row[0]) for row in rows]
 
     def record_research_decision(self, observation_id, contract, *, decision_at, policy_id, model):
-        """First qualifying decision per fixture/policy, for prospective research only."""
+        """First decision per fixture/policy/contract/version; legacy table is preserved."""
+        require(contract.get('period', 'full_time_90_minutes') == 'full_time_90_minutes',
+                'Research contract period mismatch')
         with self.connect() as db:
             row = db.execute('SELECT payload FROM observations WHERE id=?', (observation_id,)).fetchone()
             require(row is not None, 'Unknown quote observation')
@@ -120,15 +132,21 @@ class QuoteJournal:
             require(any(all(q.get(k) == contract.get(k) for k in
                         ('market', 'side', 'line_quarters', 'decimal_odds')) for q in obs['quotes']),
                     'Entry contract does not match captured quote')
+            contract_key = hashlib.sha256(canonical_bytes({
+                **{k: contract.get(k) for k in ('market', 'side', 'line_quarters')},
+                'period': 'full_time_90_minutes'})).hexdigest()
+            decision_version = str(model.get('formula_version') or 'unversioned')
             payload = seal('research-decision', {
-                'schema_version': 'fc-research-decision-v1', 'fixture_id': obs['fixture_id'],
+                'schema_version': 'fc-research-decision-v2', 'fixture_id': obs['fixture_id'],
                 'policy_id': policy_id, 'decision_at': decision_at, 'observation_id': observation_id,
+                'contract_key': contract_key, 'decision_version': decision_version,
                 'contract': contract, 'model': model, 'stake_units': 1,
                 'status': 'research_only', 'official_enabled': False})
-            db.execute('INSERT OR IGNORE INTO research_decisions VALUES (?, ?, ?)',
-                       (obs['fixture_id'], policy_id, canonical_bytes(payload).decode()))
-            saved = db.execute('SELECT payload FROM research_decisions WHERE fixture_id=? AND policy_id=?',
-                               (obs['fixture_id'], policy_id)).fetchone()
+            db.execute('INSERT OR IGNORE INTO research_decisions_v2 VALUES (?, ?, ?, ?, ?)',
+                       (obs['fixture_id'], policy_id, contract_key, decision_version, canonical_bytes(payload).decode()))
+            saved = db.execute('''SELECT payload FROM research_decisions_v2
+                WHERE fixture_id=? AND policy_id=? AND contract_key=? AND decision_version=?''',
+                (obs['fixture_id'], policy_id, contract_key, decision_version)).fetchone()
             return json.loads(saved[0])
 
     def closing(self, fixture_id, kickoff, *, max_age_seconds=300):

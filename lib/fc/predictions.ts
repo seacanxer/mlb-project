@@ -1,4 +1,5 @@
 import type { DetailedMatch, ForecastPick, Market } from './types';
+import { isActionable } from './quant';
 
 export const FC_UI_VERSION = 'fc-market-board-v2';
 export const PREDICTION_MARKETS: { key: Market; label: string }[] = [
@@ -24,6 +25,13 @@ const REASONS: Record<string, string> = {
   ODDS_OUTSIDE_VALUE_RANGE: 'Odds di luar rentang value.',
   EV_BELOW_VALUE_THRESHOLD: 'EV belum mencapai ambang value.',
   REFERENCE_UNAVAILABLE: 'Harga referensi sharp (Pinnacle) belum tersedia; hanya forecast, bukan value pick.',
+  QUANT_RESCAN_REQUIRED: 'Perbarui analisis untuk memperoleh metrik dan bukti harga terbaru.',
+  REFERENCE_EVIDENCE_UNAVAILABLE: 'Bukti harga sharp belum tersedia atau sudah kedaluwarsa.',
+  REFERENCE_CAPTURE_EXPIRED: 'Waktu pengambilan harga sharp sudah kedaluwarsa.',
+  REFERENCE_SOURCE_EXPIRED: 'Harga sumber sharp sudah terlalu lama diperbarui.',
+  REFERENCE_SOURCE_TIME_UNKNOWN: 'Waktu update sumber sharp tidak tersedia.',
+  REFERENCE_CAPTURE_SKEW: 'Waktu pengambilan harga buku dan sharp terlalu berjauhan.',
+  NO_POSITIVE_EV: 'Harga saat ini belum memberikan EV positif.',
   NO_VALUE_EDGE: 'Proyeksi tersedia untuk semua market, tetapi belum ada edge value ≥ 2% terhadap harga sharp.',
   MARKET_ONLY_NO_REFERENCE: 'Tanpa model dan tanpa referensi sharp: proyeksi dari harga 1xbit tanpa margin, bukan value pick.',
   REFERENCE_NO_EDGE: 'Dianalisis terhadap harga wajar Pinnacle (jalur referensi), tetapi odds 1xbit belum memberi edge ≥ 2%.',
@@ -66,10 +74,7 @@ export function laneLabel(lane?: string): string {
 }
 
 export function isValue(pick: ForecastPick): boolean {
-  return pick.analysis_status === 'value_candidate' ||
-    (pick.analysis_status === undefined && Number.isFinite(pick.ev ?? NaN) && (pick.ev ?? 0) >= 0.01 &&
-      Number.isFinite(pick.conservative_ev ?? NaN) && (pick.conservative_ev ?? 0) >= 0 &&
-      Number.isFinite(pick.odds ?? NaN) && (pick.odds ?? 0) >= 1.6 && (pick.odds ?? 0) <= 2.5);
+  return isActionable(pick);
 }
 
 export function matchKey(match: DetailedMatch): string {

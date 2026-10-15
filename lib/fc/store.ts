@@ -11,8 +11,10 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import { refreshQuant, isActionable } from './quant';
 import type {
   FcPick,
+  ForecastPick,
   HealthResponse,
   MatchesResponse,
   ModelPerformanceResponse,
@@ -108,7 +110,7 @@ export function readPicks(q: PickQuery): PicksResponse {
   } catch {
     raw = [];
   }
-  const future = raw.filter((p) => {
+  const future = raw.map((p) => refreshQuant(p as ForecastPick, nowSec)).filter((p) => {
     if (Number(p?.start_ts ?? 0) <= nowSec) return false;
     // Corner/card projections carry no bookmaker price by design; they are
     // published as research cards and must not be dropped by the odds gate.
@@ -175,8 +177,9 @@ export function readPicks(q: PickQuery): PicksResponse {
       top_pick_count: filtered.filter((p) => p.is_top_pick).length,
 official_count: filtered.filter((p) => p.tier === 'official' && p.selection_status === 'official').length,
       watch_count: filtered.filter((p) => p.tier === 'watch').length,
-      value_v5_count: filtered.filter((p) => pickClass(p) === 'value_v5').length,
-      reference_only_count: filtered.filter((p) => pickClass(p) === 'reference_only').length,
+      value_v5_count: filtered.filter((p) => pickClass(p) === 'value_v5' && isActionable(p, nowSec)).length,
+      reference_only_count: filtered.filter((p) => pickClass(p) === 'reference_only' && isActionable(p, nowSec)).length,
+      actionable_count: filtered.filter((p) => isActionable(p, nowSec)).length,
       secondary_display_count: filtered.filter((p) => pickClass(p) === 'secondary_display').length,
       formula_version: formulaVersion(cfg),
       avg_ev_pct: Math.round(avg(filtered.map((p) => p.ev ?? 0)) * 10000) / 100,
@@ -382,7 +385,12 @@ export function readMatches(limit = 50, offset = 0): MatchesResponse {
   const off = Math.max(offset, 0);
   return {
     count: future.length,
-    matches: future.slice(off, off + lim) as MatchesResponse['matches'],
+    matches: (future.slice(off, off + lim) as MatchesResponse['matches']).map((m) => ({ ...m,
+      projections: m.projections?.map((p) => refreshQuant(p, nowSec)),
+      market_options: m.market_options?.map((p) => refreshQuant(p, nowSec)),
+      qualified_picks: m.qualified_picks?.map((p) => refreshQuant(p as ForecastPick, nowSec)),
+      picks: m.picks?.map((p) => refreshQuant(p as ForecastPick, nowSec)),
+    })),
     pagination: { limit: lim, offset: off, total: future.length },
     engine_offline: engineOffline(),
   };

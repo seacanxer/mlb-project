@@ -7,6 +7,7 @@ import { formatKickoffWIB } from '@/lib/fc/kickoff';
 import { splitLeague } from '@/lib/fc/grouping';
 import { SecondaryPredictionPanel } from './SecondaryPredictionPanel';
 import { fcPost } from '@/lib/fc/client';
+import { isActionable } from '@/lib/fc/quant';
 
 export type BoardView = 'all' | 'ready' | 'model' | 'value' | 'unavailable' | 'saved';
 type Choice = { match: DetailedMatch; pick: ForecastPick; id: string };
@@ -28,14 +29,14 @@ function isHighConfidence(pick: ForecastPick): boolean {
 function isTopQuality(pick: ForecastPick): boolean {
   const odds = Number(pick.odds);
   if (!Number.isFinite(odds) || odds < TOP_PICK_MIN_ODDS) return false;
-  return isHighConfidence(pick);
+  return isHighConfidence(pick) && isActionable(pick);
 }
 
 function valueScreenPick(match: DetailedMatch): ForecastPick | null {
-  if (match.info.coverage_status !== 'full' || match.analysis?.status !== 'ready' || !match.analysis.model_goals || !match.analysis.quote_captured_at) return null;
+  if (match.analysis?.status !== 'ready' || !match.analysis.quote_captured_at) return null;
   const candidates = forecastPicks(match).filter((pick) => {
     const odds = Number(pick.odds);
-    return ['1x2', 'ah', 'ou', 'btts'].includes(pick.market) && Number.isFinite(odds) && odds >= 1.5 && pick.confidence != null && Number.isFinite(pick.probability);
+    return ['1x2', 'ah', 'ou', 'btts'].includes(pick.market) && Number.isFinite(odds) && odds >= 1.3 && isActionable(pick);
   });
   if (!candidates.length) return null;
   return [...candidates].sort((a, b) => {
@@ -91,8 +92,8 @@ function PredictionCard({ match, market, valueOnly, pickFilter, saved, lockedIds
               <strong>{pickLabel(pick, match)}</strong>
               <span className="prediction-odds">@{formatOdds(pick.odds)} <span>{locked ? '🔒' : selected ? '✓' : '+'}</span></span>
               <small>Confidence {formatProb(pick.confidence ?? pick.probability)}</small>
-              <small className="prediction-source" title={pick.tier_hit_rate != null ? `Histori tier ini dari sumber ini: menang ${formatProb(pick.tier_hit_rate)}` : 'Belum ada histori untuk sumber ini'}>
-                {pick.confidence_label ?? 'Sumber belum tercatat'}{pick.tier_hit_rate != null ? ` · histori ${formatProb(pick.tier_hit_rate)}` : ''}
+              <small className="prediction-source" title="Kalibrasi dinilai per versi, sumber, dan market pada Kinerja Model.">
+                {pick.confidence_label ?? 'Sumber belum tercatat'}
               </small>
               {pick.confidence_source !== 'market' && pick.market_confidence != null && <small className="prediction-source">Pasar 1xbit {formatProb(pick.market_confidence)}{pick.confidence_source === 'sharp' && pick.model_confidence != null ? ` · Model ${formatProb(pick.model_confidence)}` : ''}</small>}
               <span className={`prediction-tag ${isValue(pick) ? 'is-value' : ''} tier-${(pick.confidence_tier ?? '').toLowerCase()}`}>{isValue(pick) ? 'Kandidat value' : valueOnly ? 'Belum cukup yakin' : TIER_LABEL[pick.confidence_tier ?? ''] ?? 'Proyeksi'}</span>
@@ -121,7 +122,7 @@ function PredictionCard({ match, market, valueOnly, pickFilter, saved, lockedIds
     <details className="prediction-details">
       <summary>{available ? 'Detail analisis & alternatif line' : 'Lihat kebutuhan data'} <span aria-hidden="true">↗</span></summary>
       <div className="prediction-explanation">
-        <p>{match.analysis?.model_goals ? 'Setiap market menampilkan sisi paling mungkin pada line utama. Confidence = peluang menang dari harga Pinnacle tanpa margin (atau harga 1xbit tanpa margin bila Pinnacle tidak ada). Histori 27 ribu laga: Confidence tinggi (≥65%) menang ±74%, sedang (55–65%) ±60%, rendah (45–55%) ±52%, spekulatif ±41%. Confidence bukan profit: hanya "Kandidat value" (odds 1xbit ≥2% di atas harga wajar Pinnacle) yang punya edge harga.' : reasons.map(reasonLabel).join(' ')}</p>
+        <p>{match.analysis?.model_goals ? 'Confidence menunjukkan probabilitas harga W/(W+L). Pada handicap dan total dengan push atau hasil setengah, angka ini berbeda dari peluang payout positif. Metrik quant menyimpan kedua definisi secara terpisah. Kandidat value memerlukan EV positif dan bukti harga sharp yang masih berlaku. Kalibrasi dinilai per versi, sumber, dan market.' : reasons.map(reasonLabel).join(' ')}</p>
         <p>Official: {reasonLabel(match.analysis?.official_reason || 'MODEL_NOT_VALIDATED')} Probabilitas menang menghitung menang penuh dan setengah menang; EV memperhitungkan push dan hasil setengah.</p>
         {match.analysis?.quote_captured_at && <p>Odds 1xbit diambil: {formatKickoffWIB(match.analysis.quote_captured_at)}. Harga dapat berubah.</p>}
         {match.analysis?.model_data_as_of && <p>Hasil terakhir pada data model: {formatKickoffWIB(match.analysis.model_data_as_of)}.</p>}
@@ -292,7 +293,7 @@ export function PredictionBoard({ matches, initialView = 'all', marketScope = 'a
         <div className="prediction-view-tabs" role="group" aria-label="Jenis hasil">
           {([['all', 'Semua pertandingan'], ['model', `Pilihan model (${scopedReady})`], ['value', 'Kandidat value'], ['unavailable', 'Perlu data'], ['saved', `Tersimpan (${savedChoices.length})`]] as [BoardView, string][]).map(([key, label]) => <button key={key} type="button" aria-pressed={view === key} onClick={() => { changeView(key); if (key === 'model') setTopMode('top'); }}>{label}</button>)}
         </div>
-        {view === 'model' && <div className="prediction-top-subnav" role="group" aria-label="Filter Top Picks"><button type="button" aria-pressed={topMode === 'top'} onClick={() => { setTopMode('top'); setPage(0); }}>Top Picks ({topMatches.length})</button><button type="button" aria-pressed={topMode === 'high'} onClick={() => { setTopMode('high'); setPage(0); }}>Confidence tinggi ({highMatches.length})</button><button type="button" aria-pressed={topMode === 'all'} onClick={() => { setTopMode('all'); setPage(0); }}>Semua pilihan model ({scopedReady})</button><span>Top Picks: confidence tinggi + odds minimum 1.40 · confidence tinggi ≥ 65%</span></div>}
+        {view === 'model' && <div className="prediction-top-subnav" role="group" aria-label="Filter Top Picks"><button type="button" aria-pressed={topMode === 'top'} onClick={() => { setTopMode('top'); setPage(0); }}>Top Picks ({topMatches.length})</button><button type="button" aria-pressed={topMode === 'high'} onClick={() => { setTopMode('high'); setPage(0); }}>Confidence tinggi ({highMatches.length})</button><button type="button" aria-pressed={topMode === 'all'} onClick={() => { setTopMode('all'); setPage(0); }}>Semua pilihan model ({scopedReady})</button><span>Top Picks: value terverifikasi + confidence tinggi + odds minimum 1.40 · confidence tinggi ≥ 65%</span></div>}
         <div className="prediction-filters">
           <label className="prediction-search"><span>Cari pertandingan</span><input type="search" placeholder="Cari tim atau liga…" value={search} onChange={(e) => { setSearch(e.target.value); setPage(0); }} /></label>
           <label><span>Liga</span><select value={league} onChange={(e) => { setLeague(e.target.value); setPage(0); }}><option value="all">Semua liga</option>{leagues.map((l) => <option key={l}>{l}</option>)}</select></label>

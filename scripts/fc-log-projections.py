@@ -49,10 +49,12 @@ SECONDARY_CARD_MARKETS = ('corners_ou', 'corner_hdp', 'corner_1x2', 'cards_1x2',
                           'team_cards_ou', 'red_card')
 
 
-def ledger_key(match_id, market, side, line_quarters, team, pick):
+def ledger_key(match_id, market, side, line_quarters, team, pick, cohort=None):
     raw = '|'.join(str(value) for value in
                    (match_id, (market or '').lower(), (side or '').lower(),
                     line_quarters, (team or '').lower(), (pick or '').strip().lower()))
+    if cohort:
+        raw += '|cohort:' + cohort
     return hashlib.sha256(raw.encode('utf-8')).hexdigest()[:24]
 
 
@@ -116,7 +118,7 @@ def collect_rows(matches, first_seen_at):
             if market == '1x2':
                 try:
                     odds = float(proj.get('odds'))
-                    if not math.isfinite(odds) or odds < 1.30:
+                    if not math.isfinite(odds) or odds <= 1:
                         return
                 except (TypeError, ValueError):
                     return
@@ -130,7 +132,9 @@ def collect_rows(matches, first_seen_at):
                     line_quarters = None
             team = proj.get('team')
             pick = proj.get('pick') or ''
-            key = ledger_key(match_id, market, side, line_quarters, team, pick)
+            cohort = ('|'.join(str(proj.get(k) or '') for k in ('formula_version', 'policy_version'))
+                      + '|' + proj['quant']['schema_version']) if proj.get('quant') else None
+            key = ledger_key(match_id, market, side, line_quarters, team, pick, cohort=cohort)
             if key in seen_keys:
                 return
             seen_keys.add(key)
@@ -150,6 +154,13 @@ def collect_rows(matches, first_seen_at):
                 'line': (None if line_quarters is None
                          else line_quarters / 4),
                 'probability': round(probability, 4),
+                'schema_version': 'fc-projection-ledger-v2',
+                'probability_semantics': 'positive_payout_including_half_win',
+                'quant': proj.get('quant'),
+                'confidence': proj.get('confidence'),
+                'confidence_source': proj.get('confidence_source'),
+                'confidence_tier': proj.get('confidence_tier'),
+                'lane': proj.get('lane'),
                 'raw_probability': proj.get('raw_probability'),
                 'probability_adjustment': proj.get('probability_adjustment'),
                 'raw_price_probability': proj.get('raw_price_probability'),
@@ -170,6 +181,8 @@ def collect_rows(matches, first_seen_at):
                 'gate_reasons': proj.get('gate_reasons'),
                 'source': source,
                 'quote_captured_at': proj.get('quote_captured_at'),
+                'quote_observation_id': proj.get('quote_observation_id'),
+                'decision_at': proj.get('decision_at'),
             })
 
         # Primary card cells: first projections item per market (mirrors .find).

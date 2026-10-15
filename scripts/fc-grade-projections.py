@@ -325,6 +325,57 @@ def first_seen_key(entry):
         return float('inf')
 
 
+def calibration_cohorts(entries, grades):
+    """Earliest pre-match row per fixture/market/version/source, never pool versions.
+
+    Score only the unconditional positive-payout probability. Price confidence
+    W/(W+L) is retained for display but is not a Bernoulli win probability.
+    """
+    chosen = {}
+    for entry in entries:
+        if not is_card_row(entry):
+            continue
+        first, kickoff = first_seen_key(entry), entry.get('start_ts')
+        captured = entry.get('quote_captured_at')
+        if kickoff and ((math.isfinite(first) and first >= float(kickoff)) or
+                (isinstance(captured, (int,float)) and captured >= float(kickoff))):
+            continue
+        cohort = tuple(str(entry.get(k) or 'legacy_unknown') for k in
+            ('formula_version', 'policy_version', 'lane', 'confidence_source', 'market'))
+        key = (report_fixture_key(entry), cohort)
+        if key not in chosen or first < first_seen_key(chosen[key][1]):
+            chosen[key] = (cohort, entry)
+    by_id = {e['ledger_id']: (cohort, e) for cohort, e in chosen.values()}
+    grouped = {}
+    for grade in {g['ledger_id']: g for g in grades}.values():
+        if grade['ledger_id'] not in by_id or grade.get('outcome') not in ('win','half_win','push','half_loss','loss'):
+            continue
+        cohort, entry = by_id[grade['ledger_id']]
+        prob = grade.get('model_probability', entry.get('probability'))
+        if type(prob) not in (float, int) or not math.isfinite(prob) or not 0 <= prob <= 1:
+            continue
+        grouped.setdefault(cohort, []).append((prob, int(grade['outcome'] in ('win','half_win'))))
+    result = []
+    for cohort, rows in sorted(grouped.items()):
+        n = len(rows)
+        predicted = sum(p for p, _ in rows)/n
+        realized = sum(y for _, y in rows)/n
+        buckets = []
+        for index in range(10):
+            b = [(p, y) for p, y in rows if min(int(p*10), 9) == index]
+            if b:
+                buckets.append({'lower': index/10, 'upper': (index+1)/10, 'n': len(b),
+                    'predicted': sum(p for p, _ in b)/len(b), 'realized': sum(y for _, y in b)/len(b)})
+        loss = lambda p,y: -(y*math.log(max(1e-12, min(1-1e-12,p))) +
+                            (1-y)*math.log1p(-max(1e-12, min(1-1e-12,p))))
+        result.append({**dict(zip(('formula_version','policy_version','lane','confidence_source','market'), cohort)),
+            'n': n, 'brier': sum((p-y)**2 for p,y in rows)/n,
+            'log_loss': sum(loss(p,y) for p,y in rows)/n,
+            'mean_predicted': predicted, 'observed': realized,
+            'calibration_gap': realized-predicted, 'buckets': buckets})
+    return result
+
+
 def build_report(entries, grades, *, recent_n=100):
     # Choose immutable earliest forecasts before joining results; selecting
     # the largest probability across rescans biases evaluation and can select
@@ -451,6 +502,7 @@ def build_report(entries, grades, *, recent_n=100):
             'after_kickoff_entries_excluded': after_kickoff,
             'timing_unknown_entries': sum(not math.isfinite(first_seen_key(e)) for e in by_id.values()),
             'pending': len(pending),
+            'calibration_cohorts': calibration_cohorts(entries, grades),
             'by_market': by_market, 'overall': overall,
             'recent': recent,
             'metric_definition': 'Hit rate excludes push and counts half-win as win; Brier/log-loss/calibration score full-win+half-win on all outcomes including push.',

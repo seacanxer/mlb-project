@@ -1,0 +1,27 @@
+{
+  "generated_at": "2026-10-15T15:16:12.894335+00:00",
+  "mode": "offline_dry_run",
+  "source_sha256": "d1e5500c4d4ca329b3237a5c3b95a5953c0b61157ca885b299fd2de1a0fdf04e",
+  "fixtures": 241,
+  "primary_statuses_without_fresh_reference": {
+    "pass": 738,
+    "forecast": 109
+  },
+  "legacy_top_count": 7,
+  "legacy_top_withheld_from_actionable": 7,
+  "payout_ev_mismatches": 0,
+  "low_odds_1x2_logged": 31,
+  "stale_reference_accepted_contracts": 0,
+  "stale_reference_reason_codes": [
+    "REFERENCE_SOURCE_EXPIRED"
+  ],
+  "research_distinct_contract_ids": true,
+  "research_second_contract_matches_request": true,
+  "win_rate_improvement_measured": false,
+  "roi_improvement_measured": false,
+  "limitations": [
+    "No live provider requests, locks, settlement or retraining.",
+    "Snapshot replay verifies guards, not predictive accuracy.",
+    "Contemporary v5 ledger/grades are absent locally; no new performance claim."
+  ]
+}

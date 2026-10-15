@@ -199,10 +199,12 @@ def test_report_uses_first_forecast_across_provider_ids_and_excludes_after_kicko
     assert report['duplicates_removed']==1 and report['after_kickoff_entries_excluded']==1
 
 
-def test_hidden_low_price_1x2_never_enters_new_card_ledger():
+def test_visible_low_price_1x2_enters_new_card_ledger():
     log = runpy.run_path(LOG_PATH)
     match = make_matches()[0]
     match['projections'] = [{**match['projections'][0], 'market':'1x2','odds':1.29}]
+    assert len(log['collect_rows']([match],'2026-09-01T00:00:00Z')) == 1
+    match['projections'][0]['odds'] = 1
     assert log['collect_rows']([match],'2026-09-01T00:00:00Z') == []
 
 

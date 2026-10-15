@@ -6,11 +6,34 @@ import sqlite3
 import subprocess
 import sys
 import time
+import copy
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / 'scripts' / 'fc-manual-lock.py'
+sys.path.insert(0, str(ROOT/'betting-machine-fc'))
+from football_formula_engine.markets import PayoutProbabilities
+from football_formula_engine.quant import quant_metrics
+
+
+def add_independent_value_fixture(fixture):
+    """Server-side evidence for two different fixtures, rather than a guessed SGP."""
+    now = time.time()
+    second = copy.deepcopy(fixture)
+    second['info'].update(match_id='fixture-2', home='Other Home', away='Other Away')
+    for item, market, pick, side, q, odds, prob in [
+        (fixture,'ou','Over 2.5','over',10,1.91,.6),
+        (second,'btts','BTTS Yes','yes',None,1.8,.6)]:
+        p=PayoutProbabilities(full_win=prob, full_loss=1-prob)
+        quant=quant_metrics(p,odds,market_no_vig=.5,reference_probability=prob,
+            reference_evidence={'observation_id':'observed','captured_at':now-30,
+                'source_updated_at':now-32,'freshness_status':'verified','bookmaker':'pinnacle'},
+            decision_source='sharp')
+        item['market_options']=[{'market':market,'pick':pick,'side':side,'line_quarters':q,
+            'odds':odds,'probability':prob,'ev':quant['ev'],'payout':p.__dict__,
+            'quote_captured_at':now-30,'quant':quant}]
+    return [fixture,second]
 
 
 def run_lock(tmp_path, *, quote_age=30, odds=1.91):
@@ -98,12 +121,9 @@ def test_batch_singles_is_atomic_and_parlay_is_separate(tmp_path):
     db, env, _ = run_lock(tmp_path)
     matches_path = Path(env['FC_MATCHES_PATH'])
     fixture = json.loads(matches_path.read_text())[0]
-    fixture['market_options'].append({'market': 'btts', 'pick': 'BTTS Yes', 'odds': 1.8,
-                                      'probability': 0.55, 'ev': 0.03,
-                                      'quote_captured_at': time.time() - 30})
-    matches_path.write_text(json.dumps([fixture]))
+    matches_path.write_text(json.dumps(add_independent_value_fixture(fixture)))
     choices = [{'match_id': 'fixture-1', 'market': 'ou', 'pick': 'Over 2.5', 'odds': 1.91},
-               {'match_id': 'fixture-1', 'market': 'btts', 'pick': 'BTTS Yes', 'odds': 1.8}]
+               {'match_id': 'fixture-2', 'market': 'btts', 'pick': 'BTTS Yes', 'odds': 1.8}]
     def batch(mode, entries):
         return subprocess.run([sys.executable, str(SCRIPT), 'batch', '--payload',
                                json.dumps({'mode': mode, 'choices': entries})],
@@ -118,10 +138,16 @@ def test_batch_singles_is_atomic_and_parlay_is_separate(tmp_path):
     slip = batch('parlay', choices)
     assert slip.returncode == 0, slip.stdout
     assert json.loads(slip.stdout)['odds'] == 1.91 * 1.8
+    retry = batch('parlay', choices)
+    assert retry.returncode == 0 and json.loads(retry.stdout)['already_locked']
+    assert json.loads(retry.stdout)['assessment'] == json.loads(slip.stdout)['assessment']
     with sqlite3.connect(db) as conn:
         assert conn.execute('SELECT COUNT(*) FROM bets').fetchone()[0] == 2
         assert conn.execute('SELECT COUNT(*) FROM parlay_slips').fetchone()[0] == 1
         assert conn.execute('SELECT COUNT(*) FROM parlay_legs').fetchone()[0] == 2
+        assert conn.execute('SELECT model_joint_probability FROM parlay_slips').fetchone()[0] == .36
+        assessment = json.loads(conn.execute('SELECT payload FROM parlay_assessments').fetchone()[0])
+        assert assessment['eligible'] and assessment['executable_quote_verified'] is False
     snapshot = json.loads((tmp_path / 'tracker.json').read_text())
     assert snapshot['summary']['manual_locked_picks'] == 2
     assert snapshot['manual_parlay_summary']['pending_slips'] == 1
@@ -136,13 +162,10 @@ def test_manual_parlay_settlement_multiplies_leg_returns(tmp_path):
     db, env, _ = run_lock(tmp_path)
     matches_path = Path(env['FC_MATCHES_PATH'])
     fixture = json.loads(matches_path.read_text())[0]
-    fixture['market_options'].append({'market': 'btts', 'pick': 'BTTS Yes', 'odds': 1.8,
-                                      'probability': 0.55, 'ev': 0.03,
-                                      'quote_captured_at': time.time() - 30})
-    matches_path.write_text(json.dumps([fixture]))
+    matches_path.write_text(json.dumps(add_independent_value_fixture(fixture)))
     payload = {'mode': 'parlay', 'choices': [
         {'match_id': 'fixture-1', 'market': 'ou', 'pick': 'Over 2.5', 'odds': 1.91},
-        {'match_id': 'fixture-1', 'market': 'btts', 'pick': 'BTTS Yes', 'odds': 1.8}]}
+        {'match_id': 'fixture-2', 'market': 'btts', 'pick': 'BTTS Yes', 'odds': 1.8}]}
     created = subprocess.run([sys.executable, str(SCRIPT), 'batch', '--payload', json.dumps(payload)],
                              env=env, capture_output=True, text=True)
     assert created.returncode == 0, created.stdout
@@ -163,3 +186,20 @@ def test_manual_parlay_settlement_multiplies_leg_returns(tmp_path):
         status, profit = conn.execute('SELECT status,profit FROM parlay_slips WHERE id=1').fetchone()
         assert status == 'won'
         assert round(profit, 2) == round(1.91 * 1.8 - 1, 2)
+
+
+def test_unverified_same_game_parlay_writes_nothing(tmp_path):
+    db, env, _ = run_lock(tmp_path)
+    path=Path(env['FC_MATCHES_PATH'])
+    fixtures=add_independent_value_fixture(json.loads(path.read_text())[0])
+    fixtures[0]['market_options'].append(fixtures[1]['market_options'][0])
+    path.write_text(json.dumps(fixtures))
+    payload={'mode':'parlay','choices':[
+        {'match_id':'fixture-1','market':'ou','pick':'Over 2.5','odds':1.91},
+        {'match_id':'fixture-1','market':'btts','pick':'BTTS Yes','odds':1.8}]}
+    result=subprocess.run([sys.executable,str(SCRIPT),'batch','--payload',json.dumps(payload)],
+                          env=env,capture_output=True,text=True)
+    assert result.returncode == 1 and 'SAME_MATCH_JOINT_PRICE_UNVERIFIED' in result.stdout
+    with sqlite3.connect(db) as conn:
+        assert conn.execute('SELECT COUNT(*) FROM bets').fetchone()[0] == 0
+        assert conn.execute("SELECT COUNT(*) FROM sqlite_master WHERE name='parlay_slips'").fetchone()[0] == 0

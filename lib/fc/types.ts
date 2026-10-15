@@ -55,8 +55,59 @@ export type Tier = 'top_pick' | 'official' | 'watch';
 export type Decision = 'official' | 'top_pick' | 'watch';
 export type SelectionStatus = 'top_pick' | 'official' | 'shadow' | 'top_pick:shadow' | 'watch';
 
+export interface KellyRecommendation {
+  mode: 'recommendation_only';
+  full_fraction: number;
+  fractional_multiplier: number;
+  cap_fraction: number;
+  recommended_fraction: number;
+  recommended_units: number | null;
+  bankroll_units: number | null;
+  reason_codes: string[];
+}
+
+export interface QuantMetrics {
+  schema_version: 'fc-quant-v1';
+  status: 'value' | 'forecast' | 'pass';
+  reason_codes: string[];
+  decision_source: string;
+  market_no_vig_probability: number | null;
+  model_positive_payout_probability: number | null;
+  decision_price_probability: number | null;
+  positive_payout_probability: number;
+  push_probability: number;
+  reference_probability: number | null;
+  reference_evidence: { observation_id: string; captured_at: number; source_updated_at: number;
+    freshness_status: 'verified'; bookmaker: string; decimal_odds: number; provider?: string } | null;
+  primary_source_time_status: 'unknown';
+  ev: number;
+  fair_odds: number | null;
+  edge_probability: number | null;
+  kelly: KellyRecommendation;
+}
+
+export interface ParlayAssessment {
+  legs: { event_key: string; match_id: string | null; home: string | null; away: string | null;
+    pick: string | null; odds: number; start_ts: number; market: string; side: string;
+    line_quarters: number | null; ev: number; reason_codes: string[] }[];
+  schema_version: 'fc-parlay-quant-v1';
+  eligible: boolean;
+  status: 'value' | 'blocked';
+  reason_codes: string[];
+  combined_odds: number;
+  price_source: 'product_of_observed_leg_odds';
+  executable_quote_verified: false;
+  dependence_assumption: 'same_match_unverified' | 'independent_fixtures';
+  ev: number | null;
+  positive_return_probability: number | null;
+  all_legs_positive_probability: number | null;
+  kelly: KellyRecommendation | null;
+  official_enabled: false;
+}
+
 // ---- GET /api/fc/picks (mirrors engine GET /api/picks) ----
 export interface FcPick {
+  quant?: QuantMetrics;
   match_id?: string;
   match: string;
   home?: string;
@@ -75,7 +126,7 @@ export interface FcPick {
   team?: string | null;
   market_probability?: number;
   edge_pct?: number;
-  suggested_stake?: number;
+  suggested_stake?: number | null;
   stake_cap?: number;
   kelly_pct?: number;
   is_top_pick: boolean;
@@ -114,6 +165,7 @@ export interface PicksSummary {
   watch_count: number;
   /** Counts by output class; secondary rows are display-only, not qualified picks. */
   value_v5_count?: number;
+  actionable_count?: number;
   reference_only_count?: number;
   secondary_display_count?: number;
   formula_version: string;
@@ -176,6 +228,10 @@ export interface RecentGrade {
 }
 
 export interface ModelPerformanceResponse {
+  calibration_cohorts?: { formula_version: string; policy_version: string; lane: string;
+    confidence_source: string; market: string; n: number; brier: number;
+    log_loss: number; mean_predicted: number; observed: number; calibration_gap: number;
+    buckets: { lower: number; upper: number; n: number; predicted: number; realized: number }[] }[];
   generated_at: string | null;
   ledger_entries: number;
   graded: number;
@@ -358,6 +414,7 @@ export interface ForecastPick extends FcPick {
   confidence_tier?: 'TINGGI' | 'SEDANG' | 'RENDAH' | 'SPEKULATIF';
   /** Historical hit rate of this tier (pick = most likely side), not a guarantee. */
   tier_hit_rate?: number | null;
+  calibration_cohort_status?: 'pending_prospective_validation';
   is_value?: boolean;
   lane?: 'model' | 'reference_only' | 'market_only';
 }

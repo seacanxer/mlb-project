@@ -35,6 +35,9 @@ describe('FC predictions use available evidence', () => {
     expect(isValue(forecast)).toBe(false);
     expect(forecastPicks({ info: { home: 'Unknown', league: 'Japan. J1 League' } })).toEqual([]);
   });
+  it('never promotes a forged value label with nonpositive EV', () => {
+    expect(isValue({ ...pick, ev: -.04, analysis_status: 'value_candidate' })).toBe(false);
+  });
   it('analyzer preserves real league results and has no generic rating fallback or league whitelist', async () => {
     files.set('matches_detailed.json', JSON.stringify([
       { info: { match_id: '1', league: 'England. Championship', start_ts: 4102444800 }, projections: [pick] },

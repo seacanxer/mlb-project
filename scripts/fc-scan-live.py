@@ -50,13 +50,14 @@ from football_formula_engine.market_safety import (anchor_payout, MODEL_WEIGHTS,
 from football_formula_engine.live_quotes import QuoteJournal  # noqa: E402
 from football_formula_engine.second_source import collect as collect_second_source  # noqa: E402
 from football_formula_engine.sharp_reference import (REFERENCE_VERSION,  # noqa: E402
-    REFERENCE_MAX_AGE_SECONDS, MOVEMENT_LOOKBACK_SECONDS, fair_probabilities,
-    latest_reference_quotes, quotes_to_markets, reference_gate_reasons, reference_movement,
+    REFERENCE_MAX_AGE_SECONDS, REFERENCE_CAPTURE_SKEW_SECONDS, MOVEMENT_LOOKBACK_SECONDS, fair_probabilities,
+    latest_reference_quotes, reference_snapshot, quotes_to_markets, reference_gate_reasons, reference_movement,
     value_tier)
 from football_formula_engine import reference_odds  # noqa: E402
 from football_formula_engine.confidence import (confidence_tier, display_markets,  # noqa: E402
     source_label, tier_hit_rate)
 from football_formula_engine.catalog import POLICY_VERSION, select_markets, direction_counts  # noqa: E402
+from football_formula_engine.quant import quant_metrics, QUANT_VERSION  # noqa: E402
 from football_formula_engine.live_training import current_season, refresh_scores  # noqa: E402
 from football_formula_engine.leagues import (LEAGUES, LEAGUE_BY_NAME,  # noqa: E402
     current_season_for)  # noqa: E402
@@ -66,6 +67,7 @@ from football_formula_engine.national_teams import (MODEL_CODE as NATIONAL_CODE,
     nonneutral_baseline_coverage)  # noqa: E402
 
 FORMULA_VERSION = 'dc-loglink-time-decay-v1'
+POLICY_VERSION = POLICY_VERSION + '+quant-v1'
 DECISION_FORMULA_VERSION = 'fc-sharp-reference-v5'
 # 'sharp_reference' (default): value picks only where the 1xbit price beats a
 # sharp book's no-vig fair price. 'model_blend' restores the v4 goal-model EV
@@ -73,7 +75,7 @@ DECISION_FORMULA_VERSION = 'fc-sharp-reference-v5'
 DECISION_MODE = os.environ.get('FC_DECISION_MODE', 'sharp_reference')
 REFERENCE_BOOKMAKER = os.environ.get('FC_REFERENCE_BOOKMAKER', 'pinnacle')
 # Re-fetch a league's reference before it ages out of REFERENCE_MAX_AGE_SECONDS.
-REFERENCE_REFRESH_SECONDS = 600
+REFERENCE_REFRESH_SECONDS = REFERENCE_CAPTURE_SKEW_SECONDS - 30
 # Competitions without a validated goal model (UCL, UEL, ...) or whose domestic
 # model cannot project a fixture are priced against the sharp reference only.
 # The replay's v5 policy itself used market-implied goals, not the DC model.
@@ -666,7 +668,13 @@ def secondary_pick_payload(info, offer, observation, captured_at, decision_at, c
         if ev is None or ev < EV_GATE: reasons.append('EV_BELOW_VALUE_THRESHOLD')
         if ev is None or ev - UNCERTAINTY_PENALTY < 0: reasons.append('CONSERVATIVE_EV_BELOW_THRESHOLD')
         if market_probability is None: reasons.append('NOVIG_UNAVAILABLE')
+    metrics = (quant_metrics(PayoutProbabilities(**{k: float(v) for k, v in payout.items()}), odds,
+        market_no_vig=market_probability, model_probability=probability,
+        decision_source='secondary_model', gate_reasons=reasons)
+        if priced and payout else None)
     return {
+        **({'quant': metrics, 'quant_version': QUANT_VERSION, 'kelly_pct': 0,
+            'suggested_stake': None} if metrics else {}),
         'match_id': str(info['match_id']),
         'match': f"{info.get('home')} vs {info.get('away')}",
         'home': info.get('home'), 'away': info.get('away'),
@@ -748,6 +756,8 @@ def publish_secondary_picks(m, now):
         offer.update(odds=item['odds'], ev=item['ev'], conservative_ev=item['conservative_ev'],
             quote_captured_at=item['quote_captured_at'], gate_reasons=item['gate_reasons'],
             formula_version=item['formula_version'], league_model=item['league_model'])
+        if item.get('quant'):
+            offer['quant'] = item['quant']
         evaluated.append((offer, item))
     selected = []
     for market in dict.fromkeys(offer['market'] for offer, _ in evaluated):
@@ -954,6 +964,10 @@ def main(argv=()):
     parser.add_argument('--from-cache', action='store_true',
                         help='Use fixture IDs from a recent local schedule; live identity and odds are still verified')
     args = parser.parse_args(argv)
+    bankroll_units = os.environ.get('FC_BANKROLL_UNITS')
+    bankroll_units = float(bankroll_units) if bankroll_units else None
+    if bankroll_units is not None and (not math.isfinite(bankroll_units) or bankroll_units <= 0):
+        raise ValueError('FC_BANKROLL_UNITS must be finite and positive')
     started = time.time()
     # 1. fixtures
     try:
@@ -1066,7 +1080,8 @@ def main(argv=()):
         second_status = 'CONFIGURED_NOT_YET_VALIDATED'
     reference_key = os.environ.get('FC_REFERENCE_ODDS_API_KEY') or second_key
     reference_status = {'mode': DECISION_MODE, 'bookmaker': REFERENCE_BOOKMAKER,
-                        'status': 'NOT_CONFIGURED', 'leagues': {}, 'fixtures_priced': 0}
+                        'status': 'NOT_CONFIGURED', 'leagues': {}, 'fixtures_priced': 0,
+                        'quote_rejections': {}, 'markets_priced': {}}
     reference_enabled = DECISION_MODE == 'sharp_reference' and bool(reference_key)
     coverage = {'fixtures': len(future), 'artifact_rows': artifact_rows, 'model_lane': 0,
                 'reference_only_lane': 0, 'reference_fallback': 0, 'market_only_lane': 0,
@@ -1087,6 +1102,11 @@ def main(argv=()):
             bookmaker=REFERENCE_BOOKMAKER, regions=os.environ.get('FC_REFERENCE_REGIONS', 'eu'),
             same_team={k: same_team_for(k) for k in sport_keys})
         reference_status['leagues'].update(report)
+        states = list(reference_status['leagues'].values())
+        captured = sum(s.get('recorded', 0) for s in states)
+        failures = any(s['status'] == 'FETCH_FAILED' for s in states)
+        reference_status['status'] = ('DEGRADED' if failures and captured else 'UNAVAILABLE' if failures
+                                      else 'READY' if captured else 'NO_MATCHES')
         for k in sport_keys:
             reference_fetched_at[k] = time.time()
 
@@ -1099,7 +1119,6 @@ def main(argv=()):
             if sport_key:
                 fixtures_by_sport.setdefault(sport_key, []).append(fixture['info'])
         refresh_reference(sorted(fixtures_by_sport))
-        reference_status['status'] = 'CONFIGURED'
     seen_national_fixtures = set()
     secondary_data = {}
     for m in sorted(future, key=lambda x: float(x['info']['start_ts'])):
@@ -1261,12 +1280,22 @@ def main(argv=()):
             m['analysis']['reason_codes'] = ['QUOTE_EXPIRED']
             continue
         reference_fair, movement, reference_quotes = None, {}, {}
+        reference_quality = {'quotes': {}, 'fair': {}, 'reason_codes': ['REFERENCE_UNAVAILABLE'], 'rejected_groups': []}
         if DECISION_MODE == 'sharp_reference':
-            reference_quotes = latest_reference_quotes(
+            reference_quality = reference_snapshot(
                 journal.as_of(info['match_id'], decision_at,
                               max_age_seconds=REFERENCE_MAX_AGE_SECONDS),
-                REFERENCE_BOOKMAKER)
-            reference_fair = fair_probabilities(reference_quotes)
+                REFERENCE_BOOKMAKER, decision_at, primary_captured_at=captured_at)
+            reference_quotes = reference_quality['quotes']
+            reference_fair = reference_quality['fair']
+            m['analysis']['reference_quality'] = {
+                'reason_codes': reference_quality['reason_codes'],
+                'rejected_groups': reference_quality['rejected_groups']}
+            for rejected in reference_quality['rejected_groups']:
+                reason = rejected['reason']
+                reference_status['quote_rejections'][reason] = reference_status['quote_rejections'].get(reason, 0)+1
+            for market, _side, _line in reference_fair:
+                reference_status['markets_priced'][market] = reference_status['markets_priced'].get(market, 0)+1
             movement = reference_movement(journal.as_of(
                 info['match_id'], decision_at, max_age_seconds=MOVEMENT_LOOKBACK_SECONDS),
                 REFERENCE_BOOKMAKER)
@@ -1353,6 +1382,19 @@ def main(argv=()):
             for _market, _label, offer in opportunities:
                 offer['gate_reasons'].extend(model_reasons)
         _value_forecasts, value_rows = select_markets(opportunities)
+        # Quant is calculated after all model/direction gates. These are
+        # recommendations only; the settlement ledger continues flat 1u.
+        for market, _label, offer in opportunities:
+            evidence = reference_quotes.get((market, offer['side'], offer['line_quarters']))
+            offer['quant'] = quant_metrics(PayoutProbabilities(**offer['payout']), offer['odds'],
+                market_no_vig=offer.get('market_probability'),
+                model_probability=offer.get('raw_probability') if lane == 'model' else None,
+                reference_probability=offer.get('reference_probability'), reference_evidence=evidence,
+                decision_source=offer.get('confidence_source', 'model'),
+                gate_reasons=offer['gate_reasons'], bankroll_units=bankroll_units)
+        # A validated quote is now necessary for actionable value in every
+        # decision mode; the old model_blend remains a projection-only fallback.
+        value_rows = [row for row in value_rows if row[2]['quant']['status'] == 'value']
         # Cards always show every market's most likely side with a confidence
         # tier; value is a separate flag, never a condition for display.
         forecasts = display_markets(opportunities)
@@ -1400,6 +1442,9 @@ def main(argv=()):
                 'probability': round(o['probability'], 4),
                 'effective_win_probability': round(o['effective_win_probability'], 4),
                 'payout': o['payout'], 'odds': o['odds'],
+                'quant': o['quant'], 'quant_version': QUANT_VERSION,
+                'kelly_pct': 100*o['quant']['kelly']['recommended_fraction'],
+                'suggested_stake': o['quant']['kelly']['recommended_units'],
                 'ev': round(o['ev'], 4), 'conservative_ev': round(o['conservative_ev'], 4),
                 'uncertainty_penalty': UNCERTAINTY_PENALTY,
                 'fair_odds': round(o['fair_odds'], 3),
@@ -1418,15 +1463,15 @@ def main(argv=()):
                 'confidence_source': o.get('confidence_source'),
                 'confidence_tier': confidence_tier(o.get('confidence')),
                 'confidence_label': source_label(o.get('confidence_source'), national=code == NATIONAL_CODE),
-                # Historical hit rates were measured on club leagues only.
-                'tier_hit_rate': (None if code == NATIONAL_CODE and o.get('confidence_source') == 'model'
-                                  else tier_hit_rate(confidence_tier(o.get('confidence')),
-                                                     o.get('confidence_source'))),
+                # Aggregate replay tiers do not validate this fixture/source/
+                # line cohort. Prospective cohort metrics are reported separately.
+                'tier_hit_rate': None,
+                'calibration_cohort_status': 'pending_prospective_validation',
                 'market_confidence': (round(o['market_confidence'], 4)
                                       if o.get('market_confidence') is not None else None),
                 'model_confidence': (round(o['model_confidence'], 4)
                                      if o.get('model_confidence') is not None else None),
-                'is_value': not o['gate_reasons'] and o.get('ev', -1) > 0,
+                'is_value': o['quant']['status'] == 'value',
                 'edge_pct': round(1 / o['fair_odds'] - o['market_probability'], 4),
                 'formula_version': formula_version,
                 'base_formula_version': (artifact.get('formula_version', FORMULA_VERSION)
@@ -1437,7 +1482,7 @@ def main(argv=()):
                 'league_model': league_model, 'selection_status': 'watch', 'decision': 'watch',
                 'tier': 'watch', 'is_top_pick': False, 'calibrated_prob': None,
                 'rank_score': round(o['conservative_ev'] * 100, 2), 'locked': False,
-                'analysis_status': 'forecast' if o['gate_reasons'] else 'value_candidate',
+                'analysis_status': 'value_candidate' if o['quant']['status'] == 'value' else 'forecast',
                 'gate_reasons': list(o['gate_reasons']), 'official_eligible': False,
                 'quote_provider': '1xbit', 'quote_is_closing': False,
                 'secondary_provider': 'flashscore',
@@ -1462,10 +1507,13 @@ def main(argv=()):
                 observation['artifact_id'], {'market': market, 'side': o['side'],
                     'line_quarters': o['line_quarters'], 'decimal_odds': o['odds']},
                 decision_at=decision_at, policy_id=POLICY_VERSION,
-                model=artifact or {'lane': 'reference_only', 'formula_version': formula_version,
-                                   'reference_bookmaker': REFERENCE_BOOKMAKER})
+                model={**(artifact or {}), 'lane': lane, 'formula_version': formula_version,
+                       'reference_bookmaker': REFERENCE_BOOKMAKER})
             item = row_payload(row, pick_class)
             item['research_decision_id'] = research['artifact_id']
+            item['research_entry_contract'] = research['contract']
+            item['research_observation_id'] = research['observation_id']
+            item['research_decision_at'] = research['decision_at']
             picks.append(item)
             m['qualified_picks'].append(item)
         m['picks'] = list(m['qualified_picks'])

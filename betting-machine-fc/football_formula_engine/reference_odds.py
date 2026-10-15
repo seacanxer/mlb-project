@@ -15,6 +15,7 @@ import time
 import unicodedata
 from urllib.parse import quote, urlencode
 from urllib.request import urlopen
+from urllib.error import HTTPError, URLError
 
 from .second_source import normalize_event, timestamp
 
@@ -193,6 +194,20 @@ def record_event(info, event, journal, bookmaker, captured_at):
     return ids
 
 
+def fetch_failure(exc):
+    """Safe operational diagnosis. Never include URLs, response bodies or keys."""
+    status = exc.code if isinstance(exc, HTTPError) else None
+    reason = ({401: 'AUTHENTICATION_FAILED', 402: 'PAYMENT_OR_QUOTA_REQUIRED',
+               403: 'ACCESS_DENIED', 404: 'SPORT_OR_ENDPOINT_UNAVAILABLE',
+               422: 'REQUEST_NOT_SUPPORTED', 429: 'RATE_LIMIT_OR_QUOTA'}.get(status)
+              if status is not None else None)
+    if reason is None:
+        reason = ('PROVIDER_UNAVAILABLE' if status is not None and status >= 500 else
+                  'NETWORK_ERROR' if isinstance(exc, URLError) else 'FETCH_ERROR')
+    return {'error_type': type(exc).__name__, 'http_status': status,
+            'failure_reason': reason, 'retryable': reason in ('NETWORK_ERROR', 'PROVIDER_UNAVAILABLE')}
+
+
 def capture(fixtures_by_sport, journal, *, api_key, bookmaker, regions='eu',
             opener=urlopen, now=None, same_team=None):
     """Fetch and record reference quotes, keyed by The Odds API sport key.
@@ -207,9 +222,10 @@ def capture(fixtures_by_sport, journal, *, api_key, bookmaker, regions='eu',
             continue
         try:
             events = fetch_league(sport_key, api_key, bookmaker, regions, opener)
-        except Exception as exc:  # report type only: messages may echo the URL
-            report[sport_key] = {'status': 'FETCH_FAILED', 'error_type': type(exc).__name__,
-                                 'fixtures': len(fixtures)}
+        except Exception as exc:
+            report[sport_key] = {'status': 'FETCH_FAILED', **fetch_failure(exc),
+                                 'fixtures': len(fixtures), 'requested_markets': MARKETS.split(','),
+                                 'unsupported_by_bulk_request': ['btts', 'corners', 'cards']}
             continue
         captured_at = time.time() if now is None else now
         matched, recorded, failed = 0, 0, 0
@@ -224,6 +240,8 @@ def capture(fixtures_by_sport, journal, *, api_key, bookmaker, regions='eu',
         report[sport_key] = {
             'status': 'CAPTURED', 'events': len(events), 'fixtures': len(fixtures),
             'matched': matched, 'recorded': recorded, 'failed': failed,
+            'requested_markets': MARKETS.split(','),
+            'unsupported_by_bulk_request': ['btts', 'corners', 'cards'],
             'unmatched': [f"{info.get('home')} vs {info.get('away')}" for info in fixtures
                           if str(info['match_id']) not in matched_ids][:20]}
     return report
