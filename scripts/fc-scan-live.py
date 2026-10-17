@@ -106,6 +106,39 @@ def model_code(league):
     return NATIONAL_CODE if senior_competition(name) else LEAGUE_BY_NAME.get(name.lower())
 
 
+# market_options is the alternate-line catalog: every book line for both sides,
+# none of which is card-shown except the single row the card picks. Writing the
+# full row_payload() shape (quant block + match identity + policy metadata) for
+# every line inflated matches_detailed.json from ~35 MB to ~400 MB and made the
+# Next.js read layer hit its V8 heap limit on JSON.parse -> HTTP 502 with an
+# empty board. Keep only the fields the live consumers read, drop match-identity
+# keys already carried by match.info, and keep the quant block only where it can
+# actually mean something (status == value). Every consumer that needs the whole
+# row reads `projections` / `qualified_picks`, which are untouched.
+OPTION_PAYLOAD_KEYS = (
+    'market', 'pick', 'side', 'line_quarters', 'odds', 'payout', 'probability',
+    'effective_win_probability', 'fair_odds', 'ev', 'conservative_ev',
+    'uncertainty_penalty', 'gate_reasons', 'is_value', 'quote_captured_at',
+    'formula_version', 'lane', 'coverage_status', 'pick_class', 'analysis_status',
+    'official_eligible', 'quant',
+)
+
+
+def slim_option_payload(payload):
+    """Trim a market_options row to the fields the board/lock/parlay code reads."""
+    slim = {}
+    for key in OPTION_PAYLOAD_KEYS:
+        value = payload.get(key)
+        if value is None:
+            continue
+        if key == 'gate_reasons' and not value:
+            continue
+        if key == 'quant' and not (isinstance(value, dict) and value.get('status') == 'value'):
+            continue
+        slim[key] = value
+    return slim
+
+
 def national_market_reason(opportunities):
     benchmark = [offer for market, _label, offer in opportunities if market == '1x2']
     if len(benchmark) != 3:
@@ -1494,7 +1527,8 @@ def main(argv=()):
         m['projections'] = [row_payload(row, 'forecast') for row in forecasts]
         if national_key and forecasts:
             seen_national_fixtures.add(national_key)
-        m['market_options'] = [row_payload(row, 'market_option') for row in opportunities]
+        m['market_options'] = [slim_option_payload(row_payload(row, 'market_option'))
+                               for row in opportunities]
         # High-win tier first, then expected value.
         ranked_value = sorted(value_rows, key=lambda r: (r[2].get('value_tier') == 'high_win',
                                                          r[2]['conservative_ev']), reverse=True)

@@ -30,6 +30,33 @@ function parseJson<T>(raw: string, fallback: T): T {
   }
 }
 
+// matches_detailed.json is a big scan artifact (rebuilt every scan, ~100 MB) and
+// JSON.parse of it costs seconds and hundreds of MB of heap. Every page of
+// every board request used to re-parse and re-read it, which pushed the V8 heap
+// over its limit and turned the whole site into HTTP 502. Cache the parsed
+// array keyed on (mtimeMs, size) so a scan invalidates it and normal reads are
+// a stat + slice.
+let matchesCache: { key: string; rows: Array<Record<string, unknown>> } | null = null;
+
+function readMatchesArtifact(): Array<Record<string, unknown>> {
+  const file = path.join(process.cwd(), 'betting-machine-fc', 'matches_detailed.json');
+  let key = 'missing';
+  try {
+    const st = fs.statSync(file);
+    key = `${st.mtimeMs}:${st.size}`;
+  } catch {
+    return [];
+  }
+  if (matchesCache && matchesCache.key === key) return matchesCache.rows;
+  try {
+    const rows = parseJson<Array<Record<string, unknown>>>(fs.readFileSync(file, 'utf-8'), []);
+    matchesCache = { key, rows };
+    return rows;
+  } catch {
+    return [];
+  }
+}
+
 export function readEngineConfig(): Record<string, unknown> {
   try {
     return parseJson(fs.readFileSync(path.join(process.cwd(), 'betting-machine-fc', 'config.json'), 'utf-8'), {});
@@ -369,14 +396,7 @@ export function gradeDetailsCsv(rows: GradeDetailRow[]): string {
 /** Matches mirrors engine GET /api/matches (future-only). */
 export function readMatches(limit = 50, offset = 0): MatchesResponse {
   const nowSec = Date.now() / 1000;
-  let raw: Array<Record<string, unknown>> = [];
-  try {
-    raw = parseJson<Array<Record<string, unknown>>>(
-      fs.readFileSync(path.join(process.cwd(), 'betting-machine-fc', 'matches_detailed.json'), 'utf-8'), [],
-    );
-  } catch {
-    raw = [];
-  }
+  const raw = readMatchesArtifact();
   const future = raw.filter((m) => {
     const info = (m['info'] ?? {}) as Record<string, unknown>;
     return Number(info['start_ts'] ?? 0) > nowSec;
