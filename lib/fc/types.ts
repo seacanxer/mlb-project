@@ -380,6 +380,8 @@ export interface FixtureInfo {
   /** Unix epoch seconds. */
   start_ts?: number;
   coverage_status?: string;
+  /** 1 big competition, 2 major, 3 minor (display-only). */
+  league_tier?: 1 | 2 | 3;
   [key: string]: unknown;
 }
 
@@ -417,6 +419,8 @@ export interface ForecastPick extends FcPick {
   calibration_cohort_status?: 'pending_prospective_validation';
   is_value?: boolean;
   lane?: 'model' | 'reference_only' | 'market_only';
+  league_tier?: 1 | 2 | 3;
+  league_tier_label?: string;
 }
 
 export interface MatchAnalysis {

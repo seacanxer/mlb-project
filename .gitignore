@@ -54,3 +54,10 @@ reports/fc-p0-audit/input_snapshot.json
 reports/fc-p0-audit/reliability.json
 
 reports/fc-p0-audit/p1-results.local.json
+
+# FC scan outputs: rewritten by every scan (matches_detailed.json reached
+# 80-400 MB). Committing them bloated the repo and dirtied the deploy tree.
+betting-machine-fc/matches_detailed.json
+betting-machine-fc/picks.json
+betting-machine-fc/odds_quotes.jsonl
+betting-machine-fc/*.pruning.db

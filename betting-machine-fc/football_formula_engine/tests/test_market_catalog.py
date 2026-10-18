@@ -193,3 +193,41 @@ def test_btts_shrinkage_preserves_complements_and_reduces_model_market_gap():
     for _,_,offer in rows:
         assert abs(offer['probability']-.5) == pytest.approx(.5*abs(offer['raw_probability']-.5))
         assert offer['ev'] == pytest.approx(1.95*offer['probability']-1)
+
+
+def test_scan_drops_minor_leagues_ranks_big_ones_and_keeps_file_compact(tmp_path, monkeypatch):
+    monkeypatch.setattr(scan, 'FC_DIR', str(tmp_path))
+    monkeypatch.setenv('FC_QUOTES_DB', str(tmp_path / 'quotes.db'))
+    monkeypatch.delenv('FC_SECOND_MAPPING_PATH', raising=False)
+    monkeypatch.delenv('FC_REFERENCE_ODDS_API_KEY', raising=False)
+    monkeypatch.delenv('FC_SECOND_ODDS_API_KEY', raising=False)
+    monkeypatch.setattr(scan.time, 'time', lambda: 1789900000.0)
+    monkeypatch.setattr(scan.time, 'sleep', lambda _: None)
+    monkeypatch.setattr(scan, 'refresh_scores', lambda *args: {'status': 'cached'})
+    monkeypatch.setattr(scan, 'MODEL_DATA_INFO', {})
+    S = 1789903600
+    rows = [{'I': 1, 'S': S, 'O1': 'Home', 'O2': 'Away', 'L': 'England. Premier League'},
+            {'I': 2, 'S': S, 'O1': 'Biskra', 'O2': 'Oran', 'L': 'Algeria. Ligue 1'},
+            {'I': 3, 'S': S, 'O1': 'Hometown', 'O2': 'Awayford', 'L': 'England. League One'}]
+    monkeypatch.setattr(scan.sc, 'list_matches_paginated', lambda **kwargs: rows)
+    monkeypatch.setattr(scan.sc, 'get_match', lambda mid: next(row for row in rows if str(row['I']) == mid))
+    monkeypatch.setattr(scan.sc, 'extract_markets', lambda _: markets())
+    monkeypatch.setattr(scan.odds_flashscore, 'crosscheck', lambda *args: {'status': 'unavailable'})
+    monkeypatch.setattr(scan, 'load_model', lambda *args: {'parameters': {'season_effects': {'2627': {}}}, 'training': {'cutoff_utc': 1789890000}})
+    monkeypatch.setattr(scan, 'csv_teams', lambda _: {'Home', 'Away', 'Hometown', 'Awayford'})
+    monkeypatch.setattr(scan, 'project_fixture', lambda *args, **kwargs: SimpleNamespace(distribution=build_score_matrix(1.6, 1.1, 0), reason_codes=(), lambda_home=1.6, lambda_away=1.1))
+    assert scan.main() == 0
+    raw = (tmp_path / 'matches_detailed.json').read_text()
+    assert '\n' not in raw                                  # compact JSON
+    matches = {m['info']['match_id']: m for m in json.loads(raw)}
+    assert set(matches) == {'1', '3'}                       # minor league without a model is not stored
+    assert matches['1']['info']['league_tier'] == 1
+    assert matches['3']['info']['league_tier'] == 3
+    assert 'LEAGUE_TIER_DISPLAY_ONLY' in matches['3']['analysis']['reason_codes']
+    assert matches['3']['qualified_picks'] == []            # display-only, never value
+    assert len(matches['1']['projections']) == 4
+    assert len(matches['1']['market_options']) <= 9          # main lines only
+    picks = json.loads((tmp_path / 'picks.json').read_text())
+    assert all(p.get('pick_class') != 'secondary_display' for p in picks)
+    diag = json.loads((tmp_path / 'config.json').read_text())['last_scan_diagnostics']['coverage']
+    assert diag['tier3_skipped'] == 1 and diag['tier3_display_only'] == 1

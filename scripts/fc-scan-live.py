@@ -54,7 +54,9 @@ from football_formula_engine.sharp_reference import (REFERENCE_VERSION,  # noqa:
     latest_reference_quotes, reference_snapshot, quotes_to_markets, reference_gate_reasons, reference_movement,
     value_tier)
 from football_formula_engine import reference_odds  # noqa: E402
-from football_formula_engine.confidence import (confidence_tier, display_markets,  # noqa: E402
+from football_formula_engine.league_tiers import TIER_LABELS, league_tier  # noqa: E402
+from football_formula_engine.confidence import (compact_options, confidence_tier,  # noqa: E402
+    display_markets,
     source_label, tier_hit_rate)
 from football_formula_engine.catalog import POLICY_VERSION, select_markets, direction_counts  # noqa: E402
 from football_formula_engine.quant import quant_metrics, QUANT_VERSION  # noqa: E402
@@ -72,10 +74,35 @@ DECISION_FORMULA_VERSION = 'fc-sharp-reference-v5'
 # 'sharp_reference' (default): value picks only where the 1xbit price beats a
 # sharp book's no-vig fair price. 'model_blend' restores the v4 goal-model EV
 # for rollback; the walk-forward replay found it loses with negative CLV.
+def _load_env_file():
+    """Scans launched by cron or an agent may not inherit the web service env.
+    Read FC_* keys from the repo's .env.local/.env without overriding real env."""
+    for name in ('.env.local', '.env'):
+        path = os.path.join(BASE_DIR, name)
+        try:
+            with open(path, encoding='utf-8') as handle:
+                lines = handle.read().splitlines()
+        except OSError:
+            continue
+        for line in lines:
+            line = line.strip()
+            if not line or line.startswith('#') or '=' not in line:
+                continue
+            key, value = line.split('=', 1)
+            key = key.strip().removeprefix('export ').strip()
+            if key.startswith('FC_') and key not in os.environ:
+                os.environ[key] = value.strip().strip('"').strip("'")
+
+
+_load_env_file()
 DECISION_MODE = os.environ.get('FC_DECISION_MODE', 'sharp_reference')
 REFERENCE_BOOKMAKER = os.environ.get('FC_REFERENCE_BOOKMAKER', 'pinnacle')
 # Re-fetch a league's reference before it ages out of REFERENCE_MAX_AGE_SECONDS.
 REFERENCE_REFRESH_SECONDS = REFERENCE_CAPTURE_SKEW_SECONDS - 30
+# Noise control: value picks only in tier-1/2 competitions, one per fixture,
+# at most MAX_VALUE_PICKS_PER_SCAN per scan ranked by tier, high-win, EV.
+MAX_VALUE_PICKS_PER_SCAN = 12
+MAX_PICK_TIER = 2
 # Competitions without a validated goal model (UCL, UEL, ...) or whose domestic
 # model cannot project a fixture are priced against the sharp reference only.
 # The replay's v5 policy itself used market-implied goals, not the DC model.
@@ -137,6 +164,36 @@ def slim_option_payload(payload):
             continue
         slim[key] = value
     return slim
+
+
+def compact_raw(payload):
+    """Provider identity plus a digest of the full 1xbit response. Storing the
+    whole response (every market of the event) on every scan was the bulk of
+    live_quotes.db; nothing reads it back, and the digest still proves what
+    was received."""
+    try:
+        body = json.dumps(payload, sort_keys=True, separators=(',', ':'), ensure_ascii=False, default=str)
+    except (TypeError, ValueError):
+        body = repr(payload)
+    keep = {k: payload.get(k) for k in ('I', 'S', 'O1', 'O2', 'L') if isinstance(payload, dict)}
+    return {**keep, 'raw_sha256': hashlib.sha256(body.encode('utf-8')).hexdigest(), 'raw_bytes': len(body)}
+
+
+def slim_projection(payload):
+    """Card projection minus bulk the board never reads. The quant block is kept
+    in full only for value rows; others keep the cohort stub the ledger groups by."""
+    slim = {k: v for k, v in payload.items() if v is not None and k not in PROJECTION_DROP_KEYS}
+    quant = payload.get('quant')
+    if isinstance(quant, dict) and quant.get('status') != 'value':
+        slim['quant'] = {k: quant.get(k) for k in ('schema_version', 'status', 'decision_source')}
+    return slim
+
+
+PROJECTION_DROP_KEYS = frozenset({
+    'secondary_provider', 'secondary_status', 'secondary_match_verified', 'primary_source',
+    'quote_provider', 'quote_is_closing', 'uncertainty_status', 'selection_status', 'decision',
+    'tier', 'is_top_pick', 'calibrated_prob', 'locked', 'official_eligible',
+})
 
 
 def national_market_reason(opportunities):
@@ -1118,7 +1175,8 @@ def main(argv=()):
     reference_enabled = DECISION_MODE == 'sharp_reference' and bool(reference_key)
     coverage = {'fixtures': len(future), 'artifact_rows': artifact_rows, 'model_lane': 0,
                 'reference_only_lane': 0, 'reference_fallback': 0, 'market_only_lane': 0,
-                'league_unavailable': 0, 'reference_missing': 0, 'duplicates': 0}
+                'league_unavailable': 0, 'reference_missing': 0, 'duplicates': 0,
+                'tier3_skipped': 0, 'tier3_display_only': 0}
     seen_fixture_keys = set()
     fixtures_by_sport, reference_fetched_at = {}, {}
 
@@ -1149,7 +1207,8 @@ def main(argv=()):
             if fixture_code == NATIONAL_CODE:
                 continue
             sport_key = reference_odds.reference_sport_key(fixture['info'].get('league'), fixture_code)
-            if sport_key:
+            # Value is only allowed in tiers 1-2; do not spend API credits elsewhere.
+            if sport_key and league_tier(fixture['info'].get('league'), fixture_code) <= MAX_PICK_TIER:
                 fixtures_by_sport.setdefault(sport_key, []).append(fixture['info'])
         refresh_reference(sorted(fixtures_by_sport))
     seen_national_fixtures = set()
@@ -1162,8 +1221,15 @@ def main(argv=()):
                          'policy_version': POLICY_VERSION, 'generated_at': now}
         info['coverage_status'] = 'market_only'
         code = model_code(info.get('league'))
+        tier = league_tier(info.get('league'), code, national=code == NATIONAL_CODE)
+        info['league_tier'] = tier
+        if tier > MAX_PICK_TIER and not code:
+            # Minor competition without a goal model: not analysed, not stored.
+            m['_drop'] = True
+            coverage['tier3_skipped'] += 1
+            continue
         sport_key = (reference_odds.reference_sport_key(info.get('league'), code)
-                     if code != NATIONAL_CODE else None)
+                     if code != NATIONAL_CODE and tier <= MAX_PICK_TIER else None)
         m['analysis']['secondary_markets'] = secondary_analysis(info, secondary_data)
         try:
             raw_book = sc.extract_secondary_markets(info['match_id']) if m['analysis']['secondary_markets'].get('availability') == 'B' else {}
@@ -1220,7 +1286,7 @@ def main(argv=()):
             if normalize_team_name(v.get('O1')) != normalize_team_name(info.get('home')) or normalize_team_name(v.get('O2')) != normalize_team_name(info.get('away')):
                 raise ValueError('Provider team identity changed; refresh fixture')
             mk = sc.extract_markets(v)
-            observation = journal.record(info, mk, v, captured_at=captured_at)
+            observation = journal.record(info, mk, compact_raw(v), captured_at=captured_at)
             time.sleep(0.25)
         except Exception:
             skipped['QUOTE_CAPTURE_FAILED'] = skipped.get('QUOTE_CAPTURE_FAILED', 0) + 1
@@ -1385,6 +1451,10 @@ def main(argv=()):
             last_result = MODEL_DATA_INFO.get(code, {}).get('last_result_at')
             if last_result and now - last_result > 90 * 86400:
                 model_reasons.append('STALE_TRAINING_DATA')
+            if tier > MAX_PICK_TIER:
+                # Minor league with a domestic model: projections only, never value.
+                model_reasons.append('LEAGUE_TIER_DISPLAY_ONLY')
+                coverage['tier3_display_only'] += 1
             decision_mode = DECISION_MODE
             formula_version = DECISION_FORMULA_VERSION
             model_status = 'DC_MODEL_UNVALIDATED'
@@ -1490,6 +1560,7 @@ def main(argv=()):
                                                if o.get('reference_open_probability') is not None else None),
                 'reference_move': (round(o['reference_move'], 4)
                                    if o.get('reference_move') is not None else None),
+                'league_tier': tier, 'league_tier_label': TIER_LABELS[tier],
                 'decision_mode': decision_mode, 'model_status': model_status,
                 'pick_class': row_class, 'lane': lane,
                 'confidence': (round(o['confidence'], 4) if o.get('confidence') is not None else None),
@@ -1524,17 +1595,16 @@ def main(argv=()):
                 'primary_source': '1xbit',
             }
 
-        m['projections'] = [row_payload(row, 'forecast') for row in forecasts]
+        m['projections'] = [slim_projection(row_payload(row, 'forecast')) for row in forecasts]
         if national_key and forecasts:
             seen_national_fixtures.add(national_key)
         m['market_options'] = [slim_option_payload(row_payload(row, 'market_option'))
-                               for row in opportunities]
+                               for row in compact_options(opportunities)]
         # High-win tier first, then expected value.
         ranked_value = sorted(value_rows, key=lambda r: (r[2].get('value_tier') == 'high_win',
                                                          r[2]['conservative_ev']), reverse=True)
+        # One value pick per fixture: correlated second picks double the risk.
         kept_value = ranked_value[:1]
-        if len(ranked_value) > 1 and ranked_value[1][2]['conservative_ev'] >= SECOND_PICK_MIN_CEV:
-            kept_value.append(ranked_value[1])
         for row in kept_value:
             market, _label, o = row
             research = journal.record_research_decision(
@@ -1552,9 +1622,11 @@ def main(argv=()):
             m['qualified_picks'].append(item)
         m['picks'] = list(m['qualified_picks'])
 
-    # Secondary projections are independent of goal-model gates.
+    # Corner/card projections stay on the match card (tier 1-2 only); they are
+    # unvalidated display rows and no longer flood the pick list.
     for m in merged.values():
-        picks.extend(publish_secondary_picks(m, now))
+        if not m.get('_drop') and (m.get('info') or {}).get('league_tier', 3) <= MAX_PICK_TIER:
+            publish_secondary_picks(m, now)
 
     # 4. Keep one highest-probability pick per match and market.
     deduped = {}
@@ -1564,16 +1636,27 @@ def main(argv=()):
         if prior is None or float(item.get('probability') or 0) > float(prior.get('probability') or 0):
             deduped[key] = item
     picks = list(deduped.values())
+    # Rank and cap: big competitions first, then high-win tier, then EV.
+    picks.sort(key=lambda item: (int(item.get('league_tier') or 3),
+                                 item.get('value_tier') != 'high_win',
+                                 -float(item.get('ev') or 0)))
+    capped = len(picks) - MAX_VALUE_PICKS_PER_SCAN
+    picks = picks[:MAX_VALUE_PICKS_PER_SCAN]
+    coverage['value_picks_capped'] = max(capped, 0)
 
     # 5. atomic writes
-    def atomic_write(path, data):
+    def atomic_write(path, data, compact=False):
         tmp = path + '.tmp'
         with open(tmp, 'w', encoding='utf-8') as f:
-            json.dump(data, f, ensure_ascii=False, indent=2, allow_nan=False)
+            if compact:
+                json.dump(data, f, ensure_ascii=False, separators=(',', ':'), allow_nan=False)
+            else:
+                json.dump(data, f, ensure_ascii=False, indent=2, allow_nan=False)
         os.replace(tmp, path)
 
-    ordered = sorted(merged.values(), key=lambda m: float(m['info'].get('start_ts') or 0))
-    atomic_write(matches_path, ordered)
+    ordered = sorted((m for m in merged.values() if not m.get('_drop')),
+                     key=lambda m: float(m['info'].get('start_ts') or 0))
+    atomic_write(matches_path, ordered, compact=True)
     atomic_write(os.path.join(FC_DIR, 'picks.json'), picks)
 
     # A scan only publishes candidates. A deliberate operator lock in

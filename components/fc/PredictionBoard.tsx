@@ -29,6 +29,8 @@ function isHighConfidence(pick: ForecastPick): boolean {
 function isTopQuality(pick: ForecastPick): boolean {
   const odds = Number(pick.odds);
   if (!Number.isFinite(odds) || odds < TOP_PICK_MIN_ODDS) return false;
+  // Top Picks only from big/major competitions (engine league_tier 1-2).
+  if ((pick.league_tier ?? 3) > 2) return false;
   return isHighConfidence(pick) && isActionable(pick);
 }
 
@@ -139,6 +141,7 @@ function PredictionCard({ match, market, valueOnly, pickFilter, saved, lockedIds
 
 const TOP_MARKET_TERMS = ['premier league', 'la liga', 'bundesliga', 'serie a', 'ligue 1', 'champions league', 'europa league', 'conference league', 'uefa champions', 'uefa europa', 'uefa conference', 'uefa nations league', 'nations league', 'j1 league', 'j league', 'k league', 'liga 1', 'indonesia', 'afc champions'];
 function isTopMarketLeague(match: DetailedMatch): boolean {
+  if (match.info.league_tier != null) return match.info.league_tier <= 2;
   const { country, league } = splitLeague(match.info.league);
   const text = `${country} ${league}`.toLowerCase();
   return TOP_MARKET_TERMS.some((term) => text.includes(term));
@@ -271,7 +274,7 @@ export function PredictionBoard({ matches, initialView = 'all', marketScope = 'a
     if (market !== 'all' && !picks.some((p) => p.market === market)) return false;
     const hay = `${m.info.home} ${m.info.away} ${m.info.league}`.toLowerCase();
     return hay.includes(search.trim().toLowerCase());
-  }).sort((a, b) => sort === 'value' ? Math.max(0, ...(b.qualified_picks ?? []).map((p) => p.ev ?? 0)) - Math.max(0, ...(a.qualified_picks ?? []).map((p) => p.ev ?? 0)) : Number(a.info.start_ts || 0) - Number(b.info.start_ts || 0));
+  }).sort((a, b) => sort === 'value' ? Math.max(0, ...(b.qualified_picks ?? []).map((p) => p.ev ?? 0)) - Math.max(0, ...(a.qualified_picks ?? []).map((p) => p.ev ?? 0)) : (Number(a.info.league_tier ?? 3) - Number(b.info.league_tier ?? 3)) || Number(a.info.start_ts || 0) - Number(b.info.start_ts || 0));
   const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const activePage = Math.min(page, pages - 1);
   const changeView = (next: BoardView) => { setView(next); setPage(0); };

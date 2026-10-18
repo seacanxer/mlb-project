@@ -279,16 +279,32 @@ export interface GradeDetailRow {
   graded_at?: string;
 }
 
+// Ledgers only grow; re-parsing them on every request is the same failure mode
+// as the scan artifact. Cache per file on (mtime, size).
+const jsonlCache = new Map<string, { key: string; rows: Record<string, unknown>[] }>();
+
 function readJsonlLines(relPath: string): Record<string, unknown>[] {
+  const file = path.join(process.cwd(), relPath);
+  let key: string | null = null;
   try {
-    const raw = fs.readFileSync(path.join(process.cwd(), relPath), 'utf-8');
-    return raw.split('\n').filter((line) => line.trim()).map((line) => {
+    const st = fs.statSync(file);
+    key = `${st.mtimeMs}:${st.size}`;
+  } catch {
+    key = null; // stat unavailable: read uncached; a missing file still yields []
+  }
+  const cached = key ? jsonlCache.get(file) : undefined;
+  if (cached && cached.key === key) return cached.rows;
+  try {
+    const raw = fs.readFileSync(file, 'utf-8');
+    const rows = raw.split('\n').filter((line) => line.trim()).map((line) => {
       try {
         return parseJson<Record<string, unknown>>(line, {});
       } catch {
         return {};
       }
     });
+    if (key) jsonlCache.set(file, { key, rows });
+    return rows;
   } catch {
     return [];
   }

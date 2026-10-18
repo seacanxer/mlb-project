@@ -1,4 +1,5 @@
 from io import BytesIO
+import sqlite3
 import json
 from pathlib import Path
 import runpy
@@ -306,3 +307,68 @@ def test_model_lane_confidence_uses_model_when_no_sharp_price():
     rows = SCAN['price_fixture'](dist, book(), gated=False, reference_fair=fair, model_confidence=True)
     home = [o for m, label, o in rows if m == '1x2' and label == 'Home'][0]
     assert home['confidence_source'] == 'sharp' and home['model_confidence'] > .5
+
+
+# --- Oct 18: storage size + big-league priority ---
+from football_formula_engine.league_tiers import league_tier
+from football_formula_engine.confidence import compact_options
+
+
+def test_league_tiers():
+    assert league_tier('England. Premier League', 'E0') == 1
+    assert league_tier('UEFA Champions League') == 1
+    assert league_tier('Netherlands. Eredivisie', 'N1') == 2
+    assert league_tier('Copa Libertadores') == 2
+    assert league_tier('World Cup Qualification. Europe', national=True) == 2
+    assert league_tier('Algeria. Ligue 2') == 3
+    assert league_tier('Germany. 3. Liga', 'D3') == 3
+    assert league_tier('England. Premier League Cup U21') == 3
+
+
+def test_compact_options_keeps_main_lines_and_value_only():
+    dist = build_score_matrix(1.5, 1.0, 0.0)
+    mk = dict(book(), odds_btts={'yes': 1.9, 'no': 1.9})
+    mk['odds_ou'] = {str(l): {'9': o, '10': u} for l, o, u in
+                     ((1.5, 1.25, 3.9), (2.0, 1.45, 2.7), (2.5, 1.95, 1.88), (3.0, 2.6, 1.48), (3.5, 3.3, 1.32))}
+    rows = SCAN['price_fixture'](dist, mk, gated=False, reference_fair={})
+    kept = compact_options(rows)
+    ou_lines = {o['line_quarters'] for m, _, o in kept if m == 'ou'}
+    assert ou_lines == {10}
+    assert sum(1 for m, _, _ in kept if m == '1x2') == 3 and sum(1 for m, _, _ in kept if m == 'btts') == 2
+    assert len(kept) < len(rows)
+
+
+def test_prune_keeps_recent_and_referenced_quotes(tmp_path):
+    import importlib.util, time as _t
+    spec = importlib.util.spec_from_file_location('prune', ROOT / 'scripts/fc-prune-data.py')
+    prune = importlib.util.module_from_spec(spec); spec.loader.exec_module(prune)
+    db = tmp_path / 'q.db'
+    j = QuoteJournal(db)
+    now = _t.time()
+    old = {'match_id': 'old', 'start_ts': now - 40 * 86400}
+    ref = {'match_id': 'ref', 'start_ts': now - 40 * 86400}
+    new = {'match_id': 'new', 'start_ts': now + 3600}
+    mk = {'odds_1x2': {1: 2.0, 2: 3.4, 3: 3.8}}
+    j.record(old, mk, {}, captured_at=old['start_ts'] - 600)
+    r = j.record(ref, mk, {}, captured_at=ref['start_ts'] - 600)
+    j.record(new, mk, {}, captured_at=now - 60)
+    with j.connect() as c:   # research decision referencing the old 'ref' observation
+        c.execute('INSERT INTO research_decisions VALUES (?, ?, ?)',
+                  ('ref', 'p', json.dumps({'observation_id': r['artifact_id']})))
+    dry = prune.prune_journal(db, now - 21 * 86400, apply=False, backup=False)
+    assert dry['observations'] == 3 and dry['kept'] == 2 and dry['status'] == 'dry_run'
+    done = prune.prune_journal(db, now - 21 * 86400, apply=True, backup=False)
+    assert done['status'] == 'pruned'
+    j2 = QuoteJournal(db)
+    with j2.connect() as c:
+        ids = {row[0] for row in c.execute('SELECT fixture_id FROM observations')}
+        assert ids == {'ref', 'new'}
+        assert c.execute('SELECT COUNT(*) FROM research_decisions').fetchone()[0] == 1
+        with pytest.raises(sqlite3.IntegrityError if False else Exception):
+            c.execute("DELETE FROM observations")      # immutability triggers survive
+
+
+def test_compact_raw_keeps_identity_and_digest():
+    raw = SCAN['compact_raw']({'I': 5, 'S': 10, 'O1': 'A', 'O2': 'B', 'L': 'X', 'Value': [1] * 5000})
+    assert raw['I'] == 5 and len(raw['raw_sha256']) == 64 and raw['raw_bytes'] > 10000
+    assert 'Value' not in raw

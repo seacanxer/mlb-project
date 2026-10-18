@@ -81,3 +81,27 @@ def display_markets(opportunities):
             rows = [row for row in rows if _line_key(market, row[2]) == main]
         shown.append(max(rows, key=lambda row: (row[2]['confidence'], row[2].get('ev', 0), row[1])))
     return shown
+
+
+def _main_line(market, rows):
+    lines = {_line_key(market, row[2]) for row in rows}
+    return min(lines, key=lambda line: (
+        min(abs((row[2].get('confidence') or 0.5) - 0.5) for row in rows if _line_key(market, row[2]) == line),
+        abs(line), line))
+
+
+def compact_options(opportunities):
+    """Rows worth storing for the card's detail view: every 1X2/BTTS side, both
+    sides of the AH/O-U main line, and any value candidate. Alternate book lines
+    (often 40+ per fixture) are dropped; they were the bulk of the scan file."""
+    kept = []
+    for market in DISPLAY_ORDER:
+        rows = [row for row in opportunities if row[0] == market]
+        if not rows:
+            continue
+        if market in ('ah', 'ou'):
+            main = _main_line(market, rows)
+            rows = [row for row in rows
+                    if _line_key(market, row[2]) == main or not row[2].get('gate_reasons')]
+        kept.extend(rows)
+    return kept

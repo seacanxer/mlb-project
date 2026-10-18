@@ -186,3 +186,40 @@ Tier hit rates by source, from the walk-forward replay:
 Raw DC alone is not used as confidence. Its TINGGI tier claimed 72.6% and won 60.6%.
 
 The national-team model has no measured hit rate, so the card shows its label without a history figure. Value picks still require Pinnacle.
+
+## v5.5 — compact storage and big-league priority (18 October 2026)
+
+### Storage
+
+| File | Problem | Fix |
+| --- | --- | --- |
+| `matches_detailed.json` | Reached 83–400 MB. The cause was 900+ minor-league market-only fixtures, about 50 alternate lines per fixture in `market_options`, full quant blocks on every projection, and pretty-printed JSON. | Minor leagues without a model are no longer stored. `market_options` keeps all 1X2/BTTS sides, both sides of the AH/O-U main line, and value rows. Non-value projections carry a quant stub. JSON is written compact. Today's scan replayed under the new rules: 83.2 MB → 4.2 MB. |
+| `live_quotes.db` | Each scan stored the full 1xbit event response per fixture. | The journal stores the identity fields plus a SHA-256 digest and byte count. `scripts/fc-prune-data.py` (dry run by default; `--apply --days 21`) rebuilds the append-only journal, keeping recent and research-referenced observations. Immutability triggers are kept, and the old file is saved as a backup. The same script trims `odds_quotes.jsonl`. |
+| Ledgers | `projection_ledger.jsonl` and `projection_grades.jsonl` were re-parsed on every request. | They are now cached on (mtime, size), like the scan artifact. |
+| Git | Scan outputs were committed on every refresh. | `matches_detailed.json`, `picks.json` and `odds_quotes.jsonl` are gitignored and untracked. The next `git pull` on the VPS removes the tracked copies, so run a scan right after deploying. |
+
+### Pick priority
+
+`league_tiers.py` assigns each competition a tier:
+- **Tier 1:** big five and UEFA club competitions.
+- **Tier 2:** other major top flights, big-five second divisions, Libertadores/Sudamericana/AFC Champions League Elite and senior national teams.
+- **Tier 3:** everything else.
+
+Rules:
+- Tier 3 without a model is not analysed. Tier 3 with a domestic model is display-only (`LEAGUE_TIER_DISPLAY_ONLY`).
+- Pinnacle reference credits are spent on tiers 1–2 only.
+- One value pick per fixture. Picks are ranked by tier, then high-win, then EV, with at most 12 per scan.
+- Corner/card display rows stay on the match card and no longer fill `picks.json`.
+- The UI's Top Picks require tier 1–2, and the board sorts big leagues first.
+
+Replay of this combo (v5 sharp rule, tier 1–2, one pick per fixture):
+
+| Price used | Cohort | Dev 2022–24 | Test 2024–26 |
+| --- | --- | --- | --- |
+| Bet365 | all value | 332 picks, ROI +5.4%, CLV +2.2% | 178 picks, ROI +14.5%, CLV +1.8% |
+| Best market price | all value | 2,217 picks, ROI +5.5%, CLV +3.1% | 1,093 picks, ROI +2.0%, CLV +2.8% |
+| Best market price | high-win only | 54 picks, 71% hit, ROI +22%, CLV +3.6% | 26 picks, 72% hit, ROI +22%, CLV +3.8% |
+
+### Production finding
+
+The scan of 18 Oct reported `sharp_reference.status = NOT_CONFIGURED`: the scanning process had no Odds API key. Without it the engine can only make market-only projections, never value. The scanner now also reads `FC_*` keys from the repo's `.env.local`/`.env` when the process environment lacks them.
