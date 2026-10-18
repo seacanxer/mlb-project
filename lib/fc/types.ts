@@ -421,6 +421,8 @@ export interface ForecastPick extends FcPick {
   lane?: 'model' | 'reference_only' | 'market_only';
   league_tier?: 1 | 2 | 3;
   league_tier_label?: string;
+  /** 'pick' (lean >= 55%), 'no_lean' (coin flip, shown as balanced) or 'value'. */
+  display_status?: 'pick' | 'no_lean' | 'value';
 }
 
 export interface MatchAnalysis {
@@ -439,6 +441,9 @@ export interface MatchAnalysis {
   formula_version?: string;
   lane?: 'model' | 'reference_only' | 'market_only';
   model_status?: string;
+  /** Margin breakdown from the same score matrix used for every market. */
+  scenario?: { home_win: number; draw: number; away_win: number; home_by1: number; home_by2_plus: number;
+    away_by1: number; away_by2_plus: number; favourite: 'home' | 'away'; narrow_win_likelier: boolean };
   model_fallback_reason?: string;
   secondary_markets?: {
     availability: 'A' | 'B' | 'C';

@@ -372,3 +372,22 @@ def test_compact_raw_keeps_identity_and_digest():
     raw = SCAN['compact_raw']({'I': 5, 'S': 10, 'O1': 'A', 'O2': 'B', 'L': 'X', 'Value': [1] * 5000})
     assert raw['I'] == 5 and len(raw['raw_sha256']) == 64 and raw['raw_bytes'] > 10000
     assert 'Value' not in raw
+
+
+def test_juventus_case_coin_flip_markets_are_balanced_and_scenario_explains_ah():
+    """1X2 'Juventus' + AH 'Lazio +1' case (18 Oct): both likelier sides, not a contradiction."""
+    from football_formula_engine.confidence import score_scenario
+    from football_formula_engine.market_goals import infer_market_goals
+    mk = {'odds_1x2': {1: 1.61, 2: 3.9, 3: 5.6}, 'odds_ou': {'2.5': {'9': 1.96, '10': 1.86}},
+          'odds_ah': {'home': [(-1.0, 2.05)], 'away': [(1.0, 1.85)]}, 'odds_btts': {'yes': 1.95, 'no': 1.82}}
+    g = infer_market_goals(mk)
+    dist = build_score_matrix(g['home'], g['away'], 0.0)
+    shown = {m: o for m, _, o in display_markets(SCAN['price_fixture'](dist, mk, gated=False, reference_fair={}))}
+    assert shown['1x2']['side'] == 'home' and shown['1x2']['display_status'] == 'pick'
+    assert shown['ah']['side'] == 'away'                       # Lazio +1 is the likelier AH side ...
+    assert shown['ah']['display_status'] == 'no_lean'          # ... but only ~54%: shown as balanced
+    assert shown['btts']['display_status'] == 'no_lean'
+    s = score_scenario(dist)
+    assert s['favourite'] == 'home'
+    assert abs(s['home_win'] - (s['home_by1'] + s['home_by2_plus'])) < 1e-3
+    assert 0.2 < s['home_by1'] < 0.3 and 0.3 < s['home_by2_plus'] < 0.4

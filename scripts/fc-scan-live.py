@@ -56,7 +56,7 @@ from football_formula_engine.sharp_reference import (REFERENCE_VERSION,  # noqa:
 from football_formula_engine import reference_odds  # noqa: E402
 from football_formula_engine.league_tiers import TIER_LABELS, league_tier  # noqa: E402
 from football_formula_engine.confidence import (compact_options, confidence_tier,  # noqa: E402
-    display_markets,
+    display_markets, score_scenario,
     source_label, tier_hit_rate)
 from football_formula_engine.catalog import POLICY_VERSION, select_markets, direction_counts  # noqa: E402
 from football_formula_engine.quant import quant_metrics, QUANT_VERSION  # noqa: E402
@@ -1522,6 +1522,7 @@ def main(argv=()):
             formula_version=formula_version,
             base_formula_version=artifact.get('formula_version', FORMULA_VERSION) if artifact else None,
             direction_counts=direction_counts(forecasts),
+            scenario=score_scenario(decision_distribution),
         )
         if not value_rows:
             skipped['NO_VALUE'] = skipped.get('NO_VALUE', 0) + 1
@@ -1563,6 +1564,7 @@ def main(argv=()):
                 'league_tier': tier, 'league_tier_label': TIER_LABELS[tier],
                 'decision_mode': decision_mode, 'model_status': model_status,
                 'pick_class': row_class, 'lane': lane,
+                'display_status': o.get('display_status'),
                 'confidence': (round(o['confidence'], 4) if o.get('confidence') is not None else None),
                 'confidence_source': o.get('confidence_source'),
                 'confidence_tier': confidence_tier(o.get('confidence')),

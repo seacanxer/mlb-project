@@ -34,6 +34,10 @@ SOURCE_LABELS = {
     'market': 'Harga pasar 1xbit',
 }
 DISPLAY_ORDER = ('1x2', 'ah', 'ou', 'btts')
+# Below this the "most likely side" is a coin flip after margin (replay: the
+# 45-55% tier won 51.9%, ROI about -3%). Such markets are shown as balanced,
+# not as a pick, so two near-50/50 sides cannot read as opposing advice.
+MIN_LEAN_CONFIDENCE = 0.55
 
 
 def confidence_tier(probability):
@@ -71,7 +75,9 @@ def display_markets(opportunities):
         # market; show it, with its own confidence, instead of the favourite.
         value = [row for row in rows if not row[2].get('gate_reasons')]
         if value:
-            shown.append(max(value, key=lambda row: (row[2].get('ev', 0), row[1])))
+            best = max(value, key=lambda row: (row[2].get('ev', 0), row[1]))
+            best[2]['display_status'] = 'value'
+            shown.append(best)
             continue
         if market in ('ah', 'ou'):
             lines = {_line_key(market, row[2]) for row in rows}
@@ -79,8 +85,38 @@ def display_markets(opportunities):
                 min(abs(row[2]['confidence'] - 0.5) for row in rows if _line_key(market, row[2]) == line),
                 abs(line), line))
             rows = [row for row in rows if _line_key(market, row[2]) == main]
-        shown.append(max(rows, key=lambda row: (row[2]['confidence'], row[2].get('ev', 0), row[1])))
+        best = max(rows, key=lambda row: (row[2]['confidence'], row[2].get('ev', 0), row[1]))
+        best[2]['display_status'] = 'pick' if best[2]['confidence'] >= MIN_LEAN_CONFIDENCE else 'no_lean'
+        shown.append(best)
     return shown
+
+
+def score_scenario(distribution, home_name=None, away_name=None):
+    """Margin breakdown from the same score matrix every market is priced from.
+    It explains why e.g. 'Home to win' and 'Away +1' can both be the likelier
+    side: a narrow one-goal home win satisfies the first and refunds the second."""
+    home = draw = away = home_by1 = home_by2 = away_by1 = away_by2 = 0.0
+    for x, y, p in distribution.cells():
+        if x > y:
+            home += p
+            if x - y == 1:
+                home_by1 += p
+            else:
+                home_by2 += p
+        elif x == y:
+            draw += p
+        else:
+            away += p
+            if y - x == 1:
+                away_by1 += p
+            else:
+                away_by2 += p
+    favourite = 'home' if home >= away else 'away'
+    return {'home_win': round(home, 4), 'draw': round(draw, 4), 'away_win': round(away, 4),
+            'home_by1': round(home_by1, 4), 'home_by2_plus': round(home_by2, 4),
+            'away_by1': round(away_by1, 4), 'away_by2_plus': round(away_by2, 4),
+            'favourite': favourite,
+            'narrow_win_likelier': (home_by1 >= home_by2) if favourite == 'home' else (away_by1 >= away_by2)}
 
 
 def _main_line(market, rows):

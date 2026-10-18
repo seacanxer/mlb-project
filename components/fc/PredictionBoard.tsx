@@ -22,6 +22,42 @@ const PAGE_SIZE = 24;
 
 const TOP_PICK_MIN_ODDS = 1.4;
 
+/** Coin-flip markets (strongest side < 55%) are shown as balanced, not as a pick. */
+function isNoLean(pick: ForecastPick): boolean {
+  if (pick.display_status) return pick.display_status === 'no_lean';
+  return !isValue(pick) && pick.confidence != null && pick.confidence < 0.55;
+}
+
+function payoutBreakdown(p: NonNullable<ForecastPick['payout']>): string {
+  const pct = (v: number) => `${Math.round(v * 100)}%`;
+  const parts = [`Menang ${pct(p.full_win + p.half_win)}`];
+  if (p.push > 0.005) parts.push(`Refund ${pct(p.push)}`);
+  parts.push(`Kalah ${pct(p.full_loss + p.half_loss)}`);
+  return parts.join(' · ');
+}
+
+function scenarioLine(match: DetailedMatch): string {
+  const s = match.analysis!.scenario!;
+  const home = String(match.info.home ?? 'Home'), away = String(match.info.away ?? 'Away');
+  const homeWin = `${home} menang ${formatProb(s.home_win)}`;
+  const awayWin = `${away} menang ${formatProb(s.away_win)}`;
+  const fav = s.favourite === 'home'
+    ? `${homeWin} (selisih 1: ${formatProb(s.home_by1)} · ≥2: ${formatProb(s.home_by2_plus)}) · Seri ${formatProb(s.draw)} · ${awayWin}`
+    : `${awayWin} (selisih 1: ${formatProb(s.away_by1)} · ≥2: ${formatProb(s.away_by2_plus)}) · Seri ${formatProb(s.draw)} · ${homeWin}`;
+  return `Skenario skor: ${fav}`;
+}
+
+/** Explains a handicap on the side opposite the 1X2 projection (e.g. Juventus to win + Lazio +1). */
+function handicapNote(ah: ForecastPick, one: ForecastPick | undefined, match: DetailedMatch): string | null {
+  if (!one || isNoLean(one) || !['home', 'away'].includes(String(one.side)) || ah.side === one.side) return null;
+  const s = match.analysis?.scenario;
+  const fav = one.side === 'home' ? match.info.home : match.info.away;
+  const by1 = s ? (one.side === 'home' ? s.home_by1 : s.away_by1) : null;
+  const by2 = s ? (one.side === 'home' ? s.home_by2_plus : s.away_by2_plus) : null;
+  const detail = by1 != null && by2 != null ? ` (selisih 1 gol ${formatProb(by1)}, ≥2 gol ${formatProb(by2)})` : '';
+  return `Bukan kontradiksi: ${fav} diunggulkan menang, tapi kemungkinan menang tipis${detail}. Menang 1 gol = 1X2 menang, handicap ini refund.`;
+}
+
 function isHighConfidence(pick: ForecastPick): boolean {
   return pick.confidence_tier === 'TINGGI' || (pick.confidence != null && pick.confidence >= 0.65);
 }
@@ -83,20 +119,29 @@ function PredictionCard({ match, market, valueOnly, pickFilter, saved, lockedIds
         <span className="prediction-versus">VS</span>
         <div><span className="team-monogram team-away" aria-hidden="true">{(info.away || '?').slice(0, 2).toUpperCase()}</span><strong>{info.away || 'Away —'}</strong></div>
       </div>
+      {match.analysis?.scenario && <p className="prediction-scenario">{scenarioLine(match)}</p>}
       {cells.length > 0 && <div className="prediction-market-grid" style={{ '--market-count': cells.length } as React.CSSProperties}>
         {cells.map(({ key, label }) => {
           const pick = projections.find((p) => p.market === key);
           const selected = pick && saved.includes(choiceId(match, pick));
           const locked = pick && lockedIds.has(choiceId(match, pick));
+          const balanced = pick && isNoLean(pick);
+          const ahNote = pick && key === 'ah' && !balanced ? handicapNote(pick, projections.find((p) => p.market === '1x2'), match) : null;
           return <div className={`prediction-market market-${key}`} key={key}>
             <div className="prediction-market-heading">{label}</div>
-            {pick ? <button type="button" className={`prediction-selection${selected ? ' is-saved' : ''}`} aria-pressed={Boolean(selected)} aria-label={`${locked ? 'Terkunci' : selected ? 'Hapus' : 'Simpan'} ${pickLabel(pick, match)}`} onClick={() => onToggle(match, pick)}>
+            {pick && balanced ? <div className="prediction-no-market prediction-balanced">
+              <strong>Seimbang</strong>
+              <small>Sisi terkuat hanya {formatProb(pick.confidence ?? pick.probability)} — tidak ada arah jelas</small>
+              <span className="prediction-tag tier-rendah">Tanpa pick</span>
+            </div> : pick ? <button type="button" className={`prediction-selection${selected ? ' is-saved' : ''}`} aria-pressed={Boolean(selected)} aria-label={`${locked ? 'Terkunci' : selected ? 'Hapus' : 'Simpan'} ${pickLabel(pick, match)}`} onClick={() => onToggle(match, pick)}>
               <strong>{pickLabel(pick, match)}</strong>
               <span className="prediction-odds">@{formatOdds(pick.odds)} <span>{locked ? '🔒' : selected ? '✓' : '+'}</span></span>
               <small>Confidence {formatProb(pick.confidence ?? pick.probability)}</small>
               <small className="prediction-source" title="Kalibrasi dinilai per versi, sumber, dan market pada Kinerja Model.">
                 {pick.confidence_label ?? 'Sumber belum tercatat'}
               </small>
+              {key === 'ah' && pick.payout && <small className="prediction-source">{payoutBreakdown(pick.payout)}</small>}
+              {ahNote && <small className="prediction-source prediction-note">{ahNote}</small>}
               {pick.confidence_source !== 'market' && pick.market_confidence != null && <small className="prediction-source">Pasar 1xbit {formatProb(pick.market_confidence)}{pick.confidence_source === 'sharp' && pick.model_confidence != null ? ` · Model ${formatProb(pick.model_confidence)}` : ''}</small>}
               <span className={`prediction-tag ${isValue(pick) ? 'is-value' : ''} tier-${(pick.confidence_tier ?? '').toLowerCase()}`}>{isValue(pick) ? 'Kandidat value' : valueOnly ? 'Belum cukup yakin' : TIER_LABEL[pick.confidence_tier ?? ''] ?? 'Proyeksi'}</span>
             </button> : <div className="prediction-no-market"><strong>—</strong><small>{match.analysis?.model_goals ? 'Tidak ada pick layak' : 'Menunggu data'}</small></div>}
