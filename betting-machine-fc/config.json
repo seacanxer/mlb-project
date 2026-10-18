@@ -5,66 +5,52 @@
   "formula": {
     "version": "dc-loglink-time-decay-v1"
   },
-  "last_successful_scan_at": "2026-10-18T14:00:47.770167+00:00",
-  "last_successful_scan_count": 57,
+  "last_successful_scan_at": "2026-10-18T16:40:34.171183+00:00",
+  "last_successful_scan_count": 32,
   "last_successful_scan_picks": 0,
   "last_scan_diagnostics": {
     "skipped": {
-      "NO_VALUE": 57,
-      "TEAM_COVERAGE_MISSING": 9
+      "NO_VALUE": 31,
+      "TEAM_COVERAGE_MISSING": 4,
+      "QUOTE_CAPTURE_FAILED": 1
     },
     "leagues": [
       "BRASB",
-      "D1",
       "D3",
-      "E0",
       "F1",
       "I1",
       "I2",
       "MEX1",
       "MEX2",
       "N1",
-      "N2",
       "PAR1",
-      "PRFEF2",
       "SP1",
       "SP2",
-      "T1",
       "USL1"
     ],
-    "fixtures_future": 533,
-    "modelable_league_fixtures": 57,
+    "fixtures_future": 309,
+    "modelable_league_fixtures": 32,
     "coverage_verdict": "VALUE_CHECK_REQUIRED",
-    "league_model_unavailable": 21,
+    "league_model_unavailable": 13,
     "unavailable_leagues": {
       "Argentina. Primera Division": 4,
       "Brazil. Campeonato Brasileiro. Serie A": 4,
-      "Norway. Eliteserien": 4,
-      "Sweden. Allsvenskan": 3,
-      "Austria. Bundesliga": 1,
-      "Czech Republic. Chance Liga": 1,
-      "Denmark. Superliga": 1,
-      "Poland. Ekstraklasa": 1,
-      "Saudi Arabia. Saudi Professional League": 1,
+      "Saudi Arabia. Saudi Professional League": 3,
+      "Norway. Eliteserien": 1,
       "USA. MLS": 1
     },
     "unmatched_teams": {
       "BRASB: Botafogo Ribeirao Preto": 1,
       "BRASB: CRB Maceio": 1,
-      "D1: TSG 1899 Hoffenheim": 1,
-      "D3: Viktoria Koln": 1,
-      "E0: Nottingham Forest": 1,
       "I2: A.S.D. Atletico Arezzo": 1,
       "MEX2: Universidad de Guadalajara": 1,
-      "PAR1: Club Libertad": 1,
-      "SP2: Andorra Andorra la Vella": 1,
-      "T1: Istanbul BFK": 1
+      "PAR1: Club Libertad": 1
     },
     "value_matches": 0,
     "value_picks": 0,
     "policy_version": "fc-market-catalog-v4-abstain+quant-v1",
-    "forecast_matches": 57,
-    "forecast_count": 332,
+    "forecast_matches": 31,
+    "forecast_count": 164,
     "official_enabled": false,
     "official_reason": "MODEL_NOT_VALIDATED",
     "training_data": {
@@ -80,17 +66,6 @@
           "reason": "NON_FOOTBALL_DATA_SOURCE"
         }
       },
-      "D1": {
-        "last_result_at": 1791743400,
-        "source_files": [
-          "D1_2526.csv",
-          "D1_2627_live_scores.csv"
-        ],
-        "refresh": {
-          "status": "cached",
-          "season": "2627"
-        }
-      },
       "D3": {
         "last_result_at": 1789939800,
         "source_files": [
@@ -103,18 +78,6 @@
           "reason": "NON_FOOTBALL_DATA_SOURCE"
         }
       },
-      "E0": {
-        "last_result_at": 1791846000,
-        "source_files": [
-          "E0_2425.csv",
-          "E0_2526.csv",
-          "E0_2627_live_scores.csv"
-        ],
-        "refresh": {
-          "status": "cached",
-          "season": "2627"
-        }
-      },
       "F1": {
         "last_result_at": 1791755100,
         "source_files": [
@@ -122,8 +85,9 @@
           "F1_2627_live_scores.csv"
         ],
         "refresh": {
-          "status": "cached",
-          "season": "2627"
+          "status": "updated",
+          "season": "2627",
+          "rows": 54
         }
       },
       "I1": {
@@ -133,8 +97,9 @@
           "I1_2627_live_scores.csv"
         ],
         "refresh": {
-          "status": "cached",
-          "season": "2627"
+          "status": "updated",
+          "season": "2627",
+          "rows": 60
         }
       },
       "I2": {
@@ -144,8 +109,9 @@
           "I2_2627_live_scores.csv"
         ],
         "refresh": {
-          "status": "cached",
-          "season": "2627"
+          "status": "updated",
+          "season": "2627",
+          "rows": 60
         }
       },
       "MEX1": {
@@ -183,35 +149,11 @@
           "season": "2627"
         }
       },
-      "N2": {
-        "last_result_at": 1789929900,
-        "source_files": [
-          "N2_2526_dayfeed.csv",
-          "N2_2627_dayfeed.csv"
-        ],
-        "refresh": {
-          "status": "skipped",
-          "season": "2627",
-          "reason": "NON_FOOTBALL_DATA_SOURCE"
-        }
-      },
       "PAR1": {
         "last_result_at": 1789972200,
         "source_files": [
           "PAR1_2526_dayfeed.csv",
           "PAR1_2627_dayfeed.csv"
-        ],
-        "refresh": {
-          "status": "skipped",
-          "season": "2627",
-          "reason": "NON_FOOTBALL_DATA_SOURCE"
-        }
-      },
-      "PRFEF2": {
-        "last_result_at": 1790204400,
-        "source_files": [
-          "PRFEF2_2526_dayfeed.csv",
-          "PRFEF2_2627_dayfeed.csv"
         ],
         "refresh": {
           "status": "skipped",
@@ -226,8 +168,9 @@
           "SP1_2627_live_scores.csv"
         ],
         "refresh": {
-          "status": "cached",
-          "season": "2627"
+          "status": "updated",
+          "season": "2627",
+          "rows": 78
         }
       },
       "SP2": {
@@ -235,17 +178,6 @@
         "source_files": [
           "SP2_2526.csv",
           "SP2_2627_live_scores.csv"
-        ],
-        "refresh": {
-          "status": "cached",
-          "season": "2627"
-        }
-      },
-      "T1": {
-        "last_result_at": 1791831600,
-        "source_files": [
-          "T1_2526.csv",
-          "T1_2627_live_scores.csv"
         ],
         "refresh": {
           "status": "cached",
@@ -280,17 +212,17 @@
       "markets_priced": {}
     },
     "coverage": {
-      "fixtures": 533,
-      "artifact_rows": 11,
-      "model_lane": 27,
+      "fixtures": 309,
+      "artifact_rows": 4,
+      "model_lane": 15,
       "reference_only_lane": 0,
       "reference_fallback": 0,
-      "market_only_lane": 30,
-      "league_unavailable": 21,
+      "market_only_lane": 16,
+      "league_unavailable": 13,
       "reference_missing": 0,
       "duplicates": 0,
-      "tier3_skipped": 476,
-      "tier3_display_only": 10,
+      "tier3_skipped": 277,
+      "tier3_display_only": 7,
       "value_picks_capped": 0
     }
   }
