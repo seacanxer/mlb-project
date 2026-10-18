@@ -282,3 +282,15 @@ Requirements:
 - The Pinnacle key must be active.
 - Scans must run often enough to build history. Hourly is suggested for tier-1/2 leagues, at 3 Odds API credits per league per scan.
 - Keep `fc-prune-data.py --days` at 21 or more.
+
+### Load and storage impact
+
+**Website.** The site never reads `live_quotes.db`. Movement adds about 250 bytes per projection to `matches_detailed.json`, roughly 100 KB on a 4 MB scan. `market_options` stays on its whitelist without movement fields.
+
+**Quote journal.**
+- Measured size: about 14 KB per fixture per scan (1xbit book with all lines plus three Pinnacle markets).
+- Hourly scans of about 100 tier-1/2 fixtures add about 34 MB per day.
+- `fc-prune-data.py` now defaults to 7 days of retention (movement reads 3 days; quotes behind a pick are kept at any age). This bounds the journal at about 250 MB.
+- `fc-ledger-cron.sh` runs the prune once a day and keeps one rolling backup.
+
+**Scanner CPU.** Movement reads only the first and last capture per bookmaker, via `QuoteJournal.endpoints` plus a capture count. It no longer parses every stored observation, so cost stays flat as scans become more frequent.

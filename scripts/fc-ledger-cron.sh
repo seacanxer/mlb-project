@@ -26,4 +26,11 @@ echo "[ledger-cron] $(date -u +%FT%TZ) log projections"
 "$PY" scripts/fc-log-projections.py
 echo "[ledger-cron] $(date -u +%FT%TZ) grade + report"
 "$PY" scripts/fc-grade-projections.py --report-out reports/fc-model-performance.json
+# Once a day: bound live_quotes.db / odds_quotes.jsonl (default 7-day retention,
+# quotes behind research decisions kept). Stamp file avoids running every 30 min.
+STAMP=betting-machine-fc/.last_prune
+if [ ! -f "$STAMP" ] || [ "$(find "$STAMP" -mmin +1440 2>/dev/null)" ]; then
+  echo "[ledger-cron] $(date -u +%FT%TZ) prune quote journal"
+  "$PY" scripts/fc-prune-data.py --apply && touch "$STAMP"
+fi
 echo "[ledger-cron] $(date -u +%FT%TZ) done"

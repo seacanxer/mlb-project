@@ -45,7 +45,7 @@ def _quotes(obs):
             for q in obs.get('quotes') or []}
 
 
-def movement_series(observations, bookmaker):
+def movement_series(observations, bookmaker, snapshot_count=None):
     """{contract: {'open', 'now', 'open_at', 'now_at', 'snapshots'}} for one bookmaker.
 
     Each snapshot's probability comes from a complete market inside a single
@@ -62,6 +62,10 @@ def movement_series(observations, bookmaker):
                                     'now_at': at, 'snapshots': 1}
             else:
                 row.update(now=probability, now_at=at, snapshots=row['snapshots'] + 1)
+    if snapshot_count is not None:
+        # Endpoint reads load only the first and last batch; keep the true count.
+        for row in series.values():
+            row['snapshots'] = max(row['snapshots'], snapshot_count if row['now_at'] != row['open_at'] else 1)
     return series
 
 

@@ -6,7 +6,7 @@ pruning never edits it in place. The script builds a fresh journal holding:
     (or has not kicked off yet), and
   * every observation referenced by a research decision, at any age,
 plus all research decisions. It then swaps the file atomically and keeps the
-old one as a timestamped backup unless --no-backup is given.
+previous file as one rolling backup (live_quotes.bak.db) unless --no-backup.
 
 odds_quotes.jsonl (optional cross-check log) keeps lines captured within the
 retention window.
@@ -14,7 +14,7 @@ retention window.
 Dry run by default; pass --apply to write.
 
     python scripts/fc-prune-data.py                 # report only
-    python scripts/fc-prune-data.py --apply --days 21
+    python scripts/fc-prune-data.py --apply            # default 7 days
 """
 import argparse
 import json
@@ -76,8 +76,8 @@ def prune_journal(path, cutoff, apply, backup):
     finally:
         db.close()
     if backup:
-        stamp = datetime.now().strftime('%Y%m%d-%H%M%S')
-        shutil.copy2(path, path.with_name(f'{path.stem}.{stamp}.bak{path.suffix}'))
+        # One rolling backup (overwritten each run) so daily pruning cannot pile up copies.
+        shutil.copy2(path, path.with_name(f'{path.stem}.bak{path.suffix}'))
     os.replace(fresh, path)
     report.update(status='pruned', bytes_after=path.stat().st_size)
     return report
@@ -111,14 +111,16 @@ def prune_jsonl(path, cutoff, apply):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('--days', type=int, default=21, help='retention window after kickoff (default 21)')
+    # Movement reads 3 days back and closing-line checks the last 5 minutes before
+    # kickoff; quotes behind a pick are kept at any age. 7 days covers both.
+    parser.add_argument('--days', type=int, default=7, help='retention window after kickoff (default 7)')
     parser.add_argument('--apply', action='store_true', help='write changes (default: dry run)')
     parser.add_argument('--no-backup', action='store_true')
     parser.add_argument('--db', default=os.environ.get('FC_QUOTES_DB', str(FC_DIR / 'live_quotes.db')))
     parser.add_argument('--quotes-log', default=str(FC_DIR / 'odds_quotes.jsonl'))
     args = parser.parse_args(argv)
-    if args.days < 7:
-        parser.error('--days below 7 would drop quotes still needed for grading')
+    if args.days < 4:
+        parser.error('--days below 4 would cut into the 3-day movement window')
     cutoff = time.time() - args.days * 86400
     result = {'cutoff_days': args.days, 'apply': args.apply,
               'journal': prune_journal(args.db, cutoff, args.apply, not args.no_backup),

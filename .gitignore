@@ -61,3 +61,4 @@ betting-machine-fc/matches_detailed.json
 betting-machine-fc/picks.json
 betting-machine-fc/odds_quotes.jsonl
 betting-machine-fc/*.pruning.db
+betting-machine-fc/.last_prune

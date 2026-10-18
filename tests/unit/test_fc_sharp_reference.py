@@ -448,3 +448,17 @@ def test_movement_report_groups_graded_picks_by_signal():
     rows = {(r['cohort'], r['signal']): r for r in mv.report(ledger, grades, min_n=1)}
     assert rows[('all', 'soft_lag')]['hit_rate'] == 1.0 and rows[('all', 'soft_lag')]['roi'] == 0.5
     assert rows[('value_v5', 'steam_against')]['roi'] == -1.0
+
+
+def test_journal_endpoints_load_only_first_and_last_capture(tmp_path):
+    j = QuoteJournal(tmp_path / 'q.db')
+    k = KICKOFF
+    info = {'match_id': '9', 'start_ts': k}
+    for i, home in enumerate((2.20, 2.15, 2.10, 2.05, 1.95)):     # five hourly scans
+        j.record(info, {'odds_1x2': {1: home, 2: 3.5, 3: 3.6}}, {}, captured_at=k - 20000 + 3600 * i)
+    obs, counts = j.endpoints('9', k - 1000, max_age_seconds=3 * 86400)
+    assert len(obs) == 2 and counts == {'1xbit': 5}
+    series = om.movement_series(obs, '1xbit', counts['1xbit'])[('1x2', 'home', None)]
+    assert series['snapshots'] == 5 and series['now'] > series['open']
+    full = om.movement_series(j.as_of('9', k - 1000, max_age_seconds=3 * 86400), '1xbit')[('1x2', 'home', None)]
+    assert abs(full['now'] - series['now']) < 1e-12 and abs(full['open'] - series['open']) < 1e-12

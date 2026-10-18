@@ -119,6 +119,25 @@ class QuoteJournal:
                 (str(fixture_id), decision_at, decision_at - max_age_seconds, decision_at)).fetchall()
         return [json.loads(row[0]) for row in rows]
 
+    def endpoints(self, fixture_id, decision_at, *, max_age_seconds):
+        """First and latest capture batch per bookmaker inside the window, plus the
+        number of distinct captures. Movement needs only these two snapshots, so
+        hourly scans no longer mean parsing every stored observation."""
+        require(max_age_seconds > 0, 'Invalid max age')
+        lower = decision_at - max_age_seconds
+        with self.connect() as db:
+            spans = db.execute('''SELECT bookmaker, MIN(captured_at), MAX(captured_at), COUNT(DISTINCT captured_at)
+                FROM observations WHERE fixture_id=? AND captured_at<=? AND captured_at>=? AND kickoff>?
+                GROUP BY bookmaker''', (str(fixture_id), decision_at, lower, decision_at)).fetchall()
+            observations, counts = [], {}
+            for bookmaker, first, last, n in spans:
+                counts[bookmaker] = n
+                rows = db.execute('''SELECT payload FROM observations WHERE fixture_id=? AND bookmaker=?
+                    AND captured_at IN (?, ?) ORDER BY captured_at, id''',
+                    (str(fixture_id), bookmaker, first, last)).fetchall()
+                observations.extend(json.loads(row[0]) for row in rows)
+        return observations, counts
+
     def record_research_decision(self, observation_id, contract, *, decision_at, policy_id, model):
         """First decision per fixture/policy/contract/version; legacy table is preserved."""
         require(contract.get('period', 'full_time_90_minutes') == 'full_time_90_minutes',

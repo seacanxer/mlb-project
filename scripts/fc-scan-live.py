@@ -1398,9 +1398,11 @@ def main(argv=()):
                 reference_status['markets_priced'][market] = reference_status['markets_priced'].get(market, 0)+1
             reference_status['fixtures_priced'] += bool(reference_fair)
         # Odds movement: first vs latest complete market per bookmaker from the journal.
-        history = journal.as_of(info['match_id'], decision_at, max_age_seconds=MOVEMENT_LOOKBACK_SECONDS)
-        reference_series = odds_movement.movement_series(history, REFERENCE_BOOKMAKER)
-        primary_series = odds_movement.movement_series(history, '1xbit')
+        history, captures = journal.endpoints(info['match_id'], decision_at,
+                                              max_age_seconds=MOVEMENT_LOOKBACK_SECONDS)
+        reference_series = odds_movement.movement_series(history, REFERENCE_BOOKMAKER,
+                                                         captures.get(REFERENCE_BOOKMAKER))
+        primary_series = odds_movement.movement_series(history, '1xbit', captures.get('1xbit'))
 
         if lane == 'reference_only' and not reference_fair:
             coverage['reference_missing'] += 1
