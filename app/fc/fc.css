@@ -107,6 +107,8 @@ body:has(.fc-shell) .main-content { max-width: 1460px; padding: 1.5rem 2rem 3rem
 .prediction-tag.is-value { color: #91e9c8; background: #1a4030; }
 .prediction-scenario { margin: .2rem 0 .6rem; font-size: .66rem; color: #9fb7aa; }
 .prediction-note { color: #d6c38f; }
+.movement-soft_lag, .movement-steam_with, .movement-market_with { color: #7fd8b0; }
+.movement-steam_against, .movement-market_against { color: #e09a8a; }
 .prediction-balanced strong { color: #9fb0a6; }
 .prediction-source { display: block; font-size: .58rem; color: #8fa596; line-height: 1.25; }
 .prediction-tag.tier-tinggi:not(.is-value) { color: #e8f6ee; background: #2b5a40; }

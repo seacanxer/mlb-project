@@ -51,10 +51,11 @@ from football_formula_engine.live_quotes import QuoteJournal  # noqa: E402
 from football_formula_engine.second_source import collect as collect_second_source  # noqa: E402
 from football_formula_engine.sharp_reference import (REFERENCE_VERSION,  # noqa: E402
     REFERENCE_MAX_AGE_SECONDS, REFERENCE_CAPTURE_SKEW_SECONDS, MOVEMENT_LOOKBACK_SECONDS, fair_probabilities,
-    latest_reference_quotes, reference_snapshot, quotes_to_markets, reference_gate_reasons, reference_movement,
+    latest_reference_quotes, reference_snapshot, quotes_to_markets, reference_gate_reasons,
     value_tier)
 from football_formula_engine import reference_odds  # noqa: E402
 from football_formula_engine.league_tiers import TIER_LABELS, league_tier  # noqa: E402
+from football_formula_engine import odds_movement  # noqa: E402
 from football_formula_engine.confidence import (compact_options, confidence_tier,  # noqa: E402
     display_markets, score_scenario,
     source_label, tier_hit_rate)
@@ -1378,7 +1379,7 @@ def main(argv=()):
             skipped['QUOTE_EXPIRED'] = skipped.get('QUOTE_EXPIRED', 0) + 1
             m['analysis']['reason_codes'] = ['QUOTE_EXPIRED']
             continue
-        reference_fair, movement, reference_quotes = None, {}, {}
+        reference_fair, reference_quotes = None, {}
         reference_quality = {'quotes': {}, 'fair': {}, 'reason_codes': ['REFERENCE_UNAVAILABLE'], 'rejected_groups': []}
         if DECISION_MODE == 'sharp_reference':
             reference_quality = reference_snapshot(
@@ -1395,10 +1396,11 @@ def main(argv=()):
                 reference_status['quote_rejections'][reason] = reference_status['quote_rejections'].get(reason, 0)+1
             for market, _side, _line in reference_fair:
                 reference_status['markets_priced'][market] = reference_status['markets_priced'].get(market, 0)+1
-            movement = reference_movement(journal.as_of(
-                info['match_id'], decision_at, max_age_seconds=MOVEMENT_LOOKBACK_SECONDS),
-                REFERENCE_BOOKMAKER)
             reference_status['fixtures_priced'] += bool(reference_fair)
+        # Odds movement: first vs latest complete market per bookmaker from the journal.
+        history = journal.as_of(info['match_id'], decision_at, max_age_seconds=MOVEMENT_LOOKBACK_SECONDS)
+        reference_series = odds_movement.movement_series(history, REFERENCE_BOOKMAKER)
+        primary_series = odds_movement.movement_series(history, '1xbit')
 
         if lane == 'reference_only' and not reference_fair:
             coverage['reference_missing'] += 1
@@ -1468,9 +1470,7 @@ def main(argv=()):
                                       reference_fair=reference_fair,
                                       model_confidence=(lane == 'model'))
         for _market, _label, o in opportunities:
-            opened, current = movement.get((_market, o['side'], o['line_quarters']), (None, None))
-            o['reference_open_probability'] = opened
-            o['reference_move'] = current - opened if opened is not None else None
+            odds_movement.annotate(o, (_market, o['side'], o['line_quarters']), reference_series, primary_series)
         m['analysis']['secondary_markets'] = secondary_analysis(info, secondary_data,
             {'home': blended_home, 'away': blended_away}, book=secondary_book)
         if code == NATIONAL_CODE and lane == 'model':
@@ -1561,6 +1561,13 @@ def main(argv=()):
                                                if o.get('reference_open_probability') is not None else None),
                 'reference_move': (round(o['reference_move'], 4)
                                    if o.get('reference_move') is not None else None),
+                'primary_open_probability': (round(o['primary_open_probability'], 4)
+                                             if o.get('primary_open_probability') is not None else None),
+                'primary_move': (round(o['primary_move'], 4) if o.get('primary_move') is not None else None),
+                'movement_signal': o.get('movement_signal'),
+                'movement_label': odds_movement.SIGNAL_LABELS.get(o.get('movement_signal')),
+                'movement_span_minutes': o.get('movement_span_minutes'),
+                'movement_snapshots': o.get('movement_snapshots'),
                 'league_tier': tier, 'league_tier_label': TIER_LABELS[tier],
                 'decision_mode': decision_mode, 'model_status': model_status,
                 'pick_class': row_class, 'lane': lane,
@@ -1605,8 +1612,12 @@ def main(argv=()):
         m['market_options'] = [slim_option_payload(row_payload(row, 'market_option'))
                                for row in compact_options(opportunities)]
         # High-win tier first, then expected value.
-        ranked_value = sorted(value_rows, key=lambda r: (r[2].get('value_tier') == 'high_win',
-                                                         r[2]['conservative_ev']), reverse=True)
+        # High-win first, then movement (sharp move toward the side, soft book
+        # lagging, ranks above a move against it), then expected value.
+        ranked_value = sorted(value_rows, key=lambda r: (
+            r[2].get('value_tier') != 'high_win',
+            odds_movement.SIGNAL_RANK.get(r[2].get('movement_signal'), 3),
+            -r[2]['conservative_ev']))
         # One value pick per fixture: correlated second picks double the risk.
         kept_value = ranked_value[:1]
         for row in kept_value:
@@ -1643,6 +1654,7 @@ def main(argv=()):
     # Rank and cap: big competitions first, then high-win tier, then EV.
     picks.sort(key=lambda item: (int(item.get('league_tier') or 3),
                                  item.get('value_tier') != 'high_win',
+                                 odds_movement.SIGNAL_RANK.get(item.get('movement_signal'), 3),
                                  -float(item.get('ev') or 0)))
     capped = len(picks) - MAX_VALUE_PICKS_PER_SCAN
     picks = picks[:MAX_VALUE_PICKS_PER_SCAN]

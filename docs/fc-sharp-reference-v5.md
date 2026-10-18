@@ -249,3 +249,36 @@ Limits:
 - Tier hit rates were measured on 1X2 and main lines. Alternative lines rely on the same no-vig calibration but have no separate history yet.
 - Without a price edge, ROI stays about minus margin.
 - 1X2 and BTTS have no alternative lines. When they are coin flips they remain "Seimbang", and the AH alternative is the decision.
+
+## v5.7 — odds movement as a decision factor (18 October 2026)
+
+**Why it was not used before.** The historical replay has only open and close prices. That was enough to show two things:
+- backing a move after it happened lost;
+- the current Pinnacle price already contains the move, which v5 prices against.
+
+It cannot test intraday signals, and the live journal had no Pinnacle history while the key was missing.
+
+**What is now read.** `odds_movement.py` reads the immutable quote journal: the first versus the latest complete market per bookmaker over the last three days, for every contract. Each priced offer carries:
+- `reference_move` (Pinnacle) and `primary_move` (1xbit), in probability points;
+- `movement_signal`, one of:
+  - `soft_lag`: Pinnacle moved ≥ 2pp toward the side and 1xbit followed by less than half;
+  - `steam_with`;
+  - `steam_against`;
+  - `flat`;
+  - `market_with` / `market_against` / `market_flat` (1xbit only, when Pinnacle has no history);
+  - `unknown`: under 30 minutes or fewer than two snapshots.
+
+**How it is used (ordering and warnings, not gating).**
+- Value picks are ranked tier → high-win → movement (`soft_lag` > `steam_with` > flat > `steam_against`) → EV.
+- `steam_against` picks are kept but excluded from Top Picks.
+- Cards show the move, e.g. "Odds bergerak dalam 3 jam: Pinnacle +3.1pp · 1xbit +0.4pp — Pinnacle bergerak ke sisi ini, 1xbit belum mengikuti".
+
+**Validation.**
+- Movement fields are written to the projection ledger.
+- `scripts/fc-movement-report.py` reports hit rate and ROI per signal on graded picks.
+- A signal may become a gate only after it beats `flat` with enough graded picks (default minimum 30 per bucket).
+
+Requirements:
+- The Pinnacle key must be active.
+- Scans must run often enough to build history. Hourly is suggested for tier-1/2 leagues, at 3 Odds API credits per league per scan.
+- Keep `fc-prune-data.py --days` at 21 or more.

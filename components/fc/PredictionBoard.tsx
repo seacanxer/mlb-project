@@ -28,6 +28,17 @@ function isNoLean(pick: ForecastPick): boolean {
   return !isValue(pick) && pick.confidence != null && pick.confidence < 0.55;
 }
 
+function movementLine(pick: ForecastPick): string | null {
+  const sig = pick.movement_signal;
+  if (!sig || sig === 'unknown') return null;
+  const pp = (v: number | null | undefined) => (v == null ? null : `${v >= 0 ? '+' : ''}${(v * 100).toFixed(1)}pp`);
+  const parts: string[] = [];
+  if (pp(pick.reference_move)) parts.push(`Pinnacle ${pp(pick.reference_move)}`);
+  if (pp(pick.primary_move)) parts.push(`1xbit ${pp(pick.primary_move)}`);
+  const span = pick.movement_span_minutes ? ` dalam ${pick.movement_span_minutes >= 120 ? `${Math.round(pick.movement_span_minutes / 60)} jam` : `${pick.movement_span_minutes} mnt`}` : '';
+  return `Odds bergerak${span}: ${parts.join(' · ')} — ${pick.movement_label ?? sig}`;
+}
+
 function payoutBreakdown(p: NonNullable<ForecastPick['payout']>): string {
   const pct = (v: number) => `${Math.round(v * 100)}%`;
   const parts = [`Menang ${pct(p.full_win + p.half_win)}`];
@@ -67,6 +78,8 @@ function isTopQuality(pick: ForecastPick): boolean {
   if (!Number.isFinite(odds) || odds < TOP_PICK_MIN_ODDS) return false;
   // Top Picks only from big/major competitions (engine league_tier 1-2).
   if ((pick.league_tier ?? 3) > 2) return false;
+  // A sharp move against the side keeps it out of Top Picks until validated otherwise.
+  if (pick.movement_signal === 'steam_against') return false;
   return isHighConfidence(pick) && isActionable(pick);
 }
 
@@ -142,6 +155,7 @@ function PredictionCard({ match, market, valueOnly, pickFilter, saved, lockedIds
               </small>
               {pick.display_status === 'alt_line' && <small className="prediction-source prediction-note">Line utama 50/50{pick.main_line_confidence != null ? ` (${formatProb(pick.main_line_confidence)})` : ''}; dipilih line dengan arah jelas (≥60%).</small>}
               {key === 'ah' && pick.payout && <small className="prediction-source">{payoutBreakdown(pick.payout)}</small>}
+              {movementLine(pick) && <small className={`prediction-source movement-${pick.movement_signal}`}>{movementLine(pick)}</small>}
               {ahNote && <small className="prediction-source prediction-note">{ahNote}</small>}
               {pick.confidence_source !== 'market' && pick.market_confidence != null && <small className="prediction-source">Pasar 1xbit {formatProb(pick.market_confidence)}{pick.confidence_source === 'sharp' && pick.model_confidence != null ? ` · Model ${formatProb(pick.model_confidence)}` : ''}</small>}
               <span className={`prediction-tag ${isValue(pick) ? 'is-value' : ''} tier-${(pick.confidence_tier ?? '').toLowerCase()}`}>{isValue(pick) ? 'Kandidat value' : valueOnly ? 'Belum cukup yakin' : pick.display_status === 'alt_line' ? `Line alternatif · ${TIER_LABEL[pick.confidence_tier ?? ''] ?? ''}` : TIER_LABEL[pick.confidence_tier ?? ''] ?? 'Proyeksi'}</span>

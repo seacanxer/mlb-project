@@ -423,6 +423,11 @@ export interface ForecastPick extends FcPick {
   league_tier_label?: string;
   /** 'pick' (lean >= 55%), 'no_lean' (coin flip, shown as balanced) or 'value'. */
   display_status?: 'pick' | 'no_lean' | 'value' | 'alt_line';
+  /** Odds movement since first scan (probability points) and its signal. */
+  primary_move?: number | null;
+  movement_signal?: 'soft_lag' | 'steam_with' | 'steam_against' | 'flat' | 'market_with' | 'market_against' | 'market_flat' | 'unknown';
+  movement_label?: string | null;
+  movement_span_minutes?: number | null;
   /** For alt_line: confidence of the balanced main line it replaced. */
   main_line_confidence?: number | null;
 }

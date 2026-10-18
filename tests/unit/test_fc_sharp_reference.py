@@ -409,3 +409,42 @@ def test_coin_flip_main_line_switches_to_clear_alternative_line():
     assert (ah['side'], ah['line_quarters']) == ('away', 6)     # Lazio +1.5
     kept = compact_options(rows)
     assert any(o.get('display_status') == 'alt_line' for _, _, o in kept)
+
+
+# --- Odds movement as a decision factor ---
+from football_formula_engine import odds_movement as om
+
+
+def _obs(book, at, home, draw, away):
+    return {'bookmaker': book, 'captured_at': at, 'quotes': [
+        {'market': '1x2', 'side': s, 'line_quarters': None, 'decimal_odds': o}
+        for s, o in (('home', home), ('draw', draw), ('away', away))]}
+
+
+def test_movement_signals_from_journal_history():
+    hist = [_obs('pinnacle', 0, 2.20, 3.4, 3.4), _obs('pinnacle', 7200, 1.95, 3.6, 4.0),
+            _obs('1xbit', 0, 2.25, 3.3, 3.3), _obs('1xbit', 7200, 2.20, 3.4, 3.4)]
+    ref, prim = om.movement_series(hist, 'pinnacle'), om.movement_series(hist, '1xbit')
+    home = ('1x2', 'home', None)
+    offer = {}
+    assert om.annotate(offer, home, ref, prim) == 'soft_lag'     # sharp moved to home, 1xbit lagged
+    assert offer['reference_move'] > 0.02 and offer['movement_span_minutes'] == 120
+    assert om.classify(ref[('1x2', 'away', None)], prim[('1x2', 'away', None)]) == 'steam_against'
+    assert om.classify(None, prim[home]) in ('market_with', 'market_flat')
+    short = om.movement_series([_obs('pinnacle', 0, 2.2, 3.4, 3.4), _obs('pinnacle', 600, 1.9, 3.6, 4.2)], 'pinnacle')
+    assert om.classify(short[home], None) == 'unknown'          # < 30 minutes of history
+    assert om.SIGNAL_RANK['soft_lag'] < om.SIGNAL_RANK['flat'] < om.SIGNAL_RANK['steam_against']
+
+
+def test_movement_report_groups_graded_picks_by_signal():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('mv', ROOT / 'scripts/fc-movement-report.py')
+    mv = importlib.util.module_from_spec(spec); spec.loader.exec_module(mv)
+    ledger = [{'ledger_id': 'a', 'odds': 2.0, 'movement_signal': 'soft_lag', 'pick_class': 'value_v5'},
+              {'ledger_id': 'b', 'odds': 2.0, 'movement_signal': 'soft_lag', 'pick_class': 'value_v5'},
+              {'ledger_id': 'c', 'odds': 1.8, 'movement_signal': 'steam_against', 'pick_class': 'value_v5'}]
+    grades = [{'ledger_id': 'a', 'outcome': 'win'}, {'ledger_id': 'b', 'outcome': 'push'},
+              {'ledger_id': 'c', 'outcome': 'loss'}]
+    rows = {(r['cohort'], r['signal']): r for r in mv.report(ledger, grades, min_n=1)}
+    assert rows[('all', 'soft_lag')]['hit_rate'] == 1.0 and rows[('all', 'soft_lag')]['roi'] == 0.5
+    assert rows[('value_v5', 'steam_against')]['roi'] == -1.0
