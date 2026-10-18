@@ -384,10 +384,28 @@ def test_juventus_case_coin_flip_markets_are_balanced_and_scenario_explains_ah()
     dist = build_score_matrix(g['home'], g['away'], 0.0)
     shown = {m: o for m, _, o in display_markets(SCAN['price_fixture'](dist, mk, gated=False, reference_fair={}))}
     assert shown['1x2']['side'] == 'home' and shown['1x2']['display_status'] == 'pick'
-    assert shown['ah']['side'] == 'away'                       # Lazio +1 is the likelier AH side ...
-    assert shown['ah']['display_status'] == 'no_lean'          # ... but only ~54%: shown as balanced
+    # Lazio +1 (main line) is ~54%, a coin flip; no alternative line is offered here.
+    assert shown['ah']['side'] == 'away' and shown['ah']['display_status'] == 'no_lean'
     assert shown['btts']['display_status'] == 'no_lean'
     s = score_scenario(dist)
     assert s['favourite'] == 'home'
     assert abs(s['home_win'] - (s['home_by1'] + s['home_by2_plus'])) < 1e-3
     assert 0.2 < s['home_by1'] < 0.3 and 0.3 < s['home_by2_plus'] < 0.4
+
+
+def test_coin_flip_main_line_switches_to_clear_alternative_line():
+    from football_formula_engine.market_goals import infer_market_goals
+    mk = {'odds_1x2': {1: 1.61, 2: 3.9, 3: 5.6}, 'odds_ou': {'2.5': {'9': 1.96, '10': 1.86}},
+          'odds_ah': {'home': [(-1.0, 2.05), (-1.5, 2.75), (-0.5, 1.62)],
+                      'away': [(1.0, 1.85), (1.5, 1.45), (0.5, 2.35)]},
+          'odds_btts': {'yes': 1.95, 'no': 1.82}}
+    g = infer_market_goals(mk)
+    dist = build_score_matrix(g['home'], g['away'], 0.0)
+    rows = SCAN['price_fixture'](dist, mk, gated=False, reference_fair={})
+    ah = {m: o for m, _, o in display_markets(rows)}['ah']
+    assert ah['display_status'] == 'alt_line'
+    assert ah['confidence'] >= 0.60 and ah['odds'] >= 1.40
+    assert ah['main_line_confidence'] < 0.55
+    assert (ah['side'], ah['line_quarters']) == ('away', 6)     # Lazio +1.5
+    kept = compact_options(rows)
+    assert any(o.get('display_status') == 'alt_line' for _, _, o in kept)

@@ -422,7 +422,9 @@ export interface ForecastPick extends FcPick {
   league_tier?: 1 | 2 | 3;
   league_tier_label?: string;
   /** 'pick' (lean >= 55%), 'no_lean' (coin flip, shown as balanced) or 'value'. */
-  display_status?: 'pick' | 'no_lean' | 'value';
+  display_status?: 'pick' | 'no_lean' | 'value' | 'alt_line';
+  /** For alt_line: confidence of the balanced main line it replaced. */
+  main_line_confidence?: number | null;
 }
 
 export interface MatchAnalysis {

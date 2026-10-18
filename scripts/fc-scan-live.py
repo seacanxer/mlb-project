@@ -1565,6 +1565,8 @@ def main(argv=()):
                 'decision_mode': decision_mode, 'model_status': model_status,
                 'pick_class': row_class, 'lane': lane,
                 'display_status': o.get('display_status'),
+                'main_line_confidence': (round(o['main_line_confidence'], 4)
+                                         if o.get('main_line_confidence') is not None else None),
                 'confidence': (round(o['confidence'], 4) if o.get('confidence') is not None else None),
                 'confidence_source': o.get('confidence_source'),
                 'confidence_tier': confidence_tier(o.get('confidence')),

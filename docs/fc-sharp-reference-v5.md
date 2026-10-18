@@ -223,3 +223,29 @@ Replay of this combo (v5 sharp rule, tier 1–2, one pick per fixture):
 ### Production finding
 
 The scan of 18 Oct reported `sharp_reference.status = NOT_CONFIGURED`: the scanning process had no Odds API key. Without it the engine can only make market-only projections, never value. The scanner now also reads `FC_*` keys from the repo's `.env.local`/`.env` when the process environment lacks them.
+
+## v5.6 — tie-break study and alternative lines (18 October 2026)
+
+**Question.** Can extra statistics turn a 50/50 market into a pick?
+
+**Test.** A walk-forward logistic model: market no-vig logit as offset, plus team features rolled over the last six matches before kickoff. Fit on 2022–24, tested on 2024–26, on coin-flip markets only (Pinnacle no-vig 45–55%). Features:
+- shots on target for/against;
+- goals for/against;
+- rest days;
+- Pinnacle-vs-Bet365 divergence.
+
+**Result.** Log loss improved by at most 0.0007. On the same fixtures:
+
+| Market | Market-side hit | Stats-side hit | When stats flip the side, stats right |
+| --- | ---: | ---: | ---: |
+| O/U 2.5 dev / test | 52.4% / 52.4% | 52.6% / 52.3% | 51.7% / 49.4% |
+| AH main dev / test | 53.0% / 51.1% | 53.6% / 51.7% | 52.4% / 53.0% |
+
+These statistics do not break ties, so they are not used.
+
+**Alternative line.** When the balanced AH or O/U line is below 55%, the card shows an offered alternative line with a clear direction instead: confidence ≥ 60% and odds ≥ 1.40, choosing the highest odds that qualify. Example: Lazio +1.5 instead of a 54% Lazio +1. It is marked `display_status=alt_line` with `main_line_confidence`, and labelled "Line alternatif" on the card.
+
+Limits:
+- Tier hit rates were measured on 1X2 and main lines. Alternative lines rely on the same no-vig calibration but have no separate history yet.
+- Without a price edge, ROI stays about minus margin.
+- 1X2 and BTTS have no alternative lines. When they are coin flips they remain "Seimbang", and the AH alternative is the decision.

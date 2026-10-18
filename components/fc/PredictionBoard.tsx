@@ -140,10 +140,11 @@ function PredictionCard({ match, market, valueOnly, pickFilter, saved, lockedIds
               <small className="prediction-source" title="Kalibrasi dinilai per versi, sumber, dan market pada Kinerja Model.">
                 {pick.confidence_label ?? 'Sumber belum tercatat'}
               </small>
+              {pick.display_status === 'alt_line' && <small className="prediction-source prediction-note">Line utama 50/50{pick.main_line_confidence != null ? ` (${formatProb(pick.main_line_confidence)})` : ''}; dipilih line dengan arah jelas (≥60%).</small>}
               {key === 'ah' && pick.payout && <small className="prediction-source">{payoutBreakdown(pick.payout)}</small>}
               {ahNote && <small className="prediction-source prediction-note">{ahNote}</small>}
               {pick.confidence_source !== 'market' && pick.market_confidence != null && <small className="prediction-source">Pasar 1xbit {formatProb(pick.market_confidence)}{pick.confidence_source === 'sharp' && pick.model_confidence != null ? ` · Model ${formatProb(pick.model_confidence)}` : ''}</small>}
-              <span className={`prediction-tag ${isValue(pick) ? 'is-value' : ''} tier-${(pick.confidence_tier ?? '').toLowerCase()}`}>{isValue(pick) ? 'Kandidat value' : valueOnly ? 'Belum cukup yakin' : TIER_LABEL[pick.confidence_tier ?? ''] ?? 'Proyeksi'}</span>
+              <span className={`prediction-tag ${isValue(pick) ? 'is-value' : ''} tier-${(pick.confidence_tier ?? '').toLowerCase()}`}>{isValue(pick) ? 'Kandidat value' : valueOnly ? 'Belum cukup yakin' : pick.display_status === 'alt_line' ? `Line alternatif · ${TIER_LABEL[pick.confidence_tier ?? ''] ?? ''}` : TIER_LABEL[pick.confidence_tier ?? ''] ?? 'Proyeksi'}</span>
             </button> : <div className="prediction-no-market"><strong>—</strong><small>{match.analysis?.model_goals ? 'Tidak ada pick layak' : 'Menunggu data'}</small></div>}
           </div>;
         })}

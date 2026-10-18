@@ -38,6 +38,14 @@ DISPLAY_ORDER = ('1x2', 'ah', 'ou', 'btts')
 # 45-55% tier won 51.9%, ROI about -3%). Such markets are shown as balanced,
 # not as a pick, so two near-50/50 sides cannot read as opposing advice.
 MIN_LEAN_CONFIDENCE = 0.55
+# When the balanced AH/O-U line is a coin flip, show the offered alternative
+# line with a clear direction instead (e.g. Lazio +1.5 rather than Lazio +1):
+# confidence >= ALT_MIN_CONFIDENCE at odds >= ALT_MIN_ODDS, choosing the
+# highest odds that qualify. Tested and rejected as tie-breakers: rolling shots
+# on target, goals, rest days and Pinnacle-vs-Bet365 divergence; when they
+# disagreed with the market they were right 49-53% (walk-forward, 2024-26).
+ALT_MIN_CONFIDENCE = 0.60
+ALT_MIN_ODDS = 1.40
 
 
 def confidence_tier(probability):
@@ -79,6 +87,7 @@ def display_markets(opportunities):
             best[2]['display_status'] = 'value'
             shown.append(best)
             continue
+        all_rows = [row for row in opportunities if row[0] == market and row[2].get('confidence') is not None]
         if market in ('ah', 'ou'):
             lines = {_line_key(market, row[2]) for row in rows}
             main = min(lines, key=lambda line: (
@@ -86,7 +95,19 @@ def display_markets(opportunities):
                 abs(line), line))
             rows = [row for row in rows if _line_key(market, row[2]) == main]
         best = max(rows, key=lambda row: (row[2]['confidence'], row[2].get('ev', 0), row[1]))
-        best[2]['display_status'] = 'pick' if best[2]['confidence'] >= MIN_LEAN_CONFIDENCE else 'no_lean'
+        if best[2]['confidence'] >= MIN_LEAN_CONFIDENCE:
+            best[2]['display_status'] = 'pick'
+        else:
+            alternatives = [row for row in all_rows if market in ('ah', 'ou')
+                            and row[2]['confidence'] >= ALT_MIN_CONFIDENCE
+                            and float(row[2].get('odds') or 0) >= ALT_MIN_ODDS]
+            if alternatives:
+                alt = max(alternatives, key=lambda row: (float(row[2]['odds']), row[2]['confidence'], row[1]))
+                alt[2]['display_status'] = 'alt_line'
+                alt[2]['main_line_confidence'] = best[2]['confidence']
+                best = alt
+            else:
+                best[2]['display_status'] = 'no_lean'
         shown.append(best)
     return shown
 
@@ -138,6 +159,7 @@ def compact_options(opportunities):
         if market in ('ah', 'ou'):
             main = _main_line(market, rows)
             rows = [row for row in rows
-                    if _line_key(market, row[2]) == main or not row[2].get('gate_reasons')]
+                    if _line_key(market, row[2]) == main or not row[2].get('gate_reasons')
+                    or row[2].get('display_status') == 'alt_line']
         kept.extend(rows)
     return kept
