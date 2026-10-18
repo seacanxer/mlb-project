@@ -1,6 +1,6 @@
 # FC model performance report (projections ledger)
 
-Digenerate: 2026-10-18T11:40:44.694944+00:00 · Ledger: 15959 entri · Ter-grade: 4034 · Pending: 11925
+Digenerate: 2026-10-18T13:40:31.451614+00:00 · Ledger: 16107 entri · Ter-grade: 4205 · Pending: 11902
 
 > Kinerja MODEL, bukan ROI. Tanpa odds/stake/lock. ROI tetap hanya dari tracker.
 
@@ -8,33 +8,33 @@ Digenerate: 2026-10-18T11:40:44.694944+00:00 · Ledger: 15959 entri · Ter-grade
 
 | Market | N decisif | Hit rate | Mean pred | Brier | Cal gap | W / HW / HL / L / Push |
 |---|---:|---:|---:|---:|---:|---|
-| 1x2 | 998 | 0.5391 | 0.5263 | 0.2331 | 0.0128 | 538 / 0 / 0 / 460 / 0 |
-| ah | 976 | 0.5164 | 0.5037 | 0.242 | -0.0091 | 420 / 84 / 93 / 379 / 43 |
-| btts | 954 | 0.5346 | 0.5838 | 0.2502 | -0.0492 | 510 / 0 / 0 / 444 / 0 |
-| ou | 997 | 0.5015 | 0.4984 | 0.2485 | -0.028 | 426 / 74 / 39 / 458 / 66 |
-| **overall** | 3925 | 0.5228 | 0.5268 | 0.2435 | -0.0181 | 1894 / — / — / — / 109 |
+| 1x2 | 1042 | 0.5403 | 0.5264 | 0.2339 | 0.0139 | 563 / 0 / 0 / 479 / 0 |
+| ah | 1019 | 0.5113 | 0.5043 | 0.2424 | -0.0142 | 432 / 89 / 99 / 399 / 44 |
+| btts | 993 | 0.5317 | 0.5829 | 0.2502 | -0.0512 | 528 / 0 / 0 / 465 / 0 |
+| ou | 1039 | 0.5043 | 0.4975 | 0.2483 | -0.0241 | 449 / 75 / 41 / 474 / 68 |
+| **overall** | 4093 | 0.5219 | 0.5265 | 0.2437 | -0.0185 | 1972 / — / — / — / 112 |
 
 ## Detail pick terbaru (20 terakhir ter-grade)
 
 | Match | Market | Pick | Prob | Hasil |
 |---|---|---|---:|---|
-| Nomme Kalju U21 vs Elva | btts | BTTS Yes | 0.6784 | loss |
-| Nomme Kalju U21 vs Elva | ou | Over 3.5 | 0.5576 | loss |
-| Nomme Kalju U21 vs Elva | ah | AH Away -1 | 0.4073 | loss |
-| Nomme Kalju U21 vs Elva | 1x2 | Away | 0.6073 | loss |
-| Gran Pena vs Celtiga | btts | BTTS Yes | 0.5466 | win |
-| Gran Pena vs Celtiga | ou | Under 2.5 | 0.4655 | loss |
-| Gran Pena vs Celtiga | ah | AH Home -0.25 | 0.4385 | loss |
-| Gran Pena vs Celtiga | 1x2 | Home | 0.4396 | loss |
-| Midtjylland (Women) vs Nordsjaelland (Women) | ou | Over 3.25 | 0.5146 | loss |
-| Midtjylland (Women) vs Nordsjaelland (Women) | ah | AH Home +1.25 | 0.5588 | win |
-| Midtjylland (Women) vs Nordsjaelland (Women) | 1x2 | Away | 0.6536 | loss |
-| Shan United vs Hang Yuen | btts | BTTS Yes | 0.6492 | win |
-| Shan United vs Hang Yuen | ou | Over 3 | 0.4473 | loss |
-| Shan United vs Hang Yuen | ah | AH Home -0.25 | 0.4446 | half_loss |
-| Shan United vs Hang Yuen | 1x2 | Home | 0.4452 | loss |
-| Lokomotyv Kyiv vs Nyva Ternopil | btts | BTTS No | 0.4954 | win |
-| Lokomotyv Kyiv vs Nyva Ternopil | ou | Over 2.25 | 0.479 | loss |
-| Lokomotyv Kyiv vs Nyva Ternopil | ah | AH Home -0.25 | 0.4623 | half_loss |
-| Lokomotyv Kyiv vs Nyva Ternopil | 1x2 | Home | 0.4622 | loss |
-| Furstenfeld vs UFC Fehring | btts | BTTS Yes | 0.6852 | win |
+| Berane vs Lovcen | btts | BTTS Yes | 0.5405 | loss |
+| Berane vs Lovcen | ou | Under 2.5 | 0.479 | loss |
+| Berane vs Lovcen | ah | AH Home +1 | 0.5153 | loss |
+| Berane vs Lovcen | 1x2 | Away | 0.478 | win |
+| Dynamo Dresden vs 1. Magdeburg | btts | BTTS Yes | 0.6675 | loss |
+| Dynamo Dresden vs 1. Magdeburg | ou | Over 3 | 0.464 | loss |
+| Dynamo Dresden vs 1. Magdeburg | ah | AH Home +0.25 | 0.6113 | win |
+| Dynamo Dresden vs 1. Magdeburg | 1x2 | Away | 0.3922 | loss |
+| Xiamen Feilu vs Qingdao Red Lions | btts | BTTS No | 0.5275 | win |
+| Xiamen Feilu vs Qingdao Red Lions | ou | Over 2 | 0.4486 | win |
+| Xiamen Feilu vs Qingdao Red Lions | ah | AH Home -0.25 | 0.4694 | win |
+| Xiamen Feilu vs Qingdao Red Lions | 1x2 | Home | 0.4723 | win |
+| Chiangrai United vs Ratchaburi | btts | BTTS Yes | 0.5449 | win |
+| Chiangrai United vs Ratchaburi | ou | Over 2.25 | 0.5299 | win |
+| Chiangrai United vs Ratchaburi | ah | AH Home +0.25 | 0.5851 | loss |
+| Chiangrai United vs Ratchaburi | 1x2 | Away | 0.4157 | win |
+| Arminia Bielefeld vs VfL Osnabruck | btts | BTTS Yes | 0.6175 | win |
+| Arminia Bielefeld vs VfL Osnabruck | ou | Under 3 | 0.3457 | push |
+| Arminia Bielefeld vs VfL Osnabruck | ah | AH Away +0.75 | 0.4559 | half_loss |
+| Arminia Bielefeld vs VfL Osnabruck | 1x2 | Home | 0.5441 | win |
