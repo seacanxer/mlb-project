@@ -20,21 +20,29 @@ export function quantFreshnessReasons(pick: ForecastPick, now = Date.now() / 100
 }
 
 export function isActionable(pick: ForecastPick, now = Date.now() / 1000): boolean {
-  return pick.quant?.status === 'value' && pick.quant.reason_codes.length === 0 &&
-    Number.isFinite(pick.quant.ev) && pick.quant.ev > 0 &&
+  const q = pick.quant;
+  // The scan writes a quant stub (schema_version/status/decision_source only) on
+  // non-value rows, so reason_codes/ev may be absent — a stub can never be actionable.
+  const codes = q?.reason_codes ?? [];
+  if (!q || q.status !== 'value' || codes.length > 0) return false;
+  return Number.isFinite(q.ev) && (q.ev as number) > 0 &&
     Number.isFinite(pick.ev) && (pick.ev ?? 0) > 0 && quantFreshnessReasons(pick, now).length === 0;
 }
 
 export function refreshQuant<T extends ForecastPick>(pick: T, now = Date.now() / 1000): T {
-  if (!pick.quant) return pick;
+  const q = pick.quant;
+  if (!q) return pick;
   const reasons = quantFreshnessReasons(pick, now);
   if (!reasons.length) return pick;
+  // Stub rows (non-value, written by the compact scan) carry no reason_codes/ev/kelly.
+  const codes = q.reason_codes ?? [];
+  const kelly = q.kelly;
   return { ...pick, is_value: false, analysis_status: 'forecast', is_top_pick: false,
     selection_status: 'watch', tier: 'watch', decision: 'watch', kelly_pct: 0, suggested_stake: 0,
     gate_reasons: [...new Set([...(pick.gate_reasons ?? []), ...reasons])],
-    quant: { ...pick.quant, status: pick.quant.ev <= 0 ? 'pass' : 'forecast',
-      reason_codes: [...new Set([...pick.quant.reason_codes, ...reasons])],
-      kelly: { ...pick.quant.kelly, recommended_fraction: 0,
-        recommended_units: pick.quant.kelly.bankroll_units == null ? null : 0,
-        reason_codes: [...new Set([...pick.quant.kelly.reason_codes, ...reasons])] } } };
+    quant: { ...q, status: (q.ev ?? 0) <= 0 ? 'pass' : 'forecast',
+      reason_codes: [...new Set([...codes, ...reasons])],
+      kelly: kelly ? { ...kelly, recommended_fraction: 0,
+        recommended_units: kelly.bankroll_units == null ? null : 0,
+        reason_codes: [...new Set([...kelly.reason_codes, ...reasons])] } : kelly } };
 }

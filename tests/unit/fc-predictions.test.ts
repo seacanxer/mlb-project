@@ -50,6 +50,6 @@ describe('FC predictions use available evidence', () => {
     expect(body.matches[1].projections).toEqual([]);
     expect(body.matches[1].analysis.model_goals).toBeUndefined();
     expect(body.official_enabled).toBe(false);
-    expect(body.ui_version).toBe('fc-market-board-v2');
+    expect(body.ui_version).toBe('fc-market-board-v3');
   });
 });

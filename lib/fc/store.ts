@@ -40,17 +40,19 @@ let matchesCache: { key: string; rows: Array<Record<string, unknown>> } | null =
 
 function readMatchesArtifact(): Array<Record<string, unknown>> {
   const file = path.join(process.cwd(), 'betting-machine-fc', 'matches_detailed.json');
-  let key = 'missing';
+  // statSync can be unavailable under test fixtures that only stub readFileSync:
+  // fall back to an uncached read instead of pretending the file is missing.
+  let key: string | null = null;
   try {
     const st = fs.statSync(file);
     key = `${st.mtimeMs}:${st.size}`;
   } catch {
-    return [];
+    key = null;
   }
-  if (matchesCache && matchesCache.key === key) return matchesCache.rows;
+  if (key && matchesCache && matchesCache.key === key) return matchesCache.rows;
   try {
     const rows = parseJson<Array<Record<string, unknown>>>(fs.readFileSync(file, 'utf-8'), []);
-    matchesCache = { key, rows };
+    if (key) matchesCache = { key, rows };
     return rows;
   } catch {
     return [];

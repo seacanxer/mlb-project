@@ -61,7 +61,7 @@ test('all FC entry points use the new board and empty fixtures remain honest', a
   for (const [path, title] of [['/fc', 'Value Picks'], ['/fc/analyzer', 'Analisis Pasar'], ['/fc/schedule', 'Prediksi Pertandingan']]) {
     await page.goto(path);
     await expect(page.getByRole('heading', { name: title, exact: true })).toBeVisible();
-    await expect(page.locator('[data-ui-version="fc-market-board-v2"]')).toBeVisible();
+    await expect(page.locator('[data-ui-version="fc-market-board-v3"]')).toBeVisible();
     await expect(page.locator('.prediction-card')).toHaveCount(0);
     await expect(page.locator('.fc-navigation .active')).toHaveCount(1);
   }

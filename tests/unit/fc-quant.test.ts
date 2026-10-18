@@ -42,4 +42,16 @@ describe('FC recommendations expire independently of static scanner files', () =
     expect(isValue({ ...pick, quant: undefined, ev: -.01, analysis_status: 'value_candidate' })).toBe(false);
     expect(isValue({ ...pick, quant: undefined, ev: .1, analysis_status: 'value_candidate' })).toBe(false);
   });
+  it('survives the compact scan quant stub (no reason_codes/ev/kelly)', () => {
+    const stub = { ...pick, quant: { schema_version: 'fc-quant-v1', status: 'forecast',
+      decision_source: 'model' } as unknown as ForecastPick['quant'] };
+    expect(isActionable(stub, now)).toBe(false);
+    const refreshed = refreshQuant(stub, now + 400);
+    expect(refreshed.quant!.reason_codes).toContain('QUOTE_EXPIRED');
+    expect(refreshed.gate_reasons).toContain('QUOTE_EXPIRED');
+    expect(refreshed.kelly_pct).toBe(0);
+    const stubNoCapture = { ...stub, quote_captured_at: undefined, quant: undefined };
+    expect(() => refreshQuant({ ...stubNoCapture, quant: { schema_version: 'fc-quant-v1',
+      status: 'pass', decision_source: 'model' } as unknown as ForecastPick['quant'] }, now)).not.toThrow();
+  });
 });
